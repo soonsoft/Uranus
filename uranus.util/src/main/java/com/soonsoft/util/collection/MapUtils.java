@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * MapUtils
  */
-public class MapUtils {
+public final class MapUtils {
 
     /**
      * The default initial capacity of HashMap - MUST be a power of two.
