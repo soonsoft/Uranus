@@ -33,7 +33,7 @@
         <postgresql-version>42.2.2</postgresql-version>
         <druid-version>1.1.9</druid-version>
         <mybatis-spring-boot-version>2.0.1</mybatis-spring-boot-version>
-        <jackson-version>2.9.4</jackson-version>
+        <jackson-version>2.9.9</jackson-version>
         <spring-version>5.1.5.RELEASE</spring-version>
         <spring-security-version>5.1.4.RELEASE</spring-security-version>
         <servlet-api-version>4.0.1</servlet-api-version>
