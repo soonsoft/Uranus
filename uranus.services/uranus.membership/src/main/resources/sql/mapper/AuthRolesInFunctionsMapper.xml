@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="membership.auth_roles_in_functions">
+
+  <resultMap id="authRoleIdAndFunctionIdMap" type="authRoleIdAndFunctionId">
+    <result column="role_id" property="roleId" jdbcType="VARCHAR" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="function_id" property="functionId" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <insert id="insert" parameterType="authRoleIdAndFunctionId">
+    INSERT INTO auth_roles_in_functions(role_id, function_id)
+      VALUES (
+        #{roleId}::uuid,
+        #{functionId}::uuid
+      )
+  </insert>
+
+  <delete id="deleteByRoleId" parameterType="java.lang.String">
+    DELETE FROM auth_roles_in_functions
+      WHERE role_id = #{roleId}::uuid
+  </delete>
+
+  <delete id="deleteByFunctionId" parameterType="java.lang.String">
+      DELETE FROM auth_roles_in_functions
+        WHERE function_id = #{functionId}::uuid
+    </delete>
+
+  <select id="selectByFunctions" parameterType="java.util.Map" resultMap="authRoleIdAndFunctionIdMap">
+    SELECT 
+        r.role_id, r.role_name, r.description, r.status, t.function_id
+      FROM auth_roles_in_functions t
+      INNER JOIN auth_role r ON t.role_id = r.role_id 
+        <trim prefix="and">
+          <if test="status != null">
+              r.status = #{status, jdbcType=INTEGER}
+          </if>
+        </trim>
+      WHERE t.function_id IN
+        <foreach collection="functions" item="functionId" index="index" open="(" separator="," close=")">
+          #{functionId}::uuid
+        </foreach>
+  </select>
+
+  <select id="selectByRoles" parameterType="java.util.Map" resultMap="authRoleIdAndFunctionIdMap">
+    SELECT 
+        t.role_id, t.function_id
+      FROM auth_roles_in_functions t
+      INNER JOIN auth_role r ON t.role_id = r.role_id 
+        <trim prefix="and">
+          <if test="status != null">
+              r.status = #{status, jdbcType=INTEGER}
+          </if>
+        </trim>
+      WHERE t.role_id IN
+        <foreach collection="roles" item="roleId" index="index" open="(" separator="," close=")">
+          #{roleId}::uuid
+        </foreach>
+  </select>
+
+</mapper>

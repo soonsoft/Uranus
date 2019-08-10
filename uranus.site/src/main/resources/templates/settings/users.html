@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="shared/layout::layout_head(~{::title/text()},~{::link},~{::style})">
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <link />
+    <style type="text/css">
+        .ui-form input[type=text],
+        .ui-form textarea {
+            width: 238px;
+        }
+
+        .role-list {
+            width: 236px;
+            height: auto;
+            min-height: 32px;
+        }
+
+        .ui-tag {
+            margin: 10px 10px 0 0;
+            display: inline-block;
+            width: auto;
+            height: 24px;
+            line-height: 20px;
+            text-align: center;
+            padding: 0 10px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+
+<body th:replace="shared/layout::layout_body(~{::#contains},~{::script})">
+    <div id="contains" class="content-container">
+        <div id="toolbar" class="toolbar clear">
+            <ul class="tools">
+                <li class="tool-item">
+                    <div id="filter" style="margin-top:8px;"></div>
+                </li>
+            </ul>
+            <ul class="tools" style="float:right">
+                <li class="tool-item action-buttons">
+                    <a id="refresh" class="tool-action-button" href="javascript:" title="添加">
+                        <i class="fa fa-refresh"></i>
+                    </a>
+                    <a id="addItem" class="tool-action-button" href="javascript:" title="添加">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="contentPanel" style="position:relative;width:100%;height:auto;overflow:hidden;">
+            <div id="gridview"></div>
+            <div id="sidePanel">
+                <form id="userForm" class="ui-form" style="width:240px;">
+                    <label>用户名</label><span class="required">*</span>
+                    <br />
+                    <input id="userName" name="userName" type="text" disabled="disabled" />
+                    <br />
+                    <label>姓名</label><span class="required">*</span>
+                    <br />
+                    <input id="nickName" name="nickName" type="text" />
+                    <br />
+                    <label>电话号码</label>
+                    <br />
+                    <input id="cellPhone" name="cellPhone" type="text" />
+                    <br />
+                    <label>有效性</label>
+                    <br />
+                    <input id="status" name="status" type="checkbox" checked="checked" />
+                    <label for="status" class="ui-switch-text">有效</label>
+                    <br /><br />
+                    <button id="selectRoles" class="tool-button" style="width:90px" onclick="return false">
+                        <i class="fa fa-plus-circle"></i>&nbsp;关联角色
+                    </button>
+                    <div id="roleList" class="role-list"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/script/vender/jquery.validate.min.js}"></script>
+    <script th:src="@{/script/vender/jquery.validate.extend.js}"></script>
+    <script>
+        ;(function(ui) {
+            ui.page.init({
+                toolbar: "toolbar",
+                created: function() {
+                    this.filterButton = createFilterButton();
+                    this.userGrid = createUserGrid();
+                    this.sidePanel = createSidePanel();
+
+                    $("#refresh").click(function(e) {
+                        query();
+                    });
+                    $("#addItem").click((function(e) {
+                        this.sidePanel.onAdd();
+                        this.userGrid.cancelSelection();
+                    }).bind(this));
+                },
+                layout: function() {
+                    this.userGrid.setSize(
+                        this.contentBodyHeight - this.toolbar.height);
+                },
+                load: function() {
+                    return Promise.all([
+                        // 加载表格数据
+                        query(),
+                        // 加载角色数据
+                        loadRoles()
+                    ]);
+                }
+            });
+
+            function createFilterButton() {
+                var filter = $("#filter").filterButton({
+                    viewData: [
+                        { text: "有效", value: 1, selected: true },
+                        { text: "禁用", value: 0 }
+                    ]
+                });
+                filter.selected(function(e) {
+                    query();
+                });
+
+                return filter;
+            }
+
+            function createUserGrid() {
+                var gridView;
+
+                function statusFormatter(value) {
+                    var tag = null;
+                    if(value === 1) {
+                        tag = $("<span class='state-text state-true' />").text("有效");
+                    } else {
+                        tag = $("<span class='state-text state-false' />").text("禁用");
+                    }
+                    return tag;
+                }
+
+                function rolesFormatter(value) {
+                    var p = ui.ColumnStyle.cfn.paragraph("");
+                    if(Array.isArray(value)) {
+                        value.forEach(function(i) {
+                            var tag = $("<span class='state-text' style='margin-right:5px'>");
+                            tag.text(i.roleName);
+                            tag.addClass("title-color").addClass("border-highlight");
+                            p.append(tag);
+                        });
+                    } else {
+                        p.text(value);
+                    }
+                    return p;
+                }
+
+                gridView = $("#gridview").gridView({
+                    columns: [
+                        { text: "", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
+                        { text: "用户名", column: "userName", len: 160 },
+                        { text: "姓名", column: "nickName", len: 160 },
+                        { text: "电话号码", column: "cellPhone", len: 120, align: "center", formatter: ui.ColumnStyle.cfn.cellPhone },
+                        { text: "关联角色", column: "roles", len: 320, align: "center", formatter: rolesFormatter },
+                        { text: "状态", column: "status", len: 60, align: "center", formatter: statusFormatter },
+                        { text: "创建时间", column: "createTime", len: 160, align: "center", formatter: ui.ColumnStyle.cfn.datetime },
+                        { formatter: ui.ColumnStyle.empty }
+                    ],
+                    pager: {
+                        pageIndex: 1,
+                        pageSize: 30,
+                        showPageInfo: true
+                    }
+                });
+
+                gridView.selected(function(e, eventData) {
+                    ui.page.sidePanel.onUpdate(eventData.rowData);
+                });
+                gridView.deselected(function(e, eventData) {
+                    ui.page.sidePanel.hide();
+                });
+
+                return gridView;
+            }
+
+            function createSidePanel() {
+                var saveButton = $("<button class='button background-highlight' style='margin-right:10px;'>保存</button>"),
+                    cancelButton = $("<button class='button' style='margin-right:10px;'>取消</button>");
+                var sidePanel = ui.ctrls.OptionBox({
+                    parent: "contentPanel",
+                    title: "创建用户",
+                    width: 260,
+                    hasCloseButton: false,
+                    buttons: [saveButton, cancelButton]
+                }, $("#sidePanel"));
+                var userValidator = $("#userForm").setValidate({
+                    rules: {
+                        userName: { required: true, maxlength: 100 },
+                        nickName: { required: true, maxlength: 200 },
+                        cellPhone: { maxlength: 20 }
+                    }
+                });
+
+                saveButton.click(function(e) {
+                    if(!userValidator.form()) {
+                        return;
+                    }
+                    save(saveButton, sidePanel.getFormData());
+                });
+                cancelButton.click(function(e) {
+                    sidePanel.hide();
+                    ui.page.userGrid.cancelSelection();
+                });
+
+                var switchStatus = $("#status").switchButton();
+                switchStatus.changed(function() {
+                    if(this.checked) {
+                        this.switchBox.next().text("有效");
+                    } else {
+                        this.switchBox.next().text("禁用");
+                    }
+                });
+
+                function updateRoleTags(roles) {
+                    roleListPanel.empty();
+                    roles.forEach(function(r) {
+                        var tag = $("<span class='ui-tag' style='margin-right:5px'>");
+                        tag.text(r.roleName);
+                        tag.addClass("title-color").addClass("border-highlight");
+                        roleListPanel.append(tag);
+                    });
+                }
+                var roleList = $("#selectRoles").selectionList({
+                        valueField: "roleId",
+                        textField: "roleName",
+                        width: 240,
+                        multiple: true
+                    }),
+                    roleListPanel = $("#roleList");
+                roleList.changed(function(e, eventData) {
+                    updateRoleTags(this.getSelection());
+                });
+                roleList.cancel(function() {
+                    roleListPanel.empty();
+                });
+                sidePanel.roleList = roleList;
+
+                sidePanel.onAdd = function() {
+                    this.$isUpdate = false;
+                    this.resetForm();
+                    this.setTitle("创建用户");
+                    this.show();
+                };
+                sidePanel.onUpdate = function(data) {
+                    this.$isUpdate = true;
+                    this.fillForm(data);
+                    this.setTitle("编辑用户");
+                    this.show();
+                };
+                sidePanel.resetForm = function() {
+                    $("#userForm").get(0).reset();
+                    $("#userName").removeAttr("disabled");
+                    userValidator.clear();
+                    switchStatus.checked = true;
+                    roleList.cancelSelection();
+                };
+                sidePanel.fillForm = function(data) {
+                    $("#userName").val(data.userName).attr("disabled", "disabled");
+                    $("#nickName").val(data.nickName);
+                    $("#cellPhone").val(data.cellPhone);
+                    switchStatus.checked = data.status === 1;
+                    var roles = data.roles;
+                    if(!roles) {
+                        roles = [];
+                    } else {
+                        roles = roles.map(function(i) {
+                            return i.roleId;
+                        });
+                    }
+                    if(roles.length > 0) {
+                        roleList.setSelection(roles);
+                        updateRoleTags(data.roles);
+                    }
+                };
+                sidePanel.getFormData = function() {
+                    var data = {
+                            userName: $("#userName").val() || null,
+                            nickName: $("#nickName").val() || null,
+                            cellPhone: $("#cellPhone").val() || null,
+                            status: switchStatus.checked ? 1 : 0,
+                            roles: []
+                        },
+                        roles = roleList.getSelection(),
+                        row;
+                    if(this.$isUpdate) {
+                        row = ui.page.userGrid.getSelection();
+                        if(row) {
+                            data.userId = row.rowData.userId;
+                        }
+                    }
+                    roles.forEach(function(r) {
+                        data.roles.push(r.roleId);
+                    });
+                    return data;
+                };
+
+                return sidePanel;
+            }
+
+            function loadRoles() {
+                var roleList = ui.page.sidePanel.roleList;
+                return ui.ajax.postJson(
+                    "/settings/roles/query",
+                    {
+                        pageIndex: 1,
+                        pageSize: 500
+                    },
+                    function(result) {
+                        if(!result.data || result.data.length === 0) {
+                            return;
+                        }
+                        roleList.setViewData(result.data);
+                    },
+                    function(e) {
+                        ui.errorShow("加载角色发生错误。");
+                    }
+                );
+            }
+
+            function query(pageIndex) {
+                var grid = ui.page.userGrid;
+                return ui.ajax.postJson(
+                    "/settings/users/query",
+                    {
+                        status: ui.page.filterButton.getSelection().itemData.value,
+                        pageIndex: pageIndex || 1,
+                        pageSize: grid.pageSize
+                    },
+                    function(jsonResult) {
+                        if(!jsonResult || !jsonResult.data) {
+                            grid.empty();
+                            return;
+                        }
+                        grid.createBody(jsonResult.data, jsonResult.total);
+                    },
+                    function(e) {
+                        ui.errorShow("查询用户信息发生错误。");
+                    }
+                );
+            }
+
+            function save(btn, data) {
+                ui.ajax.postOnce(btn, "/settings/users/save", data,
+                    function(result) {
+                        ui.page.sidePanel
+                            .hide()
+                            .then(function() {
+                                ui.page.userGrid.cancelSelection();
+                                query();
+                            });
+                    },
+                    function(e) {
+                        ui.errorShow(e.message || "保存用户信息时出现错误。");
+                    }
+                );
+            }
+        })(window.ui);
+    </script>
+</body>
+</html>

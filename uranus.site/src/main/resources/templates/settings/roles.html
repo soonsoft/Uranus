@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="shared/layout::layout_head(~{::title/text()},~{::link},~{::style})">
+    <meta charset="UTF-8">
+    <title>角色管理</title>
+    <link />
+    <style type="text/css">
+        .ui-form input[type=text],
+        .ui-form textarea {
+            width: 238px;
+        }
+
+        .menu-tree {
+            border-width: 1px;
+            border-style: solid;
+            width: 236px;
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body th:replace="shared/layout::layout_body(~{::#contains},~{::script})">
+    <div id="contains" class="content-container">
+        <div id="toolbar" class="toolbar clear">
+            <ul class="tools">
+                <li class="tool-item">
+                    <div id="filter" style="margin-top:8px;"></div>
+                </li>
+            </ul>
+            <ul class="tools" style="float:right">
+                <li class="tool-item action-buttons">
+                    <a id="refresh" class="tool-action-button" href="javascript:" title="添加">
+                        <i class="fa fa-refresh"></i>
+                    </a>
+                    <a id="addItem" class="tool-action-button" href="javascript:" title="添加">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="contentPanel" style="position:relative;width:100%;height:auto;overflow:hidden;">
+            <div id="gridview"></div>
+            <div id="sidePanel">
+                <form id="roleForm" class="ui-form" style="width:240px;">
+                    <label>角色名称</label><span class="required">*</span>
+                    <br />
+                    <input id="roleName" name="roleName" type="text" />
+                    <br />
+                    <label>有效性</label>
+                    <br />
+                    <input id="status" name="status" type="checkbox" checked="checked" />
+                    <label for="status" class="ui-switch-text">有效</label>
+                    <br />
+                    <label>关联菜单</label>
+                    <div id="menuTree" class="menu-tree theme-border3"></div>
+                    <label>描述</label>
+                    <br />
+                    <textarea id="description" name="description" style="height:80px;"></textarea>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/script/vender/jquery.validate.min.js}"></script>
+    <script th:src="@{/script/vender/jquery.validate.extend.js}"></script>
+    <script>
+        ;(function(ui) {
+            ui.page.init({
+                toolbar: "toolbar",
+                created: function() {
+                    this.filterButton = createFilterButton();
+                    this.sidePanel = createSidePanel();
+                    this.roleGrid = createRoleGrid();
+
+                    $("#refresh").click(function(e) {
+                        query();
+                    });
+                    $("#addItem").click((function(e) {
+                        this.sidePanel.onAdd();
+                        this.roleGrid.cancelSelection();
+                    }).bind(this));
+                },
+                layout: function() {
+                    this.roleGrid.setSize(
+                        this.contentBodyHeight - this.toolbar.height);
+                },
+                load: function() {
+                    return Promise.all([
+                        query(), loadMenus()
+                    ]);
+                }
+            });
+
+            function createRoleGrid() {
+                var gridView;
+
+                function statusFormatter(value) {
+                    var tag = null;
+                    if(value === 1) {
+                        tag = $("<span class='state-text state-true' />").text("有效");
+                    } else {
+                        tag = $("<span class='state-text state-false' />").text("禁用");
+                    }
+                    return tag;
+                }
+
+                gridView = $("#gridview").gridView({
+                    columns: [
+                        { text: "", align: "right", len: 40, formatter: ui.ColumnStyle.cfn.rowNumber },
+                        { text: "角色名称", column: "roleName", len: 240 },
+                        { text: "状态", column: "status", len: 60, align: "center", formatter: statusFormatter },
+                        { text: "备注说明", column: "description", len: 420 },
+                        { formatter: ui.ColumnStyle.empty }
+                    ],
+                    pager: {
+                        pageIndex: 1,
+                        pageSize: 30,
+                        showPageInfo: true
+                    }
+                });
+
+                gridView.selected(function(e, eventData) {
+                    ui.page.sidePanel.onUpdate(eventData.rowData);
+                });
+                gridView.deselected(function(e, eventData) {
+                    ui.page.sidePanel.hide();
+                });
+
+                return gridView;
+            }
+
+            function createFilterButton() {
+                var filter = $("#filter").filterButton({
+                    viewData: [
+                        { text: "有效", value: 1, selected: true },
+                        { text: "禁用", value: 0 }
+                    ]
+                });
+                filter.selected(function(e) {
+                    query();
+                });
+
+                return filter;
+            }
+
+            function createSidePanel() {
+                var saveButton = $("<button class='button background-highlight' style='margin-right:10px;'>保存</button>"),
+                    cancelButton = $("<button class='button' style='margin-right:10px;'>取消</button>");
+                var sidePanel = ui.ctrls.OptionBox({
+                    parent: "contentPanel",
+                    title: "创建角色",
+                    width: 260,
+                    hasCloseButton: false,
+                    buttons: [saveButton, cancelButton]
+                }, $("#sidePanel"));
+                var roleValidator = $("#roleForm").setValidate({
+                    rules: {
+                        roleName: { required: true, maxlength: 100 },
+                        description: { maxlength: 200 }
+                    }
+                });
+
+                saveButton.click(function(e) {
+                    if(!roleValidator.form()) {
+                        return;
+                    }
+                    save(saveButton, sidePanel.getFormData());
+                });
+                cancelButton.click(function(e) {
+                    sidePanel.hide();
+                    ui.page.roleGrid.cancelSelection();
+                });
+
+                var switchStatus = $("#status").switchButton();
+                switchStatus.changed(function() {
+                    if(this.checked) {
+                        this.switchBox.next().text("有效");
+                    } else {
+                        this.switchBox.next().text("禁用");
+                    }
+                });
+
+                var menuTree = $("#menuTree").treeView({
+                    valueField: "functionId",
+                    textField: "functionName",
+                    parentField: "parentId",
+                    defaultExpandLevel: true,
+                    nodeSelectable: true,
+                    multiple: true
+                });
+                menuTree.changed(function(e, eventData) {
+                    // 如果选中的是父节点，则把下面的子节点都选中
+                    if (eventData.isNode) {
+                        this.selectChildNode(eventData.element, eventData.isSelection);
+                    }
+                    // 如果选中的是不是根节点，则把上面的父节点都选中
+                    if (!eventData.isRoot) {
+                        this.selectParentNode(eventData.element, eventData.isSelection);
+                    }
+                });
+                sidePanel.menuTree = menuTree;
+
+                sidePanel.onAdd = function() {
+                    this.$isUpdate = false;
+                    this.resetForm();
+                    this.setTitle("创建角色");
+                    this.show();
+                };
+                sidePanel.onUpdate = function(data) {
+                    this.$isUpdate = true;
+                    this.fillForm(data);
+                    this.setTitle("编辑角色");
+                    this.show();
+                };
+                sidePanel.resetForm = function() {
+                    $("#roleForm").get(0).reset();
+                    roleValidator.clear();
+                    switchStatus.checked = true;
+                    menuTree.cancelSelection();
+                };
+                sidePanel.fillForm = function(data) {
+                    $("#roleName").val(data.roleName);
+                    switchStatus.checked = data.status === 1;
+                    $("#description").val(data.description);
+                    menuTree.setSelection(data.menus);
+                };
+                sidePanel.getFormData = function() {
+                    var data = {
+                            roleName: $("#roleName").val() || null,
+                            status: switchStatus.checked ? 1 : 0,
+                            description: $("#description").val() || null,
+                            menus: []
+                        },
+                        menus = menuTree.getSelection(),
+                        row;
+                    if(this.$isUpdate) {
+                        row = ui.page.roleGrid.getSelection();
+                        if(row) {
+                            data.roleId = row.rowData.roleId;
+                        }
+                    }
+                    menus.forEach(function(m) {
+                        data.menus.push(m.functionId);
+                    });
+                    return data;
+                };
+
+                return sidePanel;
+            }
+
+            function loadMenus() {
+                var menuTree = ui.page.sidePanel.menuTree;
+                return ui.ajax.postJson(
+                    "/settings/menus/query",
+                    function(data) {
+                        if(!data || data.length === 0) {
+                            return;
+                        }
+                        menuTree.setViewData(data);
+                    },
+                    function(e) {
+                        ui.errorShow("加载菜单发生错误。");
+                    }
+                );
+            }
+
+            function query(pageIndex) {
+                var grid = ui.page.roleGrid;
+                return ui.ajax.postJson(
+                    "/settings/roles/query",
+                    {
+                        status: ui.page.filterButton.getSelection().itemData.value,
+                        pageIndex: pageIndex || 1,
+                        pageSize: grid.pageSize
+                    },
+                    function(jsonResult) {
+                        if(!jsonResult || !jsonResult.data) {
+                            grid.empty();
+                            return;
+                        }
+                        grid.createBody(jsonResult.data, jsonResult.total);
+                    },
+                    function(e) {
+                        ui.errorShow("查询角色信息发生错误。");
+                    }
+                );
+            }
+
+            function save(btn, data) {
+                ui.ajax.postOnce(
+                    btn, "/settings/roles/save", data, 
+                    function(result) {
+                        ui.page.sidePanel
+                            .hide()
+                            .then(function() {
+                                ui.page.roleGrid.cancelSelection();
+                                query();
+                            });
+                    },
+                    function(e) {
+                        ui.errorShow(e.message || "保存角色信息时出现错误。");
+                    }
+                );
+            }
+        })(window.ui);
+    </script>
+</body>
+</html>

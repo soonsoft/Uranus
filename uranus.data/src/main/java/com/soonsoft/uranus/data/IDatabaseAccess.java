@@ -1,0 +1,34 @@
+package com.soonsoft.uranus.data;
+
+import java.util.List;
+import java.util.Map;
+
+import com.soonsoft.uranus.data.entity.Page;
+
+/**
+ * IDatabaseAccess
+ */
+public interface IDatabaseAccess {
+
+    int insert(String commandText);
+
+    int insert(String commandText, Object parameter);
+
+    int update(String commandText);
+
+    int update(String commandText, Object parameter);
+
+    int delete(String commandText);
+
+    int delete(String commandText, Object parameter);
+
+    <T> T get(String commandText);
+
+    <T> T get(String commandText, Object parameter);
+
+    <T> List<T> select(String commandText);
+
+    <T> List<T> select(String commandText, Map<String, Object> params);
+
+    <T> List<T> select(String commandText, Map<String, Object> params, Page page);
+}

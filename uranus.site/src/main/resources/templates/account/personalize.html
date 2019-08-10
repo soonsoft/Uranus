@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="shared/layout::layout_head(~{::title/text()},~{::link},~{::style})">
+    <meta charset="UTF-8">
+    <title>个性化</title>
+    <link />
+    <style type="text/css">
+    </style>
+</head>
+
+<body th:replace="shared/layout::layout_body(~{::#contains},~{::script})">
+    <div id="contains" class="content-container">
+        <h1>个性化设置</h1>
+    </div>
+    <script>
+        ;(function(ui) {
+            ui.page.init({
+                menu: false,
+                homeButton: function(button) {
+                    button
+                        .prop("href", "/")
+                        .css({
+                            "line-height": "48px",
+                            "text-align": "center"
+                        })
+                        .append("<i class='fa fa-angle-left' style='font-size:24px;color:#fff;' />");
+                },
+                created: function() {
+
+                },
+                layout: function() {
+
+                }
+            });
+        })(window.ui);
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="membership.sys_menu">
+
+  <resultMap id="sysMenuMap" type="sysMenu">
+    <id column="function_id" property="functionId" jdbcType="VARCHAR" />
+    <result column="function_name" property="functionName" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="sort_value" property="sortValue" jdbcType="INTEGER" />
+    <result column="menu_key" property="menuKey" jdbcType="VARCHAR" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="background" property="background" jdbcType="VARCHAR" />
+    <result column="theme_info" property="themeInfo" jdbcType="VARCHAR" />
+    <result column="tile_style" property="tileStyle" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <insert id="insertFunction" parameterType="sysMenu">
+    INSERT INTO sys_function(function_id, function_name, parent_id, description, type, status, sort_value)
+      VALUES (
+        #{functionId}::uuid,
+        #{functionName, jdbcType=VARCHAR},
+        #{parentId}::uuid,
+        #{description, jdbcType=VARCHAR},
+        #{type, jdbcType=VARCHAR},
+        #{status, jdbcType=INTEGER},
+        #{sortValue, jdbcType=INTEGER}
+      )
+  </insert>
+
+  <insert id="insertMenu" parameterType="sysMenu">
+    INSERT INTO sys_menu(function_id, menu_key, url, icon, background, theme_info, tile_style)
+      VALUES (
+        #{functionId}::uuid,
+        #{menuKey, jdbcType=VARCHAR},
+        #{url, jdbcType=VARCHAR},
+        #{icon, jdbcType=VARCHAR},
+        #{background, jdbcType=VARCHAR},
+        #{themeInfo, jdbcType=VARCHAR},
+        #{tileStyle, jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <update id="updateFunction" parameterType="sysMenu">
+    UPDATE sys_function
+      <trim prefix="set" suffixOverrides=",">
+        <if test="functionName != null and functionName != ''">function_name = #{functionName, jdbcType=VARCHAR},</if>
+        <if test="parentId != null and parentId != ''">parent_id = #{parentId, jdbcType=VARCHAR}</if>
+        <if test="description != null">description = #{description, jdbcType=VARCHAR},</if>
+        <if test="type != null and type != ''">type = #{type, jdbcType=VARCHAR},</if>
+        <if test="status != null">status = #{status, jdbcType=INTEGER},</if>
+        <if test="sortValue != null">sort_value = #{sortValue, jdbcType=INTEGER},</if>
+      </trim>
+      WHERE function_id = #{functionId}::uuid
+  </update>
+
+  <update id="updateMenu" parameterType="sysMenu">
+    UPDATE sys_menu
+      <trim prefix="set" suffixOverrides=",">
+        <if test="menuKey != null">menu_key = #{menuKey, jdbcType=VARCHAR},</if>
+        <if test="url != null">url = #{url, jdbcType=VARCHAR},</if>
+        <if test="icon != null">icon = #{icon, jdbcType=VARCHAR},</if>
+        <if test="background != null">background = #{background, jdbcType=VARCHAR},</if>
+        <if test="themeInfo != null">theme_info = #{themeInfo, jdbcType=VARCHAR},</if>
+        <if test="tileStyle != null">tile_style = #{tileStyle, jdbcType=VARCHAR},</if>
+      </trim>
+      WHERE function_id = #{functionId}::uuid
+  </update>
+
+  <delete id="deleteFunction" parameterType="java.lang.String">
+    DELETE FROM sys_function
+      WHERE function_id = #{functionId}:uuid
+  </delete>
+
+  <delete id="deleteMenu" parameterType="java.lang.String">
+    DELETE FROM sys_menu
+      WHERE function_id = #{functionId}:uuid
+  </delete>
+
+  <select id="select" parameterType="java.util.Map" resultMap="sysMenuMap">
+    SELECT 
+        f.function_id, f.function_name, f.parent_id, f.description, f.type, f.status, f.sort_value,
+        m.menu_key, m.url, m.icon, m.background, m.theme_info, m.tile_style
+      FROM sys_function f
+      INNER JOIN sys_menu m ON f.function_id = m.function_id
+      <trim prefix="where" suffixOverrides="and">
+        <if test="status != null">
+          status = #{status, jdbcType=INTEGER} and
+        </if>
+      </trim>
+      ORDER BY f.sort_value
+  </select>
+
+</mapper>
