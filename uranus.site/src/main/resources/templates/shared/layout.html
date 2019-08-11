@@ -29,8 +29,7 @@
     <link type="text/css" rel="stylesheet" th:href="@{/style/custom.css}" />
 
     <th:block th:insert="${links}" />
-
-    <style type="text/css" th:replace="${styles}"></style>
+    <th:block th:insert="${styles}" />
 
 </head>
 <body th:fragment="layout_body(contains, scripts)">

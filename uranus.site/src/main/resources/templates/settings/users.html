@@ -4,7 +4,11 @@
 <head th:replace="shared/layout::layout_head(~{::title/text()},~{::link},~{::style})">
     <meta charset="UTF-8">
     <title>用户管理</title>
-    <link />
+    
+    <th:block th:fragment="links">
+    </th:block>
+
+    <th:block th:fragment="styles">
     <style type="text/css">
         .ui-form input[type=text],
         .ui-form textarea {
@@ -28,8 +32,8 @@
             border: 1px solid transparent;
             border-radius: 4px;
         }
-
     </style>
+    </th:block>
 </head>
 
 <body th:replace="shared/layout::layout_body(~{::#contains},~{::script})">
