@@ -30,7 +30,7 @@
 
     <th:block th:insert="${links}" />
 
-    <style type="text/css" th:insert="${styles}"></style>
+    <style type="text/css" th:replace="${styles}"></style>
 
 </head>
 <body th:fragment="layout_body(contains, scripts)">

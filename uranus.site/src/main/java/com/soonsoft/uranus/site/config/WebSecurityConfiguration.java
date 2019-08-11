@@ -115,8 +115,37 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         List<MenuInfo> menus = new ArrayList<>();
         MenuInfo menu = new MenuInfo("1", "HOME");
+        menu.setUrl("/index");
+        menu.setIcon("/content/icons/sys-setting.png");
+        menu.setAllowRoles(allowRoles);
+        menus.add(menu);
+
+        menu = new MenuInfo("2", "功能菜单2");
         menu.setUrl("/coming-soon");
         menu.setIcon("/content/icons/sys-setting.png");
+        menu.setAllowRoles(allowRoles);
+        menus.add(menu);
+
+        menu = new MenuInfo("3", "功能菜单3");
+        menu.setIcon("/content/icons/sys-setting.png");
+        menu.setAllowRoles(allowRoles);
+        menus.add(menu);
+
+        menu = new MenuInfo("3_1", "菜单3-功能");
+        menu.setParentResourceCode("3");
+        menu.setUrl("/coming-soon");
+        menu.setAllowRoles(allowRoles);
+        menus.add(menu);
+
+        menu = new MenuInfo("3_2", "菜单3-功能");
+        menu.setParentResourceCode("3");
+        menu.setUrl("/coming-soon");
+        menu.setAllowRoles(allowRoles);
+        menus.add(menu);
+
+        menu = new MenuInfo("3_3", "菜单3-功能");
+        menu.setParentResourceCode("3");
+        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
