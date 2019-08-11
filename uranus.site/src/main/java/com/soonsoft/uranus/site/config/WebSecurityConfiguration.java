@@ -168,7 +168,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         menu = new MenuInfo("4_3", "模块管理");
         menu.setParentResourceCode("4");
-        menu.setUrl("/settings/menus");
+        menu.setUrl("/coming-soon");
+        menu.setAllowRoles(allowRoles);
+        menus.add(menu);
+
+        menu = new MenuInfo("4_4", "系统设置");
+        menu.setParentResourceCode("4");
+        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 

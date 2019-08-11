@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="shared/layout::layout_head(~{::title/text()},~{::link},~{::style})">
+<head th:replace="shared/layout::layout_head(~{::title/text()},~{::links},~{::styles})">
     <meta charset="UTF-8">
     <title>START</title>
-    <link />
+    
+    <th:block th:fragment="links">
+    </th:block>
+
+    <th:block th:fragment="styles">
     <style type="text/css"></style>
+    </th:block>
 </head>
 
 <body th:replace="shared/layout::layout_body(~{::#contains},~{::script})">
