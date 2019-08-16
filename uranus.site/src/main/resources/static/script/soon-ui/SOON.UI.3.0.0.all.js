@@ -2651,14 +2651,6 @@ ui.str = {
                     arr.push(str.substring(index, i), "&quot;");
                     index = i + 1;
                     break;
-                case " " :
-                    arr.push(str.substring(index, i), "&nbsp;");
-                    index = i + 1;
-                    break;
-                case "/" :
-                    arr.push(str.substring(index, i), "&frasl;");
-                    index = i + 1;
-                    break;
             }
         }
         if(index < len) {
@@ -5798,7 +5790,6 @@ ui.SelectorSet = SelectorSet;
 // EventDelegate
 // 参考 https://github.com/dgraham/delegated-events/blob/master/delegated-events.js
 // 针对SOON.UI的代码风格进行了重构
-// 修改了部分变量名称，便于自己的理解
 
 var 
     bubbleEvents = {},
@@ -6284,7 +6275,12 @@ httpRequestProcessor = {
             }
             // IE6不能修改xhr的属性
             if(this.option.crossDomain && supportCORS) {
-                this.xhr.withCredentials = true;
+                if(this.option.withCredentials === true) {
+                    // https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials
+                    // 不同域下的XmlHttpRequest 响应，不论其Access-Control- header 设置什么值，都无法为它自身站点设置cookie值，除非它在请求之前将withCredentials 设为true
+                    // withCredentials设置为true，那么服务端response head中Access-Control-Allow-Credentials要设置true，同时Access-Control-Allow-Origin设置为源地址，不能为*
+                    this.xhr.withCredentials = true;
+                }
             }
 
             if(!this.option.crossDomain) {
@@ -6760,12 +6756,21 @@ httpRequestMethods = {
 
 ensureOption = (function() {
     var defaultOption = {
-        // request method
+        /** request method */
         type: "GET",
+        /** 默认的contentType，用于描述有request body的请求类型，其中GET HEAD OPTION三种没有body，无需设置 */
         contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         async: true,
+        /** 超时时间设置，单位毫秒，默认没有超时时间 */
         timeout: 0,
-        jsonp: "callback"
+        /** jsonp的调用的默认方法名，如：/controller/action?callback=callbackName */
+        jsonp: "callback",
+        /**
+         * 指示了是否该使用类似cookies,authorization headers(头部授权)或者TLS客户端证书这一类资格证书来创建一个跨站点访问控制
+         * 这个指示也会被用做响应中cookies 被忽视的标示。默认值是false。
+         * 在同一个站点下使用withCredentials属性是无效的
+         */
+        withCredentials: false
     };
     
     var rprotocol = /^\/\//,
@@ -9615,32 +9620,24 @@ cellFormatter = {
 cellParameterFormatter = {
     /** 格式化boolean类型 */
     getBooleanFormatter: function(trueText, falseText, nullText) {
-        var width = 16,
-            trueWidth,
-            falseWidth;
         trueText += "";
         falseText += "";
         if (arguments.length === 2) {
-            nullText = "";
+            nullText = "--";
         }
 
-        trueWidth = width * trueText.length || width;
-        falseWidth = width * falseText.length || width;
-
         return function (val, col) {
-            var span = $("<span />");
-            if (val === true) {
-                span.addClass("state-text").addClass("state-true")
-                    .css("width", trueWidth + "px");
-                span.text(trueText);
-            } else if (val === false) {
-                span.addClass("state-text").addClass("state-false")
-                    .css("width", falseWidth + "px");
-                span.text(falseText);
+            var option = {};
+            if(val === true) {
+                option.text = trueText;
+                option.color = "green";
+            } else if(val === false) {
+                option.text = falseText;
+                option.color = "red";
             } else {
-                span.text(nullText);
+                return $("<span />").text(nullText);
             }
-            return span;
+            return ui.ctrls.Tag(option).label;
         };
     },
     /** 数字小数格式化 */
@@ -11338,18 +11335,23 @@ MessageBox.prototype = {
     show: function (text, type) {
         var box,
             messageItem,
-            htmlBuilder = [];
+            content,
+            result;
         
         messageItem = $("<div class='message-item' />");
-        htmlBuilder.push("<i class='message-icon ", this.getIcon(type), "'></i>");
-        htmlBuilder.push("<div class='message-content'>");
+        messageItem.append($("<i class='message-icon " + this.getIcon(type) + "'></i>"));
+        content = $("<div class='message-content' />");
         if(ui.core.isFunction(text)) {
-            htmlBuilder.push(text());
+            result = text();
+            if(ui.core.isString(result)) {
+                content.text(result);
+            } else {
+                content.append(result);
+            }
         } else {
-            htmlBuilder.push(ui.str.htmlEncode(text + ""));
+            content.text(text);
         }
-        htmlBuilder.push("</div>");
-        messageItem.html(htmlBuilder.join(""));
+        messageItem.append(content);
 
         box = this.getBox();
         if(this.isShow()) {
@@ -11541,7 +11543,7 @@ ui.ctrls.define("ui.ctrls.OptionBox", ui.ctrls.SidebarBase, {
         this.titlePanel.empty();
         if(title) {
             if(ui.core.isString(title)) {
-                title = "<span class='option-box-title-text font-highlight'>" + title + "<span>";
+                title = $("<span class='option-box-title-text font-highlight'/>").text(title);
             }
             this.titlePanel.append(title);
         }
@@ -19471,20 +19473,19 @@ ui.ctrls.define("ui.ctrls.CardView", {
 
         if(viewData.length === 0) {
             this._showDataPrompt();
-            return;
         } else {
             this._hideDataPrompt();
-        }
 
-        this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
-            var elem = this._createItem(itemData, index);
-            elem.css({
-                "top": top + "px",
-                "left": left + "px"
+            this._rasterizeItems(true, function(itemBody, itemData, index, top, left) {
+                var elem = this._createItem(itemData, index);
+                elem.css({
+                    "top": top + "px",
+                    "left": left + "px"
+                });
+                this._renderItem(elem, itemData, index);
+                itemBody.append(elem);
             });
-            this._renderItem(elem, itemData, index);
-            itemBody.append(elem);
-        });
+        }
 
         //update page numbers
         if ($.isNumeric(rowCount)) {
@@ -21595,27 +21596,27 @@ ui.ctrls.define("ui.ctrls.GridView", {
 
         if(viewData.length === 0) {
             this.prompt.show();
-            return;
         } else {
             this.prompt.hide();
-        }
 
-        colGroup = $("<colgroup />"),
-        tbody = $("<tbody />");
-        this.bodyTable.append(colGroup);
+            colGroup = $("<colgroup />"),
+            tbody = $("<tbody />");
+            this.bodyTable.append(colGroup);
 
-        for (j = 0, len = columns.length; j < len; j++) {
-            column = columns[j];
-            colGroup.append(this._createCol(column));
-        }
-        for (i = 0, len = viewData.length; i < len; i++) {
-            tr = $("<tr />");
-            this._createRowCells(tr, viewData[i], i, columns);
-            tbody.append(tr);
-        }
-        this.bodyTable.append(tbody);
+            for (j = 0, len = columns.length; j < len; j++) {
+                column = columns[j];
+                colGroup.append(this._createCol(column));
+            }
+            for (i = 0, len = viewData.length; i < len; i++) {
+                tr = $("<tr />");
+                this._createRowCells(tr, viewData[i], i, columns);
+                tbody.append(tr);
+            }
+            this.bodyTable.append(tbody);
 
-        this._updateScrollState();
+            this._updateScrollState();
+        }
+        
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
@@ -23268,30 +23269,29 @@ ui.ctrls.define("ui.ctrls.ReportView", ui.ctrls.GridView, {
 
         if (viewData.length === 0) {
             this.prompt.show();
-            return;
         } else {
             this.prompt.hide();
-        }
 
-        this._createBodyTable(this.bodyTable, viewData, columns, 
-            function(el, column) {
-                return column.fixed ? null : el;
-            }
-        );
-        this.reportDataBody.append(this.bodyTable);
+            this._createBodyTable(this.bodyTable, viewData, columns, 
+                function(el, column) {
+                    return column.fixed ? null : el;
+                }
+            );
+            this.reportDataBody.append(this.bodyTable);
+    
+            // 初始化滚动条状态
+            this._updateScrollState();
+            ui.setTask((function() {
+                var scrollLeft = this.reportDataBody.scrollLeft(),
+                    scrollWidth = this.reportDataBody[0].scrollWidth;
+                this.fixed.syncScroll(0, scrollLeft, scrollWidth);
+            }).bind(this));
+        }
 
         //update page numbers
         if (ui.core.isNumber(rowCount)) {
             this._renderPageList(rowCount);
         }
-
-        // 初始化滚动条状态
-        this._updateScrollState();
-        ui.setTask((function() {
-            var scrollLeft = this.reportDataBody.scrollLeft(),
-                scrollWidth = this.reportDataBody[0].scrollWidth;
-            this.fixed.syncScroll(0, scrollLeft, scrollWidth);
-        }).bind(this));
 
         if (isRebind) {
             this.fire("rebind");
@@ -26369,6 +26369,229 @@ $.fn.switchButton = function(option) {
 
 })(jQuery, ui);
 
+// Source: src/control/tools/tag.js
+
+(function($, ui) {
+// tag
+
+var size = {
+        mini: 16,
+        small: 20,
+        normal: 24,
+        big: 28
+    },
+    colorMap = {
+        green: "#00AE6E",
+        red: "#DE2B18",
+        yellow: "#CCA700",
+        purple: "#6064C5",
+        blue: "#026AD8"
+    },
+    tagStyle = null,
+    initEvent;
+
+function initColor() {
+    Object.keys(colorMap).forEach(function(key) {
+        var color = colorMap[key];
+        createColor(key, color);
+    });
+}
+
+function createColor(name, color) {
+    var baseColor = ui.theme.backgroundColor || "#FFFFFF",
+        bgColor;
+    bgColor = ui.color.overlay(baseColor, color, .2);
+    bgColor = ui.color.rgb2hex(bgColor.red, bgColor.green, bgColor.blue);
+
+    if(!tagStyle) {
+        tagStyle = ui.StyleSheet.createStyleSheet("uiTagStyle");
+    }
+    tagStyle.setRule(ui.str.format(".ui-tag-{0}", name), {
+        "background-color": bgColor,
+        "border-color": color,
+        "color": color
+    });
+    tagStyle.setRule(ui.str.format(".ui-tag-{0} .ui-tag-close:hover", name), {
+        "background-color": color,
+        "color": bgColor
+    });
+}
+
+initEvent = function() {
+    ui.on("click", ".ui-tag", function(e) {
+        var elem = $(e.target),
+            fullName = "ui.ctrls.Tag";
+        if(elem.hasClass("ui-tag-close")) {
+            elem.parent().data(fullName).remove();
+        } else {
+            while(!elem.hasClass("ui-tag")) {
+                if(elem.nodeName() === "BODY") {
+                    return;
+                }
+                elem = elem.parent();
+            }
+            // click
+            elem.data(fullName).fire("click");
+        }
+    });
+    initEvent = function() {};
+};
+
+ui.ctrls.define("ui.ctrls.Tag", {
+    _defineOption: function() {
+        return {
+            // tag颜色 type: string (green: 绿色, red: 红色, yellow: 黄色, purple: 紫色, theme: 主题色, highlight: 高亮色) type: plainObject { "background-color": "", "border-color": "", "color": "" }
+            color: "highlight",
+            // 尺寸 big, normal, small, mini 
+            size: "normal",
+            // 是否有关闭按钮
+            closable: false,
+            // 不显示边框
+            noBorder: false,
+            // 文本
+            text: "Tag",
+            // 是否需要右间距
+            marginRight: false
+        };
+    },
+    _defineEvents: function() {
+        return ["click", "close"];
+    },
+    _create: function() {
+        if(ui.core.isNumber(this.option.size)) {
+            this.height = this.option.size;
+        } else {
+            this.height = size[this.option.size || "normal"] || size.normal;
+        }
+        this.contentMargin = this.height / 2;
+        if(this.option.noBorder) {
+            this.borderWidth = 0;
+        } else {
+            this.borderWidth = 1;
+        }
+
+        this.defineProperty("text", this.getText, this.setText);
+
+        if(!initColor.isInitialized) {
+            initColor();
+            initColor.isInitialized = true;
+        }
+
+        initEvent();
+    },
+    _render: function() {
+        var lineHeight = this.height - this.borderWidth * 2;
+        this.label = $("<label class='ui-tag' />");
+        this.label.css({
+            "height": this.height + "px",
+            "line-height": lineHeight + "px",
+            "border-radius": this.height / 2 + "px"
+        });
+        if(this.option.marginRight) {
+            this.label.css("margin-right", this.contentMargin + "px");
+        }
+        if(ui.core.isString(this.option.color)) {
+            this.label.addClass(ui.str.format("ui-tag-{0}", this.option.color));
+        } else {
+            this.label.addClass("ui-tag-highlight");
+        }
+
+        this.label.append(this._createContent());
+        if(this.option.closable) {
+            this.label.append(this._createCloseButton());
+        }
+
+        if(this.option.noBorder) {
+            this.label.addClass("ui-tag-noborder");
+        }
+
+        this.label.data(this.fullName, this);
+
+        if(this.element) {
+            this.element.append(this.label);
+        }
+    },
+    _createContent: function() {
+        var content = $("<span />");
+        content.css("margin-left", this.contentMargin + "px");
+        if(!this.option.closable) {
+            content.css("margin-right", this.contentMargin + "px");
+        }
+        this.content = content;
+        this.setText(this.option.text);
+        return content;
+    },
+    _createCloseButton: function() {
+        var button, 
+            contentHeight,
+            width, height,
+            top, right;
+
+        contentHeight = this.height - this.borderWidth * 2;
+        width = height = contentHeight - 6;
+        top = right = 3;
+        if(height < 14) {
+            width = height = 14;
+            top = right = (contentHeight - height) / 2;
+        }
+        
+        button = $("<i href='javascript:void(0)'>×</i>");
+        button.addClass("ui-tag-close");
+        if(this.height <= 20) {
+            button.css("font-size", "14px");
+        }
+        button.css({
+            "width": width + "px",
+            "height": height + "px",
+            "line-height": height - 2 + "px",
+            "margin-top": top + "px",
+            "margin-left": right + "px",
+            "margin-right": right + "px"
+        });
+        this.closeButton = button;
+        return button;
+    },
+
+    // API
+    addTo: function(parent) {
+        var parent = ui.getJQueryElement(parent);
+        if(parent) {
+            parent.append(this.label);
+        }
+    },
+    remove: function() {
+        this.fire("close");
+        this.label.removeData(this.fullName);
+        this.label.remove();
+    },
+    setText: function(text) {
+        this.option.text = text || "Tag";
+        if(ui.core.isFunction(text)) {
+            this.content.append(text.call(null));
+        } else {
+            this.content.text(text);
+        }
+    },
+    getText: function() {
+        return this.option.text;
+    }
+});
+
+ui.ctrls.Tag.addColor = function(name, color) {
+    if(colorMap[name]) {
+        throw new TypeError("the name " + name + " is exists.");
+    }
+    if(!ui.core.isString(color) || !color) {
+        return;
+    }
+
+    colorMap[name] = color;
+    createColor(name, color);
+};
+
+
+})(jQuery, ui);
+
 // Source: src/control/tools/uploader.js
 
 (function($, ui) {
@@ -29286,9 +29509,15 @@ plugin({
             "<div class='protrait-cover'>",
             "<img class='protrait-img' src='", userProtrait.children("img").prop("src"), "' alt='用户头像' /></div>",
             "<div class='user-info-panel'>",
-            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", ui.str.htmlEncode(config.name), "</span><br />",
-            "<span class='user-info-text'>", ui.str.htmlEncode(config.department), "</span><br />",
-            "<span class='user-info-text'>", ui.str.htmlEncode(config.position), "</span>",
+            "<span class='user-info-text' style='font-size:18px;line-height:36px;'>", ui.str.htmlEncode(config.name), "</span><br />"
+        );
+        if(config.department) {
+            htmlBuilder.push("<span class='user-info-text'>", ui.str.htmlEncode(config.department), "</span><br />");
+        }
+        if(config.position) {
+            htmlBuilder.push("<span class='user-info-text'>", ui.str.htmlEncode(config.position), "</span>");
+        }
+        htmlBuilder.push(
             "</div>",
             "<br clear='left' />"
         );

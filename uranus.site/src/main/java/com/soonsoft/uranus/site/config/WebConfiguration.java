@@ -3,6 +3,7 @@ package com.soonsoft.uranus.site.config;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
+import com.soonsoft.uranus.site.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 
@@ -15,6 +16,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * WebConfiguration
@@ -23,21 +26,26 @@ import org.springframework.web.servlet.DispatcherServlet;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass({Servlet.class, DispatcherServlet.class})
 @AutoConfigureBefore({WebMvcAutoConfiguration.class})
-public class WebConfiguration {
+public class WebConfiguration implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new UserInfoInterceptor()).addPathPatterns("/**");
+    }
 
     @Bean
-    public DelegatingFilterProxyRegistrationBean getHttpContextFilterRegistrationBean() {
+    public DelegatingFilterProxyRegistrationBean httpContextFilterRegistrationBean() {
         DelegatingFilterProxyRegistrationBean registrationBean = new DelegatingFilterProxyRegistrationBean("httpContextFilter");
         return registrationBean;
     }
 
     @Bean("httpContextFilter")
-    public Filter getHttpContextFilter() {
+    public Filter httpContextFilter() {
         return new HttpContextFilter();
     }
     
     @Bean
-    public ApplicationContextAware getApplicationContextAware() {
+    public ApplicationContextAware applicationContextAware() {
         return new WebApplicationContext();
     }
 }
