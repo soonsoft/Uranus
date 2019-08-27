@@ -21,18 +21,7 @@ import com.soonsoft.uranus.security.authentication.SimpleUserManager;
 import com.soonsoft.uranus.security.authorization.SimpleRoleManager;
 import com.soonsoft.uranus.security.authorization.SimpleFunctionManager;
 
-import com.soonsoft.uranus.services.membership.FunctionService;
-import com.soonsoft.uranus.services.membership.RoleService;
-import com.soonsoft.uranus.services.membership.UserService;
 import com.soonsoft.uranus.services.membership.authorization.MembershipRoleVoter;
-import com.soonsoft.uranus.services.membership.dao.AuthPasswordDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthRoleDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUserDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
-import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
-import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
-
 import com.soonsoft.uranus.site.config.properties.MembershipProperties;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -189,67 +178,5 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         WebUserDetailsService userDetailsService = new WebUserDetailsService();
         userDetailsService.setUserManager(userManager);
         return userDetailsService;
-    }
-
-    // 基于数据库的身份验证实现
-    private static class MembershipConfig {
-
-        public IUserManager createUserManager(IDatabaseAccess securityAccess, PasswordEncoder passwordEncoder) {
-            AuthUserDAO authUserDAO = new AuthUserDAO();
-            authUserDAO.setMembershipAccess(securityAccess);
-            AuthPasswordDAO authPasswordDAO = new AuthPasswordDAO();
-            authPasswordDAO.setMembershipAccess(securityAccess);
-            AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-            usersInRolesDAO.setMembershipAccess(securityAccess);
-
-            UserService userService = new UserService();
-            userService.setUserDAO(authUserDAO);
-            userService.setPasswordDAO(authPasswordDAO);
-            userService.setUsersInRolesDAO(usersInRolesDAO);
-            userService.setPasswordEncoder(passwordEncoder);
-
-            return userService;
-        }
-
-        public IRoleManager createRoleManager(IDatabaseAccess securityAccess) {
-            AuthRoleDAO roleDAO = new AuthRoleDAO();
-            roleDAO.setMembershipAccess(securityAccess);
-            AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-            usersInRolesDAO.setMembershipAccess(securityAccess);
-            AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-            rolesInFunctionsDAO.setMembershipAccess(securityAccess);
-            
-            RoleService roleService = new RoleService();
-            roleService.setRoleDAO(roleDAO);
-            roleService.setUsersInRolesDAO(usersInRolesDAO);
-            roleService.setRolesInFunctionsDAO(rolesInFunctionsDAO);
-
-            return roleService;
-        }
-
-        public IFunctionManager createFunctionManager(IDatabaseAccess securityAccess) {
-            SysFunctionDAO functionDAO = new SysFunctionDAO();
-            functionDAO.setMembershipAccess(securityAccess);
-            SysMenuDAO menuDAO = new SysMenuDAO();
-            menuDAO.setMembershipAccess(securityAccess);
-            AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-            rolesInFunctionsDAO.setMembershipAccess(securityAccess);
-
-            FunctionService functionService = new FunctionService();
-            functionService.setFunctionDAO(functionDAO);
-            functionService.setMenuDAO(menuDAO);
-            functionService.setRolesInFunctionsDAO(rolesInFunctionsDAO);
-            
-            return functionService;
-        }
-    }
-
-    // 基于内存配置的身份验证实现
-    private static class SimpleConfig extends MembershipConfig {
-
-        @Override
-        public IUserManager createUserManager(IDatabaseAccess securityAccess, PasswordEncoder passwordEncoder) {
-            return null;
-        }
     }
 }
