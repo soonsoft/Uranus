@@ -98,7 +98,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean(name = "functionManager")
     public IFunctionManager functionManager(@Qualifier("securityAccess") IDatabaseAccess securityAccess) {
-        
         List<RoleInfo> allowRoles = new ArrayList<>();
         allowRoles.add(new RoleInfo("Admin"));
 

@@ -2,7 +2,6 @@ package com.soonsoft.uranus.site.config.factories;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.security.authentication.IUserManager;
-import com.soonsoft.uranus.security.authentication.SimpleUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.services.membership.FunctionService;
@@ -15,6 +14,8 @@ import com.soonsoft.uranus.services.membership.dao.AuthUserDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * DBSecurityFactory
