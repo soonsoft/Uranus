@@ -2,13 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.4.RELEASE</version>
-    </parent>
-
+         
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.soonsoft</groupId>
@@ -34,11 +28,25 @@
         <druid-version>1.1.9</druid-version>
         <mybatis-spring-boot-version>2.0.1</mybatis-spring-boot-version>
         <jackson-version>2.9.9</jackson-version>
+        <spring-boot-version>2.1.7.RELEASE</spring-boot-version>
         <spring-version>5.1.5.RELEASE</spring-version>
         <spring-security-version>5.1.4.RELEASE</spring-security-version>
         <servlet-api-version>4.0.1</servlet-api-version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring-Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>${spring-boot-version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <dependencies>
         <!-- JSON -->
         <dependency>

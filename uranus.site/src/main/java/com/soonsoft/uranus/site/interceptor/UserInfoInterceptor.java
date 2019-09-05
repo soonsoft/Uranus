@@ -10,6 +10,7 @@ import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.util.collection.CollectionUtils;
 import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.web.util.HttpRequestUtils;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -25,6 +26,9 @@ public class UserInfoInterceptor implements HandlerInterceptor {
             ModelAndView modelAndView) throws Exception {
 
         if(!StringUtils.equals(request.getMethod(), "GET")) {
+            return;
+        }
+        if(HttpRequestUtils.isAjax(request)) {
             return;
         }
 
