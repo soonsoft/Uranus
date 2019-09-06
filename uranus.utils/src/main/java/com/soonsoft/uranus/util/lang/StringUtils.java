@@ -28,7 +28,7 @@ public abstract class StringUtils {
     }
 
     public static boolean equals(CharSequence str1, CharSequence str2) {
-        if(str1 == null || str2 == null) {
+        if(str1 == null && str2 == null) {
             return true;
         }
 

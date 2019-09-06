@@ -1,8 +1,10 @@
 package com.soonsoft.uranus.site.config;
 
+import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
+import com.soonsoft.uranus.site.config.properties.WebProperties;
 import com.soonsoft.uranus.site.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
@@ -28,9 +30,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @AutoConfigureBefore({WebMvcAutoConfiguration.class})
 public class WebConfiguration implements WebMvcConfigurer {
 
+    @Resource
+    private WebProperties webProperties;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new UserInfoInterceptor()).addPathPatterns("/**");
+        registry
+            .addInterceptor(new UserInfoInterceptor())
+            .addPathPatterns("/**")
+            .excludePathPatterns(webProperties.getResourcePathList());
     }
 
     @Bean

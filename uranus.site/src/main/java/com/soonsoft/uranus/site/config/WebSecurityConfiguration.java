@@ -1,6 +1,9 @@
 package com.soonsoft.uranus.site.config;
 
 import java.util.Set;
+
+import javax.annotation.Resource;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import com.soonsoft.uranus.security.authorization.SimpleFunctionManager;
 
 import com.soonsoft.uranus.services.membership.authorization.MembershipRoleVoter;
 import com.soonsoft.uranus.site.config.properties.MembershipProperties;
+import com.soonsoft.uranus.site.config.properties.WebProperties;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -43,13 +47,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableConfigurationProperties(MembershipProperties.class)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    @Resource
+    private WebProperties webProperties;
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         // 配置静态资源，这些资源不做安全验证
         web.ignoring()
             .antMatchers(
                 HttpMethod.GET, 
-                "/style/**", "/content/**", "/script/**", "/favicon.ico")
+                webProperties.getResourcePathArray())
             .antMatchers(HttpMethod.GET, "/CloudAtlas/**", "/page/**");
 	}
 

@@ -94,7 +94,7 @@ public class SecurityManager {
     public UserInfo getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null) {
-            return new AnonymousUser("AnonymousUser");
+            return new AnonymousUser(ANONYMOUS_USER);
         }
         Object user = authentication.getPrincipal();
         if(user instanceof UserInfo) {
