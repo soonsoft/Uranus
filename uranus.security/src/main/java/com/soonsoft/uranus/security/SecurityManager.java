@@ -12,16 +12,21 @@ import com.soonsoft.uranus.security.profile.IUserProfile;
 import com.soonsoft.uranus.util.Guard;
 import com.soonsoft.uranus.util.lang.StringUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+
 /**
  * SecurityManager
  */
 public class SecurityManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityManager.class);
 
     private static final String ANONYMOUS_USER = "anonymousUser";
 
@@ -132,8 +137,12 @@ public class SecurityManager {
         INSTANCE.setUserManager(applicationContext.getBean(IUserManager.class));
         INSTANCE.setRoleManager(applicationContext.getBean(IRoleManager.class));
         INSTANCE.setFunctionManager(applicationContext.getBean(IFunctionManager.class));
-        // TODO
-        //INSTANCE.setUserProfile(applicationContext.getBean(IUserProfile.class));
+        
+        try {
+            INSTANCE.setUserProfile(applicationContext.getBean(IUserProfile.class));
+        } catch(Exception e) {
+            LOGGER.warn("init IUserProfile error.", e);
+        }
     }
 
     public static WebApplicationConfig webApplicationConfig(HttpSecurity http) {
