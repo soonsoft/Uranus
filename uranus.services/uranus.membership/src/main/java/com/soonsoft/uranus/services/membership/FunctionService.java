@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.soonsoft.uranus.core.event.IEvent;
-import com.soonsoft.uranus.core.event.SimpleEvent;
+import com.soonsoft.uranus.core.event.IEventListener;
+import com.soonsoft.uranus.core.event.SimpleEventListener;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
@@ -45,7 +45,7 @@ public class FunctionService implements IFunctionManager {
     private static final Object locker = new Object();
 
     /** 事件定义 */
-    public IEvent<SysMenu> changed = new SimpleEvent<>("MenuEvent");
+    public IEventListener<SysMenu> changed = new SimpleEventListener<>("MenuEvent");
 
     public FunctionService() {
         this(null);

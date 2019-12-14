@@ -13,8 +13,7 @@
 		<file>${LOG_HOME}/logs/console.log</file>
 		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_HOME}/logs/console-%d{yyyy-MM-dd}.%i.log
-			</fileNamePattern>
+			<fileNamePattern>${LOG_HOME}/logs/console-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<maxFileSize>104857600</maxFileSize>
@@ -22,7 +21,7 @@
 			<MaxHistory>10</MaxHistory>
 		</rollingPolicy>
 		<encoder>
-			<pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %5p %m%n</pattern>
+			<pattern>[%X{traceId}] [%thread] [%d{yyyy-MM-dd HH:mm:ss.SSS}] %5p %m%n</pattern>
 			<charset class="java.nio.charset.Charset">UTF-8</charset>
 		</encoder>
 	</appender>

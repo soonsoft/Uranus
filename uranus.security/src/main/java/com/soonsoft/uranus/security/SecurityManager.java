@@ -141,7 +141,7 @@ public class SecurityManager {
         try {
             INSTANCE.setUserProfile(applicationContext.getBean(IUserProfile.class));
         } catch(Exception e) {
-            LOGGER.warn("init IUserProfile error.", e);
+            LOGGER.warn("init IUserProfile error. {}", e.getMessage());
         }
     }
 

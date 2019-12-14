@@ -33,4 +33,9 @@ uranus.utils/.classpath
 uranus.web/.project
 uranus.web/target
 uranus.web/.classpath
+
+uranus.configuration/.project
+uranus.configuration/target
+uranus.configuration/.classpath
+
 *.log

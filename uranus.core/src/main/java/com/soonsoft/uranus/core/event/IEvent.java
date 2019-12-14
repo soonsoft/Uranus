@@ -1,18 +1,12 @@
 package com.soonsoft.uranus.core.event;
 
-import java.util.function.Consumer;
-
 /**
- * IEvent
+ * 事件对象
  */
-public interface IEvent<E> {
+public interface IEvent<T> {
 
-    void on(Consumer<E> eventHandler);
+    T getData();
 
-    void off(Consumer<E> eventHandler);
-
-    void trigger(E event);
-
-    void clear();
-
+    String getName();
+    
 }

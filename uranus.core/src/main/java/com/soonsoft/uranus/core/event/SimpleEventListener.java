@@ -9,15 +9,15 @@ import org.slf4j.LoggerFactory;
 /**
  * SimpleEvent
  */
-public class SimpleEvent<E> implements IEvent<E> {
+public class SimpleEventListener<E> implements IEventListener<E> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEvent.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEventListener.class);
 
     private LinkedList<Consumer<E>> handlerList = new LinkedList<>();
 
     private String name;
 
-    public SimpleEvent(String name) {
+    public SimpleEventListener(String name) {
         this.name = name;
     }
 
