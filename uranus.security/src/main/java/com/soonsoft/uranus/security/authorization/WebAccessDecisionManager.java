@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;

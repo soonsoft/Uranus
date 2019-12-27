@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.entity.Page;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 import org.mybatis.spring.SqlSessionTemplate;
 

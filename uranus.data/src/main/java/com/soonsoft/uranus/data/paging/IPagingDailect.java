@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.soonsoft.uranus.data.IDailect;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 /**
  * 分页SQL方言

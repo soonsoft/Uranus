@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.services.membership.dao;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 /**
  * BaseDAO

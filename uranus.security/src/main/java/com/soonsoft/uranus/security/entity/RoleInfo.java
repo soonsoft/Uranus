@@ -1,6 +1,6 @@
 package com.soonsoft.uranus.security.entity;
 
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.GrantedAuthority;

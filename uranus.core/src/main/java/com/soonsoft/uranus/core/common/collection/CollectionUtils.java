@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.util.collection;
+package com.soonsoft.uranus.core.common.collection;
 
 import java.util.Collection;
 

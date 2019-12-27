@@ -1,12 +1,12 @@
-package com.soonsoft.uranus.util;
+package com.soonsoft.uranus.core;
 
 import java.util.Collection;
 import java.util.Map;
 
-import com.soonsoft.uranus.util.collection.CollectionUtils;
-import com.soonsoft.uranus.util.collection.MapUtils;
-import com.soonsoft.uranus.util.lang.ObjectUtils;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
+import com.soonsoft.uranus.core.common.collection.MapUtils;
+import com.soonsoft.uranus.core.common.lang.ObjectUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 /**
  * from spring
@@ -47,6 +47,6 @@ public abstract class Guard {
         if (MapUtils.isEmpty(map)) {
             throw new IllegalArgumentException(message);
         }
-    }
+    } 
     
 }

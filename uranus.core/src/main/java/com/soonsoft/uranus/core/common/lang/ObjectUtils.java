@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.util.lang;
+package com.soonsoft.uranus.core.common.lang;
 
 /**
  * ObjectUtils

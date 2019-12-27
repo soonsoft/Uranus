@@ -1,13 +1,10 @@
-package com.soonsoft.uranus.util.lang;
+package com.soonsoft.uranus.core.common.lang;
 
 import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * DateTimeUtilsTest
- */
 public class DateTimeUtilsTest {
 
     @Test

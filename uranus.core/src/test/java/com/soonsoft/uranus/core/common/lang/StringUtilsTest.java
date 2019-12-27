@@ -1,11 +1,8 @@
-package com.soonsoft.uranus.util.lang;
+package com.soonsoft.uranus.core.common.lang;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * StringUtilsTest
- */
 public class StringUtilsTest {
 
     @Test

@@ -1,12 +1,10 @@
-package com.soonsoft.uranus.util.lang;
+package com.soonsoft.uranus.core.common.lang;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.soonsoft.uranus.util.Guard;
 
 /**
  * DateTimeUtils
@@ -18,7 +16,9 @@ public abstract class DateTimeUtils {
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static Date parse(String dateText) {
-        Guard.notEmpty(dateText, "the arguments dateText is required.");
+        if(StringUtils.isEmpty(dateText)) {
+            throw new IllegalArgumentException("the arguments dateText is required.");
+        }
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
         try {
@@ -50,7 +50,9 @@ public abstract class DateTimeUtils {
 
     public static abstract class ISO8601 {
         public static Date parse(String dateText) {
-            Guard.notEmpty(dateText, "the arguments dateText is required.");
+            if(StringUtils.isEmpty(dateText)) {
+                throw new IllegalArgumentException("the arguments dateText is required.");
+            }
 
             SimpleDateFormat formatter = new SimpleDateFormat(ISO8601_FORMAT);
             try {

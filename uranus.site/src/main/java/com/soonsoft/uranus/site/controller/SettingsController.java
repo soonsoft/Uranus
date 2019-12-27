@@ -17,7 +17,7 @@ import com.soonsoft.uranus.services.membership.dto.AuthUser;
 import com.soonsoft.uranus.services.membership.dto.SysMenu;
 import com.soonsoft.uranus.site.config.properties.MembershipProperties;
 import com.soonsoft.uranus.site.controller.base.BaseController;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
 import com.soonsoft.uranus.web.mvc.model.RequestData;
 

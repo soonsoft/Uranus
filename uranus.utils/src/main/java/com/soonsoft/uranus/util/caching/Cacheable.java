@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.soonsoft.uranus.util.collection.MapUtils;
+import com.soonsoft.uranus.core.common.collection.MapUtils;
 
 /**
  * 缓存功能

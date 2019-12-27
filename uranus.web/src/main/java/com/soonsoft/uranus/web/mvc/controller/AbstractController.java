@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.HttpContext;
 import com.soonsoft.uranus.web.mvc.view.ContentView;
 import com.soonsoft.uranus.web.mvc.view.JsonView;

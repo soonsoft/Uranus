@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
-import com.soonsoft.uranus.util.collection.MapUtils;
+import com.soonsoft.uranus.core.common.collection.MapUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.ConfigAttribute;

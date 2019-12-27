@@ -3,7 +3,7 @@ package com.soonsoft.uranus.web.mvc.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.soonsoft.uranus.util.lang.DateTimeUtils;
+import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
 
 /**
  * IRequestData

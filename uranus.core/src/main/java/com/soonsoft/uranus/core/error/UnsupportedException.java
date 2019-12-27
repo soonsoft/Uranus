@@ -5,7 +5,7 @@ package com.soonsoft.uranus.core.error;
  */
 public class UnsupportedException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -3770247806444368835L;
 
     public UnsupportedException() {
         super();

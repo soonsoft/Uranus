@@ -3,8 +3,8 @@ package com.soonsoft.uranus.site.config.properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.soonsoft.uranus.util.collection.CollectionUtils;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

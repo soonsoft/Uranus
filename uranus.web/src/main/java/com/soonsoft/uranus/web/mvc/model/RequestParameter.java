@@ -2,7 +2,7 @@ package com.soonsoft.uranus.web.mvc.model;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 /**
  * RequestParameter

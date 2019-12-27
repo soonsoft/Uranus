@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.core.event;
+package com.soonsoft.uranus.core.common.event;
 
 import java.util.LinkedList;
 import java.util.function.Consumer;

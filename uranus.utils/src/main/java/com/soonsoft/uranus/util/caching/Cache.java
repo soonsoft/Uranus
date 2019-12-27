@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 /**
  * Cache

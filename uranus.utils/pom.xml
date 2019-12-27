@@ -11,4 +11,12 @@
 
     <artifactId>uranus.utils</artifactId>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.soonsoft</groupId>
+            <artifactId>uranus.core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

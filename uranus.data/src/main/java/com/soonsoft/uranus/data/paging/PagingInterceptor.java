@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.soonsoft.uranus.data.service.mybatis.PageRowBounds;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;

@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.util.collection.CollectionUtils;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.util.HttpRequestUtils;
 
 import org.springframework.security.core.GrantedAuthority;

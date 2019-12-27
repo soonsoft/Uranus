@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.security.authentication;
 
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 /**
  * IUserManager

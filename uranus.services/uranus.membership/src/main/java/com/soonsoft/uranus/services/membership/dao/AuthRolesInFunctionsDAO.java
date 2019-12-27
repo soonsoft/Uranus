@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import com.soonsoft.uranus.services.membership.dto.AuthRole;
 import com.soonsoft.uranus.services.membership.dto.AuthRoleIdAndFunctionId;
-import com.soonsoft.uranus.util.collection.MapUtils;
+import com.soonsoft.uranus.core.common.collection.MapUtils;
 
 /**
  * AuthRolesInFunctionsDAO

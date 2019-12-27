@@ -9,8 +9,8 @@ import com.soonsoft.uranus.security.config.WebApplicationConfig;
 import com.soonsoft.uranus.security.entity.AnonymousUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.profile.IUserProfile;
-import com.soonsoft.uranus.util.Guard;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

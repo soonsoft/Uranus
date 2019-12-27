@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 import org.springframework.security.core.GrantedAuthority;
 

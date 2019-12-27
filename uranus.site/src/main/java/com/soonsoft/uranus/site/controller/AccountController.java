@@ -7,7 +7,7 @@ import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.site.controller.base.BaseController;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.web.HttpContext;
 import com.soonsoft.uranus.web.error.HttpActionException;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;

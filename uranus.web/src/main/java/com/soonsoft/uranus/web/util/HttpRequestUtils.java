@@ -4,8 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.Enumeration;
 
-import com.soonsoft.uranus.util.Guard;
-import com.soonsoft.uranus.util.lang.StringUtils;
+import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 /**
  * HttpRequestUtils

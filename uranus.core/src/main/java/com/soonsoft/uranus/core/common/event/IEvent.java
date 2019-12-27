@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.core.event;
+package com.soonsoft.uranus.core.common.event;
 
 /**
  * 事件对象

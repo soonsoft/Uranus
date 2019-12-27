@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.data.paging.mysql;
 
 import com.soonsoft.uranus.data.paging.IPagingDailect;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 /**
  * MySQLPagingDailect

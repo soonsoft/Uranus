@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.soonsoft.uranus.core.error.UnsupportedException;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 

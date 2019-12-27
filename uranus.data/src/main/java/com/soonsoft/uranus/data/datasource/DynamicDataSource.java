@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
-import com.soonsoft.uranus.util.Guard;
+import com.soonsoft.uranus.core.Guard;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
