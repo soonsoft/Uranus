@@ -168,6 +168,9 @@ public class RoleService implements IRoleManager {
     public boolean createRole(AuthRole role) {
         Guard.notNull(role, "the AuthRole is required.");
 
+        if(StringUtils.isEmpty(role.getRoleId())) {
+            role.setRoleId(UUID.randomUUID().toString());
+        }
         int effectRows = 0;
         List<Object> menuIdList = role.getMenus();
         if(!CollectionUtils.isEmpty(menuIdList)) {

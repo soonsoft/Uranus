@@ -18,7 +18,17 @@ import org.springframework.context.annotation.ComponentScan;
 public class Application {
 
     public static void main(String[] args) {
+        onStop();
         SpringApplication.run(Application.class, args);
+    }
+
+    private static void onStop() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+               System.out.println("application shutdown.");
+            }
+        });
     }
     
 }

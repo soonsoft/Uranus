@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.soonsoft.uranus.core.common.lang.ClassUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.common.utils.Holder;
+import com.soonsoft.uranus.core.common.utils.Lifecycle;
 
 /**
  * ExtensionLoader loader = ExtensionLoader.load(Interface.class);
@@ -34,6 +35,8 @@ public class ExtensionLoader<T> {
     private static ILoadingStrategy SERVICES_STRATEGY = () -> SERVICES_DIRECTORY;
     private static ILoadingStrategy[] strategies = new ILoadingStrategy[] { SERVICES_STRATEGY };
 
+    private static IExtensionInstance instanceGetter = null;
+
     private final Class<?> type;
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<>();
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<>();
@@ -43,6 +46,10 @@ public class ExtensionLoader<T> {
 
     public static void setLoadingStrategies(ILoadingStrategy... strategies) {
         ExtensionLoader.strategies = strategies;
+    }
+
+    public static void setInstanceGetter(IExtensionInstance instanceGetter) {
+        ExtensionLoader.instanceGetter = instanceGetter;
     }
 
     private ExtensionLoader(Class<?> type) {
@@ -69,6 +76,20 @@ public class ExtensionLoader<T> {
             manager = (ExtensionLoader<T>) EXTENSION_MANAGER_BAG.get(type);
         }
         return manager;
+    }
+
+    // TODO 释放资源
+    public static void destroyAll() {
+        EXTENSION_INSTANCES.forEach((_type, instance) -> {
+            if (instance instanceof Lifecycle) {
+                Lifecycle lifecycle = (Lifecycle) instance;
+                try {
+                    lifecycle.destroy();
+                } catch (Exception e) {
+                    //logger.error("Error destroying extension " + lifecycle, e);
+                }
+            }
+        });
     }
 
     public T getInstance() {
@@ -104,17 +125,29 @@ public class ExtensionLoader<T> {
         if (clazz == null) {
             throw findException(name);
         }
-        try {
-            T instance = (T) EXTENSION_INSTANCES.get(clazz);
-            if (instance == null) {
-                EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.getDeclaredConstructor().newInstance());
-                instance = (T) EXTENSION_INSTANCES.get(clazz);
-            }
-            return instance;
-        } catch (Throwable t) {
-            throw new IllegalStateException("Extension instance (name: " + name + ", class: " +
-                    type + ") couldn't be instantiated: " + t.getMessage(), t);
+
+        T instance = null;
+        if(instanceGetter != null) {
+            instance = (T) instanceGetter.get(clazz);
         }
+
+        if(instance == null) {
+            try {
+                instance = (T) EXTENSION_INSTANCES.get(clazz);
+                if (instance == null) {
+                    EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.getDeclaredConstructor().newInstance());
+                    instance = (T) EXTENSION_INSTANCES.get(clazz);
+                }
+            } catch (Throwable t) {
+                throw new IllegalStateException("Extension instance (name: " + name + ", class: " +
+                        type + ") couldn't be instantiated: " + t.getMessage(), t);
+            }
+        }
+
+        if(instance != null) {
+            initExtension(instance);
+        }
+        return instance;
     }
 
     //#region 读取配置文件，加载Class
@@ -305,6 +338,13 @@ public class ExtensionLoader<T> {
 
     private IllegalStateException findException(String name) {
         return new IllegalStateException();
+    }
+
+    private void initExtension(T instance) {
+        if (instance instanceof Lifecycle) {
+            Lifecycle lifecycle = (Lifecycle) instance;
+            lifecycle.initialize();
+        }
     }
 
     private class ExtensionInfo {
