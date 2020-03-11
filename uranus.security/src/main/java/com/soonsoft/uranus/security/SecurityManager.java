@@ -151,6 +151,7 @@ public class SecurityManager {
 
         IFunctionManager functionManager = current().getFunctionManager();
         WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();
+        // TODO 更新角色和菜单绑定关系后，动态刷新菜单权限资源
         securityMetadataSource.setConfigAttributeCollection(functionManager.getEnabledMenus());
 
         WebApplicationConfig config = new WebApplicationConfig();
