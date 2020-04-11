@@ -17,6 +17,10 @@ public class SimpleEventListener<E> implements IEventListener<E> {
 
     private String name;
 
+    public SimpleEventListener() {
+        
+    }
+
     public SimpleEventListener(String name) {
         this.name = name;
     }
@@ -42,6 +46,7 @@ public class SimpleEventListener<E> implements IEventListener<E> {
 
     @Override
     public void trigger(E event) {
+        LinkedList<Consumer<E>> handlerList = getHandlerList();
         for(Consumer<E> handler : handlerList) {
             handler.accept(event);
         }
@@ -54,6 +59,10 @@ public class SimpleEventListener<E> implements IEventListener<E> {
 
     public String getName() {
         return name;
+    }
+
+    protected LinkedList<Consumer<E>> getHandlerList() {
+        return handlerList;
     }
 
     

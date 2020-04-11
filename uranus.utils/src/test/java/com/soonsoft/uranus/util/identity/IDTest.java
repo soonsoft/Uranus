@@ -13,5 +13,10 @@ public class IDTest {
             System.out.println(ID.newID());
         }
     }
+
+    @Test
+    public void test_parseID() {
+        System.out.println(ID.getGenerator().parse(17666590216556549L));
+    }
     
 }

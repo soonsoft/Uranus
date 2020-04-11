@@ -15,6 +15,10 @@ public abstract class DateTimeUtils {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String DAY_PATTERN = "yyyy-MM-dd";
+
+    public static final String DATETIME_MS_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
+
     public static Date parse(String dateText) {
         if(StringUtils.isEmpty(dateText)) {
             throw new IllegalArgumentException("the arguments dateText is required.");
@@ -36,6 +40,10 @@ public abstract class DateTimeUtils {
         return format(date, DATE_FORMAT, "UTC");
     }
 
+    public static String formatWithMillis(Date date) {
+        return format(date, DATETIME_MS_PATTERN, null);
+    }
+
     private static String format(Date date, String formatText, String timezoneId) {
         if(date == null) {
             return null;
@@ -43,7 +51,7 @@ public abstract class DateTimeUtils {
 
         SimpleDateFormat formatter = new SimpleDateFormat(formatText);
         if(timezoneId != null) {
-            formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            formatter.setTimeZone(TimeZone.getTimeZone(timezoneId));
         }
         return formatter.format(date);
     }

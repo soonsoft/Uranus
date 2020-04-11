@@ -3,7 +3,7 @@ package com.soonsoft.uranus.core.common.utils;
 /**
  * The Lifecycle of Component
  */
-public interface Lifecycle {
+public interface Lifecycle extends IDisposable {
 
     /**
      * Initialize the component before {@link #start() start}
@@ -20,12 +20,5 @@ public interface Lifecycle {
      * @throws IllegalStateException
      */
     void start() throws IllegalStateException;
-
-    /**
-     * Destroy the component
-     *
-     * @throws IllegalStateException
-     */
-    void destroy() throws IllegalStateException;
     
 }

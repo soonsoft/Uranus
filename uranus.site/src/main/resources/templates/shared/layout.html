@@ -17,7 +17,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     */-->
     <title>
-        <th:block th:utext="${title}">THE VIEW</th:block>
+        <th:block th:replace="${title}">THE VIEW</th:block>
     </title>
 
     <!-- Common styles -->
