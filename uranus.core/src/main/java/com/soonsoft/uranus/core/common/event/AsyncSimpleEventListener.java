@@ -20,7 +20,7 @@ public class AsyncSimpleEventListener<E> extends SimpleEventListener<E> {
     public void trigger(E event) {
          LinkedList<Consumer<E>> handlerList = getHandlerList();
          if(handlerList != null) {
-            TriggerTask<E> task = new TriggerTask<>(handlerList, event);
+            //TriggerTask<E> task = new TriggerTask<>(handlerList, event);
             // TODO 将task放入线程池 
          }
     }

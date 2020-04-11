@@ -25,13 +25,13 @@
         <junit-version>4.12</junit-version>
         <logback-version>1.2.3</logback-version>
         <apache-commons-lang-version>3.7</apache-commons-lang-version>
-        <postgresql-version>42.2.2</postgresql-version>
-        <druid-version>1.1.9</druid-version>
-        <mybatis-spring-boot-version>2.0.1</mybatis-spring-boot-version>
-        <jackson-version>2.9.9</jackson-version>
-        <spring-boot-version>2.1.7.RELEASE</spring-boot-version>
-        <spring-version>5.1.5.RELEASE</spring-version>
-        <spring-security-version>5.1.4.RELEASE</spring-security-version>
+        <postgresql-version>42.2.12</postgresql-version>
+        <druid-version>1.1.22</druid-version>
+        <mybatis-spring-boot-version>2.1.2</mybatis-spring-boot-version>
+        <jackson-version>2.10.3</jackson-version>
+        <spring-boot-version>2.2.6.RELEASE</spring-boot-version>
+        <spring-version>5.2.5.RELEASE</spring-version>
+        <spring-security-version>5.3.1.RELEASE</spring-security-version>
         <servlet-api-version>4.0.1</servlet-api-version>
     </properties>
 
