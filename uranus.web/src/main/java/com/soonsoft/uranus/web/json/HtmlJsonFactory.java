@@ -58,7 +58,7 @@ public final class HtmlJsonFactory extends JsonFactory {
     private static class HtmlEncodeUTF8JsonGenerator extends UTF8JsonGenerator {
 
         public HtmlEncodeUTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec, OutputStream out) {
-            super(ctxt, features, codec, out);
+            super(ctxt, features, codec, out, JsonFactory.DEFAULT_QUOTE_CHAR);
         }
 
         @Override
@@ -74,7 +74,7 @@ public final class HtmlJsonFactory extends JsonFactory {
     private static class HtmlEncodeJsonGenerator extends WriterBasedJsonGenerator {
 
         public HtmlEncodeJsonGenerator(IOContext ctxt, int features, ObjectCodec codec, Writer writer) {
-            super(ctxt, features, codec, writer);
+            super(ctxt, features, codec, writer, JsonFactory.DEFAULT_QUOTE_CHAR);
         }
 
         @Override
