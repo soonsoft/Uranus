@@ -57,7 +57,11 @@ public abstract class AbstractController {
     }
 
     public JsonView json(Object jsonData) {
-        return new JsonView(jsonData);
+        return new JsonView(jsonData, false);
+    }
+
+    public JsonView jsonXssProtected(Object jsonData) {
+        return new JsonView(jsonData, true);
     }
 
     public ContentView content(String content) {

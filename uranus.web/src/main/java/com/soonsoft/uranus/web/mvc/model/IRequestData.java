@@ -24,6 +24,15 @@ public interface IRequestData {
         String value = get(parameterName);
         return value != null ? Integer.valueOf(value) : defaultValue;
     }
+
+    default Long getLong(String parameterName) {
+        return getLong(parameterName, null);
+    }
+
+    default Long getLong(String parameterName, Integer defaultValue) {
+        String value = get(parameterName);
+        return value != null ? Long.valueOf(value) : defaultValue;
+    }
     
     default Float getFloat(String parameterName) {
         return getFloat(parameterName, null);

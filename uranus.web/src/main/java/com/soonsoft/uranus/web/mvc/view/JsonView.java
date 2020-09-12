@@ -31,14 +31,16 @@ public class JsonView extends AbstractView {
     private ObjectMapper objectMapper;
 
     public JsonView() {
-        this(null);
+        this(null, false);
     }
 
-    public JsonView(Object data) {
+    public JsonView(Object data, boolean xssProtected) {
         setContentType(DEFAULT_CONTENT_TYPE);
         this.jsonData = data;
 
-        this.objectMapper = new ObjectMapper(new HtmlJsonFactory());
+        this.objectMapper = xssProtected 
+            ? new ObjectMapper(new HtmlJsonFactory())
+            : new ObjectMapper();
         this.objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         this.objectMapper.setDateFormat(new SimpleDateFormat(DateTimeUtils.ISO8601_FORMAT));
     }

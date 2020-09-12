@@ -2,6 +2,8 @@ package com.soonsoft.uranus.web.mvc.model;
 
 import java.util.LinkedHashMap;
 
+import com.soonsoft.uranus.web.util.HtmlUtils;
+
 /**
  * RequestData
  */
@@ -32,6 +34,10 @@ public class RequestData extends LinkedHashMap<String, Object> implements IReque
     @SuppressWarnings(value = "unchecked")
     public <T> T getObject(String parameterName) {
         return (T) super.get(parameterName);
+    }
+
+    public String toJSON() {
+        return HtmlUtils.toJSON(this);
     }
     
 }

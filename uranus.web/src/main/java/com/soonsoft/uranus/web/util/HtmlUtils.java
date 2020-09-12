@@ -14,7 +14,13 @@ import com.soonsoft.uranus.web.json.HtmlJsonFactory;
 public abstract class HtmlUtils {
 
     public static String toJSON(Object target) {
-        ObjectMapper objectMapper = new ObjectMapper(new HtmlJsonFactory());
+        return toJSON(target, false);
+    }
+
+    public static String toJSON(Object target, boolean xmlProtected) {
+        ObjectMapper objectMapper = xmlProtected 
+            ? new ObjectMapper(new HtmlJsonFactory())
+            : new ObjectMapper();
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.setDateFormat(new SimpleDateFormat(DateTimeUtils.ISO8601_FORMAT));
 
