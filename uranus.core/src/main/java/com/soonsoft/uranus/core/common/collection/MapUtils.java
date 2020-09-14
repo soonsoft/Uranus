@@ -46,6 +46,10 @@ public abstract class MapUtils {
         return map == null || map.isEmpty();
     }
 
+    public static <TKey> SimpleMapConverter<TKey> getMapConverter(Map<TKey, Object> map) {
+        return new SimpleMapConverter<>(map);
+    }
+
     private static int capacity(final int expectedSize) {
         if(expectedSize < 0) {
             return DEFAULT_INITIAL_CAPACITY;
