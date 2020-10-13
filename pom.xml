@@ -24,7 +24,7 @@
     </modules>
 
     <properties>
-        <junit-version>4.12</junit-version>
+        <junit-version>4.13.1</junit-version>
         <logback-version>1.2.3</logback-version>
         <apache-commons-lang-version>3.11</apache-commons-lang-version>
         <postgresql-version>42.2.16</postgresql-version>
