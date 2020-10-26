@@ -5,6 +5,8 @@ package com.soonsoft.uranus.core.common.lang;
  */
 public abstract class StringUtils {
 
+    public static String Empty = "";
+
     public static boolean isEmpty(CharSequence input) {
         return input == null || input.length() == 0;
     }

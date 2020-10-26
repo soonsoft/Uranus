@@ -16,7 +16,7 @@ import javax.crypto.IllegalBlockSizeException;
  */
 public abstract class RSAEncryptor {
 
-    private static String RSA_ALGORITHM = "RSA";
+    private static final String RSA_ALGORITHM = "RSA";
 
     /**
      * 公钥加密
