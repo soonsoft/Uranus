@@ -38,4 +38,8 @@ uranus.configuration/.project
 uranus.configuration/target
 uranus.configuration/.classpath
 
+uranus.test/.project
+uranus.test/target
+uranus.test/.classpath
+
 *.log
