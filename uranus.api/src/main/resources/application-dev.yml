@@ -1,0 +1,15 @@
+spring:
+  profiles: dev
+jdbc:
+  master:
+    driver: org.postgresql.Driver
+    url: jdbc:postgresql://139.196.140.101:5447/yzgdb
+    username: postgres
+    password: P@s5w0rd
+    initialSize: 1
+    minIdle: 1
+    maxActive: 20
+    maxWait: 5000
+    timeBetweenEvictionRunsMillis: 9000
+    minEvictableIdleTimeMillis: 300000
+    maxPoolPreparedStatementPerConnectionSize: 20

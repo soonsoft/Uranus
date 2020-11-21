@@ -4,14 +4,12 @@ import com.soonsoft.uranus.security.authorization.WebAccessDecisionManager;
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
 
 import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 /**
  * WebApplicationConfig
  */
-public class WebApplicationConfig implements ISecurityConfig {
+public abstract class WebApplicationConfig implements ISecurityConfig {
 
     private WebAccessDecisionManager webAccessDecisionManager;
 
@@ -28,37 +26,6 @@ public class WebApplicationConfig implements ISecurityConfig {
             return filterSecurityInterceptor;
         }
         
-    }
-
-    @Override
-    public void config(WebSecurity web) {
-
-    }
-
-    @Override
-    public void config(HttpSecurity http) {
-        try {
-            http.requestMatchers()
-                    .antMatchers("/**")
-                .and()
-                    .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .withObjectPostProcessor(new FilterSecurityInterceptorPostProcessor())
-                .and()
-                    .csrf().disable()
-                .formLogin()
-                .loginPage("/login")
-                    .usernameParameter("username")
-                    .passwordParameter("password")
-                    .defaultSuccessUrl("/").permitAll()
-                .failureUrl("/login?error").permitAll()
-                .and()
-                    .logout()
-                    .logoutUrl("/logout")
-                    .permitAll();
-        } catch(Exception e) {
-            throw new SecurityConfigException("WebApplicationConfig error.", e);
-        }
     }
 
     //#region getter and setter
@@ -80,4 +47,8 @@ public class WebApplicationConfig implements ISecurityConfig {
     }
 
     //#endregion
+
+    protected ObjectPostProcessor<FilterSecurityInterceptor> getPostProcessor() {
+        return new FilterSecurityInterceptorPostProcessor();
+    }
 }

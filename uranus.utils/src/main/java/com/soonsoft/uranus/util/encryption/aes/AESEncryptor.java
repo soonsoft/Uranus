@@ -1,7 +1,6 @@
 package com.soonsoft.uranus.util.encryption.aes;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

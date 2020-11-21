@@ -6,6 +6,8 @@ import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.authorization.WebAccessDecisionManager;
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
 import com.soonsoft.uranus.security.config.WebApplicationConfig;
+import com.soonsoft.uranus.security.config.api.WebApiApplicationConfig;
+import com.soonsoft.uranus.security.config.site.WebSiteApplicationConfig;
 import com.soonsoft.uranus.security.entity.AnonymousUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.profile.IUserProfile;
@@ -145,7 +147,18 @@ public class SecurityManager {
         }
     }
 
-    public static WebApplicationConfig webApplicationConfig(HttpSecurity http) {
+    public static WebApplicationConfig webApiApplicationConfig(HttpSecurity http) {
+        return webApplicationConfig(http, new WebApiApplicationConfig());
+    }
+
+    public static WebApplicationConfig webSiteApplicationConfig(HttpSecurity http) {
+        return webApplicationConfig(http, new WebSiteApplicationConfig());
+    }
+
+    public static WebApplicationConfig webApplicationConfig(HttpSecurity http, WebApplicationConfig config) {
+
+        Guard.notNull(http, "the parameter http is required.");
+        Guard.notNull(config, "the parameter config is required.");
 
         WebAccessDecisionManager accessDecisionManager = WebAccessDecisionManager.create();
 
@@ -154,7 +167,6 @@ public class SecurityManager {
         // TODO 更新角色和菜单绑定关系后，动态刷新菜单权限资源
         securityMetadataSource.setConfigAttributeCollection(functionManager.getEnabledMenus());
 
-        WebApplicationConfig config = new WebApplicationConfig();
         config.setWebAccessDecisionManager(accessDecisionManager);
         config.setWebSecurityMetadataSource(securityMetadataSource);
         config.config(http);

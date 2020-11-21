@@ -17,6 +17,7 @@
         <module>uranus.data</module>
         <module>uranus.web</module>
         <module>uranus.site</module>
+        <module>uranus.api</module>
         <module>uranus.security</module>
         <module>uranus.services</module>
         

@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.site.config;
+package com.soonsoft.uranus.api.config;
 
 import java.util.Set;
 
@@ -25,8 +25,8 @@ import com.soonsoft.uranus.security.authorization.SimpleRoleManager;
 import com.soonsoft.uranus.security.authorization.SimpleFunctionManager;
 
 import com.soonsoft.uranus.services.membership.authorization.MembershipRoleVoter;
-import com.soonsoft.uranus.site.config.properties.MembershipProperties;
-import com.soonsoft.uranus.site.config.properties.WebProperties;
+import com.soonsoft.uranus.api.config.properties.MembershipProperties;
+import com.soonsoft.uranus.api.config.properties.WebProperties;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -65,7 +65,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         // 初始化SecurityManager
         SecurityManager.init(this.getApplicationContext());
         // Web应用程序，身份验证配置
-        WebApplicationConfig config = SecurityManager.webSiteApplicationConfig(http);
+        WebApplicationConfig config = SecurityManager.webApiApplicationConfig(http);
         config.getWebAccessDecisionManager().addVoter(new MembershipRoleVoter());
     }
 
