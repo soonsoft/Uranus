@@ -1,14 +1,14 @@
 server:
   port: 8080
-spring:
-  profiles:
-    # 指定当前配置环境
-    active: dev
-  http:
+  servlet:
     encoding:
       charset: utf-8
       enabled: true
       force: true
+spring:
+  profiles:
+    # 指定当前配置环境
+    active: dev
   thymeleaf:
     # 调试环境下使用，生产环境要设为true，否则会影响性能
     cache: false
