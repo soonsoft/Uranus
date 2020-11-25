@@ -1,16 +1,12 @@
 package com.soonsoft.uranus.api.controller;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.api.controller.base.BaseController;
 import com.soonsoft.uranus.core.Guard;
-import com.soonsoft.uranus.web.HttpContext;
 import com.soonsoft.uranus.web.error.HttpActionException;
-import com.soonsoft.uranus.web.mvc.model.IResultData;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
 
 import org.springframework.stereotype.Controller;
@@ -24,17 +20,6 @@ import org.springframework.web.servlet.View;
  */
 @Controller
 public class AccountController extends BaseController {
-
-    // @RequestMapping(value = "/login", method = RequestMethod.GET)
-    // public View login() {
-    //     final Integer statusCode = HttpStatus.UNAUTHORIZED.value();
-
-    //     HttpServletResponse response = HttpContext.current().getResponse();
-    //     response.setHeader("X-Responded-JSON", "{\"status\":" + statusCode + "}");
-    //     response.setStatus(statusCode);
-    //     IResultData jsonResult = JsonResult.create("unauthenticated").setValue("status", statusCode);
-    //     return json(jsonResult);
-    // }
 
     @RequestMapping(value = "/acount/password-changing", method = RequestMethod.POST)
     public View changePassword(

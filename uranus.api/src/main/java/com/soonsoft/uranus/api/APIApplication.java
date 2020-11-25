@@ -15,11 +15,11 @@ import org.springframework.context.annotation.ComponentScan;
         "com.soonsoft.uranus.services",
         "com.soonsoft.uranus.api.controller"
 })
-public class APIApplication {
+public class ApiApplication {
 
     public static void main(String[] args) {
         onStop();
-        SpringApplication.run(APIApplication.class, args);
+        SpringApplication.run(ApiApplication.class, args);
     }
 
     private static void onStop() {

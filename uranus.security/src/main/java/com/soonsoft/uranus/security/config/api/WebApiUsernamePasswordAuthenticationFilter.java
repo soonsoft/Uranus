@@ -10,12 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
@@ -23,7 +22,6 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
     private IUsernamePasswordGetter usernamePasswordGetterHandler = new FormUsernamePasswordGetter();
 
     public WebApiUsernamePasswordAuthenticationFilter() {
-        super(new AntPathRequestMatcher("/login", "POST"));
         setAuthenticationSuccessHandler(new WebApiAuthenticationSuccessHandler());
         setAuthenticationFailureHandler(new WebApiAuthenticationFailureHandler());
     }
@@ -32,42 +30,23 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
         this.usernamePasswordGetterHandler = usernamePasswordGetterHandler;
     }
 
-    @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException, IOException, ServletException {
+    // @Override
+    // public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+    //         throws AuthenticationException {
 
-        String username = null;
-        String password = null;
+    //     String username = null;
+    //     String password = null;
 
-        UsernamePassword usernamePassword = usernamePasswordGetterHandler.get(request);
-        if(usernamePassword != null) {
-            username = usernamePassword.getUsername();
-            password = usernamePassword.getPassword();
-        }
+    //     UsernamePassword usernamePassword = usernamePasswordGetterHandler.get(request);
+    //     if(usernamePassword != null) {
+    //         username = usernamePassword.getUsername();
+    //         password = usernamePassword.getPassword();
+    //     }
 
-        if (username == null) {
-            username = "";
-        }
+        
 
-        if (password == null) {
-            password = "";
-        }
-
-        username = username.trim();
-
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-                username, password);
-
-        // Allow subclasses to set the "details" property
-        setDetails(request, authRequest);
-
-        return this.getAuthenticationManager().authenticate(authRequest);
-    }
-
-    protected void setDetails(HttpServletRequest request,
-			UsernamePasswordAuthenticationToken authRequest) {
-		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
-    }
+    //     return super.attemptAuthentication(request, response);
+    // }
     
     private static class FormUsernamePasswordGetter implements IUsernamePasswordGetter {
 
@@ -88,7 +67,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
                 Authentication authentication) throws IOException, ServletException {
             final Integer statusCode = HttpStatus.OK.value();
             response.setStatus(statusCode);
-            response.getWriter().print(authentication.getDetails());
+            response.getWriter().print(new SecurityResult(statusCode, authentication));
         }
 
     }
@@ -101,7 +80,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
                 AuthenticationException exception) throws IOException, ServletException {
             final Integer statusCode = HttpStatus.UNAUTHORIZED.value();
             response.setStatus(statusCode);
-            response.getWriter().print("Unauthorized");
+            response.getWriter().print(new SecurityResult(statusCode, exception.getMessage()));
         }
 
     }
