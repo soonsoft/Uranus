@@ -26,6 +26,10 @@ uranus.site/.project
 uranus.site/target
 uranus.site/.classpath
 
+uranus.api/.project
+uranus.api/target
+uranus.api/.classpath
+
 uranus.utils/.project
 uranus.utils/target
 uranus.utils/.classpath

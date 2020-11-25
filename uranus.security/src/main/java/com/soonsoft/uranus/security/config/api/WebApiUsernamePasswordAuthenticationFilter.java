@@ -6,13 +6,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpStatus;
+import com.soonsoft.uranus.security.jwt.JWTAuthenticationToken;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -20,12 +19,15 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
-    private IUsernamePasswordGetter usernamePasswordGetterHandler = new FormUsernamePasswordGetter();
+    private IUsernamePasswordGetter usernamePasswordGetterHandler;
 
     public WebApiUsernamePasswordAuthenticationFilter() {
+        this(new FormUsernamePasswordGetter());
+    }
+
+    public WebApiUsernamePasswordAuthenticationFilter(IUsernamePasswordGetter getter) {
         super(new AntPathRequestMatcher("/login", "POST"));
-        setAuthenticationSuccessHandler(new WebApiAuthenticationSuccessHandler());
-        setAuthenticationFailureHandler(new WebApiAuthenticationFailureHandler());
+        this.usernamePasswordGetterHandler = getter;
     }
     
     public void setUsernamePasswordGetterHandler(IUsernamePasswordGetter usernamePasswordGetterHandler) {
@@ -55,7 +57,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
         username = username.trim();
 
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
+        UsernamePasswordAuthenticationToken authRequest = new JWTAuthenticationToken(
                 username, password);
 
         // Allow subclasses to set the "details" property
@@ -78,32 +80,6 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
                 request.getParameter(SECURITY_FORM_PASSWORD_NAME));
         }
         
-    }
-
-    // 登录成功处理器
-    private static class WebApiAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
-        @Override
-        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                Authentication authentication) throws IOException, ServletException {
-            final Integer statusCode = HttpStatus.OK.value();
-            response.setStatus(statusCode);
-            response.getWriter().print(authentication.getDetails());
-        }
-
-    }
-
-    // 登录失败处理器
-    private static class WebApiAuthenticationFailureHandler implements AuthenticationFailureHandler {
-
-        @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                AuthenticationException exception) throws IOException, ServletException {
-            final Integer statusCode = HttpStatus.UNAUTHORIZED.value();
-            response.setStatus(statusCode);
-            response.getWriter().print("Unauthorized");
-        }
-
     }
     
 }
