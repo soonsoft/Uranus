@@ -43,3 +43,6 @@ uranus.test/target
 uranus.test/.classpath
 
 *.log
+uranus.api/.project
+uranus.api/target
+uranus.api/.classpath

@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationConfig;
+import com.soonsoft.uranus.security.jwt.JWTHttpSessionSecurityContextRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,12 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 public class WebApiApplicationConfig extends WebApplicationConfig {
 
@@ -47,21 +43,17 @@ public class WebApiApplicationConfig extends WebApplicationConfig {
                     .cors()
                 .and()
                     .csrf().disable()
-                .formLogin(formLogin -> {
-                    formLogin.usernameParameter("username");
-                    formLogin.passwordParameter("password");
-                    formLogin.successHandler(new WebApiAuthenticationSuccessHandler());
-                    formLogin.failureHandler(new WebApiAuthenticationFailureHandler());
-                })
-                .logout(logout -> {
-                    logout.logoutUrl("/logout").permitAll();
-                    logout.addLogoutHandler(null);
-                })
+                .apply(new WebApiLoginConfigurer<>())
+                .and()
+                    .logout(logout -> {
+                        logout.logoutUrl("/logout").permitAll();
+                    })
                 .exceptionHandling()
                     .authenticationEntryPoint(new WebApiAuthenticationEntryPoint())
                     .accessDeniedHandler(new WebApiAccessDeniedHandler());
-
-            //http.apply(new WebApiFormLoginConfigurer<>());
+            http.addFilterAt(
+                new SecurityContextPersistenceFilter(new JWTHttpSessionSecurityContextRepository()), 
+                SecurityContextPersistenceFilter.class);
         } catch (Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
         }

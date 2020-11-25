@@ -17,6 +17,8 @@ import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBea
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.server.session.HeaderWebSessionIdResolver;
+import org.springframework.web.server.session.WebSessionIdResolver;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -51,6 +53,13 @@ public class WebConfiguration implements WebMvcConfigurer {
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .exposedHeaders("Access-Control-Allow-Origin")
             .allowCredentials(true);
+    }
+
+    @Bean
+    public WebSessionIdResolver webSessionIdResolver() {
+        HeaderWebSessionIdResolver sessionIdResolver = new HeaderWebSessionIdResolver();
+        sessionIdResolver.setHeaderName("X-Auth-URANUS-ID");
+        return sessionIdResolver;
     }
 
     @Bean
