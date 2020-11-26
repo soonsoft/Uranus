@@ -3,6 +3,8 @@ package com.soonsoft.uranus.api.config;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,10 +18,11 @@ import com.soonsoft.uranus.security.authentication.WebUserDetailsService;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.config.WebApplicationConfig;
-
+import com.soonsoft.uranus.security.config.api.configurer.JWTConfigurer;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.authentication.SimpleUserManager;
 import com.soonsoft.uranus.security.authorization.SimpleRoleManager;
 import com.soonsoft.uranus.security.authorization.SimpleFunctionManager;
@@ -53,19 +56,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // 配置静态资源，这些资源不做安全验证
-        web.ignoring()
-            .antMatchers(
-                HttpMethod.GET, 
-                webProperties.getResourcePathArray())
-            .antMatchers(HttpMethod.GET, "/CloudAtlas/**", "/page/**");
-	}
+        web.ignoring().antMatchers(HttpMethod.GET, webProperties.getResourcePathArray()).antMatchers(HttpMethod.GET,
+                "/CloudAtlas/**", "/page/**");
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // 初始化SecurityManager
         SecurityManager.init(this.getApplicationContext());
+        IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
         // Web应用程序，身份验证配置
-        WebApplicationConfig config = SecurityManager.webApiApplicationConfig(http);
+        WebApplicationConfig config = SecurityManager.webApiApplicationConfig(http, new JWTConfigurer(requestHook));
         config.getWebAccessDecisionManager().addVoter(new MembershipRoleVoter());
     }
 
@@ -75,15 +76,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean(name = "userManager")
-    public IUserManager userManager(
-        @Qualifier("securityAccess") IDatabaseAccess securityAccess, 
-        PasswordEncoder passwordEncoder) {
-            
+    public IUserManager userManager(@Qualifier("securityAccess") IDatabaseAccess securityAccess,
+            PasswordEncoder passwordEncoder) {
+
         SimpleUserManager userManager = new SimpleUserManager(passwordEncoder);
 
         Set<GrantedAuthority> roles = new HashSet<>();
         roles.add(new RoleInfo("Admin", "管理员"));
-        
+
         List<UserInfo> users = new ArrayList<>();
         String salt = null;
         UserInfo user = new UserInfo("admin", userManager.encryptPassword("1", salt), roles);
@@ -93,7 +93,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         user.setCreateTime(new Date());
         users.add(user);
 
-        userManager.addAll(users); 
+        userManager.addAll(users);
 
         return userManager;
     }
@@ -184,5 +184,35 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         WebUserDetailsService userDetailsService = new WebUserDetailsService();
         userDetailsService.setUserManager(userManager);
         return userDetailsService;
+    }
+
+    private static class HeaderSessionIdHook implements IRealHttpServletRequestHook {
+
+        @Override
+        public HttpServletRequest getRealHttpServletRequest(ServletRequest request) {
+            if(!(request instanceof HttpServletRequest)) {
+                return null;
+            }
+
+            ServletRequest realRequest = request;
+            
+            if(realRequest instanceof org.apache.catalina.connector.Request) {
+                return (HttpServletRequest)realRequest;
+            }
+
+            if(realRequest instanceof javax.servlet.ServletRequestWrapper) {
+                realRequest = ((javax.servlet.ServletRequestWrapper)realRequest).getRequest();
+                return getRealHttpServletRequest(realRequest);
+            }
+            
+            return null;
+        }
+
+        @Override
+        public void setSessionId(HttpServletRequest request, String sessionId) {
+            org.apache.catalina.connector.Request realRequest = (org.apache.catalina.connector.Request) request;
+            realRequest.setRequestedSessionId(sessionId);
+        }
+        
     }
 }
