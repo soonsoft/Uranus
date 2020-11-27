@@ -56,6 +56,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        
         <!-- https://github.com/mybatis/spring-boot-starter -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

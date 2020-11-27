@@ -22,7 +22,7 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
-    private static final String DEFAULT_LOGIN_PROCESSING_URL = "/login";
+    private static final String DEFAULT_LOGIN_PROCESSING_URL = "/account/login";
 
     public WebApiLoginConfigurer() {
         this(
@@ -72,7 +72,8 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
                 Authentication authentication) throws IOException, ServletException {
             final Integer statusCode = HttpStatus.OK.value();
             response.setStatus(statusCode);
-            response.getWriter().print(authentication.getDetails());
+            response.setHeader("X-Auth-URANUS-ID", request.getSession().getId());
+            response.getWriter().print(new SecurityResult(statusCode, request.getSession().getId()));
         }
 
     }
@@ -83,9 +84,9 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         @Override
         public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                 AuthenticationException exception) throws IOException, ServletException {
-            final Integer statusCode = HttpStatus.UNAUTHORIZED.value();
+            final Integer statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
             response.setStatus(statusCode);
-            response.getWriter().print("Unauthorized");
+            response.getWriter().print(new SecurityResult(statusCode, "Incorrect username or password."));
         }
 
     }

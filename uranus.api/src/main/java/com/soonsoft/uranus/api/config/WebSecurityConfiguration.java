@@ -180,7 +180,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      * 自定义身份验证管理器
      */
     @Bean
-    public WebUserDetailsService getUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
+    public WebUserDetailsService userDetailsService(@Qualifier("userManager") IUserManager userManager) {
         WebUserDetailsService userDetailsService = new WebUserDetailsService();
         userDetailsService.setUserManager(userManager);
         return userDetailsService;

@@ -41,8 +41,6 @@ public class WebErrorController implements ErrorController {
     // 从Request获取错误代码
     private final static String HTTP_STATUS_CODE = "javax.servlet.error.status_code";
 
-    private final static String DEFAULT_ERROR_PAGE = "error/default";
-
     private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
     @Resource
@@ -53,41 +51,6 @@ public class WebErrorController implements ErrorController {
     @Override
     public String getErrorPath() {
         return errorConfiguration.getServerProperties().getError().getPath();
-    }
-
-    @RequestMapping(produces = {"text/html"}, value = "${server.error.path:${error.path:/error}}")
-    public ModelAndView errorHtml(
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        return errorHtml(null, request, response);
-    }
-
-    /**
-     * Error Page
-     * @param statusCode
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(produces = {"text/html"}, value = ERROR_PATH)
-    public ModelAndView errorHtml(
-            @PathVariable("status_code") Integer statusCode,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        HttpStatus status = this.getStatus(statusCode, request);
-        WebErrorModel model = buildWebErrorModel(status, request);
-
-        if(status == HttpStatus.INTERNAL_SERVER_ERROR) {
-            LOGGER.error("发生错误", model.getException());
-        }
-
-        response.setStatus(status.value());
-        ModelAndView modelAndView = this.resolveErrorView(request, response, status, model);
-        return modelAndView == null
-                ? new ModelAndView(DEFAULT_ERROR_PAGE, model)
-                : modelAndView;
     }
 
     @RequestMapping(value = "${server.error.path:${error.path:/error}}")

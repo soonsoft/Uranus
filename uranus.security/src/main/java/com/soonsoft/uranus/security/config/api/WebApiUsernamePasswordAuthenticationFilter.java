@@ -1,8 +1,5 @@
 package com.soonsoft.uranus.security.config.api;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,8 +8,7 @@ import com.soonsoft.uranus.security.jwt.JWTAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -26,7 +22,6 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
     }
 
     public WebApiUsernamePasswordAuthenticationFilter(IUsernamePasswordGetter getter) {
-        super(new AntPathRequestMatcher("/login", "POST"));
         this.usernamePasswordGetterHandler = getter;
     }
     
@@ -34,18 +29,18 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         this.usernamePasswordGetterHandler = usernamePasswordGetterHandler;
     }
 
-    // @Override
-    // public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-    //         throws AuthenticationException {
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
 
-    //     String username = null;
-    //     String password = null;
+        String username = null;
+        String password = null;
 
-    //     UsernamePassword usernamePassword = usernamePasswordGetterHandler.get(request);
-    //     if(usernamePassword != null) {
-    //         username = usernamePassword.getUsername();
-    //         password = usernamePassword.getPassword();
-    //     }
+        UsernamePassword usernamePassword = usernamePasswordGetterHandler.get(request);
+        if(usernamePassword != null) {
+            username = usernamePassword.getUsername();
+            password = usernamePassword.getPassword();
+        }
 
         UsernamePasswordAuthenticationToken authRequest = new JWTAuthenticationToken(
                 username, password);
@@ -55,9 +50,6 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
-
-    //     return super.attemptAuthentication(request, response);
-    // }
     
     private static class FormUsernamePasswordGetter implements IUsernamePasswordGetter {
 
