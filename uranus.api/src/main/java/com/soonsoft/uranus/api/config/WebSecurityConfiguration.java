@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.HashSet;
 import java.util.List;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -188,23 +189,44 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static class HeaderSessionIdHook implements IRealHttpServletRequestHook {
 
+        private Field requestField;
+
+        public HeaderSessionIdHook() {
+            Class<org.apache.catalina.connector.RequestFacade> cls = org.apache.catalina.connector.RequestFacade.class;
+
+            try {
+                Field field = cls.getDeclaredField("request");
+                field.setAccessible(true);
+                this.requestField = field;
+            } catch (Exception e) {
+                this.requestField = null;
+            }
+        }
+
         @Override
         public HttpServletRequest getRealHttpServletRequest(ServletRequest request) {
-            if(!(request instanceof HttpServletRequest)) {
+            if (!(request instanceof HttpServletRequest)) {
                 return null;
             }
 
             ServletRequest realRequest = request;
-            
-            if(realRequest instanceof org.apache.catalina.connector.Request) {
-                return (HttpServletRequest)realRequest;
+
+            if (realRequest instanceof org.apache.catalina.connector.Request) {
+                return (HttpServletRequest) realRequest;
             }
 
-            if(realRequest instanceof javax.servlet.ServletRequestWrapper) {
-                realRequest = ((javax.servlet.ServletRequestWrapper)realRequest).getRequest();
+            if (realRequest instanceof javax.servlet.ServletRequestWrapper) {
+                realRequest = ((javax.servlet.ServletRequestWrapper) realRequest).getRequest();
                 return getRealHttpServletRequest(realRequest);
             }
-            
+
+            if (realRequest instanceof org.apache.catalina.connector.RequestFacade) {
+                realRequest = getRequest(((org.apache.catalina.connector.RequestFacade) realRequest));
+                if(realRequest != null) {
+                    return getRealHttpServletRequest(realRequest);
+                }
+            }
+
             return null;
         }
 
@@ -212,6 +234,19 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         public void setSessionId(HttpServletRequest request, String sessionId) {
             org.apache.catalina.connector.Request realRequest = (org.apache.catalina.connector.Request) request;
             realRequest.setRequestedSessionId(sessionId);
+            realRequest.setRequestedSessionCookie(false);
+            realRequest.setRequestedSessionURL(false);
+        }
+
+        private ServletRequest getRequest(org.apache.catalina.connector.RequestFacade requestFacade) {
+            if(requestField == null) {
+                return null;
+            }
+            try {
+                return (ServletRequest) requestField.get(requestFacade);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                return null;
+            }
         }
         
     }

@@ -72,7 +72,7 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
                 Authentication authentication) throws IOException, ServletException {
             final Integer statusCode = HttpStatus.OK.value();
             response.setStatus(statusCode);
-            response.setHeader("X-Auth-URANUS-ID", request.getSession().getId());
+            response.setHeader("X-AUTH-URANUS-ID", request.getSession().getId());
             response.getWriter().print(new SecurityResult(statusCode, request.getSession().getId()));
         }
 

@@ -21,7 +21,7 @@ import org.springframework.web.servlet.View;
 @Controller
 public class AccountController extends BaseController {
 
-    @RequestMapping(value = "/acount/password-changing", method = RequestMethod.POST)
+    @RequestMapping(value = "/account/password-changing", method = RequestMethod.POST)
     public View changePassword(
         @RequestParam String originalPassword, 
         @RequestParam String newPassword) {
@@ -42,7 +42,7 @@ public class AccountController extends BaseController {
         return json(JsonResult.create());
     }
 
-    @RequestMapping(value = "/acount/menus", method = RequestMethod.POST)
+    @RequestMapping(value = "/account/menus", method = RequestMethod.POST)
     public View getMenus() {
         IFunctionManager functionManager = SecurityManager.current().getFunctionManager();
         UserInfo user = getCurrentUser();
