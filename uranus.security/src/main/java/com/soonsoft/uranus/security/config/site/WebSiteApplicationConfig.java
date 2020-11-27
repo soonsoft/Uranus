@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.security.config.site;
 
+import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationConfig;
 
@@ -7,6 +8,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 
 public class WebSiteApplicationConfig extends WebApplicationConfig {
+
+    public WebSiteApplicationConfig(ICustomConfigurer... configurers) {
+        setConfigurerList(configurers);
+    }
 
     @Override
     public void config(WebSecurity web) {

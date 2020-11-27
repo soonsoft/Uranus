@@ -5,6 +5,7 @@ import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.authorization.WebAccessDecisionManager;
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
+import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.WebApplicationConfig;
 import com.soonsoft.uranus.security.config.api.WebApiApplicationConfig;
 import com.soonsoft.uranus.security.config.site.WebSiteApplicationConfig;
@@ -147,12 +148,12 @@ public class SecurityManager {
         }
     }
 
-    public static WebApplicationConfig webApiApplicationConfig(HttpSecurity http) {
-        return webApplicationConfig(http, new WebApiApplicationConfig());
+    public static WebApplicationConfig webApiApplicationConfig(HttpSecurity http, ICustomConfigurer... configurers) {
+        return webApplicationConfig(http, new WebApiApplicationConfig(configurers));
     }
 
-    public static WebApplicationConfig webSiteApplicationConfig(HttpSecurity http) {
-        return webApplicationConfig(http, new WebSiteApplicationConfig());
+    public static WebApplicationConfig webSiteApplicationConfig(HttpSecurity http, ICustomConfigurer... configurers) {
+        return webApplicationConfig(http, new WebSiteApplicationConfig(configurers));
     }
 
     public static WebApplicationConfig webApplicationConfig(HttpSecurity http, WebApplicationConfig config) {
