@@ -64,6 +64,8 @@ public class JWTSecurityContextPersistenceFilter extends SecurityContextPersiste
         if(realRequest != null) {
             requestHook.setSessionId(realRequest, sessionId);
         }
+
+        response.setHeader(headerSessionIdName, sessionId);
     }
 
 }
