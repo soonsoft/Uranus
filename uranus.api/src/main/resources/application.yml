@@ -27,5 +27,4 @@ membership:
   default-password: 1
   salt: 
 uranus-web:
-  resource-path: 123
   sessionid-header: X-AUTH-URANUS-SID

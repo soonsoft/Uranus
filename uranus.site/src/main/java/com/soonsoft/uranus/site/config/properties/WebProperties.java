@@ -34,7 +34,7 @@ public class WebProperties {
         this.resourcePathList = resourcePathList;
     }
 
-    @Value("${resourcePath:/style/**,/content/**,/script/**,/favicon.ico}")
+    @Value("${uranus-web.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
     public void initResourcePathList(String resourcePath) {
         if(StringUtils.isBlank(resourcePath)) {
             resourcePathList = new ArrayList<>(0);
