@@ -20,6 +20,7 @@ import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.config.WebApplicationConfig;
 import com.soonsoft.uranus.security.config.api.configurer.JWTConfigurer;
+import com.soonsoft.uranus.security.config.api.configurer.LoginConfigurer;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
@@ -67,7 +68,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         SecurityManager.init(this.getApplicationContext());
         IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
         // Web应用程序，身份验证配置
-        WebApplicationConfig config = SecurityManager.webApiApplicationConfig(http, new JWTConfigurer(requestHook));
+        String sessionIdHeader = webProperties.getSessionIdHeaderName();
+        WebApplicationConfig config = 
+            SecurityManager.webApiApplicationConfig(http, 
+                new LoginConfigurer(sessionIdHeader), 
+                new JWTConfigurer(sessionIdHeader, requestHook));
         config.getWebAccessDecisionManager().addVoter(new MembershipRoleVoter());
     }
 

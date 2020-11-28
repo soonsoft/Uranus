@@ -11,14 +11,20 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 public class JWTConfigurer implements ICustomConfigurer {
 
+    private String sessionIdHeaderName;
     private IRealHttpServletRequestHook requestHook;
     private SecurityContextRepository securityContextRepository;
 
     public JWTConfigurer(IRealHttpServletRequestHook requestHook) {
-        this(requestHook, new JWTHttpSessionSecurityContextRepository());
+        this(null, requestHook);
     }
 
-    public JWTConfigurer(IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
+    public JWTConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook) {
+        this(sessionIdHeaderName, requestHook, new JWTHttpSessionSecurityContextRepository());
+    }
+
+    public JWTConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
+        this.sessionIdHeaderName = sessionIdHeaderName;
         this.requestHook = requestHook;
         this.securityContextRepository = repo;
     }
@@ -26,7 +32,7 @@ public class JWTConfigurer implements ICustomConfigurer {
     @Override
     public void config(HttpSecurity http) {
         http.addFilterAt(
-                new JWTSecurityContextPersistenceFilter(requestHook, securityContextRepository), 
+                new JWTSecurityContextPersistenceFilter(sessionIdHeaderName, requestHook, securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
     }
     

@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebProperties {
 
+    @Value("${uranus-web.sessionid-header:X-AUTH-URANUS-SID}")
+    private String sessionIdHeaderName;
+
     private List<String> resourcePathList;
 
     public List<String> getResourcePathList() {
@@ -34,7 +37,7 @@ public class WebProperties {
         this.resourcePathList = resourcePathList;
     }
 
-    @Value("${resourcePath:/style/**,/content/**,/script/**,/favicon.ico}")
+    @Value("${uranus-web.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
     public void initResourcePathList(String resourcePath) {
         if(StringUtils.isBlank(resourcePath)) {
             resourcePathList = new ArrayList<>(0);
@@ -52,4 +55,14 @@ public class WebProperties {
 
         resourcePathList = pathList;
     }
+
+    public String getSessionIdHeaderName() {
+        return sessionIdHeaderName;
+    }
+
+    public void setSessionIdHeaderName(String sessionIdHeaderName) {
+        this.sessionIdHeaderName = sessionIdHeaderName;
+    }
+
+    
 }

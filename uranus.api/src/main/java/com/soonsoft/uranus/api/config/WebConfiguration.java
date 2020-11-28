@@ -1,11 +1,15 @@
 package com.soonsoft.uranus.api.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
 import com.soonsoft.uranus.api.config.properties.WebProperties;
 import com.soonsoft.uranus.api.interceptor.UserInfoInterceptor;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 
@@ -44,12 +48,21 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+
+        List<String> exposedHeaders = new ArrayList<>();
+        exposedHeaders.add("Access-Control-Allow-Origin");
+
+        String sessionIdHeaderName = webProperties.getSessionIdHeaderName();
+        if(!StringUtils.isEmpty(sessionIdHeaderName)) {
+            exposedHeaders.add(sessionIdHeaderName);
+        }
+
         registry
             .addMapping("/**")
             .allowedOrigins("*")
             .allowedHeaders("*")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .exposedHeaders("Access-Control-Allow-Origin");
+            .exposedHeaders(exposedHeaders.toArray(new String[exposedHeaders.size()]));
     }
 
     @Bean

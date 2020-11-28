@@ -17,18 +17,16 @@ import org.springframework.security.web.context.SecurityContextRepository;
  */
 public class JWTSecurityContextPersistenceFilter extends SecurityContextPersistenceFilter {
 
-    private static final String DEFAULT_HEADER_SESSIONID_NAME = "X-AUTH-URANUS-SID";
-
     private String headerSessionIdName;
 
     private IRealHttpServletRequestHook requestHook;
 
     public JWTSecurityContextPersistenceFilter(IRealHttpServletRequestHook requestHook) {
-        this(DEFAULT_HEADER_SESSIONID_NAME, requestHook, new JWTHttpSessionSecurityContextRepository());
+        this(null, requestHook, new JWTHttpSessionSecurityContextRepository());
     }
 
     public JWTSecurityContextPersistenceFilter(IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
-        this(DEFAULT_HEADER_SESSIONID_NAME, requestHook, repo);
+        this(null, requestHook, repo);
     }
 
     public JWTSecurityContextPersistenceFilter(
@@ -51,7 +49,7 @@ public class JWTSecurityContextPersistenceFilter extends SecurityContextPersiste
     }
 
     protected void updateSessionId(HttpServletRequest request, HttpServletResponse response) {
-        String sessionId = request.getHeader(headerSessionIdName);
+        String sessionId = headerSessionIdName != null ? request.getHeader(headerSessionIdName) : null;
         if(sessionId == null || sessionId.length() == 0) {
             return;
         }

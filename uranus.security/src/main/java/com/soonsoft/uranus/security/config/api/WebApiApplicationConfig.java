@@ -41,15 +41,12 @@ public class WebApiApplicationConfig extends WebApplicationConfig {
                     .cors()
                 .and()
                     .csrf().disable()
-                .apply(new WebApiLoginConfigurer<>())
-                .and()
-                    .logout(logout -> {
-                        logout.logoutUrl("/logout").permitAll();
-                    })
+                .logout(logout -> {
+                    logout.logoutUrl("/logout").permitAll();
+                })
                 .exceptionHandling()
                     .authenticationEntryPoint(new WebApiAuthenticationEntryPoint())
                     .accessDeniedHandler(new WebApiAccessDeniedHandler());
-            
             setConfig(http);
         } catch (Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
