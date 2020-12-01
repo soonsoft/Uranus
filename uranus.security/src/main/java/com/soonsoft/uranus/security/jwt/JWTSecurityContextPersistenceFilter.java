@@ -12,9 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
-/**
- * JWTSecurityContextPersistenceFilter
- */
 public class JWTSecurityContextPersistenceFilter extends SecurityContextPersistenceFilter {
 
     private String headerSessionIdName;

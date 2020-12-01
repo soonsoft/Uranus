@@ -77,11 +77,13 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         @Override
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                 Authentication authentication) throws IOException, ServletException {
-            final Integer statusCode = HttpStatus.OK.value();
-            response.setStatus(statusCode);
             if(!StringUtils.isEmpty(sessionIdHeader)) {
                 response.setHeader(sessionIdHeader, request.getSession().getId());
             }
+
+            final Integer statusCode = HttpStatus.OK.value();
+            response.setStatus(statusCode);
+            response.getWriter().print(new SecurityResult(statusCode, authentication));
         }
 
     }

@@ -1,6 +1,8 @@
 package com.soonsoft.uranus.security.config.api;
 
+import com.alibaba.druid.sql.visitor.functions.Char;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.jwt.IApiToken;
 
 import org.springframework.security.core.Authentication;
 
@@ -10,7 +12,7 @@ public class SecurityResult {
 
     private String message;
 
-    private String ticket;
+    private String token;
 
     private String username;
 
@@ -25,8 +27,9 @@ public class SecurityResult {
     public SecurityResult(Integer httpStatus, Authentication authentication) {
         this.httpStatus = httpStatus;
 
-        Object ticket = authentication.getDetails();
-        this.ticket = ticket != null ? ticket.toString() : null;
+        if(authentication instanceof IApiToken) {
+            this.token = ((IApiToken)authentication).getToken();
+        }
 
         Object user = authentication.getPrincipal();
         if(user instanceof UserInfo) {
@@ -63,12 +66,12 @@ public class SecurityResult {
         this.message = message;
     }
 
-    public String getTicket() {
-        return ticket;
+    public String getToken() {
+        return token;
     }
 
-    public void setTicket(String ticket) {
-        this.ticket = ticket;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getUsername() {
@@ -98,25 +101,48 @@ public class SecurityResult {
 
     @Override
     public String toString() {
-        return 
-            new StringBuilder()
-                .append("{")
-                .append("\"").append("httpStatus").append("\"").append(":").append(this.getHttpStatus()).append(",")
-                .append("\"").append("message").append("\"").append(":").append(getStringValue(this.getMessage())).append(",")
-                .append("\"").append("ticket").append("\"").append(":").append(getStringValue(this.getTicket())).append(",")
-                .append("\"").append("username").append("\"").append(":").append(getStringValue(this.getUsername())).append(",")
-                .append("\"").append("nickname").append("\"").append(":").append(getStringValue(this.getNickname())).append(",")
-                .append("\"").append("isAuthenticated").append("\"").append(":").append(this.isAuthenticated())
-                .append("}")
-                .toString();
+        return new JSONBuilder()
+                .addProperty("httpStatus", this.getHttpStatus())
+                .addProperty("message", this.getMessage())
+                .addProperty("token", this.getToken())
+                .addProperty("username", this.getUsername())
+                .addProperty("nickname", this.getNickname())
+                .addProperty("isAuthenticated", this.isAuthenticated())
+                .toString(JSONBuilder.JSONObject);
     }
 
-    private static String getStringValue(String value) {
-        if(value == null) {
-            return "null";
+    private static class JSONBuilder {
+        private StringBuilder builder = new StringBuilder();
+
+        private static final Integer JSONObject = 1;
+        private static final Integer JSONArray = 2;
+
+        @Override
+        public String toString() {
+            return builder.toString();
         }
 
-        return "\"" + value + "\"";
+        public JSONBuilder addProperty(String name, Object value) {
+            builder.append("\"").append(name).append("\"").append(":");
+            if(value instanceof CharSequence || value instanceof Char) {
+                builder.append("\"").append(value).append("\"");
+            } else {
+                builder.append(value);
+            }
+            return this;
+        }
+
+        public String toString(Integer type) {
+            if(JSONArray.equals(type)) {
+                return new StringBuilder("{").append(builder).append("}").toString();
+            }
+
+            if(JSONObject.equals(type)) {
+                return new StringBuilder("[").append(builder).append("]").toString();
+            }
+
+            return toString();
+        }
     }
     
 }
