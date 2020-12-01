@@ -23,6 +23,7 @@ public class JWTAuthenticationToken extends UsernamePasswordAuthenticationToken 
     }
 
     public static String stringify(JWTAuthenticationToken jwtToken) {
+        // https://github.com/auth0/java-jwt
         // Algorithm algorithm = Algorithm.HMAC256("secret");
         // String token = JWT.create()
         //     .withHeader(null)
