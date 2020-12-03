@@ -129,16 +129,21 @@ public class SecurityResult {
             } else {
                 builder.append(value);
             }
+            builder.append(",");
             return this;
         }
 
         public String toString(Integer type) {
+            int len = builder.length();
+            if(len > 0) {
+                builder.deleteCharAt(len - 1);
+            }
             if(JSONArray.equals(type)) {
-                return new StringBuilder("{").append(builder).append("}").toString();
+                return new StringBuilder("[").append(builder).append("]").toString();
             }
 
             if(JSONObject.equals(type)) {
-                return new StringBuilder("[").append(builder).append("]").toString();
+                return new StringBuilder("{").append(builder).append("}").toString();
             }
 
             return toString();
