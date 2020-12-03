@@ -58,8 +58,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // 配置静态资源，这些资源不做安全验证
-        web.ignoring().antMatchers(HttpMethod.GET, webProperties.getResourcePathArray()).antMatchers(HttpMethod.GET,
-                "/CloudAtlas/**", "/page/**");
+        web.ignoring()
+            .antMatchers(HttpMethod.GET, webProperties.getResourcePathArray());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         // 初始化SecurityManager
         SecurityManager.init(this.getApplicationContext());
         IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
-        // Web应用程序，身份验证配置
+        // Web-API应用程序，身份验证配置
         String sessionIdHeader = webProperties.getSessionIdHeaderName();
         WebApplicationConfig config = 
             SecurityManager.webApiApplicationConfig(http, 
@@ -255,4 +255,5 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
         
     }
+
 }

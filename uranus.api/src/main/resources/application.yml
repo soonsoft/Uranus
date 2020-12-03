@@ -28,3 +28,4 @@ membership:
   salt: 
 uranus-web:
   sessionid-header: X-AUTH-URANUS-SID
+  resource-path: /style/**,/content/**,/script/**,/favicon.ico,/,/index,/error/**
