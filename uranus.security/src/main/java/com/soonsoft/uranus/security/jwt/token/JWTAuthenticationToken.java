@@ -1,10 +1,11 @@
-package com.soonsoft.uranus.security.jwt;
+package com.soonsoft.uranus.security.jwt.token;
 
 import java.util.Collection;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.jwt.IApiToken;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
