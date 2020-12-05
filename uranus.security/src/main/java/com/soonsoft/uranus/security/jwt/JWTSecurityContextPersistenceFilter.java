@@ -14,23 +14,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 public class JWTSecurityContextPersistenceFilter extends SecurityContextPersistenceFilter {
 
-    private String headerSessionIdName;
+    private ITokenProvider<?> tokenProvider;
 
-    private IRealHttpServletRequestHook requestHook;
-
-    public JWTSecurityContextPersistenceFilter(IRealHttpServletRequestHook requestHook) {
-        this(null, requestHook, new JWTHttpSessionSecurityContextRepository());
-    }
-
-    public JWTSecurityContextPersistenceFilter(IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
-        this(null, requestHook, repo);
-    }
-
-    public JWTSecurityContextPersistenceFilter(
-        String headerSessionIdName, IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
+    public JWTSecurityContextPersistenceFilter(ITokenProvider<?> tokenProvider, SecurityContextRepository repo) {
         super(repo);
-        this.headerSessionIdName = headerSessionIdName;
-        this.requestHook = requestHook;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
@@ -40,27 +28,11 @@ public class JWTSecurityContextPersistenceFilter extends SecurityContextPersiste
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        updateSessionId(request, response);
+        if(tokenProvider.getSessionIdStrategy() != null) {
+            tokenProvider.getSessionIdStrategy().updateSessionId(request, response);
+        }
         
         super.doFilter(request, response, chain);
-    }
-
-    protected void updateSessionId(HttpServletRequest request, HttpServletResponse response) {
-        String sessionId = headerSessionIdName != null ? request.getHeader(headerSessionIdName) : null;
-        if(sessionId == null || sessionId.length() == 0) {
-            return;
-        }
-
-        if(requestHook == null) {
-            return;
-        }
-
-        HttpServletRequest realRequest = requestHook.getRealHttpServletRequest(request);
-        if(realRequest != null) {
-            requestHook.setSessionId(realRequest, sessionId);
-        }
-
-        response.setHeader(headerSessionIdName, sessionId);
     }
 
 }

@@ -2,8 +2,6 @@ package com.soonsoft.uranus.security.config.api;
 
 import com.alibaba.druid.sql.visitor.functions.Char;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.security.jwt.IApiToken;
-
 import org.springframework.security.core.Authentication;
 
 public class SecurityResult {
@@ -26,10 +24,6 @@ public class SecurityResult {
 
     public SecurityResult(Integer httpStatus, Authentication authentication) {
         this.httpStatus = httpStatus;
-
-        if(authentication instanceof IApiToken) {
-            this.token = ((IApiToken)authentication).getToken();
-        }
 
         Object user = authentication.getPrincipal();
         if(user instanceof UserInfo) {

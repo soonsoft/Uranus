@@ -1,9 +1,14 @@
 package com.soonsoft.uranus.security.config.api.configurer;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
+import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
+import com.soonsoft.uranus.security.jwt.ITokenProvider;
+import com.soonsoft.uranus.security.jwt.ITokenStrategy;
 import com.soonsoft.uranus.security.jwt.JWTHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.jwt.JWTSecurityContextPersistenceFilter;
+import com.soonsoft.uranus.security.jwt.SessionTokenProvider;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -20,7 +25,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
     }
 
     public ApiSessionConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook) {
-        this(sessionIdHeaderName, requestHook, new JWTHttpSessionSecurityContextRepository());
+        this(sessionIdHeaderName, requestHook, null);
     }
 
     public ApiSessionConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
@@ -31,9 +36,20 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
 
     @Override
     public void config(HttpSecurity http) {
+        ITokenProvider<?> tokenProvider = new SessionTokenProvider(sessionIdHeaderName, requestHook);
+        if(securityContextRepository == null) {
+            securityContextRepository = new JWTHttpSessionSecurityContextRepository(tokenProvider);
+        }
+
         http.addFilterAt(
-                new JWTSecurityContextPersistenceFilter(sessionIdHeaderName, requestHook, securityContextRepository), 
+                new JWTSecurityContextPersistenceFilter(tokenProvider, securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
+
+        try {
+            http.apply(new WebApiLoginConfigurer<>((ITokenStrategy) tokenProvider));
+        } catch (Exception e) {
+            throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
+        }
     }
     
 }

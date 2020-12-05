@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.jwt.ITokenStrategy;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -26,16 +27,16 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
     private static final String DEFAULT_LOGIN_PROCESSING_URL = "/account/login";
 
-    public WebApiLoginConfigurer(String sessionIdHeaderName) {
+    public WebApiLoginConfigurer(ITokenStrategy tokenStrategy) {
         this(
             DEFAULT_LOGIN_PROCESSING_URL, 
             new WebApiUsernamePasswordAuthenticationFilter(),
-            new WebApiAuthenticationSuccessHandler(sessionIdHeaderName), 
+            new WebApiAuthenticationSuccessHandler(tokenStrategy), 
             new WebApiAuthenticationFailureHandler());
     }
 
-    public WebApiLoginConfigurer(String sessionIdHeaderName, String loginProcessingUrl, IUsernamePasswordGetter getter) {
-        this(loginProcessingUrl, getter, new WebApiAuthenticationSuccessHandler(sessionIdHeaderName), new WebApiAuthenticationFailureHandler());
+    public WebApiLoginConfigurer(ITokenStrategy tokenStrategy, String loginProcessingUrl, IUsernamePasswordGetter getter) {
+        this(loginProcessingUrl, getter, new WebApiAuthenticationSuccessHandler(tokenStrategy), new WebApiAuthenticationFailureHandler());
     }
 
     public WebApiLoginConfigurer(
@@ -68,22 +69,23 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
     // 登录成功处理器
     private static class WebApiAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-        private String sessionIdHeader;
+        private ITokenStrategy tokenStrategy;
 
-        public WebApiAuthenticationSuccessHandler(String sessionIdHeader) {
-            this.sessionIdHeader = sessionIdHeader;
+        public WebApiAuthenticationSuccessHandler(ITokenStrategy tokenStrategy) {
+            this.tokenStrategy = tokenStrategy;
         }
 
         @Override
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                 Authentication authentication) throws IOException, ServletException {
-            if(!StringUtils.isEmpty(sessionIdHeader)) {
-                response.setHeader(sessionIdHeader, request.getSession().getId());
-            }
-
             final Integer statusCode = HttpStatus.OK.value();
             response.setStatus(statusCode);
-            response.getWriter().print(new SecurityResult(statusCode, authentication));
+            SecurityResult securityResult = new SecurityResult(statusCode, authentication);
+            securityResult.setToken(
+                    tokenStrategy != null 
+                        ? tokenStrategy.getToken(request, response, authentication) 
+                        : StringUtils.Empty);
+            response.getWriter().print(securityResult);
         }
 
     }

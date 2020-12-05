@@ -3,8 +3,6 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.jwt.token.JWTAuthenticationToken;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -42,7 +40,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
             password = usernamePassword.getPassword();
         }
 
-        UsernamePasswordAuthenticationToken authRequest = new JWTAuthenticationToken(
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
                 username, password);
 
         // Allow subclasses to set the "details" property

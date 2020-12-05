@@ -1,7 +1,11 @@
 package com.soonsoft.uranus.security.config.api.configurer;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
+import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
+import com.soonsoft.uranus.security.jwt.ITokenProvider;
+import com.soonsoft.uranus.security.jwt.ITokenStrategy;
 import com.soonsoft.uranus.security.jwt.JWTHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.jwt.JWTSecurityContextPersistenceFilter;
 
@@ -20,7 +24,7 @@ public class JWTConfigurer implements ICustomConfigurer {
     }
 
     public JWTConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook) {
-        this(sessionIdHeaderName, requestHook, new JWTHttpSessionSecurityContextRepository());
+        this(sessionIdHeaderName, requestHook, null);
     }
 
     public JWTConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook, SecurityContextRepository repo) {
@@ -31,9 +35,16 @@ public class JWTConfigurer implements ICustomConfigurer {
 
     @Override
     public void config(HttpSecurity http) {
+        ITokenProvider<?> tokenProvider = null;
         http.addFilterAt(
-                new JWTSecurityContextPersistenceFilter(sessionIdHeaderName, requestHook, securityContextRepository), 
+                new JWTSecurityContextPersistenceFilter(tokenProvider, securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
+
+        try {
+            http.apply(new WebApiLoginConfigurer<>((ITokenStrategy) tokenProvider));
+        } catch (Exception e) {
+            throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
+        }
     }
     
 }

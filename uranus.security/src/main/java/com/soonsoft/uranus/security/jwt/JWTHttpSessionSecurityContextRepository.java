@@ -9,6 +9,12 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 
 public class JWTHttpSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
 
+    private ITokenProvider<?> tokenProvider;
+
+    public JWTHttpSessionSecurityContextRepository(ITokenProvider<?> tokenProvider) {
+        this.tokenProvider = tokenProvider;
+    }
+
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         SecurityContext securityContext = super.loadContext(requestResponseHolder);
@@ -22,6 +28,7 @@ public class JWTHttpSessionSecurityContextRepository extends HttpSessionSecurity
     }
 
     protected void setJWTAuthentication(SecurityContext securityContext, HttpServletRequest request, HttpServletResponse response) {
+        tokenProvider.checkToken(request);
         // TODO JWT anuthentication build.
         securityContext.setAuthentication(null);
     }
