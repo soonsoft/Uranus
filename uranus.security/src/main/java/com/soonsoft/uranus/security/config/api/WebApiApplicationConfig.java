@@ -14,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 public class WebApiApplicationConfig extends WebApplicationConfig {
 
@@ -42,6 +44,7 @@ public class WebApiApplicationConfig extends WebApplicationConfig {
                 .and()
                     .csrf().disable()
                 .logout(logout -> {
+                    logout.logoutSuccessHandler(new WebApiLogoutSuccessHandler());
                     logout.logoutUrl("/logout").permitAll();
                 })
                 .exceptionHandling()
@@ -73,6 +76,17 @@ public class WebApiApplicationConfig extends WebApplicationConfig {
             final Integer statusCode = HttpStatus.FORBIDDEN.value();
             response.setStatus(statusCode);
             response.getWriter().print(new SecurityResult(statusCode, "Forbidden"));
+		}
+        
+    }
+
+    private static class WebApiLogoutSuccessHandler implements LogoutSuccessHandler {
+
+		@Override
+		public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+				Authentication authentication) throws IOException, ServletException {
+            final Integer statusCode = HttpStatus.OK.value();
+            response.getWriter().print(new SecurityResult(statusCode, "LogOff"));
 		}
         
     }
