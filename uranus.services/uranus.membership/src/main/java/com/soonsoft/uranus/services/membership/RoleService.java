@@ -22,6 +22,7 @@ import com.soonsoft.uranus.services.membership.dto.AuthRoleIdAndFunctionId;
 import com.soonsoft.uranus.services.membership.dto.SysMenu;
 import com.soonsoft.uranus.services.membership.model.Transformer;
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.event.IEventListener;
 import com.soonsoft.uranus.core.common.event.SimpleEventListener;
@@ -30,7 +31,6 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 /**
  * RoleService

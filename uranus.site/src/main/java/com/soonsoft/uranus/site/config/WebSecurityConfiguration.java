@@ -109,67 +109,58 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         allowRoles.add(new RoleInfo("Admin"));
 
         List<MenuInfo> menus = new ArrayList<>();
-        MenuInfo menu = new MenuInfo("1", "HOME");
-        menu.setUrl("/index");
+        MenuInfo menu = new MenuInfo("1", "HOME", "/index");
         menu.setIcon("/content/icons/sys-setting.png");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("2", "功能菜单2");
-        menu.setUrl("/coming-soon");
+        menu = new MenuInfo("2", "功能菜单2", "/coming-soon");
         menu.setIcon("/content/icons/sys-setting.png");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("3", "功能菜单3");
+        menu = new MenuInfo("3", "功能菜单3", null);
         menu.setIcon("/content/icons/sys-setting.png");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("3_1", "菜单3-功能");
+        menu = new MenuInfo("3_1", "菜单3-功能", "/coming-soon");
         menu.setParentResourceCode("3");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("3_2", "菜单3-功能");
+        menu = new MenuInfo("3_2", "菜单3-功能", "/coming-soon");
         menu.setParentResourceCode("3");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("3_3", "菜单3-功能");
+        menu = new MenuInfo("3_3", "菜单3-功能", "/coming-soon");
         menu.setParentResourceCode("3");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4", "系统管理");
+        menu = new MenuInfo("4", "系统管理", null);
         menu.setIcon("/content/icons/sys-setting.png");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_1", "用户管理");
+        menu = new MenuInfo("4_1", "用户管理", "/coming-soon");
         menu.setParentResourceCode("4");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_2", "角色管理");
+        menu = new MenuInfo("4_2", "角色管理", "/coming-soon");
         menu.setParentResourceCode("4");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_3", "模块管理");
+        menu = new MenuInfo("4_3", "模块管理", "/coming-soon");
         menu.setParentResourceCode("4");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_4", "系统设置");
+        menu = new MenuInfo("4_4", "系统设置", "/coming-soon");
         menu.setParentResourceCode("4");
-        menu.setUrl("/coming-soon");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 

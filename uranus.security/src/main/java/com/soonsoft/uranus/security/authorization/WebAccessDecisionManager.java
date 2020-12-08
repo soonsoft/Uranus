@@ -76,7 +76,7 @@ public class WebAccessDecisionManager extends UnanimousBased {
 
     public static WebAccessDecisionManager create() {
         List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<>();
-        // 默认的身份验证投票器，更加config的表达式进行验证
+        // 默认的身份验证投票器，根据config的表达式进行验证
         decisionVoters.add(new WebExpressionVoter());
         // 默认角色投票器，角色以ROLE_开头
         decisionVoters.add(new RoleVoter());

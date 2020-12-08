@@ -204,7 +204,7 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
         private final int maxEntries;
 
         public CacheBag(int capacity) {
-            // 一次性开辟内存控件，避免中途扩展
+            // 一次性开辟内存空间，避免中途扩展
             super((int) ((float)capacity / DEFAULT_LOAD_FACTOR + 1.0F), DEFAULT_LOAD_FACTOR, true);
             this.maxEntries = capacity;
         }

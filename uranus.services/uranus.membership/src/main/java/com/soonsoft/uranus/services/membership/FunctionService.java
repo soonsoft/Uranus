@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.event.IEventListener;
 import com.soonsoft.uranus.core.common.event.SimpleEventListener;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 
 import com.soonsoft.uranus.util.caching.Cache;
@@ -18,6 +19,7 @@ import com.soonsoft.uranus.util.caching.Cache;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.event.FunctionChangedEvent;
 import com.soonsoft.uranus.security.authorization.event.IFunctionChangedListener;
+import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
@@ -29,7 +31,6 @@ import com.soonsoft.uranus.services.membership.dto.AuthRoleIdAndFunctionId;
 import com.soonsoft.uranus.services.membership.dto.SysMenu;
 import com.soonsoft.uranus.services.membership.model.Transformer;
 
-import org.springframework.util.CollectionUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     private AuthRolesInFunctionsDAO rolesInFunctionsDAO;
 
-    private Cache<String, MenuInfo> menuStore;
+    private Cache<String, FunctionInfo> functionStore;
 
     private List<String> sequence;
 
@@ -58,19 +59,19 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         this(null);
     }
 
-    public FunctionService(Cache<String, MenuInfo> menuStore) {
-        if (menuStore != null) {
-            this.menuStore = menuStore;
+    public FunctionService(Cache<String, FunctionInfo> functionStore) {
+        if (functionStore != null) {
+            this.functionStore = functionStore;
         } else {
-            this.menuStore = new Cache<>(128);
+            this.functionStore = new Cache<>(128);
         }
 
         // 注册缓存更新
         addFunctionChanged(e -> {
-            MenuInfo menuInfo = Transformer.toMenuInfo(e.getData());
-            MenuInfo oldMenuInfo = menuStore.get(menuInfo.getResourceCode());
-            menuInfo.setAllowRoles(oldMenuInfo.getAllowRoles());
-            menuStore.put(menuInfo.getResourceCode(), menuInfo);
+            FunctionInfo functionInfo = Transformer.toFunctionInfo(e.getData());
+            FunctionInfo oldFunctionInfo = functionStore.get(functionInfo.getResourceCode());
+            functionInfo.setAllowRoles(oldFunctionInfo.getAllowRoles());
+            functionStore.put(functionInfo.getResourceCode(), functionInfo);
         });
     }
 
@@ -98,22 +99,18 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         this.rolesInFunctionsDAO = rolesInFunctionsDAO;
     }
 
-    public void setMenuStore(Cache<String, MenuInfo> menuStore) {
-        this.menuStore = menuStore;
-    }
-
     // #region IFunctionManager methods
 
     @Override
-    public List<MenuInfo> getEnabledMenus() {
-        if (menuStore != null) {
+    public List<? extends FunctionInfo> getEnabledFunctions() {
+        if (functionStore != null) {
             List<String> mySequence = this.sequence;
             if (mySequence != null) {
-                List<MenuInfo> records = new ArrayList<>(mySequence.size());
+                List<FunctionInfo> records = new ArrayList<>(mySequence.size());
                 for (String code : mySequence) {
-                    MenuInfo menu = menuStore.get(code);
-                    if (menu != null) {
-                        records.add(menu);
+                    FunctionInfo functionInfo = functionStore.get(code);
+                    if (functionInfo != null) {
+                        records.add(functionInfo);
                     }
                 }
                 // 检查是否全部命中
@@ -126,18 +123,18 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         Map<String, Object> params = MapUtils.createHashMap(1);
         params.put("status", SysMenu.STATUS_ENABLED);
         List<SysMenu> menus = getAllMenus(params);
-        List<MenuInfo> records = new ArrayList<>(menus.size());
+        List<FunctionInfo> records = new ArrayList<>(menus.size());
 
-        if (menuStore != null && menus != null && !menus.isEmpty()) {
-            Map<String, MenuInfo> cacheValue = MapUtils.createHashMap(menus.size());
+        if (functionStore != null && !CollectionUtils.isEmpty(menus)) {
+            Map<String, FunctionInfo> cacheValue = MapUtils.createHashMap(menus.size());
             List<String> sequence = new ArrayList<>(menus.size());
             menus.forEach(i -> {
-                MenuInfo menuInfo = Transformer.toMenuInfo(i);
-                sequence.add(menuInfo.getResourceCode());
-                records.add(menuInfo);
-                cacheValue.put(menuInfo.getResourceCode(), menuInfo);
+                FunctionInfo functionInfo = Transformer.toFunctionInfo(i);
+                sequence.add(functionInfo.getResourceCode());
+                records.add(functionInfo);
+                cacheValue.put(functionInfo.getResourceCode(), functionInfo);
             });
-            menuStore.putAll(cacheValue);
+            functionStore.putAll(cacheValue);
             synchronized (locker) {
                 this.sequence = sequence;
             }
@@ -150,7 +147,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     public List<MenuInfo> getMenus(UserInfo user) {
         if (user != null) {
             Collection<GrantedAuthority> authorities = user.getAuthorities();
-            if (authorities != null && !authorities.isEmpty()) {
+            if (!CollectionUtils.isEmpty(authorities)) {
                 Set<String> userRoles = new HashSet<>();
                 authorities.forEach(i -> userRoles.add(i.getAuthority()));
 
@@ -233,24 +230,25 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     public void updateMenuStore(String roleId, List<String> functionIdList) {
         // 加载新的菜单数据
-        Map<String, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList, SysMenu.STATUS_ENABLED);
+        Map<String, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList,
+                SysMenu.STATUS_ENABLED);
 
         Set<String> functionIdSet = new HashSet<>();
         functionIdSet.addAll(functionIdList);
 
-        synchronized(locker) {
+        synchronized (locker) {
             sequence.forEach(functionId -> {
-                MenuInfo menuInfo = menuStore.get(functionId);
-                if(menuInfo == null) {
+                MenuInfo menuInfo = getMenuInfoFromCache(functionId);
+                if (menuInfo == null) {
                     return;
                 }
-                if(!functionIdSet.contains(functionId)) {     
+                if (!functionIdSet.contains(functionId)) {
                     // 移除取消的菜单权限
                     List<RoleInfo> roles = menuInfo.getAllowRoles();
-                    if(roles != null) {
+                    if (roles != null) {
                         List<RoleInfo> newRoles = new ArrayList<>(roles.size());
-                        for(RoleInfo role : roles) {
-                            if(!role.getRole().equals(roleId)) {
+                        for (RoleInfo role : roles) {
+                            if (!role.getRole().equals(roleId)) {
                                 newRoles.add(role);
                             }
                         }
@@ -271,7 +269,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         }
     }
 
-    //#region 事件
+    // #region 事件
 
     @Override
     public void addFunctionChanged(Consumer<FunctionChangedEvent<SysMenu>> eventHandler) {
@@ -289,4 +287,12 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     //#endregion
 
+
+    private MenuInfo getMenuInfoFromCache(String functionId) {
+        FunctionInfo functionInfo = functionStore.get(functionId);
+        if(functionInfo != null) {
+            return functionInfo.isType(FunctionInfo.MENU_TYPE) ? (MenuInfo) functionInfo : null;
+        }
+        return null;
+    }
 }

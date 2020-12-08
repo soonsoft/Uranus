@@ -82,10 +82,10 @@
 
   <select id="select" parameterType="java.util.Map" resultMap="sysMenuMap">
     SELECT 
-        f.function_id, f.function_name, f.parent_id, f.description, f.type, f.status, f.sort_value,
-        m.menu_key, m.url, m.icon, m.background, m.theme_info, m.tile_style
+        f.function_id, f.function_name, f.parent_id, f.description, f.type, f.status, f.sort_value, f.url,
+        m.menu_key, m.icon, m.background, m.theme_info, m.tile_style
       FROM sys_function f
-      INNER JOIN sys_menu m ON f.function_id = m.function_id
+      LEFT JOIN sys_menu m ON f.function_id = m.function_id
       <trim prefix="where" suffixOverrides="and">
         <if test="status != null">
           status = #{status, jdbcType=INTEGER} and

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.soonsoft.uranus.security.entity.MenuInfo;
+import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 
@@ -29,27 +29,27 @@ public class WebSecurityMetadataSource implements FilterInvocationSecurityMetada
 
     private Map<RequestMatcher, Collection<ConfigAttribute>> requestMap;
 
-    private Collection<MenuInfo> menuCollection;
+    private Collection<? extends FunctionInfo> functionCollection;
 
     /**
      * @param configAttributeCollection the configAttributeCollection to set
      */
-    public void setConfigAttributeCollection(Collection<MenuInfo> menuCollection) {
-        if(menuCollection == null || menuCollection.isEmpty()) {
+    public void setConfigAttributeCollection(Collection<? extends FunctionInfo> functionCollection) {
+        if(functionCollection == null || functionCollection.isEmpty()) {
             return;
         }
-        this.menuCollection = menuCollection;
-        Map<String, Collection<ConfigAttribute>> menuMap = new HashMap<>(this.menuCollection.size(), 1);
+        this.functionCollection = functionCollection;
+        Map<String, Collection<ConfigAttribute>> menuMap = new HashMap<>(this.functionCollection.size(), 1);
 
-        for(MenuInfo menu : this.menuCollection) {
-            String url = menu.getResourceUrl();
+        for(FunctionInfo function : this.functionCollection) {
+            String url = function.getResourceUrl();
             if(!StringUtils.isEmpty(url)) {
                 Collection<ConfigAttribute> attributes = menuMap.get(url);
                 if(attributes == null) {
                     attributes = new HashSet<>();
                     menuMap.put(url, attributes);
                 }
-                List<RoleInfo> list = menu.getAllowRoles();
+                List<RoleInfo> list = function.getAllowRoles();
                 if(list != null) {
                     attributes.addAll(list);
                 }

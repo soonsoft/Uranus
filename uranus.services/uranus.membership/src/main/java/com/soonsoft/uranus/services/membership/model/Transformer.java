@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
@@ -73,13 +74,20 @@ public abstract class Transformer {
         role.setEnable(AuthRole.ENABLED.equals(authRole.getStatus()));
         return role;
     }
-    
-    public static MenuInfo toMenuInfo(SysMenu sysMenu) {
-        MenuInfo menu = new MenuInfo(sysMenu.getFunctionId(), sysMenu.getFunctionName());
-        menu.setParentResourceCode(sysMenu.getParentId());
-        menu.setEnabled(SysMenu.STATUS_ENABLED.equals(sysMenu.getStatus()));
-        menu.setIcon(sysMenu.getIcon());
-        menu.setUrl(sysMenu.getUrl());
+
+    public static FunctionInfo toFunctionInfo(SysMenu sysMenu) {
+        FunctionInfo functionInfo = null;
+
+        if(StringUtils.equals(SysMenu.TYPE_MENU, sysMenu.getType())) {
+            MenuInfo menu = new MenuInfo(sysMenu.getFunctionId(), sysMenu.getFunctionName(), sysMenu.getUrl());
+            menu.setParentResourceCode(sysMenu.getParentId());
+            menu.setEnabled(SysMenu.STATUS_ENABLED.equals(sysMenu.getStatus()));
+            menu.setIcon(sysMenu.getIcon());
+
+            functionInfo = menu;
+        } else {
+            functionInfo = new FunctionInfo(sysMenu.getFunctionId(), sysMenu.getFunctionName(), sysMenu.getUrl());
+        }
 
         Collection<AuthRole> roles = sysMenu.getRoles();
         if(roles != null) {
@@ -89,8 +97,16 @@ public abstract class Transformer {
                     roleList.add(toRoleInfo((AuthRole) item));
                 }
             }
-            menu.setAllowRoles(roleList);
+            functionInfo.setAllowRoles(roleList);
         }
-        return menu;
+        return functionInfo;
+    }
+    
+    public static MenuInfo toMenuInfo(SysMenu sysMenu) {
+        if(!StringUtils.equals(SysMenu.TYPE_MENU, sysMenu.getType())) {
+            throw new IllegalArgumentException("the parameter sysMenu is not a menu object.");
+        }
+
+        return (MenuInfo) toFunctionInfo(sysMenu);
     }
 }

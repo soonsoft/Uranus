@@ -46,7 +46,7 @@ COMMENT ON COLUMN auth_role.status IS '状态 - 0: 无效, 1: 有效';
 -- 用户组
 CREATE TABLE auth_group
 (
-    group_id uuid NOT NULL,
+    group_id uuid PRIMARY KEY NOT NULL,
     group_name varchar(100) NOT NULL,
     description varchar(200) NULL,
     status smallint default 1 NOT NULL,
@@ -63,8 +63,8 @@ CREATE TABLE auth_users_in_roles
     role_id uuid NOT NULL,
     PRIMARY KEY(user_id, role_id)
 );
---CREATE INDEX idx_user_id ON auth_users_in_roles USING HASH (user_id);
---CREATE INDEX idx_role_id ON auth_users_in_roles USING HASH (role_id);
+-- CREATE INDEX idx_user_id ON auth_users_in_roles USING HASH (user_id);
+-- CREATE INDEX idx_role_id ON auth_users_in_roles USING HASH (role_id);
 COMMENT ON TABLE auth_users_in_roles IS '角色和用户关系表';
 
 -- 用户组和角色关系表
@@ -83,12 +83,14 @@ CREATE TABLE sys_function
     function_name varchar(200) NOT NULL,
     parent_id uuid NULL,
     description varchar(200) NULL,
+    url varchar(512) NULL,
     type varchar(20) NOT NULL,
     status smallint default 1 NOT NULL,
     sort_value int default 0 NOT NULL
 );
 COMMENT ON TABLE sys_function IS '功能表';
 COMMENT ON COLUMN sys_function.function_name IS '功能名称';
+COMMENT ON COLUMN sys_function.url IS '功能URL';
 COMMENT ON COLUMN sys_function.type IS '功能类型 - menu: 菜单, action: 操作';
 COMMENT ON COLUMN sys_function.status IS '状态 - 0: 无效, 1: 有效';
 
@@ -97,7 +99,6 @@ CREATE TABLE sys_menu
 (
     function_id uuid PRIMARY KEY NOT NULL,
     menu_key varchar(100) NULL,
-    url varchar(2048) NULL,
     icon varchar(2048) NULL,
     background varchar(50) NULL,
     theme_info varchar(200) NULL,
@@ -105,7 +106,6 @@ CREATE TABLE sys_menu
 );
 COMMENT ON TABLE sys_menu IS '菜单表';
 COMMENT ON COLUMN sys_menu.menu_key IS '菜单Key，用于和程序逻辑关联';
-COMMENT ON COLUMN sys_menu.url IS '菜单地址';
 COMMENT ON COLUMN sys_menu.icon IS '菜单图标';
 COMMENT ON COLUMN sys_menu.background IS '菜单图标背景颜色';
 COMMENT ON COLUMN sys_menu.theme_info IS '菜单对应功能的主题信息';
