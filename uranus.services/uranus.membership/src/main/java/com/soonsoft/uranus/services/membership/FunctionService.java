@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.event.IEventListener;
 import com.soonsoft.uranus.core.common.event.SimpleEventListener;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 
@@ -35,9 +37,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * FunctionService
- */
 public class FunctionService implements IFunctionManager, IFunctionChangedListener<SysMenu> {
 
     private SysFunctionDAO functionDAO;
@@ -195,10 +194,27 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         return menus;
     }
 
-    // TODO 创建菜单
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createMenu(SysMenu menu) {
-        return false;
+        Guard.notNull(menu, "the SysMenu is required.");
+        if(StringUtils.isEmpty(menu.getFunctionId())) {
+            menu.setFunctionId(UUID.randomUUID().toString());
+        }
+
+        int effectRows = 0;
+
+        effectRows += functionDAO.insert(menu);
+        effectRows += updateRoles(menu, false);
+        
+        if(StringUtils.equals(menu.getType(), FunctionInfo.MENU_TYPE)) {
+            effectRows += menuDAO.insert(menu);
+        }
+
+        boolean result = effectRows > 0;
+        if (result) {
+            onFunctionChanged(menu);
+        }
+        return result;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
@@ -208,18 +224,8 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
         int effectRows = 0;
 
-        Collection<AuthRole> roles = menu.getRoles();
-        if (!CollectionUtils.isEmpty(roles)) {
-            rolesInFunctionsDAO.deleteByFunctionId(menu.getFunctionId());
-            for (AuthRole role : roles) {
-                AuthRoleIdAndFunctionId roleIdFunctionId = new AuthRoleIdAndFunctionId();
-                roleIdFunctionId.setRoleId(role.getRoleId());
-                roleIdFunctionId.setFunctionId(menu.getFunctionId());
-                effectRows += rolesInFunctionsDAO.insert(roleIdFunctionId);
-            }
-        }
-
         effectRows += functionDAO.update(menu);
+        effectRows += updateRoles(menu, true);
 
         boolean result = effectRows > 0;
         if (result) {
@@ -228,7 +234,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         return result;
     }
 
-    public void updateMenuStore(String roleId, List<String> functionIdList) {
+    public void updateFunctionStore(String roleId, List<String> functionIdList) {
         // 加载新的菜单数据
         Map<String, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList,
                 SysMenu.STATUS_ENABLED);
@@ -238,13 +244,13 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
         synchronized (locker) {
             sequence.forEach(functionId -> {
-                MenuInfo menuInfo = getMenuInfoFromCache(functionId);
-                if (menuInfo == null) {
+                FunctionInfo functionInfo = functionStore.get(functionId);
+                if (functionInfo == null) {
                     return;
                 }
                 if (!functionIdSet.contains(functionId)) {
                     // 移除取消的菜单权限
-                    List<RoleInfo> roles = menuInfo.getAllowRoles();
+                    List<RoleInfo> roles = functionInfo.getAllowRoles();
                     if (roles != null) {
                         List<RoleInfo> newRoles = new ArrayList<>(roles.size());
                         for (RoleInfo role : roles) {
@@ -252,7 +258,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
                                 newRoles.add(role);
                             }
                         }
-                        menuInfo.setAllowRoles(newRoles);
+                        functionInfo.setAllowRoles(newRoles);
                     }
                 } else {
                     // 更新菜单的可用角色列表
@@ -263,7 +269,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
                             newRoles.add(Transformer.toRoleInfo((AuthRole) item));
                         }
                     }
-                    menuInfo.setAllowRoles(newRoles);
+                    functionInfo.setAllowRoles(newRoles);
                 }
             });
         }
@@ -287,12 +293,20 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     //#endregion
 
-
-    private MenuInfo getMenuInfoFromCache(String functionId) {
-        FunctionInfo functionInfo = functionStore.get(functionId);
-        if(functionInfo != null) {
-            return functionInfo.isType(FunctionInfo.MENU_TYPE) ? (MenuInfo) functionInfo : null;
+    private int updateRoles(SysMenu menu, boolean isUpdate) {
+        int effectRows = 0;
+        Collection<AuthRole> roles = menu.getRoles();
+        if (!CollectionUtils.isEmpty(roles)) {
+            if(isUpdate) {
+                rolesInFunctionsDAO.deleteByFunctionId(menu.getFunctionId());
+            }
+            for (AuthRole role : roles) {
+                AuthRoleIdAndFunctionId roleIdFunctionId = new AuthRoleIdAndFunctionId();
+                roleIdFunctionId.setRoleId(role.getRoleId());
+                roleIdFunctionId.setFunctionId(menu.getFunctionId());
+                effectRows += rolesInFunctionsDAO.insert(roleIdFunctionId);
+            }
         }
-        return null;
+        return effectRows;
     }
 }

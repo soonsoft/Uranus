@@ -13,6 +13,10 @@ import com.soonsoft.uranus.security.entity.UserInfo;
  */
 public interface IFunctionManager {
 
+    /**
+     * 获取有效的功能列表（功能 + 菜单）
+     * @return
+     */
     List<? extends FunctionInfo> getEnabledFunctions();
 
     /**

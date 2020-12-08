@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.services.membership.config.DataSourceConfig;
 import com.soonsoft.uranus.services.membership.config.MembershipServiceConfig;
+import com.soonsoft.uranus.services.membership.dto.AuthRole;
 import com.soonsoft.uranus.services.membership.dto.SysMenu;
 
 import org.junit.Assert;
@@ -39,6 +41,24 @@ public class FunctionServiceTest {
         List<SysMenu> menus = functionService.getAllMenus(params);
         Assert.assertTrue(menus != null && !menus.isEmpty());
         menus.forEach(i -> Assert.assertTrue(i.getRoles() != null && !i.getRoles().isEmpty()));
+    }
+
+    @Test
+    public void test_createApiFunction() {
+        SysMenu apiFunc = new SysMenu();
+        apiFunc.setUrl("/account/menus");
+        apiFunc.setType(FunctionInfo.ACTION_TYPE);
+        apiFunc.setFunctionName("getUserMenus");
+        apiFunc.setDescription("查询用户菜单");
+        apiFunc.setStatus(SysMenu.STATUS_ENABLED);
+
+        AuthRole role = new AuthRole();
+        role.setRoleId("767defd2-8b87-11e9-99cb-00163e1c3c68");
+        role.setRoleName("系统管理员");
+        apiFunc.addRole(role);
+
+        boolean result = functionService.createMenu(apiFunc);
+        Assert.assertTrue(result);
     }
     
 }

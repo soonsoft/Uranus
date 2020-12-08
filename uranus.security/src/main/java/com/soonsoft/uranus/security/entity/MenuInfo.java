@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.security.entity;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
+
 /**
  * 菜单信息
  */
@@ -24,6 +26,10 @@ public class MenuInfo extends FunctionInfo {
      */
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public boolean isFolder() {
+        return StringUtils.isEmpty(getUrl());
     }
 
 }

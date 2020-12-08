@@ -63,4 +63,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <!--单元测试时引用src/test/resources下的资源文件-->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+    </build>
+
 </project>
