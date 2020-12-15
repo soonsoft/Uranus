@@ -85,6 +85,10 @@ public class PagingInterceptor implements Interceptor {
             if(result != null && !result.isEmpty()) {
                 pageRowBounds.setTotal(result.get(0).intValue());
             }
+
+            if(pageRowBounds.getTotal() == 0) {
+                //TODO 直接返回，不再执行查询语句
+            }
         }
 
         String pagingSql = this.pagingDailect.buildPagingSql(originalSql.getSql(), pageRowBounds.getOffset(), pageRowBounds.getLimit());
