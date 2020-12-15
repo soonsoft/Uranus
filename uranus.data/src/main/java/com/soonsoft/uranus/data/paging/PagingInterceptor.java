@@ -33,9 +33,10 @@ import org.apache.ibatis.session.RowBounds;
 })
 public class PagingInterceptor implements Interceptor {
 
-    private IPagingDailect pagingDailect;
+    private final static String COUNTING_SUFFIX = "-SELECT-COUNT";
+    private final static List<Object> EMPTY_QUERY_RESULT = new ArrayList<>(0);
 
-    private static String COUNTING_SUFFIX = "-SELECT-COUNT";
+    private IPagingDailect pagingDailect;
 
     public PagingInterceptor() {
 
@@ -87,7 +88,7 @@ public class PagingInterceptor implements Interceptor {
             }
 
             if(pageRowBounds.getTotal() == 0) {
-                //TODO 直接返回，不再执行查询语句
+                return EMPTY_QUERY_RESULT;
             }
         }
 
