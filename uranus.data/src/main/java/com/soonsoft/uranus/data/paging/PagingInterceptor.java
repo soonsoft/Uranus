@@ -1,9 +1,11 @@
 package com.soonsoft.uranus.data.paging;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import com.soonsoft.uranus.data.service.mybatis.PageRowBounds;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
@@ -34,7 +36,7 @@ import org.apache.ibatis.session.RowBounds;
 public class PagingInterceptor implements Interceptor {
 
     private final static String COUNTING_SUFFIX = "-SELECT-COUNT";
-    private final static List<Object> EMPTY_QUERY_RESULT = new ArrayList<>(0);
+    private final static List<Object> EMPTY_QUERY_RESULT = new EmptyDataSet();
 
     private IPagingDailect pagingDailect;
 
@@ -140,5 +142,55 @@ public class PagingInterceptor implements Interceptor {
     @Override
     public void setProperties(Properties properties) {
         // 用于设置外部的配置信息
+    }
+
+    public static class EmptyDataSet extends ArrayList<Object> {
+
+        private static final long serialVersionUID = 2304228292230801097L;
+
+        public EmptyDataSet() {
+            super(0);
+        }
+
+        @Override
+        public boolean add(Object e) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(int index, Object element) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public boolean addAll(Collection<? extends Object> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean addAll(int index, Collection<? extends Object> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean removeIf(Predicate<? super Object> filter) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void removeRange(int fromIndex, int toIndex) {
+            throw new UnsupportedOperationException();
+        }
+        
     }
 }
