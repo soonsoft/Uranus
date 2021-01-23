@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.services.membership;
+package com.soonsoft.uranus.services.membership.service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +8,7 @@ import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.services.membership.config.DataSourceConfig;
 import com.soonsoft.uranus.services.membership.config.MembershipServiceConfig;
 import com.soonsoft.uranus.services.membership.dto.AuthRole;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

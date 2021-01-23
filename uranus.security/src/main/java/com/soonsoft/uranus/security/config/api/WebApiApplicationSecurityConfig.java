@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
-import com.soonsoft.uranus.security.config.WebApplicationConfig;
+import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,9 +20,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
-public class WebApiApplicationConfig extends WebApplicationConfig {
+public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfig {
 
-    public WebApiApplicationConfig(ICustomConfigurer... configurers) {
+    public WebApiApplicationSecurityConfig(ICustomConfigurer... configurers) {
         setConfigurerList(configurers);
     }
 

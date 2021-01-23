@@ -96,15 +96,23 @@ public class RoleInfo implements GrantedAuthority, ConfigAttribute {
         this.enable = enable;
     }
 
+    //#region GrantedAuthority
+
     @Override
     public String getAuthority() {
         return getRole();
     }
 
+    //#endregion
+
+    //#region implements ConfigAttribute
+
     @Override
     public String getAttribute() {
         return getRole();
     }
+
+    //#endregion
 
 	@Override
 	public boolean equals(Object obj) {

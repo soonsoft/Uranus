@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.api.config.properties;
+package com.soonsoft.uranus.security.config.properties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,16 +7,8 @@ import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-/**
- * WebProperties
- */
-@Component
-public class WebProperties {
-
-    @Value("${uranus-web.sessionid-header:X-AUTH-URANUS-SID}")
-    private String sessionIdHeaderName;
+public class SecurityProperties {
 
     private List<String> resourcePathList;
 
@@ -37,7 +29,7 @@ public class WebProperties {
         this.resourcePathList = resourcePathList;
     }
 
-    @Value("${uranus-web.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
+    @Value("${uranus-web.security.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
     public void initResourcePathList(String resourcePath) {
         if(StringUtils.isBlank(resourcePath)) {
             resourcePathList = new ArrayList<>(0);
@@ -56,6 +48,9 @@ public class WebProperties {
         resourcePathList = pathList;
     }
 
+    @Value("${uranus-web.security.sessionid-header:X-AUTH-URANUS-SID}")
+    private String sessionIdHeaderName;
+
     public String getSessionIdHeaderName() {
         return sessionIdHeaderName;
     }
@@ -63,6 +58,5 @@ public class WebProperties {
     public void setSessionIdHeaderName(String sessionIdHeaderName) {
         this.sessionIdHeaderName = sessionIdHeaderName;
     }
-
     
 }

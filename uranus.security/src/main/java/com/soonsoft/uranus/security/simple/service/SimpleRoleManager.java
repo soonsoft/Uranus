@@ -1,9 +1,10 @@
-package com.soonsoft.uranus.security.authorization;
+package com.soonsoft.uranus.security.simple.service;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 

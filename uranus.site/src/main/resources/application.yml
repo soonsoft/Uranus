@@ -23,6 +23,8 @@ logging:
   config: classpath:config/logback.xml
 mybatis:
   mapper-locations: classpath*:/sql/*Mapper.xml
-membership:
-  default-password: 1
-  salt: 
+uranus-web:
+  security:
+    membership:
+      default-password: 1
+      salt: 

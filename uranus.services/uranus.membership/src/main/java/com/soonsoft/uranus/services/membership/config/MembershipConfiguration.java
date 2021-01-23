@@ -1,20 +1,25 @@
-package com.soonsoft.uranus.services.membership;
+package com.soonsoft.uranus.services.membership.config;
 
 import javax.sql.DataSource;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
+import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
  * MembershipConfiguration
  */
+@Configurable
+@EnableConfigurationProperties(MembershipProperties.class)
 public class MembershipConfiguration {
 
     public IDatabaseAccess createDatabaseAccess(DataSource dataSource, Configuration mybatisConfig) throws Exception {

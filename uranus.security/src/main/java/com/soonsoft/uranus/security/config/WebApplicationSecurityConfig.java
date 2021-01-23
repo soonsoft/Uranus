@@ -9,10 +9,8 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
-/**
- * WebApplicationConfig
- */
-public abstract class WebApplicationConfig implements ISecurityConfig {
+
+public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
 
     private WebAccessDecisionManager webAccessDecisionManager;
 

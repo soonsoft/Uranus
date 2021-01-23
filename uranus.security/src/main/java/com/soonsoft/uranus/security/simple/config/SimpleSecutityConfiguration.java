@@ -1,83 +1,42 @@
-package com.soonsoft.uranus.site.config;
+package com.soonsoft.uranus.security.simple.config;
 
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import java.util.HashSet;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
-import com.soonsoft.uranus.security.authentication.WebUserDetailsService;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
-import com.soonsoft.uranus.security.config.WebApplicationConfig;
-
+import com.soonsoft.uranus.security.config.BaseSecurityConfiguration;
+import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.security.authentication.SimpleUserManager;
-import com.soonsoft.uranus.security.authorization.SimpleRoleManager;
-import com.soonsoft.uranus.security.authorization.SimpleFunctionManager;
+import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
+import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
+import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
 
-import com.soonsoft.uranus.services.membership.authorization.MembershipRoleVoter;
-import com.soonsoft.uranus.site.config.properties.MembershipProperties;
-import com.soonsoft.uranus.site.config.properties.WebProperties;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * WebSecurityConfiguration
- */
 @Configuration
-@EnableConfigurationProperties(MembershipProperties.class)
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SimpleSecutityConfiguration extends BaseSecurityConfiguration {
 
-    @Resource
-    private WebProperties webProperties;
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // 配置静态资源，这些资源不做安全验证
-        web.ignoring()
-            .antMatchers(
-                HttpMethod.GET, 
-                webProperties.getResourcePathArray())
-            .antMatchers(HttpMethod.GET, "/CloudAtlas/**", "/page/**");
-	}
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        // 初始化SecurityManager
-        SecurityManager.init(this.getApplicationContext());
-        // Web应用程序，身份验证配置
-        WebApplicationConfig config = SecurityManager.webSiteApplicationConfig(http);
-        config.getWebAccessDecisionManager().addVoter(new MembershipRoleVoter());
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    public SecurityProperties getSecurityProperties() {
+        return securityProperties;
     }
 
     @Bean(name = "userManager")
-    public IUserManager userManager(
-        @Qualifier("securityAccess") IDatabaseAccess securityAccess, 
-        PasswordEncoder passwordEncoder) {
+    public IUserManager userManager(PasswordEncoder passwordEncoder) {
             
         SimpleUserManager userManager = new SimpleUserManager(passwordEncoder);
 
@@ -99,12 +58,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean(name = "roleManager")
-    public IRoleManager roleManager(@Qualifier("securityAccess") IDatabaseAccess securityAccess) {
+    public IRoleManager roleManager() {
         return new SimpleRoleManager();
     }
 
     @Bean(name = "functionManager")
-    public IFunctionManager functionManager(@Qualifier("securityAccess") IDatabaseAccess securityAccess) {
+    public IFunctionManager functionManager() {
         List<RoleInfo> allowRoles = new ArrayList<>();
         allowRoles.add(new RoleInfo("Admin"));
 
@@ -166,14 +125,5 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         return new SimpleFunctionManager(menus);
     }
-
-    /**
-     * 自定义身份验证管理器
-     */
-    @Bean
-    public WebUserDetailsService getUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
-        WebUserDetailsService userDetailsService = new WebUserDetailsService();
-        userDetailsService.setUserManager(userManager);
-        return userDetailsService;
-    }
+    
 }

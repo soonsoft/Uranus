@@ -1,19 +1,16 @@
-package com.soonsoft.uranus.security.authentication;
+package com.soonsoft.uranus.security.simple.service;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import com.soonsoft.uranus.core.error.UnsupportedException;
+import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.core.Guard;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * SimpleUserManager
- * 
- * @param <GrantedAuthority>
- */
+
 public class SimpleUserManager implements IUserManager {
 
     private PasswordEncoder passwordEncoder;

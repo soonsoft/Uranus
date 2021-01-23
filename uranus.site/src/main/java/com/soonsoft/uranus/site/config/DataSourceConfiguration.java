@@ -4,7 +4,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.paging.PagingInterceptor;
 import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
-import com.soonsoft.uranus.services.membership.MembershipConfiguration;
+import com.soonsoft.uranus.services.membership.config.MembershipConfiguration;
 import com.soonsoft.uranus.site.config.properties.MasterDataSourceProperties;
 
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;

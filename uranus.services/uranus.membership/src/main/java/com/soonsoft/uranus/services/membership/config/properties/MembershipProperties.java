@@ -1,15 +1,14 @@
-package com.soonsoft.uranus.api.config.properties;
+package com.soonsoft.uranus.services.membership.config.properties;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.soonsoft.uranus.security.config.properties.SecurityProperties;
+import org.springframework.beans.factory.annotation.Value;
 
-/**
- * MembershipProperties
- */
-@ConfigurationProperties("membership")
-public class MembershipProperties {
+public class MembershipProperties extends SecurityProperties {
 
+    @Value("uranus-web.security.membership.default-password:1")
     private String defaultPassword;
 
+    @Value("uranus-web.security.membership.salt:")
     private String salt;
 
     public String getDefaultPassword() {

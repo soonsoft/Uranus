@@ -8,14 +8,14 @@ import javax.annotation.Resource;
 
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.SecurityManager;
-import com.soonsoft.uranus.services.membership.FunctionService;
-import com.soonsoft.uranus.services.membership.RoleService;
-import com.soonsoft.uranus.services.membership.UserService;
+import com.soonsoft.uranus.services.membership.service.FunctionService;
+import com.soonsoft.uranus.services.membership.service.RoleService;
+import com.soonsoft.uranus.services.membership.service.UserService;
+import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 import com.soonsoft.uranus.services.membership.dto.AuthPassword;
 import com.soonsoft.uranus.services.membership.dto.AuthRole;
 import com.soonsoft.uranus.services.membership.dto.AuthUser;
 import com.soonsoft.uranus.services.membership.dto.SysMenu;
-import com.soonsoft.uranus.site.config.properties.MembershipProperties;
 import com.soonsoft.uranus.site.controller.base.BaseController;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
@@ -33,7 +33,7 @@ import org.springframework.web.servlet.View;
 @Controller
 public class SettingsController extends BaseController {
 
-    @Resource
+    //@Resource
     private MembershipProperties membershipProperties; 
 
     private UserService getUserService() {

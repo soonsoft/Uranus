@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.services.membership;
+package com.soonsoft.uranus.services.membership.service;
 
 import java.util.List;
 import java.util.ArrayList;

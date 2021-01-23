@@ -3,12 +3,6 @@ package com.soonsoft.uranus.security;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
-import com.soonsoft.uranus.security.authorization.WebAccessDecisionManager;
-import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
-import com.soonsoft.uranus.security.config.ICustomConfigurer;
-import com.soonsoft.uranus.security.config.WebApplicationConfig;
-import com.soonsoft.uranus.security.config.api.WebApiApplicationConfig;
-import com.soonsoft.uranus.security.config.site.WebSiteApplicationConfig;
 import com.soonsoft.uranus.security.entity.AnonymousUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.profile.IUserProfile;
@@ -19,14 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
-/**
- * SecurityManager
- */
 public class SecurityManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityManager.class);
@@ -34,6 +24,8 @@ public class SecurityManager {
     private static final String ANONYMOUS_USER = "anonymousUser";
 
     private static final SecurityManager INSTANCE = new SecurityManager();
+
+    private boolean initialzed = false;
 
     private IUserManager userManager;
 
@@ -134,8 +126,14 @@ public class SecurityManager {
         return user instanceof AnonymousUser;
     }
 
-    public static void init(ApplicationContext applicationContext) {
+    /**
+     * 初始化SecurityManager的实例
+     * 注意：只能执行一次
+     * @param applicationContext
+     */
+    public static synchronized void init(ApplicationContext applicationContext) {
         Guard.notNull(applicationContext, "the ApplicationContext is required.");
+        Guard.isTrue(!INSTANCE.initialzed, "the instance of SecurityManager is initialzed.");
 
         INSTANCE.setUserManager(applicationContext.getBean(IUserManager.class));
         INSTANCE.setRoleManager(applicationContext.getBean(IRoleManager.class));
@@ -146,33 +144,8 @@ public class SecurityManager {
         } catch(Exception e) {
             LOGGER.warn("init IUserProfile error. {}", e.getMessage());
         }
-    }
 
-    public static WebApplicationConfig webApiApplicationConfig(HttpSecurity http, ICustomConfigurer... configurers) {
-        return webApplicationConfig(http, new WebApiApplicationConfig(configurers));
-    }
-
-    public static WebApplicationConfig webSiteApplicationConfig(HttpSecurity http, ICustomConfigurer... configurers) {
-        return webApplicationConfig(http, new WebSiteApplicationConfig(configurers));
-    }
-
-    public static WebApplicationConfig webApplicationConfig(HttpSecurity http, WebApplicationConfig config) {
-
-        Guard.notNull(http, "the parameter http is required.");
-        Guard.notNull(config, "the parameter config is required.");
-
-        WebAccessDecisionManager accessDecisionManager = WebAccessDecisionManager.create();
-
-        IFunctionManager functionManager = current().getFunctionManager();
-        WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();
-        // TODO 更新角色和菜单绑定关系后，动态刷新菜单权限资源
-        securityMetadataSource.setConfigAttributeCollection(functionManager.getEnabledMenus());
-
-        config.setWebAccessDecisionManager(accessDecisionManager);
-        config.setWebSecurityMetadataSource(securityMetadataSource);
-        config.config(http);
-
-        return config;
+        INSTANCE.initialzed = true;
     }
 
 }

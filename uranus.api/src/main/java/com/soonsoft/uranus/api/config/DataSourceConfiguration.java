@@ -4,13 +4,11 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.paging.PagingInterceptor;
 import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
-import com.soonsoft.uranus.services.membership.MembershipConfiguration;
+import com.soonsoft.uranus.services.membership.config.MembershipConfiguration;
 import com.soonsoft.uranus.api.config.properties.MasterDataSourceProperties;
 
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +19,6 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
-@AutoConfigureBefore({ WebMvcAutoConfiguration.class })
 public class DataSourceConfiguration {
 
     @Resource

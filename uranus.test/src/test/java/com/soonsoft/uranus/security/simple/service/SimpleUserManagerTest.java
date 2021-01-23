@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.authentication;
+package com.soonsoft.uranus.security.simple.service;
 
 import com.soonsoft.uranus.security.entity.UserInfo;
 

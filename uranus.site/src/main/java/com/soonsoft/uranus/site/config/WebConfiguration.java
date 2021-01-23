@@ -4,7 +4,9 @@ import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-import com.soonsoft.uranus.site.config.properties.WebProperties;
+import com.soonsoft.uranus.security.config.WebApplicationSecurityConfigFactory;
+import com.soonsoft.uranus.security.config.WebApplicationSecurityConfigFactory.WebApplicationSecurityConfigType;
+import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.site.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
@@ -31,14 +33,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfiguration implements WebMvcConfigurer {
 
     @Resource
-    private WebProperties webProperties;
+    private SecurityProperties securityProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry
             .addInterceptor(new UserInfoInterceptor())
             .addPathPatterns("/**")
-            .excludePathPatterns(webProperties.getResourcePathList());
+            .excludePathPatterns(securityProperties.getResourcePathList());
+    }
+
+    @Bean
+    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
+        return new WebApplicationSecurityConfigFactory(WebApplicationSecurityConfigType.SITE);
     }
 
     @Bean

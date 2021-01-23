@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.authorization;
+package com.soonsoft.uranus.security.simple.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;

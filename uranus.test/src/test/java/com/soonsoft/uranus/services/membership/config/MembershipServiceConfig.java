@@ -1,9 +1,9 @@
 package com.soonsoft.uranus.services.membership.config;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.services.membership.FunctionService;
-import com.soonsoft.uranus.services.membership.RoleService;
-import com.soonsoft.uranus.services.membership.UserService;
+import com.soonsoft.uranus.services.membership.service.FunctionService;
+import com.soonsoft.uranus.services.membership.service.RoleService;
+import com.soonsoft.uranus.services.membership.service.UserService;
 import com.soonsoft.uranus.services.membership.dao.AuthPasswordDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthRoleDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
