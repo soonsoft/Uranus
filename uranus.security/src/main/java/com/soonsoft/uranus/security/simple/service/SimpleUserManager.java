@@ -80,7 +80,7 @@ public class SimpleUserManager implements IUserManager {
         return encodePassword;
     }
 
-    //#region Unsupported Methods
+    //#region IUserManager Unsupported Methods
 
     @Override
     public boolean createUser(UserInfo user) {

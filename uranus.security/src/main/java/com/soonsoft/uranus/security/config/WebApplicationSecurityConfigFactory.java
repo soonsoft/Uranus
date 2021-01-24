@@ -1,9 +1,10 @@
 package com.soonsoft.uranus.security.config;
 
 import com.soonsoft.uranus.core.Guard;
-import com.soonsoft.uranus.core.functional.action.Action3;
+import com.soonsoft.uranus.core.functional.action.Action4;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.security.config.site.WebSiteApplicationSecurityConfig;
+import com.soonsoft.uranus.security.profile.IUserProfile;
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
@@ -15,7 +16,7 @@ public class WebApplicationSecurityConfigFactory {
     private WebApplicationSecurityConfigType type;
     private ICustomConfigurer[] configurers;
 
-    private Action3<IUserManager, IRoleManager, IFunctionManager> initModuleAction;
+    private Action4<IUserManager, IRoleManager, IFunctionManager, IUserProfile> initModuleAction;
 
     public WebApplicationSecurityConfigFactory(WebApplicationSecurityConfigType type, ICustomConfigurer... configurers) {
         Guard.notNull(type, "the parameter type is required.");
@@ -28,7 +29,7 @@ public class WebApplicationSecurityConfigFactory {
         return config;
     }
 
-    public void setInitModuleAction(Action3<IUserManager, IRoleManager, IFunctionManager> action) {
+    public void setInitModuleAction(Action4<IUserManager, IRoleManager, IFunctionManager, IUserProfile> action) {
         this.initModuleAction = action;
     }
 
@@ -38,7 +39,8 @@ public class WebApplicationSecurityConfigFactory {
             initModuleAction.apply(
                 securityManager.getUserManager(), 
                 securityManager.getRoleManager(), 
-                securityManager.getFunctionManager());
+                securityManager.getFunctionManager(),
+                securityManager.getUserProfile());
         }
     }
 

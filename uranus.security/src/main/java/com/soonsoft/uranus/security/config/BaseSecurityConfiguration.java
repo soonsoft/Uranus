@@ -41,6 +41,7 @@ public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAda
         // 初始化SecurityManager
         SecurityManager.init(context);
 
+        // 获取配置器，配置WebSite或是WebAPI
         WebApplicationSecurityConfigFactory factory = context.getBean(WebApplicationSecurityConfigFactory.class);
         factory.applyInitModuleAction();
 

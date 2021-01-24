@@ -14,14 +14,19 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 
 import org.springframework.security.core.GrantedAuthority;;
 
-/**
- * SimpleFunctionManager
- */
 public class SimpleFunctionManager implements IFunctionManager {
 
     private List<? extends FunctionInfo> functions;
 
+    public SimpleFunctionManager() {
+
+    }
+
     public SimpleFunctionManager(List<? extends FunctionInfo> functions) {
+        setFunctions(functions);
+    }
+
+    public void setFunctions(List<? extends FunctionInfo> functions) {
         this.functions = functions;
     }
 
@@ -30,7 +35,6 @@ public class SimpleFunctionManager implements IFunctionManager {
         if (functions == null) {
             return new ArrayList<>(0);
         }
-
         return functions;
     }
 
