@@ -15,9 +15,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-/**
- * MembershipConfiguration
- */
 @Configurable
 @EnableConfigurationProperties(MembershipProperties.class)
 public class MembershipConfiguration {

@@ -140,9 +140,11 @@ public class SecurityManager {
             INSTANCE.setRoleManager(applicationContext.getBean(IRoleManager.class));
             INSTANCE.setFunctionManager(applicationContext.getBean(IFunctionManager.class));
 
-            String userProfileBeanName = IUserProfile.class.getSimpleName();
+            String userProfileBeanName = IUserManager.class.getSimpleName();
             if(applicationContext.containsBean(userProfileBeanName)) {
                 INSTANCE.setUserProfile((IUserProfile) applicationContext.getBean(userProfileBeanName));
+            } else {
+                LOGGER.warn("the UserProfile is not exists.");
             }
 
             INSTANCE.initialzed = true;

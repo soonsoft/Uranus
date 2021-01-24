@@ -42,6 +42,7 @@ public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAda
         SecurityManager.init(context);
 
         WebApplicationSecurityConfigFactory factory = context.getBean(WebApplicationSecurityConfigFactory.class);
+        factory.applyInitModuleAction();
 
         // Web应用程序，身份验证配置
         WebApplicationSecurityConfig config = factory.create();
@@ -64,7 +65,7 @@ public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAda
      * 自定义身份验证管理器
      */
     @Bean
-    public WebUserDetailsService getUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
+    public WebUserDetailsService webUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
         WebUserDetailsService userDetailsService = new WebUserDetailsService();
         userDetailsService.setUserManager(userManager);
         return userDetailsService;
