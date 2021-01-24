@@ -131,21 +131,22 @@ public class SecurityManager {
      * 注意：只能执行一次
      * @param applicationContext
      */
-    public static synchronized void init(ApplicationContext applicationContext) {
+    public static void init(ApplicationContext applicationContext) {
         Guard.notNull(applicationContext, "the ApplicationContext is required.");
         Guard.isTrue(!INSTANCE.initialzed, "the instance of SecurityManager is initialzed.");
 
-        INSTANCE.setUserManager(applicationContext.getBean(IUserManager.class));
-        INSTANCE.setRoleManager(applicationContext.getBean(IRoleManager.class));
-        INSTANCE.setFunctionManager(applicationContext.getBean(IFunctionManager.class));
-        
-        try {
-            INSTANCE.setUserProfile(applicationContext.getBean(IUserProfile.class));
-        } catch(Exception e) {
-            LOGGER.warn("init IUserProfile error. {}", e.getMessage());
-        }
+        synchronized(INSTANCE) {
+            INSTANCE.setUserManager(applicationContext.getBean(IUserManager.class));
+            INSTANCE.setRoleManager(applicationContext.getBean(IRoleManager.class));
+            INSTANCE.setFunctionManager(applicationContext.getBean(IFunctionManager.class));
 
-        INSTANCE.initialzed = true;
+            String userProfileBeanName = IUserProfile.class.getSimpleName();
+            if(applicationContext.containsBean(userProfileBeanName)) {
+                INSTANCE.setUserProfile((IUserProfile) applicationContext.getBean(userProfileBeanName));
+            }
+
+            INSTANCE.initialzed = true;
+        }
     }
 
 }
