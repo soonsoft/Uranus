@@ -1,54 +1,92 @@
 package com.soonsoft.uranus.services.membership.config;
 
-import javax.sql.DataSource;
+import javax.annotation.Resource;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
+import com.soonsoft.uranus.security.config.BaseSecurityConfiguration;
+import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 
-import org.apache.ibatis.logging.slf4j.Slf4jImpl;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configurable
-@EnableConfigurationProperties(MembershipProperties.class)
-public class MembershipConfiguration {
+public class MembershipConfiguration extends BaseSecurityConfiguration {
 
-    public IDatabaseAccess createDatabaseAccess(DataSource dataSource, Configuration mybatisConfig) throws Exception {
-        SqlSessionFactory sessionFactory = createSqlSessionFactory(dataSource, mybatisConfig);
-        SqlSessionTemplate sessionTemplate = new SqlSessionTemplate(sessionFactory);
+    @Resource
+    private MembershipProperties membershipProperties;
 
-        MybatisDatabaseAccess dba = new MybatisDatabaseAccess();
-        dba.setSqlTemplate(sessionTemplate);
-        return dba;
+    @Override
+    public SecurityProperties getSecurityProperties() {
+        return membershipProperties;
     }
 
-    private SqlSessionFactory createSqlSessionFactory(DataSource dataSource, Configuration mybatisConfig) throws Exception {
-        SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(dataSource);
-        bean.setTypeAliasesPackage("com.soonsoft.uranus.services.membership.dto");
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/sql/**/*Mapper.xml"));
-        
-        if(mybatisConfig == null) {
-            mybatisConfig = createConfiguration();
+    @Bean
+    public UserServiceFactory userServiceFactory(PasswordEncoder passwordEncoder) {
+        String membershipDatabaseAccessName = membershipProperties.getDatabaseAccessName();
+        ApplicationContext applicationContext = getApplicationContext();
+        if(StringUtils.isEmpty(membershipDatabaseAccessName)) {
+            return new UserServiceFactory(applicationContext.getBean(IDatabaseAccess.class), passwordEncoder);
         }
-        bean.setConfiguration(mybatisConfig);
-        
-        return bean.getObject();
+
+        return new UserServiceFactory(applicationContext, membershipDatabaseAccessName, passwordEncoder);
     }
 
-    private Configuration createConfiguration() {
-        // http://www.mybatis.org/mybatis-3/zh/configuration.html
-        Configuration config = new Configuration();
-        config.setCacheEnabled(true);
-        config.setLogPrefix("[Mybatis-SQL]");
-        config.setLogImpl(Slf4jImpl.class);
-        return config;
+    @Bean
+    public RoleServiceFactory roleServiceFactory() {
+        String membershipDatabaseAccessName = membershipProperties.getDatabaseAccessName();
+        ApplicationContext applicationContext = getApplicationContext();
+        if(StringUtils.isEmpty(membershipDatabaseAccessName)) {
+            return new RoleServiceFactory(applicationContext.getBean(IDatabaseAccess.class));
+        }
+
+        return new RoleServiceFactory(applicationContext, membershipDatabaseAccessName);
     }
+
+    @Bean
+    public FunctionServiceFactory functionServiceFactory() {
+    String membershipDatabaseAccessName = membershipProperties.getDatabaseAccessName();
+        ApplicationContext applicationContext = getApplicationContext();
+        if(StringUtils.isEmpty(membershipDatabaseAccessName)) {
+            return new FunctionServiceFactory(applicationContext.getBean(IDatabaseAccess.class));
+        }
+
+        return new FunctionServiceFactory(applicationContext, membershipDatabaseAccessName);
+    }
+
+    // public IDatabaseAccess createDatabaseAccess(DataSource dataSource, Configuration mybatisConfig) throws Exception {
+    //     SqlSessionFactory sessionFactory = createSqlSessionFactory(dataSource, mybatisConfig);
+    //     SqlSessionTemplate sessionTemplate = new SqlSessionTemplate(sessionFactory);
+
+    //     MybatisDatabaseAccess dba = new MybatisDatabaseAccess();
+    //     dba.setSqlTemplate(sessionTemplate);
+    //     return dba;
+    // }
+
+    // private SqlSessionFactory createSqlSessionFactory(DataSource dataSource, Configuration mybatisConfig) throws Exception {
+    //     SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+    //     bean.setDataSource(dataSource);
+    //     bean.setTypeAliasesPackage("com.soonsoft.uranus.services.membership.dto");
+    //     bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/sql/**/*Mapper.xml"));
+        
+    //     if(mybatisConfig == null) {
+    //         mybatisConfig = createConfiguration();
+    //     }
+    //     bean.setConfiguration(mybatisConfig);
+        
+    //     return bean.getObject();
+    // }
+
+    // private Configuration createConfiguration() {
+    //     // http://www.mybatis.org/mybatis-3/zh/configuration.html
+    //     Configuration config = new Configuration();
+    //     config.setCacheEnabled(true);
+    //     config.setLogPrefix("[Mybatis-SQL]");
+    //     config.setLogImpl(Slf4jImpl.class);
+    //     return config;
+    // }
 
 }

@@ -4,14 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.services.membership.service.FunctionService;
 import com.soonsoft.uranus.services.membership.service.RoleService;
 import com.soonsoft.uranus.services.membership.service.UserService;
-import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 import com.soonsoft.uranus.services.membership.dto.AuthPassword;
 import com.soonsoft.uranus.services.membership.dto.AuthRole;
 import com.soonsoft.uranus.services.membership.dto.AuthUser;
@@ -32,9 +29,6 @@ import org.springframework.web.servlet.View;
  */
 @Controller
 public class SettingsController extends BaseController {
-
-    //@Resource
-    private MembershipProperties membershipProperties; 
 
     private UserService getUserService() {
         return (UserService) SecurityManager.current().getUserManager();
@@ -73,12 +67,13 @@ public class SettingsController extends BaseController {
     public View saveUser(@RequestBody AuthUser user) {
         UserService userService = getUserService();
         if(StringUtils.isEmpty(user.getUserId())) {
-            String passwordValue = userService.encryptPassword(
-                membershipProperties.getDefaultPassword(), 
-                membershipProperties.getSalt());
+            String defaultPassword = "1";
+            String salt = "";
+
+            String passwordValue = userService.encryptPassword(defaultPassword, salt);
             AuthPassword password = new AuthPassword();
             password.setPasswordValue(passwordValue);
-            password.setPasswordSalt(membershipProperties.getSalt());
+            password.setPasswordSalt(salt);
             userService.create(user, password);
         } else {
             userService.update(user);

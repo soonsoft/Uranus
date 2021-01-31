@@ -67,18 +67,6 @@
             <version>${mybatis-spring-boot-version}</version>
         </dependency>
 
-        <!-- 单元测试 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- 热部署 -->
         <!-- devtools可以实现页面热部署（即页面修改后会立即生效，这个可以直接在application.properties文件中配置spring.thymeleaf.cache=false来实现） -->
         <!-- 实现类文件热部署（类文件修改后不会立即生效），实现对属性文件的热部署。 -->

@@ -5,11 +5,14 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class MembershipProperties extends SecurityProperties {
 
-    @Value("uranus-web.security.membership.default-password:1")
+    @Value("${uranus-web.security.membership.default-password:1}")
     private String defaultPassword;
 
-    @Value("uranus-web.security.membership.salt:")
+    @Value("${uranus-web.security.membership.salt:}")
     private String salt;
+
+    @Value("${uranus-web.security.membership.database-access-name:masterAccess}")
+    private String databaseAccessName;
 
     public String getDefaultPassword() {
         return defaultPassword;
@@ -25,6 +28,14 @@ public class MembershipProperties extends SecurityProperties {
 
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+
+    public String getDatabaseAccessName() {
+        return databaseAccessName;
+    }
+
+    public void setMembershipDatabaseAccessName(String databaseAccessName) {
+        this.databaseAccessName = databaseAccessName;
     }
 
 }

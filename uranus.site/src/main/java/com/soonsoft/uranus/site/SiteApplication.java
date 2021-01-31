@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.site;
 
+import com.soonsoft.uranus.data.EnableDatabaseAccess;
 import com.soonsoft.uranus.security.simple.EnableSimpleSecurity;
 
 import org.springframework.boot.SpringApplication;
@@ -7,9 +8,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * Application
- */
 @EnableAutoConfiguration
 @SpringBootApplication
 @ComponentScan(basePackages = {
@@ -17,19 +15,20 @@ import org.springframework.context.annotation.ComponentScan;
         "com.soonsoft.uranus.site.controller",
         "com.soonsoft.uranus.services"
 })
+@EnableDatabaseAccess
 @EnableSimpleSecurity
-public class Application {
+public class SiteApplication {
 
     public static void main(String[] args) {
         onStop();
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(SiteApplication.class, args);
     }
 
     private static void onStop() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-               System.out.println("application shutdown.");
+               System.out.println("SiteApplication Shutdown.");
             }
         });
     }

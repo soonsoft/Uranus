@@ -6,6 +6,8 @@ server:
       enabled: true
       force: true
 spring:
+  application:
+    name: UranusSiteApplication
   profiles:
     # 指定当前配置环境
     active: dev

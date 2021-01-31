@@ -8,6 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.soonsoft.uranus.services.membership.config.MembershipConfiguration;
+import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 
 import org.springframework.context.annotation.Import;
 
@@ -15,7 +16,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-@Import(MembershipConfiguration.class)
+@Import(value = {MembershipConfiguration.class, MembershipProperties.class})
 public @interface EnableMembership {
     
 }

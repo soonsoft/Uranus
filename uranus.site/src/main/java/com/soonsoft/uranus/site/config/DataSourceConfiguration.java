@@ -1,14 +1,8 @@
 package com.soonsoft.uranus.site.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.paging.PagingInterceptor;
-import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
-import com.soonsoft.uranus.services.membership.config.MembershipConfiguration;
 import com.soonsoft.uranus.site.config.properties.MasterDataSourceProperties;
 
-import org.apache.ibatis.logging.slf4j.Slf4jImpl;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -18,7 +12,6 @@ import org.springframework.context.annotation.Primary;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
 @AutoConfigureBefore({ WebMvcAutoConfiguration.class })
@@ -30,9 +23,14 @@ public class DataSourceConfiguration {
     @Bean(name = "master")
     @Primary
     public DataSource masterDataSource() {
-        DruidDataSource dataSource = DataSourceBuilder.create().type(DruidDataSource.class)
-                .url(masterDataSourceProperties.getUrl()).driverClassName(masterDataSourceProperties.getDriverClassName())
-                .username(masterDataSourceProperties.getUsername()).password(masterDataSourceProperties.getPassword()).build();
+        DruidDataSource dataSource = 
+            DataSourceBuilder.create()
+                .type(DruidDataSource.class)
+                .url(masterDataSourceProperties.getUrl())
+                .driverClassName(masterDataSourceProperties.getDriverClassName())
+                .username(masterDataSourceProperties.getUsername())
+                .password(masterDataSourceProperties.getPassword())
+                .build();
 
         // 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时
         dataSource.setInitialSize(masterDataSourceProperties.getInitialSize());
@@ -65,28 +63,4 @@ public class DataSourceConfiguration {
         return dataSource;
     }
 
-    @Bean
-    public org.apache.ibatis.session.Configuration mybatisConfiguration() {
-        // http://www.mybatis.org/mybatis-3/zh/configuration.html
-        org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
-        config.setCacheEnabled(true);
-        config.setLogPrefix("[Mybatis-SQL]");
-        config.setLogImpl(Slf4jImpl.class);
-        config.addInterceptor(new PagingInterceptor(new PostgreSQLPagingDailect()));
-        return config;
-    }
-
-    @Bean(name = "masterTransactionManager")
-    public DataSourceTransactionManager sentinelTransactionManager(@Qualifier("master") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
-
-    @Bean(name = "securityAccess")
-    @Primary
-    public IDatabaseAccess membershipAccess(
-        @Qualifier("master") DataSource dataSource, 
-        org.apache.ibatis.session.Configuration mybatisConfig) throws Exception {
-        MembershipConfiguration config = new MembershipConfiguration();
-        return config.createDatabaseAccess(dataSource, mybatisConfig);
-    }
 }

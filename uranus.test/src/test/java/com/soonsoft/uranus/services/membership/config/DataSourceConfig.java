@@ -3,23 +3,13 @@ package com.soonsoft.uranus.services.membership.config;
 import javax.sql.DataSource;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.paging.PagingInterceptor;
-import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
-
-import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-/**
- * DataSourceConfig
- */
+
 @SpringBootConfiguration
 public class DataSourceConfig {
 
@@ -49,32 +39,6 @@ public class DataSourceConfig {
         dataSource.setTestOnReturn(false);
         dataSource.setTestWhileIdle(true);
         return dataSource;
-    }
-
-    @Bean
-    public org.apache.ibatis.session.Configuration mybatisConfiguration() {
-        // http://www.mybatis.org/mybatis-3/zh/configuration.html
-        org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
-        config.setCacheEnabled(true);
-        config.setLogPrefix("[Mybatis-SQL]");
-        config.setLogImpl(Slf4jImpl.class);
-        config.addInterceptor(new PagingInterceptor(new PostgreSQLPagingDailect()));
-        return config;
-    }
-
-    @Bean(name = "membershipTransactionManager")
-    public DataSourceTransactionManager sentinelTransactionManager(@Qualifier("membership") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
-
-    @Bean(name = "securityAccess")
-    @Primary
-    public IDatabaseAccess membershipAccess(
-        @Qualifier("membership") DataSource dataSource, 
-        org.apache.ibatis.session.Configuration mybatisConfig) throws Exception {
-
-        MembershipConfiguration config = new MembershipConfiguration();
-        return config.createDatabaseAccess(dataSource, mybatisConfig);
     }
 
 }

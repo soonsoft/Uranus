@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.soonsoft.uranus.data.EnableDatabaseAccess;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.services.membership.config.DataSourceConfig;
 import com.soonsoft.uranus.services.membership.config.MembershipServiceConfig;
@@ -25,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @MybatisTest
 @ContextConfiguration(classes = {DataSourceConfig.class, MembershipServiceConfig.class})
+@EnableDatabaseAccess(dataSourceNames = "membership", primaryName = "membership")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class FunctionServiceTest {
 

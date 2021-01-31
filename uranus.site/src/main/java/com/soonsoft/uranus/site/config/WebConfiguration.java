@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
-
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
@@ -39,13 +38,10 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * WebConfiguration
- */
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass({Servlet.class, DispatcherServlet.class})
-@AutoConfigureBefore({WebMvcAutoConfiguration.class})
+@ConditionalOnClass({ Servlet.class, DispatcherServlet.class })
+@AutoConfigureBefore({ WebMvcAutoConfiguration.class })
 public class WebConfiguration implements WebMvcConfigurer {
 
     @Resource
@@ -53,10 +49,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry
-            .addInterceptor(new UserInfoInterceptor())
-            .addPathPatterns("/**")
-            .excludePathPatterns(securityProperties.getResourcePathList());
+        registry.addInterceptor(new UserInfoInterceptor()).addPathPatterns("/**")
+                .excludePathPatterns(securityProperties.getResourcePathList());
     }
 
     @Bean

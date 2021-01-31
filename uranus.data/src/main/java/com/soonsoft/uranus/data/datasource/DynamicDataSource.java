@@ -10,9 +10,7 @@ import com.soonsoft.uranus.core.functional.func.Func0;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
-/**
- * DynamicDataSource
- */ 
+
 public class DynamicDataSource extends AbstractRoutingDataSource {
 
     private Map<Object, Object> targetDataSources = new HashMap<>();
