@@ -9,6 +9,14 @@ public abstract class CollectionUtils {
         return collection == null || collection.isEmpty();
     }
 
+    //#region isEmpty for Array
+
+    public static boolean isEmpty(String[] stringArray) {
+        return stringArray == null || stringArray.length == 0;
+    }
+
+    //#endregion
+
     @SafeVarargs
     public static <T> void addAll(Collection<T> collection, T... items) {
         if(collection == null || items == null) {

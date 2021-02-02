@@ -9,6 +9,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.RetentionPolicy;
 
 import com.soonsoft.uranus.data.config.DatabaseAccessRegistrar;
+import com.soonsoft.uranus.data.service.DatabaseAccessTypeEnum;
 
 import org.springframework.context.annotation.Import;
 
@@ -19,13 +20,13 @@ import org.springframework.context.annotation.Import;
 @Import(DatabaseAccessRegistrar.class)
 public @interface EnableDatabaseAccess {
 
-    /** 对应DataSource配置节点名称，多个数据源可以用“,”隔开 */
-    String dataSourceNames() default "master";
+    /** 数据库框架类型 */
+    DatabaseAccessTypeEnum type() default DatabaseAccessTypeEnum.Mybatis;
 
     /** 主库数据源的配置节点名称 */
-    String primaryName() default "master";
+    String primaryName() default "";
 
     /** Mybatis SQL Mapper xml path */
-    String mybatisMapperLocations() default "classpath*:/sql/**/*Mapper.xml";
+    String[] mybatisMapperLocations() default "classpath*:/sql/**/*Mapper.xml";
 
 }

@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @MybatisTest
 @ContextConfiguration(classes = {DataSourceConfig.class, MembershipServiceConfig.class})
-@EnableDatabaseAccess(dataSourceNames = "membership", primaryName = "membership")
+@EnableDatabaseAccess
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class FunctionServiceTest {
 

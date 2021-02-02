@@ -1,42 +1,52 @@
 package com.soonsoft.uranus.data.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.data.EnableDatabaseAccess;
+import com.soonsoft.uranus.data.service.DatabaseAccessTypeEnum;
+
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.MethodMetadata;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-@Configuration
-public class DatabaseAccessRegistrar
-        implements ImportBeanDefinitionRegistrar {
+public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
-        Map<String, Object> annotationAttrs = annotationMetadata
-                .getAnnotationAttributes(EnableDatabaseAccess.class.getName());
-        String dataSourceNames = (String) annotationAttrs.get("dataSourceNames");
+        Map<String, Object> annotationAttrs = annotationMetadata.getAnnotationAttributes(EnableDatabaseAccess.class.getName());
         String primaryName = (String) annotationAttrs.get("primaryName");
-        String mybatisMapperLocations = (String) annotationAttrs.get("mybatisMapperLocations");
+        String[] mybatisMapperLocations = (String[]) annotationAttrs.get("mybatisMapperLocations");
+        DatabaseAccessTypeEnum type = (DatabaseAccessTypeEnum)annotationAttrs.get("type");
+        String[] dataSourceNames = findDataSourceBeanNames(registry);
 
-        if (StringUtils.isEmpty(dataSourceNames)) {
-            throw new IllegalStateException("the dataSourceNames of EnableDatabaseAccess is required.");
+        if (CollectionUtils.isEmpty(dataSourceNames)) {
+            return;
         }
 
-        String[] dataSourceNameArray = dataSourceNames.split(",");
+        if(StringUtils.isBlank(primaryName)) {
+            primaryName = dataSourceNames[0];
+        }
+
         if (StringUtils.isEmpty(primaryName)) {
-            primaryName = dataSourceNameArray[0].trim();
+            primaryName = dataSourceNames[0].trim();
         }
-        for (int i = 0; i < dataSourceNameArray.length; i++) {
-            String dataSourceName = dataSourceNameArray[i].trim();
+
+        for (int i = 0; i < dataSourceNames.length; i++) {
+            String dataSourceName = dataSourceNames[i].trim();
             boolean primary = primaryName.equals(dataSourceName);
             registerTransactionManager(dataSourceName, registry, primary);
-            registerDatabaseAccess(dataSourceName, mybatisMapperLocations, registry, primary);
+            registerDatabaseAccess(type, dataSourceName, mybatisMapperLocations, registry, primary);
         }
     }
 
@@ -51,18 +61,47 @@ public class DatabaseAccessRegistrar
 
     }
 
-    protected void registerDatabaseAccess(String dataSourceName, String mybatisMapperLocations, BeanDefinitionRegistry registry, boolean primary) {
-        if (StringUtils.isEmpty(mybatisMapperLocations)) {
+    protected void registerDatabaseAccess(DatabaseAccessTypeEnum type, String dataSourceName, String[] mybatisMapperLocations, BeanDefinitionRegistry registry, boolean primary) {
+        if (mybatisMapperLocations == null || mybatisMapperLocations.length == 0) {
             throw new IllegalArgumentException("the parameter mybatisMapperLocations is required.");
         }
 
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DatabaseAccessBeanFactory.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(getDatabaseAccessFactoryClass(type));
         builder.addConstructorArgReference(dataSourceName);
-        builder.addPropertyValue("mapperLocations", mybatisMapperLocations.split(","));
+        builder.addPropertyValue("mapperLocations", mybatisMapperLocations);
 
         BeanDefinition beanDefinition = builder.getBeanDefinition();
         beanDefinition.setPrimary(primary);
         String beanName = dataSourceName + "Access";
         registry.registerBeanDefinition(beanName, beanDefinition);
+    }
+
+    private String[] findDataSourceBeanNames(BeanDefinitionRegistry registry) {
+        String[] beanDefinitionNames = registry.getBeanDefinitionNames();
+
+        if(CollectionUtils.isEmpty(beanDefinitionNames)) {
+            return null;
+        }
+
+        String dataSourceClassName = DataSource.class.getSimpleName();
+        List<String> dataSourceBeanNameList = new ArrayList<>();
+        for(String beanDefinitionName : beanDefinitionNames) {
+            BeanDefinition beanDefinition = registry.getBeanDefinition(beanDefinitionName);
+            if(beanDefinition instanceof AnnotatedBeanDefinition) {
+                AnnotatedBeanDefinition annotatedBeanDefinition = (AnnotatedBeanDefinition) beanDefinition;
+                MethodMetadata methodMetadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+                if(methodMetadata != null) {
+                    String returnTypeName = methodMetadata.getReturnTypeName();
+                    if(!StringUtils.isEmpty(returnTypeName) && returnTypeName.endsWith(dataSourceClassName)) {
+                        dataSourceBeanNameList.add(beanDefinitionName);
+                    }
+                }
+            }
+        }
+        return dataSourceBeanNameList.toArray(new String[0]);
+    }
+
+    private Class<?> getDatabaseAccessFactoryClass(DatabaseAccessTypeEnum type) {
+        return MybatisDatabaseAccessFactory.class;
     }
 }

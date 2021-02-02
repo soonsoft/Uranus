@@ -18,25 +18,10 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-public class DatabaseAccessBeanFactory implements FactoryBean<IDatabaseAccess> {
+public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory implements FactoryBean<IDatabaseAccess> {
 
-    private DataSource dataSource;
-    private String[] mapperLocations;
-
-    public DatabaseAccessBeanFactory(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public DataSource getDataSource() {
-        return dataSource;
-    }
-
-    public String[] getMapperLocations() {
-        return mapperLocations;
-    }
-
-    public void setMapperLocations(String[] mapperLocations) {
-        this.mapperLocations = mapperLocations;
+    public MybatisDatabaseAccessFactory(DataSource dataSource) {
+        super(dataSource);
     }
 
     @Override
@@ -63,12 +48,13 @@ public class DatabaseAccessBeanFactory implements FactoryBean<IDatabaseAccess> {
         mybatisConfig.addInterceptor(new PagingInterceptor(new PostgreSQLPagingDailect()));
 
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(dataSource);
+        bean.setDataSource(getDataSource());
         bean.setTypeAliasesPackage("com.soonsoft.uranus.services.**.dto");
 
         PathMatchingResourcePatternResolver pathResolver = new PathMatchingResourcePatternResolver();
-        ArrayList<Resource> resourceList = new ArrayList<>(20);
+        String[] mapperLocations = getMapperLocations();
         if (mapperLocations != null) {
+            ArrayList<Resource> resourceList = new ArrayList<>(20);
             for (int i = 0; i < mapperLocations.length; i++) {
                 String location = mapperLocations[i].trim();
                 CollectionUtils.addAll(resourceList, pathResolver.getResource(location));
