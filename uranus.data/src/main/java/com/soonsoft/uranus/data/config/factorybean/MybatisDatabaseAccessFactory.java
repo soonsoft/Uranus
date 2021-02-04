@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.config;
+package com.soonsoft.uranus.data.config.factorybean;
 
 import java.util.ArrayList;
 
@@ -14,23 +14,34 @@ import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory implements FactoryBean<IDatabaseAccess> {
+public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
+
+    private String[] mapperLocations;
 
     public MybatisDatabaseAccessFactory(DataSource dataSource) {
         super(dataSource);
     }
 
+    public String[] getMapperLocations() {
+        return mapperLocations;
+    }
+
+    public void setMapperLocations(String[] mapperLocations) {
+        this.mapperLocations = mapperLocations;
+    }
+
+    //#region FactoryBean
+
     @Override
-    public IDatabaseAccess getObject() throws Exception {
+    public IDatabaseAccess<?> getObject() throws Exception {
         SqlSessionFactory sessionFactory = createSessionFactory();
         SqlSessionTemplate sqlTemplate = new SqlSessionTemplate(sessionFactory);
 
         MybatisDatabaseAccess databaseAccess = new MybatisDatabaseAccess();
-        databaseAccess.setSqlTemplate(sqlTemplate);
+        databaseAccess.setTemplate(sqlTemplate);
         return databaseAccess;
     }
 
@@ -38,6 +49,8 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory impl
     public Class<?> getObjectType() {
         return IDatabaseAccess.class;
     }
+
+    //#endregion
 
     private SqlSessionFactory createSessionFactory() {
         // http://www.mybatis.org/mybatis-3/zh/configuration.html

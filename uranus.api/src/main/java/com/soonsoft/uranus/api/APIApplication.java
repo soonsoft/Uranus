@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.api;
 
+import com.soonsoft.uranus.security.simple.EnableSimpleSecurity;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
         "com.soonsoft.uranus.services",
         "com.soonsoft.uranus.api.controller"
 })
+@EnableSimpleSecurity
 public class ApiApplication {
 
     public static void main(String[] args) {

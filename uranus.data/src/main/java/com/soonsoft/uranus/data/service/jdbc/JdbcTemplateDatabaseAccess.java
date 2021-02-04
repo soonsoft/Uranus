@@ -3,15 +3,17 @@ package com.soonsoft.uranus.data.service.jdbc;
 import java.util.List;
 import java.util.Map;
 
-import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 
-public class JdbcTemplateDatabaseAccess implements IDatabaseAccess {
+import org.springframework.jdbc.core.JdbcTemplate;
+
+public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<JdbcTemplate> {
+
 
     @Override
     public int insert(String commandText) {
-        // TODO Auto-generated method stub
-        return 0;
+        return ensureGetTemplate().update(commandText);
     }
 
     @Override

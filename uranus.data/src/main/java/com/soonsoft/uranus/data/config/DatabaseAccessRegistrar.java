@@ -9,7 +9,6 @@ import javax.sql.DataSource;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.data.EnableDatabaseAccess;
-import com.soonsoft.uranus.data.service.DatabaseAccessTypeEnum;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -62,13 +61,14 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
     }
 
     protected void registerDatabaseAccess(DatabaseAccessTypeEnum type, String dataSourceName, String[] mybatisMapperLocations, BeanDefinitionRegistry registry, boolean primary) {
-        if (mybatisMapperLocations == null || mybatisMapperLocations.length == 0) {
-            throw new IllegalArgumentException("the parameter mybatisMapperLocations is required.");
-        }
-
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(getDatabaseAccessFactoryClass(type));
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(type.getFactoryClass());
         builder.addConstructorArgReference(dataSourceName);
-        builder.addPropertyValue("mapperLocations", mybatisMapperLocations);
+        if(DatabaseAccessTypeEnum.MYBATIS == type) {
+            if (mybatisMapperLocations == null || mybatisMapperLocations.length == 0) {
+                throw new IllegalArgumentException("the parameter mybatisMapperLocations is required.");
+            }
+            builder.addPropertyValue("mapperLocations", mybatisMapperLocations);
+        }
 
         BeanDefinition beanDefinition = builder.getBeanDefinition();
         beanDefinition.setPrimary(primary);
@@ -99,9 +99,5 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
             }
         }
         return dataSourceBeanNameList.toArray(new String[0]);
-    }
-
-    private Class<?> getDatabaseAccessFactoryClass(DatabaseAccessTypeEnum type) {
-        return MybatisDatabaseAccessFactory.class;
     }
 }

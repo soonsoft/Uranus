@@ -11,9 +11,9 @@ public abstract class BaseMembershipServiceFactory<T> implements FactoryBean<T> 
 
     private String databaseAccessBeanName;
 
-    private IDatabaseAccess membershipDatabaseAccess;
+    private IDatabaseAccess<?> membershipDatabaseAccess;
 
-    public BaseMembershipServiceFactory(IDatabaseAccess membershipDatabaseAccess) {
+    public BaseMembershipServiceFactory(IDatabaseAccess<?> membershipDatabaseAccess) {
         this.membershipDatabaseAccess = membershipDatabaseAccess;
     }
 
@@ -26,11 +26,11 @@ public abstract class BaseMembershipServiceFactory<T> implements FactoryBean<T> 
         return this.applicationContext;
     }
 
-    protected IDatabaseAccess getDatabaseAccess() {
+    protected IDatabaseAccess<?> getDatabaseAccess() {
         if(membershipDatabaseAccess != null) {
             return membershipDatabaseAccess;
         }
-        return (IDatabaseAccess) applicationContext.getBean(databaseAccessBeanName);
+        return (IDatabaseAccess<?>) applicationContext.getBean(databaseAccessBeanName);
     }
 
 }

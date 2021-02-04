@@ -5,10 +5,7 @@ import java.util.Map;
 
 import com.soonsoft.uranus.data.entity.Page;
 
-/**
- * IDatabaseAccess
- */
-public interface IDatabaseAccess {
+public interface IDatabaseAccess<TemplateType> {
 
     int insert(String commandText);
 

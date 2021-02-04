@@ -3,10 +3,12 @@ package com.soonsoft.uranus.data.service.jdbc;
 import java.util.List;
 import java.util.Map;
 
-import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 
-public class NamedParameterJdbcTemplateDatabaseAccess implements IDatabaseAccess {
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+public class NamedParameterJdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParameterJdbcTemplate> {
 
     @Override
     public int insert(String commandText) {

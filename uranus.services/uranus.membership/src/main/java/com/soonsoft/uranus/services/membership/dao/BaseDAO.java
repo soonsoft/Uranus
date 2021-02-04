@@ -8,17 +8,17 @@ import com.soonsoft.uranus.core.Guard;
  */
 public abstract class BaseDAO {
 
-    private IDatabaseAccess membershipAccess;
+    private IDatabaseAccess<?> membershipAccess;
 
     public BaseDAO() {
 
     }
 
-    public IDatabaseAccess getMembershipAccess() {
+    public IDatabaseAccess<?> getMembershipAccess() {
         return this.membershipAccess;
     }
 
-    public void setMembershipAccess(IDatabaseAccess securityAccess) {
+    public void setMembershipAccess(IDatabaseAccess<?> securityAccess) {
         Guard.notNull(securityAccess, "the IDatabaseAccess is required.");
         this.membershipAccess = securityAccess;
     }

@@ -9,7 +9,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.RetentionPolicy;
 
 import com.soonsoft.uranus.data.config.DatabaseAccessRegistrar;
-import com.soonsoft.uranus.data.service.DatabaseAccessTypeEnum;
+import com.soonsoft.uranus.data.config.DatabaseAccessTypeEnum;
 
 import org.springframework.context.annotation.Import;
 
@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Import;
 public @interface EnableDatabaseAccess {
 
     /** 数据库框架类型 */
-    DatabaseAccessTypeEnum type() default DatabaseAccessTypeEnum.Mybatis;
+    DatabaseAccessTypeEnum type() default DatabaseAccessTypeEnum.MYBATIS;
 
     /** 主库数据源的配置节点名称 */
     String primaryName() default "";

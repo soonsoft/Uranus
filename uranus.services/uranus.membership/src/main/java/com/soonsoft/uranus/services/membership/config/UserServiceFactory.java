@@ -13,7 +13,7 @@ public class UserServiceFactory extends BaseMembershipServiceFactory<UserService
 
     private PasswordEncoder passwordEncoder;
 
-    public UserServiceFactory(IDatabaseAccess membershipDatabaseAccess, PasswordEncoder passwordEncoder) {
+    public UserServiceFactory(IDatabaseAccess<?> membershipDatabaseAccess, PasswordEncoder passwordEncoder) {
         super(membershipDatabaseAccess);
         this.passwordEncoder = passwordEncoder;
     }
@@ -25,7 +25,7 @@ public class UserServiceFactory extends BaseMembershipServiceFactory<UserService
 
     @Override
     public UserService getObject() throws Exception {
-        IDatabaseAccess securityAccess = getDatabaseAccess();
+        IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
         AuthUserDAO userDAO = new AuthUserDAO();
         userDAO.setMembershipAccess(securityAccess);

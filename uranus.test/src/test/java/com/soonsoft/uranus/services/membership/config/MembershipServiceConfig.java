@@ -29,7 +29,7 @@ public class MembershipServiceConfig {
     }
 
     @Bean
-    public UserService userService(@Qualifier("membershipAccess") IDatabaseAccess securityAccess, PasswordEncoder passwordEncoder) {
+    public UserService userService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {
         AuthUserDAO authUserDAO = new AuthUserDAO();
         authUserDAO.setMembershipAccess(securityAccess);
         AuthPasswordDAO authPasswordDAO = new AuthPasswordDAO();
@@ -47,7 +47,7 @@ public class MembershipServiceConfig {
     }
 
     @Bean
-    public RoleService roleService(@Qualifier("membershipAccess") IDatabaseAccess securityAccess) {
+    public RoleService roleService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         AuthRoleDAO roleDAO = new AuthRoleDAO();
         roleDAO.setMembershipAccess(securityAccess);
         AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
@@ -64,7 +64,7 @@ public class MembershipServiceConfig {
     }
 
     @Bean
-    public FunctionService functionService(@Qualifier("membershipAccess") IDatabaseAccess securityAccess) {
+    public FunctionService functionService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         SysFunctionDAO functionDAO = new SysFunctionDAO();
         functionDAO.setMembershipAccess(securityAccess);
         SysMenuDAO menuDAO = new SysMenuDAO();

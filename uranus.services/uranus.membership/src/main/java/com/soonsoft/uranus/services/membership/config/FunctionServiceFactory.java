@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 
 public class FunctionServiceFactory extends BaseMembershipServiceFactory<FunctionService> {
 
-    public FunctionServiceFactory(IDatabaseAccess membershipDatabaseAccess) {
+    public FunctionServiceFactory(IDatabaseAccess<?> membershipDatabaseAccess) {
         super(membershipDatabaseAccess);
     }
 
@@ -20,7 +20,7 @@ public class FunctionServiceFactory extends BaseMembershipServiceFactory<Functio
 
     @Override
     public FunctionService getObject() throws Exception {
-        IDatabaseAccess securityAccess = getDatabaseAccess();
+        IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
         SysFunctionDAO functionDAO = new SysFunctionDAO();
         functionDAO.setMembershipAccess(securityAccess);

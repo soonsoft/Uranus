@@ -6,9 +6,7 @@ import java.util.Map;
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.services.membership.dto.AuthUser;
 
-/**
- * AuthUserDAO
- */
+
 public class AuthUserDAO extends BaseDAO {
 
     public AuthUser getUser(String userName) {

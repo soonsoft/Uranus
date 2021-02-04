@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext;
 
 public class RoleServiceFactory extends BaseMembershipServiceFactory<RoleService> {
 
-    public RoleServiceFactory(IDatabaseAccess membershipDatabaseAccess) {
+    public RoleServiceFactory(IDatabaseAccess<?> membershipDatabaseAccess) {
         super(membershipDatabaseAccess);
     }
 
@@ -20,7 +20,7 @@ public class RoleServiceFactory extends BaseMembershipServiceFactory<RoleService
 
     @Override
     public RoleService getObject() throws Exception {
-        IDatabaseAccess securityAccess = getDatabaseAccess();
+        IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
         AuthRoleDAO roleDAO = new AuthRoleDAO();
         roleDAO.setMembershipAccess(securityAccess);

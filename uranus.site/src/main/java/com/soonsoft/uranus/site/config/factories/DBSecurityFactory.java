@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 public class DBSecurityFactory {
 
-    public IUserManager createUserManager(IDatabaseAccess securityAccess, PasswordEncoder passwordEncoder) {
+    public IUserManager createUserManager(IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {
         AuthUserDAO authUserDAO = new AuthUserDAO();
         authUserDAO.setMembershipAccess(securityAccess);
         AuthPasswordDAO authPasswordDAO = new AuthPasswordDAO();
@@ -39,7 +39,7 @@ public class DBSecurityFactory {
         return userService;
     }
 
-    public IRoleManager createRoleManager(IDatabaseAccess securityAccess) {
+    public IRoleManager createRoleManager(IDatabaseAccess<?> securityAccess) {
         AuthRoleDAO roleDAO = new AuthRoleDAO();
         roleDAO.setMembershipAccess(securityAccess);
         AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
@@ -55,7 +55,7 @@ public class DBSecurityFactory {
         return roleService;
     }
 
-    public IFunctionManager createFunctionManager(IDatabaseAccess securityAccess) {
+    public IFunctionManager createFunctionManager(IDatabaseAccess<?> securityAccess) {
         SysFunctionDAO functionDAO = new SysFunctionDAO();
         functionDAO.setMembershipAccess(securityAccess);
         SysMenuDAO menuDAO = new SysMenuDAO();
