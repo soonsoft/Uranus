@@ -4,23 +4,31 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-/**
- * WebApplicationContext
- */
 public class WebApplicationContext implements ApplicationContextAware {
 
-    private static ApplicationContext context = null;
+    private ApplicationContext context = null;
+
+    private static final WebApplicationContext INSTANCE = new WebApplicationContext();
+
+    private WebApplicationContext() {
+
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        context = applicationContext;
+        INSTANCE.context = applicationContext;
     }
 
-    /**
-     * @return the context
-     */
-    public static ApplicationContext getContext() {
+    public ApplicationContext getApplictionContext() {
         return context;
+    }
+
+    public static ApplicationContext getContext() {
+        return INSTANCE.context;
+    }
+
+    public static WebApplicationContext getInstance() {
+        return INSTANCE;
     }
     
 }

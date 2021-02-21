@@ -85,7 +85,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     
     @Bean
     public ApplicationContextAware applicationContextAware() {
-        return new WebApplicationContext();
+        return WebApplicationContext.getInstance();
     }
 
     @Bean
