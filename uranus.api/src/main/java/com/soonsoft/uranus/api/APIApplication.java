@@ -18,11 +18,11 @@ import org.springframework.context.annotation.ComponentScan;
         "com.soonsoft.uranus.api.controller"
 })
 @EnableSimpleSecurity
-public class ApiApplication {
+public class APIApplication {
 
     public static void main(String[] args) {
         onStop();
-        SpringApplication.run(ApiApplication.class, args);
+        SpringApplication.run(APIApplication.class, args);
     }
 
     private static void onStop() {
