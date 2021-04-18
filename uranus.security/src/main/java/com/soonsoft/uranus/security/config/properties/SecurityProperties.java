@@ -29,7 +29,7 @@ public class SecurityProperties {
         this.resourcePathList = resourcePathList;
     }
 
-    @Value("${uranus-web.security.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
+    @Value("${uranus.security.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
     public void initResourcePathList(String resourcePath) {
         if(StringUtils.isBlank(resourcePath)) {
             resourcePathList = new ArrayList<>(0);
@@ -48,7 +48,7 @@ public class SecurityProperties {
         resourcePathList = pathList;
     }
 
-    @Value("${uranus-web.security.sessionid-header:X-AUTH-URANUS-SID}")
+    @Value("${uranus.security.sessionid-header:X-AUTH-URANUS-SID}")
     private String sessionIdHeaderName;
 
     public String getSessionIdHeaderName() {

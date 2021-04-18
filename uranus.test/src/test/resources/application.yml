@@ -1,6 +1,8 @@
-jdbc:
-  membership:
-    driver: org.postgresql.Driver
-    url: jdbc:postgresql://139.196.140.101:5447/yzgdb
-    username: postgres
-    password: P@s5w0rd
+uranus:
+  datasource:
+    membership:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://139.196.140.101:5447/yzgdb
+      username: postgres
+      password: P@s5w0rd
+      pool-name: membership

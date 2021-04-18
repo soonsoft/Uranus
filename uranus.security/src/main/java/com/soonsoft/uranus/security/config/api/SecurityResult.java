@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.security.config.api;
 
-import com.alibaba.druid.sql.visitor.functions.Char;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import org.springframework.security.core.Authentication;
 
@@ -118,7 +117,7 @@ public class SecurityResult {
 
         public JSONBuilder addProperty(String name, Object value) {
             builder.append("\"").append(name).append("\"").append(":");
-            if(value instanceof CharSequence || value instanceof Char) {
+            if(value instanceof CharSequence || value instanceof Character) {
                 builder.append("\"").append(value).append("\"");
             } else {
                 builder.append(value);

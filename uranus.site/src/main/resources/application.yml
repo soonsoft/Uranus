@@ -25,7 +25,7 @@ logging:
   config: classpath:config/logback.xml
 mybatis:
   mapper-locations: classpath*:/sql/*Mapper.xml
-uranus-web:
+uranus:
   security:
     membership:
       default-password: 1
