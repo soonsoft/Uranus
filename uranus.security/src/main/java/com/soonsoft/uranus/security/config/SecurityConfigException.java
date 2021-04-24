@@ -5,8 +5,6 @@ package com.soonsoft.uranus.security.config;
  */
 public class SecurityConfigException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-
     public SecurityConfigException(String message) {
         super(message);
     }

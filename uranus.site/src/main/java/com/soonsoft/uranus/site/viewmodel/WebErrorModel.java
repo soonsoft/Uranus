@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 public class WebErrorModel extends HashMap<String, Object> {
 
-    private static final long serialVersionUID = -1967245051402578988L;
-
     public Integer getStatusCode() {
         return (Integer) get("statusCode");
     }

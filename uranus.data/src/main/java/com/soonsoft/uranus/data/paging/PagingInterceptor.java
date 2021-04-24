@@ -143,8 +143,6 @@ public class PagingInterceptor implements Interceptor {
 
     public static class EmptyDataSet extends ArrayList<Object> {
 
-        private static final long serialVersionUID = 2304228292230801097L;
-
         public EmptyDataSet() {
             super(0);
         }

@@ -6,25 +6,44 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.soonsoft.uranus.core.common.lang.TypeUtils;
 import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.data.config.properties.DataSourceProperty;
 import com.soonsoft.uranus.data.config.properties.DruidDataSourceProperty;
 import com.soonsoft.uranus.data.config.properties.HikariDataSourceProperty;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class DataSourceInitializer {
+public class DataSourceFactory {
 
     private final static Map<String, Action2<DataSource, DataSourceProperty>> datasourceSettingsMap = new HashMap<>();
 
     static {
-        datasourceSettingsMap.put("com.alibaba.druid.pool.DruidDataSource", DataSourceInitializer::initDruidDataSource);
-        datasourceSettingsMap.put("com.zaxxer.hikari.HikariDataSource", DataSourceInitializer::initHikariDataSource);
+        datasourceSettingsMap.put("com.alibaba.druid.pool.DruidDataSource", DataSourceFactory::initDruidDataSource);
+        datasourceSettingsMap.put("com.zaxxer.hikari.HikariDataSource", DataSourceFactory::initHikariDataSource);
     }
 
-    public static void initDruidDataSource(DataSource dataSource, DataSourceProperty dataSourceProperty) {
+    public static DataSource create(DataSourceProperty dataSourceProperty) {
+        if(dataSourceProperty == null) {
+            throw new IllegalArgumentException("the parameter dataSourceProperty is required.");
+        }
+
+        DataSource dataSource = TypeUtils.createInstance(dataSourceProperty.getDataSourceType());
+        Action2<DataSource, DataSourceProperty> initAction = datasourceSettingsMap.get(dataSource.getClass().getName());
+        if(initAction != null) {
+            initAction.apply(dataSource, dataSourceProperty);
+        }
+
+        return dataSource;
+    }
+
+    private static void initDruidDataSource(DataSource dataSource, DataSourceProperty dataSourceProperty) {
         DruidDataSourceProperty druidDataSourceProperty = (DruidDataSourceProperty) dataSourceProperty;
         DruidDataSource druidDataSource = (DruidDataSource) dataSource;
 
+        druidDataSource.setUrl(dataSourceProperty.getUrl());
+        druidDataSource.setDriverClassName(dataSourceProperty.getDriverClassName());
+        druidDataSource.setUsername(dataSourceProperty.getUsername());
+        druidDataSource.setPassword(dataSourceProperty.getPassword());
         // 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时
         druidDataSource.setInitialSize(druidDataSourceProperty.getInitialSize());
         // 最小连接池数量
@@ -54,9 +73,14 @@ public class DataSourceInitializer {
         druidDataSource.setLogAbandoned(true);
     }
 
-    public static void initHikariDataSource(DataSource dataSource, DataSourceProperty dataSourceProperty) {
+    private static void initHikariDataSource(DataSource dataSource, DataSourceProperty dataSourceProperty) {
         HikariDataSourceProperty hikariDataSourceProperty = (HikariDataSourceProperty) dataSourceProperty;
         HikariDataSource hikariDataSource = (HikariDataSource) dataSource;
+
+        hikariDataSource.setJdbcUrl(dataSourceProperty.getUrl());
+        hikariDataSource.setDriverClassName(dataSourceProperty.getDriverClassName());
+        hikariDataSource.setUsername(dataSourceProperty.getUsername());
+        hikariDataSource.setPassword(dataSourceProperty.getPassword());
 
         hikariDataSource.setAutoCommit(hikariDataSourceProperty.isAutoCommit());
         hikariDataSource.setConnectionTimeout(hikariDataSourceProperty.getConnectionTimeout());
@@ -67,20 +91,6 @@ public class DataSourceInitializer {
         hikariDataSource.setMaximumPoolSize(hikariDataSourceProperty.getMaximumPoolSize());
         hikariDataSource.setPoolName(hikariDataSourceProperty.getPoolName());
         hikariDataSource.setReadOnly(hikariDataSourceProperty.isReadonly());
-    }
-
-    public static void init(DataSource dataSource, DataSourceProperty dataSourceProperty) {
-        if(dataSource == null) {
-            throw new IllegalArgumentException("the parameter dataSource is required.");
-        }
-        if(dataSourceProperty == null) {
-            throw new IllegalArgumentException("the parameter dataSourceProperty is required.");
-        }
-
-        Action2<DataSource, DataSourceProperty> initAction = datasourceSettingsMap.get(dataSource.getClass().getName());
-        if(initAction != null) {
-            initAction.apply(dataSource, dataSourceProperty);
-        }
     }
     
 }

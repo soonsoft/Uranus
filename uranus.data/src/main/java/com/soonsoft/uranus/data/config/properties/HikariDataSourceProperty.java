@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.data.config.properties;
 
+import com.zaxxer.hikari.HikariDataSource;
 
 public class HikariDataSourceProperty extends DataSourceProperty {
 
@@ -29,6 +30,10 @@ public class HikariDataSourceProperty extends DataSourceProperty {
 
     // 是否要创建只读连接池（读写分离时使用）
     private boolean readonly = false;
+
+    public HikariDataSourceProperty() {
+        super(HikariDataSource.class);
+    }
 
     public boolean isAutoCommit() {
         return autoCommit;

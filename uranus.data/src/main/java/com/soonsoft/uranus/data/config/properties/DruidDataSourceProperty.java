@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.data.config.properties;
 
+import com.alibaba.druid.pool.DruidDataSource;
 
 public class DruidDataSourceProperty extends DataSourceProperty {
 
@@ -16,6 +17,10 @@ public class DruidDataSourceProperty extends DataSourceProperty {
     private Integer minEvictableIdleTimeMillis = 300000;
 
     private Integer maxPoolPreparedStatementPerConnectionSize = 20;
+
+    public DruidDataSourceProperty() {
+        super(DruidDataSource.class);
+    }
 
     public Integer getInitialSize() {
         return initialSize;

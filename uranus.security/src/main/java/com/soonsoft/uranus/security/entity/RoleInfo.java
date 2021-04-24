@@ -10,8 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public class RoleInfo implements GrantedAuthority, ConfigAttribute {
 
-    private static final long serialVersionUID = -8108066658263431548L;
-
     private static final String ROLE_PREFIX = "ROLE_";
 
     private String role;

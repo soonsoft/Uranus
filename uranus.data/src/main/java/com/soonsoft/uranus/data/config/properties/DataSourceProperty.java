@@ -1,6 +1,10 @@
 package com.soonsoft.uranus.data.config.properties;
 
-public class DataSourceProperty {
+import javax.sql.DataSource;
+
+public abstract class DataSourceProperty {
+
+    private Class<? extends DataSource> dataSourceType;
     
     private String driverClassName;
 
@@ -9,6 +13,10 @@ public class DataSourceProperty {
     private String username;
 
     private String password;
+
+    protected DataSourceProperty(Class<? extends DataSource> dataSourceType) {
+        this.dataSourceType = dataSourceType;
+    }
 
     public String getDriverClassName() {
         return driverClassName;
@@ -42,6 +50,12 @@ public class DataSourceProperty {
         this.password = password;
     }
 
-    
+    public Class<? extends DataSource> getDataSourceType() {
+        return dataSourceType;
+    }
+
+    public void setDataSourceType(Class<? extends DataSource> dataSourceType) {
+        this.dataSourceType = dataSourceType;
+    }
 
 }

@@ -15,8 +15,6 @@ import org.springframework.security.core.userdetails.User;
  */
 public class UserInfo extends User {
 
-    private static final long serialVersionUID = -1600196816736526349L;
-
     private static final String EMPTY_PASSWORD = "NoPassword";
 
     private static final Set<GrantedAuthority> EMPTY_ROLES = new HashSet<>(0);

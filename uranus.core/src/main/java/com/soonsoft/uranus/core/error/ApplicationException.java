@@ -6,8 +6,6 @@ package com.soonsoft.uranus.core.error;
  */
 public class ApplicationException extends Exception {
 
-    private static final long serialVersionUID = 9060800082887148768L;
-
     private String errorCode;
 
     public ApplicationException(String errorCode, String message) {

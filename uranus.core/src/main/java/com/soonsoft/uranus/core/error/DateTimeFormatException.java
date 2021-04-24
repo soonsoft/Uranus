@@ -3,9 +3,7 @@ package com.soonsoft.uranus.core.error;
 /**
  * DateTimeFormatException
  */
-public class DateTimeFormatException extends RuntimeException {
-
-    private static final long serialVersionUID = 4320009820896206305L;
+public class DateTimeFormatException extends ApplicationRuntimeException {
 
     public DateTimeFormatException() {
         super();

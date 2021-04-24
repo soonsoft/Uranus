@@ -7,8 +7,6 @@ import com.soonsoft.uranus.security.entity.RoleInfo;
  */
 public class MembershipRole extends RoleInfo {
 
-    private static final long serialVersionUID = -1781785115289305987L;
-
     static final String EMPTY_ROLE = "__EMPTY__ROLE";
 
     public MembershipRole() {

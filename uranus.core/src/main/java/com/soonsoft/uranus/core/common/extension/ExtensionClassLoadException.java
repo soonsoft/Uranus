@@ -5,8 +5,6 @@ package com.soonsoft.uranus.core.common.extension;
  */
 public class ExtensionClassLoadException extends RuntimeException {
 
-    private static final long serialVersionUID = -7941272659551671516L;
-
     public ExtensionClassLoadException(String message) {
         super(message);
     }

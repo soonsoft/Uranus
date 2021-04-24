@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.soonsoft.uranus.core.common.lang.ClassUtils;
+import com.soonsoft.uranus.core.common.lang.TypeUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.common.utils.Holder;
 import com.soonsoft.uranus.core.common.utils.Lifecycle;
@@ -183,7 +183,7 @@ public class ExtensionLoader<T> {
         String fileName = strategy.directory() + className;
         try {
             Enumeration<java.net.URL> urls = null;
-            ClassLoader classLoader = ClassUtils.getClassLoader(ExtensionLoader.class);
+            ClassLoader classLoader = TypeUtils.getClassLoader(ExtensionLoader.class);
             
             // try to load from ExtensionLoader's ClassLoader first
             if (strategy.preferExtensionClassLoader()) {

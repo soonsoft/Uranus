@@ -11,8 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 
 public class JWTAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-    private static final long serialVersionUID = 2129745000917232643L;
-
     public JWTAuthenticationToken(Object principal, Object credentials) {
         super(principal, credentials);
     }
