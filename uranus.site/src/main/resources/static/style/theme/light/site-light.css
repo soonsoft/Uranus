@@ -117,6 +117,9 @@ a:hover {
 a:active {
   background-color: transparent;
 }
+:focus {
+  outline: none;
+}
 /* 主题颜色 */
 .theme-bg {
   background-color: #ffffff;
@@ -215,7 +218,7 @@ a:active {
   line-height: 48px;
   margin: 0;
   text-align: center;
-  opacity: .6;
+  opacity: 0.6;
 }
 #headBackButton:hover {
   opacity: 1;
@@ -227,7 +230,7 @@ a:active {
   width: 48px;
   height: 48px;
   cursor: pointer;
-  opacity: .7;
+  opacity: 0.7;
 }
 .ui-home-button:hover {
   opacity: 1;
@@ -237,7 +240,7 @@ a:active {
   display: block;
   height: 100%;
   float: left;
-  width: 192px;
+  width: 240px;
   position: relative;
   font-weight: normal;
   overflow: hidden;
@@ -246,7 +249,7 @@ a:active {
 .head-system-title-text {
   color: #fff;
   font-family: 'Segoe UI', 'Microsoft YaHei light', 'Microsoft YaHei';
-  line-height: 44px;
+  line-height: 48px;
   margin-left: 10px;
 }
 /* 副标题 */
@@ -271,7 +274,7 @@ a:active {
   text-decoration: none;
   color: #fff !important;
   position: relative;
-  opacity: .6;
+  opacity: 0.6;
   cursor: pointer;
 }
 .head-tab-title .ui-tab-button:hover {
@@ -322,7 +325,7 @@ a:active {
   margin-top: 14px;
   vertical-align: top;
   line-height: 18px;
-  opacity: .6;
+  opacity: 0.6;
 }
 .head-ctrl-button:hover {
   opacity: 1;
@@ -340,7 +343,7 @@ a:active {
   overflow: hidden;
 }
 .head-ctrl-buttons-item #user:active {
-  opacity: .6;
+  opacity: 0.6;
 }
 .head-ctrl-buttons-item #user .cover {
   height: 100%;
@@ -420,7 +423,7 @@ a:active {
   background-color: #666666;
   height: 100%;
 }
-/* 交互按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
+/* 工具栏按钮，定义为前端交互触发按钮，不会对数据产生影响，镂空的 */
 .tool-button {
   text-align: center;
   height: 24px;
@@ -436,6 +439,7 @@ a:active {
   background-color: transparent;
   cursor: pointer;
   outline: 0 none;
+  border-radius: 0;
 }
 .tool-button {
   min-width: 60px;
@@ -445,11 +449,11 @@ a:active {
 .icon-button {
   text-align: center;
   border-radius: 50%;
-  line-height: 24px;
+  line-height: 32px;
   margin: 0;
   padding: 0;
-  height: 24px;
-  width: 24px;
+  height: 32px;
+  width: 32px;
   border: none 0;
   overflow: hidden;
   background-color: #888888;
@@ -474,10 +478,10 @@ a:active {
   border-color: #aaaaaa !important;
   background-color: transparent !important;
 }
-/* 文件按钮，一般用于工具条上的后退按钮，下拉按钮 */
+/* 文本按钮，一般用于工具条上的后退按钮，下拉按钮 */
 .tool-text-button {
   font-size: 1.077em;
-  opacity: .8;
+  opacity: 0.8;
   cursor: pointer;
 }
 .tool-text-button:hover {
@@ -490,6 +494,7 @@ input[type="password"],
 input[type="email"],
 input[type="number"],
 input[type="tel"],
+select,
 textarea {
   font-size: 12px;
   font-family: 'Microsoft YaHei', "Segoe UI", Segoe, Tahoma, Arial, Verdana, sans-serif;
@@ -585,15 +590,15 @@ select:focus {
 }
 input[type="text"][readonly],
 textarea[readonly] {
-  color: #666666 !important;
-  border-color: #666666 !important;
+  color: #666666;
+  border-color: #666666;
   cursor: default;
 }
 input:disabled,
 textarea:disabled,
 select:disabled {
-  color: #aaaaaa !important;
-  border-color: #aaaaaa !important;
+  color: #aaaaaa;
+  border-color: #aaaaaa;
   cursor: not-allowed;
 }
 textarea {
@@ -611,16 +616,16 @@ textarea {
 }
 /* 操作按钮，会改变后台数据的按钮，实心的 */
 .button {
-  min-width: 80px;
+  min-width: 100px;
   outline: none;
-  height: 24px;
-  line-height: 24px;
+  height: 32px;
+  line-height: 32px;
   border: 0 none;
   color: #ffffff;
   background-color: #666666;
   font-size: 1em;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0;
+  border-radius: 0;
 }
 .button:active {
   background-color: #333333 !important;

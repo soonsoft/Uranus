@@ -109,7 +109,7 @@
         if (ui.core.isFunction(successFn)) {
             context.successFn = successFn;
             ajaxOption.success = function(ajaxResult) {
-                successHandler(context, ajaxResult.data, ajaxResult.statusText, ajaxResult.ajaxRequest);
+                successHandler(context, ajaxResult.response, ajaxResult.statusText, ajaxResult.ajaxRequest);
             };
         }
         if (ui.core.isFunction(errorFn)) {

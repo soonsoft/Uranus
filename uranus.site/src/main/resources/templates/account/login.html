@@ -160,10 +160,10 @@
         </div>
     </div>
 
-    <script th:src="@{/script/vender/jquery-3.4.0.min.js}"></script>
-    <script th:src="@{/script/soon-ui/SOON.UI.3.0.0.all.js}"></script>
+    <script th:src="@{/script/soon-ui/SOON.UI.3.5.0.all.js}"></script>
     <script type="text/javascript">
         ; (function () {
+            window.jQuery = window.$ = ui.$;
             var parallax = function(view, image, width, height) {
                 this.imageScale = 1.1;
                 this.view = view;

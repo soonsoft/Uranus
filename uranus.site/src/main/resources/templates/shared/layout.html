@@ -25,7 +25,7 @@
     <link type="text/css" rel="stylesheet" th:href="@{/style/theme/light/metro-light.all.css}" />
     <link type="text/css" rel="stylesheet" th:href="@{/style/theme/viewpage/viewpage.all.css}" />
     <link id="highlight" type="text/css" rel="stylesheet" th:href="@{/style/theme/color/ui.metro.SeaBlue.css}" />
-	<link type="text/css" rel="stylesheet" th:href="@{/style/font-awesome.min.css}" />
+	<link type="text/css" rel="stylesheet" th:href="@{/content/font-awesome/font-awesome.css}" />
     <link type="text/css" rel="stylesheet" th:href="@{/style/custom.css}" />
 
     <th:block th:insert="${links}" />
@@ -77,12 +77,12 @@
         <span class="circle"></span>
     </div>
 
-    <script th:src="@{/script/vender/jquery-3.4.0.min.js}"></script>
-    <script th:src="@{/script/soon-ui/SOON.UI.3.0.0.all.js}"></script>
+    <script th:src="@{/script/soon-ui/SOON.UI.3.5.0.all.js}"></script>
     <script th:src="@{/script/soon-ui/ajax-extend.js}"></script>
     <script th:src="@{/script/data/highlights.js}"></script>
 
     <script th:inline="javascript">
+        window.jQuery = window.$ = ui.$;
         ui.page.init({
             master: function() {
                 this.loaded(function() {
@@ -105,16 +105,16 @@
             userPanel: function() {
                 return {
                     changeHighlightUrl: function(highlight) {
-                        $("#highlight").prop("href", ui.str.format("/style/theme/color/ui.metro.{0}.css", highlight.Id));
-                        ui.theme.setHighlight(highlight);
+                        ui.theme.setHighlight(
+                            highlight, ui.str.format("/style/theme/color/ui.metro.{0}.css", highlight.Id));
                     },
                     name: [[${userName}]],
                     department: "IT部门",
                     position: [[${roleName}]],
                     operateList: [
-                        { text: "个性化", url: "/account/personalize" },
-                        { text: "修改密码", url: "/account/change-password" },
-                        { text: "退出", url: "/logout" }
+                        { text: "个性化", handler: "/account/personalize" },
+                        { text: "修改密码", handler: "/account/change-password" },
+                        { text: "退出", handler: "/logout" }
                     ]
                 };
             },

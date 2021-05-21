@@ -67,8 +67,6 @@
         </div>
     </div>
 
-    <script th:src="@{/script/vender/jquery.validate.min.js}"></script>
-    <script th:src="@{/script/vender/jquery.validate.extend.js}"></script>
     <script>
         ;(function(ui) {
             ui.page.init({
@@ -159,17 +157,8 @@
                     hasCloseButton: false,
                     buttons: [saveButton, cancelButton]
                 }, $("#sidePanel"));
-                var roleValidator = $("#roleForm").setValidate({
-                    rules: {
-                        roleName: { required: true, maxlength: 100 },
-                        description: { maxlength: 200 }
-                    }
-                });
 
                 saveButton.click(function(e) {
-                    if(!roleValidator.form()) {
-                        return;
-                    }
                     save(saveButton, sidePanel.getFormData());
                 });
                 cancelButton.click(function(e) {
@@ -220,7 +209,6 @@
                 };
                 sidePanel.resetForm = function() {
                     $("#roleForm").get(0).reset();
-                    roleValidator.clear();
                     switchStatus.checked = true;
                     menuTree.cancelSelection();
                 };

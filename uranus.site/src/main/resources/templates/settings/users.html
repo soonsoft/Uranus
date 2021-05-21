@@ -85,8 +85,6 @@
         </div>
     </div>
 
-    <script th:src="@{/script/vender/jquery.validate.min.js}"></script>
-    <script th:src="@{/script/vender/jquery.validate.extend.js}"></script>
     <script>
         ;(function(ui) {
             ui.page.init({
@@ -198,18 +196,8 @@
                     hasCloseButton: false,
                     buttons: [saveButton, cancelButton]
                 }, $("#sidePanel"));
-                var userValidator = $("#userForm").setValidate({
-                    rules: {
-                        userName: { required: true, maxlength: 100 },
-                        nickName: { required: true, maxlength: 200 },
-                        cellPhone: { maxlength: 20 }
-                    }
-                });
 
                 saveButton.click(function(e) {
-                    if(!userValidator.form()) {
-                        return;
-                    }
                     save(saveButton, sidePanel.getFormData());
                 });
                 cancelButton.click(function(e) {
@@ -265,7 +253,6 @@
                 sidePanel.resetForm = function() {
                     $("#userForm").get(0).reset();
                     $("#userName").removeAttr("disabled");
-                    userValidator.clear();
                     switchStatus.checked = true;
                     roleList.cancelSelection();
                 };

@@ -53,12 +53,12 @@
 }
 .ui-calendar-year-view .year-month-title {
   width: 90%;
-  height: 48px;
-  line-height: 48px;
+  height: 40px;
+  line-height: 40px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  font-size: 20px;
+  font-size: 18px;
 }
 .ui-calendar-year-view .year-month-content {
   width: 90%;
@@ -74,23 +74,22 @@
 .ui-calendar-year-view .year-month-table-head {
   text-align: center;
   font-weight: normal;
-  height: 14.2%;
-  font-size: 14px;
+  height: 24px;
   overflow: hidden;
+  line-height: 24px;
 }
 .ui-calendar-year-view .year-month-table-cell {
   text-align: center;
   font-weight: normal;
-  height: 14.2%;
-  font-size: 13px;
-  vertical-align: top;
+  height: 16.66%;
+  vertical-align: middle;
   position: relative;
   overflow: hidden;
   line-height: 24px;
 }
 .ui-calendar-year-view .year-month-table .selected {
   background-color: #666666;
-  color: #ffffff;
+  color: #fff;
 }
 .ui-calendar-year-view .year-month-table .selected .today {
   display: none;
@@ -205,7 +204,7 @@
 }
 .ui-calendar-month-day-view .month-days-table .selected {
   background-color: #666666;
-  color: #ffffff;
+  color: #fff;
 }
 /* 周视图 */
 .ui-calendar-week-view,
@@ -337,7 +336,7 @@
   position: absolute;
   overflow: hidden;
   background-color: #aaaaaa;
-  color: #ffffff;
+  color: #fff;
 }
 .ui-calendar-hour-panel .schedule-item-panel:hover {
   background-color: #666666;
@@ -426,7 +425,7 @@
   background-color: transparent;
   border-style: solid;
   border-width: 4px;
-  opacity: .6;
+  opacity: 0.6;
   display: none;
   top: 0;
   left: 0;
@@ -849,7 +848,7 @@
 }
 .ui-date-chooser-panel .date-chooser-days-panel .date-chooser-table {
   position: absolute;
-  width: 100%;
+  width: 210px;
   height: 100%;
   top: 0;
   left: 0;
@@ -885,6 +884,9 @@
 .ui-date-chooser-panel .date-chooser-button {
   vertical-align: top;
   margin-top: 3px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
 }
 .ui-date-chooser-panel .date-chooser-button i,
 .ui-date-chooser-panel .date-chooser-button span {
@@ -1055,8 +1057,7 @@
   width: 100%;
   height: 100%;
   background-color: #f1f1f1;
-  filter: alpha(opacity=0);
-  opacity: 1;
+  opacity: 0;
   border-radius: 50%;
   border-width: 1px;
   border-style: solid;
@@ -1070,15 +1071,12 @@
   text-align: center;
   font-size: 16px;
   border-radius: 50%;
-  filter: alpha(opacity=60);
-  opacity: .6;
+  opacity: 0.6;
 }
 .extend-button-panel .extend-button:hover {
-  filter: alpha(opacity=100);
   opacity: 1;
 }
 .extend-button-panel .center-icon {
-  filter: alpha(opacity=100);
   opacity: 1;
 }
 .extend-button-panel .center-icon {
@@ -1100,8 +1098,7 @@
   border-radius: 50%;
   border-color: #dcdcdc;
   border-style: solid;
-  filter: alpha(opacity=70);
-  opacity: .7;
+  opacity: 0.7;
 }
 
 /*
@@ -1148,54 +1145,6 @@
   display: none !important;
 }
 .filter-button-item-text {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-/*
-	Color: #ffffff
-	Name: 光明
-*/
-.filter-tools-panel {
-  width: auto;
-  height: 24px;
-  line-height: 22px;
-  overflow: hidden;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.filter-tools-item {
-  margin: 0px;
-  padding: 0px;
-  width: auto;
-  display: inline-block;
-  text-align: center;
-  vertical-align: top;
-  border-top: solid 1px transparent;
-  border-bottom: solid 1px transparent;
-  border-right: solid 1px transparent;
-  height: 22px;
-  cursor: pointer;
-}
-.filter-tools-item-hide {
-  display: none;
-}
-.filter-tools-item-first {
-  border-left: solid 1px transparent;
-}
-.filter-tools-item-radio {
-  position: relative;
-  left: -1px;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  visibility: hidden !important;
-  display: none !important;
-}
-.filter-tools-item-text {
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -1286,10 +1235,10 @@
   margin-right: 5px;
   vertical-align: baseline;
 }
-.ui-table-head .sort-column .fa-sort-asc {
+.ui-table-head .sort-column .fa-sort-up {
   vertical-align: middle;
 }
-.ui-table-head .sort-column .fa-sort-desc {
+.ui-table-head .sort-column .fa-sort-down {
   vertical-align: text-top;
 }
 /* 表体 */
@@ -1340,18 +1289,18 @@
 }
 .ui-table-body .row-selected,
 .ui-table-body .cell-selected {
-  color: #ffffff;
+  color: #fff;
 }
 .ui-table-body .row-selected td {
   border-right-color: transparent;
 }
 .ui-table-body .row-selected a,
 .ui-table-body .cell-selected a {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-body .row-selected .grid-checkbox,
 .ui-table-body .cell-selected .grid-checkbox {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-body span,
 .ui-table-body a {
@@ -1371,29 +1320,6 @@
   margin-top: 0;
   margin-bottom: 0;
   padding: 0;
-}
-/* 文字块样式 */
-.ui-table-body .state-text {
-  margin-left: 0;
-  margin-right: 0;
-  display: inline-block;
-  width: auto;
-  height: 20px;
-  text-align: center;
-  color: #fff;
-  line-height: 18px;
-  font-size: 12px;
-  padding: 0 5px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-}
-.ui-table-body .state-true {
-  background-color: #8fc76c;
-  border-color: #54c70c;
-}
-.ui-table-body .state-false {
-  background-color: #ff85a9;
-  border-color: #ff2968;
 }
 /* 进度条样式 */
 .ui-table-body .cell-progress-panel {
@@ -1452,11 +1378,11 @@
 }
 .ui-table-body .row-selected .fold,
 .ui-table-body .cell-selected .fold {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-body .row-selected .unfold,
 .ui-table-body .cell-selected .unfold {
-  color: #ffffff !important;
+  color: #fff !important;
 }
 .ui-table-head .grid-checkbox-all,
 .ui-table-body .grid-checkbox {
@@ -1573,8 +1499,6 @@
   color: #666666;
 }
 .image-preview .image-preview-chooser .small-img {
-  width: 44px;
-  height: 44px;
   border: solid 2px transparent;
   overflow: hidden;
   cursor: pointer;
@@ -1583,6 +1507,10 @@
 .image-preview .image-preview-chooser .small-img img {
   vertical-align: top;
 }
+/*
+    .image-view-div .chooser-selected {
+    }
+*/
 
 /*
 	Color: #ffffff
@@ -1696,7 +1624,7 @@
   text-align: center;
   color: #fff;
   z-index: 10001;
-  opacity: .5;
+  opacity: 0.5;
 }
 .show-image-panel .next-button:hover,
 .show-image-panel .prev-button:hover {
@@ -1829,10 +1757,10 @@ div.c_flyingDots div.c_loadingDot {
   background-color: #333333;
 }
 div.c_flyingDots.c_dotsPlaying div.c_loadingDot {
-  -moz-animation: makedotfly 3.3s linear .1s infinite normal;
-  -ms-animation: makedotfly 3.3s linear .1s infinite normal;
-  -webkit-animation: makedotfly 3.3s linear .1s infinite normal;
-  animation: makedotfly 3.3s linear .1s infinite normal;
+  -moz-animation: makedotfly 3.3s linear 0.1s infinite normal;
+  -ms-animation: makedotfly 3.3s linear 0.1s infinite normal;
+  -webkit-animation: makedotfly 3.3s linear 0.1s infinite normal;
+  animation: makedotfly 3.3s linear 0.1s infinite normal;
 }
 @-moz-keyframes makedotfly {
   0% {
@@ -1915,22 +1843,21 @@ div.c_flyingDots div.c_loadingTrack0 {
   margin-left: 90px;
 }
 div.c_flyingDots div.c_loadingTrack0 div.c_loadingDot {
-  -moz-animation-delay: .15s;
-  -ms-animation-delay: .15s;
-  -o-animation-delay: .15s;
-  -webkit-animation-delay: .15s;
-  animation-delay: .15s;
+  -moz-animation-delay: 0.15s;
+  -ms-animation-delay: 0.15s;
+  -o-animation-delay: 0.15s;
+  -webkit-animation-delay: 0.15s;
+  animation-delay: 0.15s;
   opacity: 0;
-  filter: alpha(opacity=0);
 }
 div.c_flyingDots div.c_loadingTrack1 {
   left: -15%;
   margin-left: 75px;
 }
 div.c_flyingDots div.c_loadingTrack1 div.c_loadingDot {
-  -moz-animation-delay: .3s;
-  -ms-animation-delay: .3s;
-  -webkit-animation-delay: .3s;
+  -moz-animation-delay: 0.3s;
+  -ms-animation-delay: 0.3s;
+  -webkit-animation-delay: 0.3s;
   animation-delay: 0.3s;
 }
 div.c_flyingDots div.c_loadingTrack2 {
@@ -1938,9 +1865,9 @@ div.c_flyingDots div.c_loadingTrack2 {
   margin-left: 60px;
 }
 div.c_flyingDots div.c_loadingTrack2 div.c_loadingDot {
-  -moz-animation-delay: .45s;
-  -ms-animation-delay: .45s;
-  -webkit-animation-delay: .45s;
+  -moz-animation-delay: 0.45s;
+  -ms-animation-delay: 0.45s;
+  -webkit-animation-delay: 0.45s;
   animation-delay: 0.45s;
 }
 div.c_flyingDots div.c_loadingTrack3 {
@@ -1948,9 +1875,9 @@ div.c_flyingDots div.c_loadingTrack3 {
   margin-left: 45px;
 }
 div.c_flyingDots div.c_loadingTrack3 div.c_loadingDot {
-  -moz-animation-delay: .6s;
-  -ms-animation-delay: .6s;
-  -webkit-animation-delay: .6s;
+  -moz-animation-delay: 0.6s;
+  -ms-animation-delay: 0.6s;
+  -webkit-animation-delay: 0.6s;
   animation-delay: 0.6s;
 }
 div.c_flyingDots div.c_loadingTrack4 {
@@ -1958,9 +1885,9 @@ div.c_flyingDots div.c_loadingTrack4 {
   margin-left: 30px;
 }
 div.c_flyingDots div.c_loadingTrack4 div.c_loadingDot {
-  -moz-animation-delay: .75s;
-  -ms-animation-delay: .75s;
-  -webkit-animation-delay: .75s;
+  -moz-animation-delay: 0.75s;
+  -ms-animation-delay: 0.75s;
+  -webkit-animation-delay: 0.75s;
   animation-delay: 0.75s;
 }
 div.c_flyingDots div.c_loadingTrack5 {
@@ -1968,9 +1895,9 @@ div.c_flyingDots div.c_loadingTrack5 {
   margin-left: 15px;
 }
 div.c_flyingDots div.c_loadingTrack5 div.c_loadingDot {
-  -moz-animation-delay: .9s;
-  -ms-animation-delay: .9s;
-  -webkit-animation-delay: .9s;
+  -moz-animation-delay: 0.9s;
+  -ms-animation-delay: 0.9s;
+  -webkit-animation-delay: 0.9s;
   animation-delay: 0.9s;
 }
 /* 兼容不支持CSS动画的浏览器，采用gif动画的方式 */
@@ -1982,11 +1909,10 @@ div.c_flyingDots div.c_loadingFallback {
   height: 4px;
   background: transparent url('') no-repeat center center;
   opacity: 1;
-  filter: alpha(opacity=100);
-  -moz-animation: hidedotsfallback .3s linear .1s 1 normal;
-  -ms-animation: hidedotsfallback .3s linear 0s 1 normal;
-  -webkit-animation: hidedotsfallback .3s linear 0s 1 normal;
-  animation: hidedotsfallback .3s linear 0s 1 normal;
+  -moz-animation: hidedotsfallback 0.3s linear 0.1s 1 normal;
+  -ms-animation: hidedotsfallback 0.3s linear 0s 1 normal;
+  -webkit-animation: hidedotsfallback 0.3s linear 0s 1 normal;
+  animation: hidedotsfallback 0.3s linear 0s 1 normal;
   -moz-animation-fill-mode: both;
   -ms-animation-fill-mode: both;
   -webkit-animation-fill-mode: both;
@@ -2110,7 +2036,7 @@ div.c_flyingDots div.c_loadingFallback {
   opacity: 1;
 }
 .ui-side-close-button:active {
-  opacity: .8;
+  opacity: 0.8;
 }
 .ui-option-box-panel {
   z-index: 9000;
@@ -2146,8 +2072,12 @@ div.c_flyingDots div.c_loadingFallback {
   text-align: right;
   overflow: hidden;
   height: 24px;
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.ui-option-box-buttons .button {
+  height: 24px;
+  line-height: 24px;
 }
 
 /*
@@ -2187,7 +2117,7 @@ div.c_flyingDots div.c_loadingFallback {
   left: 0;
   height: 100%;
   width: 0;
-  transition: width .3s ease 0s;
+  transition: width 0.3s ease 0s;
 }
 
 /*
@@ -2219,7 +2149,7 @@ div.c_flyingDots div.c_loadingFallback {
   margin: 0;
   padding: 0;
   background-color: #ffffff;
-  opacity: .01;
+  opacity: 0.01;
   cursor: col-resize;
 }
 .ui-report-view .ui-report-fixed {
@@ -2553,8 +2483,7 @@ div.c_flyingDots div.c_loadingFallback {
   height: 16px;
   background-color: #666666;
   top: 4px;
-  filter: alpha(opacity=50);
-  opacity: .5;
+  opacity: 0.5;
 }
 .switch-marshmallow .switch-thumb {
   position: absolute;
@@ -2611,6 +2540,42 @@ div.c_flyingDots div.c_loadingFallback {
 	Color: #ffffff
 	Name: 光明
 */
+.ui-tag {
+  margin: 0;
+  display: inline-block;
+  vertical-align: top;
+  box-sizing: border-box;
+  border: solid 1px transparent;
+  font-size: 12px;
+  position: relative;
+}
+.ui-tag-noborder {
+  border: none 0;
+}
+.ui-tag-close {
+  font: 18px/16px Tahoma, Verdana, sans-serif;
+  font-style: normal;
+  position: static;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 50%;
+}
+.ui-tag-theme {
+  background-color: #f1f1f1;
+  border-color: #333333;
+  color: #333333;
+}
+.ui-tag-theme .ui-tag-close:hover {
+  color: #f1f1f1;
+  background-color: #333333;
+}
+
+/*
+	Color: #ffffff
+	Name: 光明
+*/
 /*日历框样式*/
 input.ui-date-text {
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJ3aWR0aDogMjBweDsgaGVpZ2h0OiAyMHB4OyIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmVyc2lvbj0iMS4xIj48cGF0aCBmaWxsPSIjNjY2NjY2IiBkPSJNIDQxNi4wODcgNjA3LjgzMSBsIDk1Ljk4NyAwIGwgMCAtOTYgbCAtOTUuOTg3IDAgTCA0MTYuMDg3IDYwNy44MzEgWiBNIDU0NC4wNzggNzM1LjgyOCBsIDk2IDAgbCAwIC05NS45OTQgbCAtOTYgMCBMIDU0NC4wNzggNzM1LjgyOCBaIE0gNDE2LjA4NyA3MzUuODI4IGwgOTUuOTg3IDAgbCAwIC05NS45OTQgbCAtOTUuOTg3IDAgTCA0MTYuMDg3IDczNS44MjggWiBNIDI4OC4wODQgNjA3LjgzMSBsIDk2IDAgbCAwIC05NiBsIC05NiAwIEwgMjg4LjA4NCA2MDcuODMxIFogTSAyODguMDg0IDczNS44MjggbCA5NiAwIGwgMCAtOTUuOTk0IGwgLTk2IDAgTCAyODguMDg0IDczNS44MjggWiBNIDU0NC4wNzggNjA3LjgzMSBsIDk2IDAgbCAwIC05NiBsIC05NiAwIEwgNTQ0LjA3OCA2MDcuODMxIFogTSA2NzIuMDgxIDQ3OS44MzEgbCA5NiAwIGwgMCAtOTUuOTk3IGwgLTk2IDAgTCA2NzIuMDgxIDQ3OS44MzEgWiBNIDgzMi4wNzggMTkxLjgzMyBMIDIyNC4wNzcgMTkxLjgzMyBjIC0xNy42NzQgMCAtMzEuOTk0IDE0LjMyNiAtMzEuOTk0IDMyLjAwMyBsIDAgNTc1Ljk5OCBjIDAgMTcuNjc0IDE0LjMyIDMyIDMxLjk5NCAzMiBsIDYwOC4wMDEgMCBjIDE3LjY3NCAwIDMyLjAwMyAtMTQuMzI2IDMyLjAwMyAtMzIgTCA4NjQuMDgxIDIyMy44MzcgQyA4NjQuMDgyIDIwNi4xNiA4NDkuNzUyIDE5MS44MzMgODMyLjA3OCAxOTEuODMzIFogTSA4MzIuMDgyIDc2Ny44MzIgYyAwIDE3LjY3NCAtMTQuMzI2IDMyIC0zMiAzMiBMIDI1Ni4wOCA3OTkuODMyIGMgLTE3LjY3NCAwIC0zMiAtMTQuMzI2IC0zMiAtMzIgTCAyMjQuMDggMzUxLjgzMSBjIDAgLTE3LjY3NCAxNC4zMjYgLTMyIDMyIC0zMiBsIDU0NC4wMDEgMCBjIDE3LjY3NCAwIDMyIDE0LjMyNiAzMiAzMiBMIDgzMi4wODEgNzY3LjgzMiBaIE0gNjcyLjA4MSA2MDcuODMxIGwgOTYgMCBsIDAgLTk2IGwgLTk2IDAgTCA2NzIuMDgxIDYwNy44MzEgWiBNIDU0NC4wNzggNDc5LjgzMSBsIDk2IDAgbCAwIC05NS45OTcgbCAtOTYgMCBMIDU0NC4wNzggNDc5LjgzMSBaIiBwLWlkPSIyNzA0IiAvPjwvc3ZnPg==");
@@ -2640,7 +2605,7 @@ input.ui-clear-text {
 */
 .ui-tree-view-panel {
   position: relative;
-  border: none 0;
+  border: none 0 transparent;
   min-width: 0;
   min-height: 0;
   max-height: none;
@@ -2679,5 +2644,5 @@ input.ui-clear-text {
   margin: 0;
   padding: 0;
   z-index: 99;
-  opacity: .0001;
+  opacity: 0.0001;
 }
