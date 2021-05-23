@@ -26,11 +26,11 @@ public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAda
         SecurityProperties securityProperties = getSecurityProperties();
 
         if(securityProperties != null) {
-        // 配置静态资源，这些资源不做安全验证
-        web.ignoring()
-            .antMatchers(
-                HttpMethod.GET, 
-                securityProperties.getResourcePathArray());
+            // 配置静态资源，这些资源不做安全验证
+            web.ignoring()
+                .antMatchers(
+                    HttpMethod.GET, 
+                    securityProperties.getResourcePathArray());
         }
     }
 

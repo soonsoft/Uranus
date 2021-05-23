@@ -36,7 +36,7 @@ import java.util.Map;
 public class WebErrorController implements ErrorController {
 
     private static final String ERROR_PATH = "/error/{status_code}";
-    //从Request获取异常信息
+    // 从Request获取异常信息
     private final static String EXCEPTION = "javax.servlet.error.exception";
     // 从Request获取错误代码
     private final static String HTTP_STATUS_CODE = "javax.servlet.error.status_code";

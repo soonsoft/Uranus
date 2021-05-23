@@ -29,7 +29,7 @@ public class SecurityProperties {
         this.resourcePathList = resourcePathList;
     }
 
-    @Value("${uranus.security.resource-path:/style/**,/content/**,/script/**,/favicon.ico}")
+    @Value("${uranus.security.resource-path:/style/**,/content/**,/script/**,/favicon.ico,/error}")
     public void initResourcePathList(String resourcePath) {
         if(StringUtils.isBlank(resourcePath)) {
             resourcePathList = new ArrayList<>(0);
