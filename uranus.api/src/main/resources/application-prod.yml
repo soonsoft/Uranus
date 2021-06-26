@@ -1,8 +1,5 @@
 spring:
   profiles: prod
-  thymeleaf:
-    # 调试环境下使用false，生产环境要设为true，否则会影响性能
-    cache: true
 uranus:
   datasource:
     master:

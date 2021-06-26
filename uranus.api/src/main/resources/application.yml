@@ -6,12 +6,11 @@ server:
       enabled: true
       force: true
 spring:
+  application:
+      name: UranusAPIApplication
   profiles:
     # 指定当前配置环境
     active: dev
-  thymeleaf:
-    # 调试环境下使用，生产环境要设为true，否则会影响性能
-    cache: false
   resources:
     # 配置静态资源路径，可以通过file来配置jar包外部的路径："- file:D:/xxx/static/"
     static-locations:

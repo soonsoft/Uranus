@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "uranus.datasoure.master")
+@ConfigurationProperties(prefix = "uranus.datasource.master")
 public class MasterDataSourceProperties extends HikariDataSourceProperty {
 
 }

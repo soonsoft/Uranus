@@ -1,9 +1,8 @@
 package com.soonsoft.uranus.api.controller;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -15,18 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.error.BusinessException;
-import com.soonsoft.uranus.api.config.WebErrorConfiguration;
+import com.soonsoft.uranus.api.config.properties.ErrorPageProperties;
 import com.soonsoft.uranus.api.viewmodel.WebErrorModel;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by Soon on 2017/10/2.
@@ -44,13 +40,15 @@ public class WebErrorController implements ErrorController {
     private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
     @Resource
-    private WebErrorConfiguration errorConfiguration;
+    private ServerProperties serverProperties;
+    @Resource
+    private ErrorPageProperties errorPageProperties;
     @Resource
     private ErrorAttributes errorAttributes;
 
     @Override
     public String getErrorPath() {
-        return errorConfiguration.getServerProperties().getError().getPath();
+        return serverProperties.getError().getPath();
     }
 
     @RequestMapping(value = "${server.error.path:${error.path:/error}}")
@@ -105,26 +103,6 @@ public class WebErrorController implements ErrorController {
         }
     }
 
-    protected ModelAndView resolveErrorView(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            HttpStatus status,
-            Map<String, Object> model) {
-        Iterator<ErrorViewResolver> iterator = this.errorConfiguration.getErrorViewResolvers().iterator();
-
-        ModelAndView modelAndView;
-        do {
-            if (!iterator.hasNext()) {
-                return null;
-            }
-
-            ErrorViewResolver resolver = (ErrorViewResolver)iterator.next();
-            modelAndView = resolver.resolveErrorView(request, status, model);
-        } while(modelAndView == null);
-
-        return modelAndView;
-    }
-
     protected Throwable getException(Integer statusCode, HttpServletRequest request) {
         if(statusCode == null || !statusCode.equals(500)) {
             return null;
@@ -147,19 +125,19 @@ public class WebErrorController implements ErrorController {
         String message = null;
         switch (model.getStatusCode()) {
             case 400:
-                message = errorConfiguration.getErrorPageProperties().getBadRequestMessage();
+                message = errorPageProperties.getBadRequestMessage();
                 break;
             case 401:
-                message = errorConfiguration.getErrorPageProperties().getUnauthorizedMessage();
+                message = errorPageProperties.getUnauthorizedMessage();
                 break;
             case 403:
-                message = errorConfiguration.getErrorPageProperties().getForbiddenMessage();
+                message = errorPageProperties.getForbiddenMessage();
                 break;
             case 404:
-                message = errorConfiguration.getErrorPageProperties().getNotFoundMessage();
+                message = errorPageProperties.getNotFoundMessage();
                 break;
             case 500:
-                message = errorConfiguration.getErrorPageProperties().getServerErrorMessage();
+                message = errorPageProperties.getServerErrorMessage();
                 break;
             default:
                 break;

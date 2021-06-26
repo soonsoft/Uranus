@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.api;
 
+import com.soonsoft.uranus.data.EnableDatabaseAccess;
 import com.soonsoft.uranus.security.simple.EnableSimpleSecurity;
 
 import org.springframework.boot.SpringApplication;
@@ -7,16 +8,14 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * Application
- */
 @EnableAutoConfiguration
 @SpringBootApplication
 @ComponentScan(basePackages = {
         "com.soonsoft.uranus.api.config",
-        "com.soonsoft.uranus.services",
-        "com.soonsoft.uranus.api.controller"
+        "com.soonsoft.uranus.api.controller",
+        "com.soonsoft.uranus.services"
 })
+@EnableDatabaseAccess
 @EnableSimpleSecurity
 public class APIApplication {
 
