@@ -95,7 +95,11 @@ public class PagingInterceptor implements Interceptor {
         BoundSql pagingBoundSql = new BoundSql(statement.getConfiguration(), pagingSql, 
             originalSql.getParameterMappings(), originalSql.getParameterObject());
         MappedStatement pagingStatement = rebuildMappedStatement(statement, pagingBoundSql, statement.getId(), null);
+
+        // 替换掉参数
         args[0] = pagingStatement;
+        // 替换分页参数，避免触发mybatis自己的逻辑分页逻辑，否则只有第一页能返回数据
+        args[2] = RowBounds.DEFAULT;
         
         return invocation.proceed();
     }
