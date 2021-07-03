@@ -2,7 +2,6 @@ package com.soonsoft.uranus.api.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,17 +37,17 @@ public class WebErrorController implements ErrorController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
-    @Resource
-    private ServerProperties serverProperties;
-    @Resource
-    private ErrorPageProperties errorPageProperties;
-    @Resource
-    private ErrorAttributes errorAttributes;
+    private final ErrorPageProperties errorPageProperties;
+    private final ErrorAttributes errorAttributes;
 
-    @Override
-    public String getErrorPath() {
-        return serverProperties.getError().getPath();
+    public WebErrorController(
+        ErrorPageProperties errorPageProperties,
+        ErrorAttributes errorAttributes) {
+
+        this.errorPageProperties = errorPageProperties;
+        this.errorAttributes = errorAttributes;
     }
+
 
     @RequestMapping(value = "${server.error.path:${error.path:/error}}")
     public ResponseEntity<JsonErrorModel> error(

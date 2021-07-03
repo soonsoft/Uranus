@@ -11,9 +11,9 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableAutoConfiguration
 @SpringBootApplication
 @ComponentScan(basePackages = {
-        "com.soonsoft.uranus.site.config",
-        "com.soonsoft.uranus.site.controller",
-        "com.soonsoft.uranus.services"
+    "com.soonsoft.uranus.site.config",
+    "com.soonsoft.uranus.site.controller",
+    "com.soonsoft.uranus.services"
 })
 @EnableDatabaseAccess
 @EnableSimpleSecurity

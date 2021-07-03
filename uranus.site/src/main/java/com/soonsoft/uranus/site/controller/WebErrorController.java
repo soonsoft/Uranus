@@ -1,8 +1,8 @@
 package com.soonsoft.uranus.site.controller;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -17,10 +17,10 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.error.BusinessException;
 import com.soonsoft.uranus.site.config.WebErrorConfiguration;
 import com.soonsoft.uranus.site.viewmodel.WebErrorModel;
@@ -45,15 +45,18 @@ public class WebErrorController implements ErrorController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
-    @Resource
     private WebErrorConfiguration errorConfiguration;
-    @Resource
     private ErrorAttributes errorAttributes;
 
-    @Override
-    public String getErrorPath() {
-        return errorConfiguration.getServerProperties().getError().getPath();
+    @Autowired
+    public WebErrorController(
+        WebErrorConfiguration errorConfiguration,
+        ErrorAttributes errorAttributes) {
+
+        this.errorConfiguration = errorConfiguration;
+        this.errorAttributes = errorAttributes;
     }
+
 
     @RequestMapping(produces = {"text/html"}, value = "${server.error.path:${error.path:/error}}")
     public ModelAndView errorHtml(
