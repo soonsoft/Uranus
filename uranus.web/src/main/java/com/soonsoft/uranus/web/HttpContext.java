@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 /**
  * HttpContext
  */
@@ -30,6 +33,13 @@ public class HttpContext {
      * @return the request
      */
     public HttpServletRequest getRequest() {
+        if(request == null) {
+            // 用ServletRequestAttributes降级
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if(attributes != null) {
+                return attributes.getRequest();
+            }
+        }
         return request;
     }
 
@@ -37,6 +47,13 @@ public class HttpContext {
      * @return the response
      */
     public HttpServletResponse getResponse() {
+        if(response == null) {
+            // 用ServletRequestAttributes降级
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if(attributes != null) {
+                return attributes.getResponse();
+            }
+        }
         return response;
     }
 
@@ -44,7 +61,8 @@ public class HttpContext {
      * @return the session
      */
     public HttpSession getSession() {
-        return request != null ? request.getSession() : null;
+        HttpServletRequest httpRequest = getRequest();
+        return httpRequest != null ? httpRequest.getSession() : null;
     }
 
     @SuppressWarnings("unchecked")

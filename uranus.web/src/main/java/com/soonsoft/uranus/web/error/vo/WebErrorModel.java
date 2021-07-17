@@ -1,8 +1,14 @@
-package com.soonsoft.uranus.api.viewmodel;
+package com.soonsoft.uranus.web.error.vo;
 
 import java.util.HashMap;
 
+import com.soonsoft.uranus.core.common.collection.MapUtils;
+
 public class WebErrorModel extends HashMap<String, Object> {
+
+    public WebErrorModel() {
+        super(MapUtils.getCapacity(4));
+    }
 
     public Integer getStatusCode() {
         return (Integer) get("statusCode");

@@ -23,6 +23,12 @@ logging:
 mybatis:
   mapper-locations: classpath*:/sql/*Mapper.xml
 uranus:
+  error:
+    bad-request-message: 您的Http Request数据可能不完整或已损坏
+    unauthorized-message: 抱歉，您还没有登录
+    forbidden-message: 抱歉，您没有权限访问
+    unfound-message: 抱歉，没有找到您请求的资源
+    server-error-message: 抱歉，服务器发生意外的错误，请稍后重试
   security:
     sessionid-header: X-AUTH-URANUS-SID
     resource-path: /style/**,/content/**,/script/**,/favicon.ico,/,/index,/error/**

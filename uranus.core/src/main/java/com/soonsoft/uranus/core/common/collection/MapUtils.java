@@ -50,6 +50,10 @@ public abstract class MapUtils {
         return new SimpleMapConverter<>(map);
     }
 
+    public static int getCapacity(final int expectedSize) {
+        return capacity(expectedSize);
+    }
+
     private static int capacity(final int expectedSize) {
         if(expectedSize < 0) {
             return DEFAULT_INITIAL_CAPACITY;

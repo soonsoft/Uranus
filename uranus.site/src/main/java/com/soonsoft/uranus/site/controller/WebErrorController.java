@@ -20,40 +20,37 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.core.error.BusinessException;
 import com.soonsoft.uranus.site.config.WebErrorConfiguration;
-import com.soonsoft.uranus.site.viewmodel.WebErrorModel;
+import com.soonsoft.uranus.site.config.properties.ErrorPageProperties;
+import com.soonsoft.uranus.web.error.WebErrorCommonHandler;
+import com.soonsoft.uranus.web.error.vo.JsonErrorModel;
+import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * Created by Soon on 2017/10/2.
- */
 @ControllerAdvice
 @Controller
 public class WebErrorController implements ErrorController {
 
     private static final String ERROR_PATH = "/error/{status_code}";
-    // 从Request获取异常信息
-    private final static String EXCEPTION = "javax.servlet.error.exception";
-    // 从Request获取错误代码
-    private final static String HTTP_STATUS_CODE = "javax.servlet.error.status_code";
 
     private final static String DEFAULT_ERROR_PAGE = "error/default";
 
     private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
-    private WebErrorConfiguration errorConfiguration;
-    private ErrorAttributes errorAttributes;
+    private final WebErrorConfiguration errorConfiguration;
+    private final ErrorAttributes errorAttributes;
+    private final ErrorPageProperties errorPageProperties;
 
     @Autowired
     public WebErrorController(
         WebErrorConfiguration errorConfiguration,
+        ErrorPageProperties errorPageProperties,
         ErrorAttributes errorAttributes) {
 
         this.errorConfiguration = errorConfiguration;
+        this.errorPageProperties = errorPageProperties;
         this.errorAttributes = errorAttributes;
     }
 
@@ -80,7 +77,8 @@ public class WebErrorController implements ErrorController {
             HttpServletResponse response) {
 
         HttpStatus status = this.getStatus(statusCode, request);
-        WebErrorModel model = buildWebErrorModel(status, request);
+        Throwable exception = this.getException(status.value(), request);
+        WebErrorModel model = WebErrorCommonHandler.buildWebErrorModel(status, exception, errorPageProperties);
 
         if(status == HttpStatus.INTERNAL_SERVER_ERROR) {
             LOGGER.error("发生错误", model.getException());
@@ -116,7 +114,8 @@ public class WebErrorController implements ErrorController {
             HttpServletResponse response) {
 
         HttpStatus status = this.getStatus(statusCode, request);
-        WebErrorModel model = buildWebErrorModel(status, request);
+        Throwable exception = this.getException(status.value(), request);
+        WebErrorModel model = WebErrorCommonHandler.buildWebErrorModel(status, exception, errorPageProperties);
 
         if(status == HttpStatus.INTERNAL_SERVER_ERROR) {
             LOGGER.error("发生错误", model.getException());
@@ -132,17 +131,26 @@ public class WebErrorController implements ErrorController {
 
     protected HttpStatus getStatus(Integer statusCode, HttpServletRequest request) {
         if(statusCode == null) {
-            statusCode = (Integer)request.getAttribute(HTTP_STATUS_CODE);
+            return WebErrorCommonHandler.findHttpStatus(request);
         }
-        if(statusCode == null) {
+        try {
+            return HttpStatus.valueOf(statusCode.intValue());
+        } catch (Exception e) {
             return HttpStatus.INTERNAL_SERVER_ERROR;
-        } else {
-            try {
-                return HttpStatus.valueOf(statusCode.intValue());
-            } catch (Exception e) {
-                return HttpStatus.INTERNAL_SERVER_ERROR;
-            }
         }
+    }
+
+    protected Throwable getException(Integer statusCode, HttpServletRequest request) {
+        if(statusCode == null || !statusCode.equals(500)) {
+            return null;
+        }
+
+        WebRequest webRequest = new ServletWebRequest(request);
+        Throwable exception = this.errorAttributes.getError(webRequest);
+        if(exception == null) {
+            exception = WebErrorCommonHandler.findException(request);
+        }
+        return exception;
     }
 
     protected ModelAndView resolveErrorView(
@@ -165,83 +173,4 @@ public class WebErrorController implements ErrorController {
         return modelAndView;
     }
 
-    protected Throwable getException(Integer statusCode, HttpServletRequest request) {
-        if(statusCode == null || !statusCode.equals(500)) {
-            return null;
-        }
-
-        WebRequest webRequest = new ServletWebRequest(request);
-        Throwable exception = this.errorAttributes.getError(webRequest);
-        if(exception == null) {
-            exception = (Exception)request.getAttribute(EXCEPTION);
-        }
-        return exception;
-    }
-
-    private WebErrorModel buildWebErrorModel(HttpStatus status, HttpServletRequest request) {
-        WebErrorModel model = new WebErrorModel();
-        model.setStatusCode(status.value());
-        model.setStatusName(status.getReasonPhrase());
-        model.setException(getException(status.value(), request));
-
-        String message = null;
-        switch (model.getStatusCode()) {
-            case 400:
-                message = errorConfiguration.getErrorPageProperties().getBadRequestMessage();
-                break;
-            case 401:
-                message = errorConfiguration.getErrorPageProperties().getUnauthorizedMessage();
-                break;
-            case 403:
-                message = errorConfiguration.getErrorPageProperties().getForbiddenMessage();
-                break;
-            case 404:
-                message = errorConfiguration.getErrorPageProperties().getNotFoundMessage();
-                break;
-            case 500:
-                message = errorConfiguration.getErrorPageProperties().getServerErrorMessage();
-                break;
-            default:
-                break;
-        }
-
-        // 如果有异常信息，则用异常信息覆盖
-        if(model.getException() != null && isMessageException(model.getException())) {
-            message = model.getException().getMessage();
-        }
-
-        if(StringUtils.isEmpty(message)) {
-            message = "Unknown Internal Server Error";
-        }
-        model.setMessage(message);
-
-        return model;
-    }
-
-    private boolean isMessageException(Throwable e) {
-        return e instanceof BusinessException 
-            || e instanceof IllegalArgumentException;
-    }
-
-    public static class JsonErrorModel {
-
-        private int statusCode;
-        private String message;
-
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        public void setStatusCode(int statusCode) {
-            this.statusCode = statusCode;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-    }
 }

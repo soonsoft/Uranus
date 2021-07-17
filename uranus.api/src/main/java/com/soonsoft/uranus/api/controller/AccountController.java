@@ -6,7 +6,7 @@ import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.api.controller.base.BaseController;
 import com.soonsoft.uranus.core.Guard;
-import com.soonsoft.uranus.web.error.HttpActionException;
+import com.soonsoft.uranus.web.error.WebActionException;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
 
 import org.springframework.stereotype.Controller;
@@ -36,7 +36,7 @@ public class AccountController extends BaseController {
 
             userManager.changeMyPassword(user);
         } catch(Exception e) {
-            throw new HttpActionException("更新密码失败。", e);
+            throw new WebActionException("更新密码失败。", e);
         }
 
         return json(JsonResult.create());
