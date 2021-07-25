@@ -14,13 +14,14 @@ spring:
   thymeleaf:
     # 调试环境下使用，生产环境要设为true，否则会影响性能
     cache: false
-  resources:
-    # 配置静态资源路径，可以通过file来配置jar包外部的路径："- file:D:/xxx/static/"
-    static-locations:
-      - classpath:/META-INF/resources/
-      - classpath:/resources/
-      - classpath:/static/
-      - classpath:/public/
+  web:
+    resources:
+      # 配置静态资源路径，可以通过file来配置jar包外部的路径："- file:D:/xxx/static/"
+      static-locations:
+        - classpath:/META-INF/resources/
+        - classpath:/resources/
+        - classpath:/static/
+        - classpath:/public/
 logging:
   config: classpath:config/logback.xml
 mybatis:
