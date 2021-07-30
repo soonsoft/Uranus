@@ -20,8 +20,6 @@
         <module>uranus.api</module>
         <module>uranus.security</module>
         <module>uranus.services</module>
-        
-        <module>uranus.test</module>
     </modules>
 
     <properties>
