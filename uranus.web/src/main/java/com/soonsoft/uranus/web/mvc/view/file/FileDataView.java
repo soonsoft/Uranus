@@ -24,8 +24,10 @@ public class FileDataView extends FileView {
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
+    protected void renderMergedOutputModel(
+        Map<String, Object> model, 
+        HttpServletRequest request,
+        HttpServletResponse response) throws Exception {
 
         response.setContentType(getContentType());
         if(fileData != null && fileData.length > 0) {

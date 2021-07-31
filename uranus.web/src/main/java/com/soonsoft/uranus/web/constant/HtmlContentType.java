@@ -19,7 +19,7 @@ public interface HtmlContentType {
 
     interface File {
 
-        static final String File = "application/octet-stream";
+        static final String Stream = "application/octet-stream";
 
         static final String PDF = "application/pdf";
 

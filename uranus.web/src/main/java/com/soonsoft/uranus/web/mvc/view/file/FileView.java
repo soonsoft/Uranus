@@ -13,7 +13,7 @@ public abstract class FileView extends AbstractView {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(FileView.class);
 
-    protected static final String DEFAULT_CONTENT_TYPE = HtmlContentType.File.File;
+    protected static final String DEFAULT_CONTENT_TYPE = HtmlContentType.File.Stream;
 
     public FileView() {
         setContentType(DEFAULT_CONTENT_TYPE);
