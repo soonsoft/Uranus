@@ -15,4 +15,14 @@ public interface IResultData {
 
     IResultData setValue(String name, Object value);
 
+    boolean isSuccess();
+
+    int getTotal();
+
+    String getMessage();
+
+    Object getData();
+
+    Object getValue(String name);
+
 }

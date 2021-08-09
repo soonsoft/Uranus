@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.api.controller;
+package com.soonsoft.uranus.api.controller.account;
 
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;

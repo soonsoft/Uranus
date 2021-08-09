@@ -2,12 +2,12 @@ package com.soonsoft.uranus.web.mvc.model;
 
 import java.util.HashMap;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
+
 /**
  * JsonResult
  */
 public class JsonResult extends HashMap<String, Object> implements IResultData {
-
-    private static final long serialVersionUID = -917374424653417072L;
 
     private final static String SUCCESS_NAME = "success";
 
@@ -17,10 +17,11 @@ public class JsonResult extends HashMap<String, Object> implements IResultData {
 
     private final static String DATA_NAME = "data";
 
-    private JsonResult() {
+    protected JsonResult() {
         put(SUCCESS_NAME, Boolean.TRUE);
     }
     
+    //#region IResultData
 
     @Override
     public IResultData setSuccess(boolean success) {
@@ -51,6 +52,35 @@ public class JsonResult extends HashMap<String, Object> implements IResultData {
         put(name, value);
         return this;
     }
+
+    @Override
+    public boolean isSuccess() {
+        Object value = get(SUCCESS_NAME);
+        return value != null && value instanceof Boolean && ((Boolean) value).booleanValue();
+    }
+
+    @Override
+    public int getTotal() {
+        Object value = get(TOTAL_NAME);
+        return value != null && value instanceof Integer ? ((Integer) value).intValue() : 0;
+    }
+
+    @Override
+    public String getMessage() {
+        return (String) get(MESSAGE_NAME);
+    }
+
+    @Override
+    public Object getData() {
+        return get(DATA_NAME);
+    }
+
+    @Override
+    public Object getValue(String name) {
+        return StringUtils.isEmpty(name) ? null : get(name);
+    }
+
+    //#endregion
 
     public static IResultData create() {
         return new JsonResult();

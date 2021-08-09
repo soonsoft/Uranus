@@ -17,9 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.view.AbstractView;
 
-/**
- * JsonView
- */
 public class JsonView extends AbstractView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonView.class);
