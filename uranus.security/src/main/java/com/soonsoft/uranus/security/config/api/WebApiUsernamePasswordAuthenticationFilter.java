@@ -3,6 +3,8 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.security.jwt.ITokenStrategy;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -17,14 +19,16 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
     private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login", "POST");
 
+    private ITokenStrategy tokenStrategy;
     private IUsernamePasswordGetter usernamePasswordGetterHandler;
 
-    public WebApiUsernamePasswordAuthenticationFilter() {
-        this(new FormUsernamePasswordGetter());
+    public WebApiUsernamePasswordAuthenticationFilter(ITokenStrategy tokenStrategy) {
+        this(tokenStrategy, new FormUsernamePasswordGetter());
     }
 
-    public WebApiUsernamePasswordAuthenticationFilter(IUsernamePasswordGetter getter) {
+    public WebApiUsernamePasswordAuthenticationFilter(ITokenStrategy tokenStrategy, IUsernamePasswordGetter getter) {
         super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+        this.tokenStrategy = tokenStrategy;
         this.usernamePasswordGetterHandler = getter;
     }
     
@@ -45,6 +49,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
             password = usernamePassword.getPassword();
         }
 
+        //TODO UsernamePasswordAuthenticationToken authRequest = tokenStrategy.getToken(request, response, authentication)
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
                 username, password);
         authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));

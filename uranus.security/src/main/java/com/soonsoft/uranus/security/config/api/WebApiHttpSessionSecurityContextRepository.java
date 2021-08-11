@@ -19,18 +19,27 @@ public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecur
 
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
+        HttpServletRequest request = requestResponseHolder.getRequest();
+        HttpServletResponse response = requestResponseHolder.getResponse();
+
+        boolean isSessionMode = tokenProvider.getSessionIdStrategy() != null;
+        if(isSessionMode) {
+            // API适配SessionId
+            tokenProvider.getSessionIdStrategy().updateSessionId(request, response);
+        } 
+        
         SecurityContext securityContext = super.loadContext(requestResponseHolder);
-        if(securityContext.getAuthentication() == null) {
-            setJWTAuthentication(
-                securityContext, 
-                requestResponseHolder.getRequest(), 
-                requestResponseHolder.getResponse());
+        if(!isSessionMode && securityContext.getAuthentication() == null) {
+            // API适配JWT-Token
+            setJWTAuthentication(securityContext, request, response);
         }
+
         return securityContext;
     }
 
     protected void setJWTAuthentication(SecurityContext securityContext, HttpServletRequest request, HttpServletResponse response) {
         tokenProvider.checkToken(request);
+        
         // TODO JWT anuthentication build.
         securityContext.setAuthentication(null);
     }

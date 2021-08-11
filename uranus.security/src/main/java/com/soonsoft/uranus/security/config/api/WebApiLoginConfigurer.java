@@ -30,16 +30,17 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
     public WebApiLoginConfigurer(ITokenStrategy tokenStrategy) {
         this(
             DEFAULT_LOGIN_PROCESSING_URL, 
-            new WebApiUsernamePasswordAuthenticationFilter(),
+            new WebApiUsernamePasswordAuthenticationFilter(tokenStrategy),
             new WebApiAuthenticationSuccessHandler(tokenStrategy), 
             new WebApiAuthenticationFailureHandler());
     }
 
     public WebApiLoginConfigurer(ITokenStrategy tokenStrategy, String loginProcessingUrl, IUsernamePasswordGetter getter) {
-        this(loginProcessingUrl, getter, new WebApiAuthenticationSuccessHandler(tokenStrategy), new WebApiAuthenticationFailureHandler());
+        this(tokenStrategy, loginProcessingUrl, getter, new WebApiAuthenticationSuccessHandler(tokenStrategy), new WebApiAuthenticationFailureHandler());
     }
 
     public WebApiLoginConfigurer(
+        ITokenStrategy tokenStrategy,
         String loginProcessingUrl, 
         IUsernamePasswordGetter getter, 
         AuthenticationSuccessHandler successHandler, 
@@ -47,7 +48,7 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
         this(
             loginProcessingUrl, 
-            new WebApiUsernamePasswordAuthenticationFilter(getter), 
+            new WebApiUsernamePasswordAuthenticationFilter(tokenStrategy, getter), 
             successHandler, failureHandler);
     }
 

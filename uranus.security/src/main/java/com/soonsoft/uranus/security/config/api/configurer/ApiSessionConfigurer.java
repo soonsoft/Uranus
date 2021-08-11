@@ -4,16 +4,18 @@ import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.config.api.WebApiSecurityContextPersistenceFilter;
+import com.soonsoft.uranus.security.config.api.provider.SessionTokenProvider;
 import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
 import com.soonsoft.uranus.security.jwt.ITokenStrategy;
-import com.soonsoft.uranus.security.jwt.SessionTokenProvider;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
+/**
+ * API 接口适配Session模式，适合前后端分离的多页应用
+ */
 public class ApiSessionConfigurer implements ICustomConfigurer {
 
     private String sessionIdHeaderName;
@@ -42,7 +44,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
         }
 
         http.addFilterAt(
-                new WebApiSecurityContextPersistenceFilter(tokenProvider, securityContextRepository), 
+                new SecurityContextPersistenceFilter(securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
 
         try {
