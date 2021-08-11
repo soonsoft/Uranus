@@ -2,12 +2,12 @@ package com.soonsoft.uranus.security.config.api.configurer;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
+import com.soonsoft.uranus.security.config.api.WebApiSecurityContextPersistenceFilter;
 import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
 import com.soonsoft.uranus.security.jwt.ITokenStrategy;
-import com.soonsoft.uranus.security.jwt.JWTHttpSessionSecurityContextRepository;
-import com.soonsoft.uranus.security.jwt.JWTSecurityContextPersistenceFilter;
 import com.soonsoft.uranus.security.jwt.SessionTokenProvider;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,11 +38,11 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
     public void config(HttpSecurity http) {
         ITokenProvider<?> tokenProvider = new SessionTokenProvider(sessionIdHeaderName, requestHook);
         if(securityContextRepository == null) {
-            securityContextRepository = new JWTHttpSessionSecurityContextRepository(tokenProvider);
+            securityContextRepository = new WebApiHttpSessionSecurityContextRepository(tokenProvider);
         }
 
         http.addFilterAt(
-                new JWTSecurityContextPersistenceFilter(tokenProvider, securityContextRepository), 
+                new WebApiSecurityContextPersistenceFilter(tokenProvider, securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
 
         try {

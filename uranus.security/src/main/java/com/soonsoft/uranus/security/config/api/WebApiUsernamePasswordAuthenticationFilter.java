@@ -6,12 +6,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+// see #org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
+
+    private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login", "POST");
 
     private IUsernamePasswordGetter usernamePasswordGetterHandler;
 
@@ -20,6 +24,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
     }
 
     public WebApiUsernamePasswordAuthenticationFilter(IUsernamePasswordGetter getter) {
+        super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
         this.usernamePasswordGetterHandler = getter;
     }
     
@@ -42,9 +47,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
                 username, password);
-
-        // Allow subclasses to set the "details" property
-        setDetails(request, authRequest);
+        authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }

@@ -1,18 +1,19 @@
-package com.soonsoft.uranus.security.jwt;
+package com.soonsoft.uranus.security.config.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.soonsoft.uranus.security.jwt.ITokenProvider;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
-@Deprecated
-public class JWTHttpSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
+public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
 
     private ITokenProvider<?> tokenProvider;
 
-    public JWTHttpSessionSecurityContextRepository(ITokenProvider<?> tokenProvider) {
+    public WebApiHttpSessionSecurityContextRepository(ITokenProvider<?> tokenProvider) {
         this.tokenProvider = tokenProvider;
     }
 

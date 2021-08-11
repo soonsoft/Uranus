@@ -25,7 +25,7 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
-    private static final String DEFAULT_LOGIN_PROCESSING_URL = "/account/login";
+    private static final String DEFAULT_LOGIN_PROCESSING_URL = "/auth/login";
 
     public WebApiLoginConfigurer(ITokenStrategy tokenStrategy) {
         this(

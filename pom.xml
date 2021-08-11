@@ -34,7 +34,7 @@
         <spring-version>5.3.8</spring-version>
         <spring-security-version>5.5.1</spring-security-version>
         <servlet-api-version>4.0.1</servlet-api-version>
-        <java-jwt-version>3.11.0</java-jwt-version>
+        <java-jwt-version>3.18.1</java-jwt-version>
     </properties>
 
     <dependencyManagement>

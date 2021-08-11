@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.jwt;
+package com.soonsoft.uranus.security.config.api;
 
 import java.io.IOException;
 
@@ -9,15 +9,16 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.security.jwt.ITokenProvider;
+
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
-@Deprecated
-public class JWTSecurityContextPersistenceFilter extends SecurityContextPersistenceFilter {
+public class WebApiSecurityContextPersistenceFilter extends SecurityContextPersistenceFilter {
 
     private ITokenProvider<?> tokenProvider;
 
-    public JWTSecurityContextPersistenceFilter(ITokenProvider<?> tokenProvider, SecurityContextRepository repo) {
+    public WebApiSecurityContextPersistenceFilter(ITokenProvider<?> tokenProvider, SecurityContextRepository repo) {
         super(repo);
         this.tokenProvider = tokenProvider;
     }
