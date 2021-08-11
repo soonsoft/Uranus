@@ -18,12 +18,14 @@ import org.springframework.security.web.context.SecurityContextRepository;
  */
 public class ApiSessionConfigurer implements ICustomConfigurer {
 
+    private final static String DEFAULT_SESSION_ID_HEADER_NAME = "URANUS-AUTH_SID";
+
     private String sessionIdHeaderName;
     private IRealHttpServletRequestHook requestHook;
     private SecurityContextRepository securityContextRepository;
 
     public ApiSessionConfigurer(IRealHttpServletRequestHook requestHook) {
-        this(null, requestHook);
+        this(DEFAULT_SESSION_ID_HEADER_NAME, requestHook);
     }
 
     public ApiSessionConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook) {
@@ -52,6 +54,10 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }
+    }
+
+    public String getSessionIdHeaderName() {
+        return sessionIdHeaderName;
     }
     
 }

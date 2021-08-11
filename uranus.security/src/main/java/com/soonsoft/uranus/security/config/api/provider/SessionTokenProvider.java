@@ -30,11 +30,6 @@ public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrat
     }
 
     @Override
-    public ISessionIdStrategy getSessionIdStrategy() {
-        return this;
-    }
-
-    @Override
     public boolean checkToken(HttpServletRequest request) {
         return request != null && !StringUtils.isBlank(request.getHeader(sessionIdHeaderName));
     }

@@ -3,6 +3,7 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.security.jwt.ISessionIdStrategy;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
 
 import org.springframework.security.core.context.SecurityContext;
@@ -22,14 +23,21 @@ public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecur
         HttpServletRequest request = requestResponseHolder.getRequest();
         HttpServletResponse response = requestResponseHolder.getResponse();
 
-        boolean isSessionMode = tokenProvider.getSessionIdStrategy() != null;
+        boolean isSessionMode = tokenProvider instanceof ISessionIdStrategy;
         if(isSessionMode) {
             // API适配SessionId
-            tokenProvider.getSessionIdStrategy().updateSessionId(request, response);
+            ((ISessionIdStrategy) tokenProvider).updateSessionId(request, response);
         } 
         
         SecurityContext securityContext = super.loadContext(requestResponseHolder);
-        if(!isSessionMode && securityContext.getAuthentication() == null) {
+
+        // 如果Token无效，则清空登录信息
+        if(!tokenProvider.checkToken(request)) {
+            securityContext.setAuthentication(null);
+            return securityContext;
+        }
+
+        if(!isSessionMode) {
             // API适配JWT-Token
             setJWTAuthentication(securityContext, request, response);
         }
@@ -38,8 +46,6 @@ public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecur
     }
 
     protected void setJWTAuthentication(SecurityContext securityContext, HttpServletRequest request, HttpServletResponse response) {
-        tokenProvider.checkToken(request);
-        
         // TODO JWT anuthentication build.
         securityContext.setAuthentication(null);
     }

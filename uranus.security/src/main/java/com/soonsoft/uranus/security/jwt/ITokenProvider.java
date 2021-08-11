@@ -7,8 +7,6 @@ public interface ITokenProvider<T> {
 
     ITokenStrategy getTokenStrategy();
 
-    ISessionIdStrategy getSessionIdStrategy();
-
     boolean checkToken(HttpServletRequest request);
 
     void updateToken(HttpServletResponse response, String token);
