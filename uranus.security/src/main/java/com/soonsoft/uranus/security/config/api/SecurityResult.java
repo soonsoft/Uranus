@@ -9,7 +9,9 @@ public class SecurityResult {
 
     private String message;
 
-    private String token;
+    private String accessToken;
+
+    private String refreshToken;
 
     private String username;
 
@@ -59,12 +61,20 @@ public class SecurityResult {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String token) {
+        this.accessToken = token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getUsername() {
@@ -94,31 +104,36 @@ public class SecurityResult {
 
     @Override
     public String toString() {
-        return new JSONBuilder()
+        return new JSONBuilder(JSONBuilder.JSONObject)
                 .addProperty("httpStatus", this.getHttpStatus())
                 .addProperty("message", this.getMessage())
-                .addProperty("token", this.getToken())
+                .addProperty("accessToken", this.getAccessToken())
+                .addProperty("refreshToken", this.getRefreshToken())
                 .addProperty("username", this.getUsername())
                 .addProperty("nickname", this.getNickname())
                 .addProperty("isAuthenticated", this.isAuthenticated())
-                .toString(JSONBuilder.JSONObject);
+                .toString();
     }
 
     private static class JSONBuilder {
-        private StringBuilder builder = new StringBuilder();
 
         private static final Integer JSONObject = 1;
         private static final Integer JSONArray = 2;
 
-        @Override
-        public String toString() {
-            return builder.toString();
+        private StringBuilder builder = new StringBuilder();
+
+        private final Integer type;
+        
+        public JSONBuilder(Integer type) {
+            this.type = type == null ? JSONObject : type;
         }
 
         public JSONBuilder addProperty(String name, Object value) {
             builder.append("\"").append(name).append("\"").append(":");
             if(value instanceof CharSequence || value instanceof Character) {
                 builder.append("\"").append(value).append("\"");
+            } else if(value instanceof JSONBuilder) {
+                builder.append(value.toString()); 
             } else {
                 builder.append(value);
             }
@@ -126,7 +141,8 @@ public class SecurityResult {
             return this;
         }
 
-        public String toString(Integer type) {
+        @Override
+        public String toString() {
             int len = builder.length();
             if(len > 0) {
                 builder.deleteCharAt(len - 1);
@@ -139,7 +155,7 @@ public class SecurityResult {
                 return new StringBuilder("{").append(builder).append("}").toString();
             }
 
-            return toString();
+            return builder.toString();
         }
     }
     

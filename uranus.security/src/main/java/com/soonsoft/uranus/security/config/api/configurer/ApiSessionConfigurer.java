@@ -7,7 +7,6 @@ import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.config.api.provider.SessionTokenProvider;
 import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -50,7 +49,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
                 SecurityContextPersistenceFilter.class);
 
         try {
-            http.apply(new WebApiLoginConfigurer<>((ITokenStrategy) tokenProvider));
+            http.apply(new WebApiLoginConfigurer<>(tokenProvider));
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }

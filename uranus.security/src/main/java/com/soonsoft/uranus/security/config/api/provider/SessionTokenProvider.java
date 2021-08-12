@@ -9,10 +9,9 @@ import com.soonsoft.uranus.security.jwt.ISessionIdStrategy;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
 import com.soonsoft.uranus.security.jwt.ITokenStrategy;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrategy, ISessionIdStrategy {
+public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrategy<String>, ISessionIdStrategy {
 
     private String sessionIdHeaderName;
     private IRealHttpServletRequestHook httpRequestHook;
@@ -25,7 +24,7 @@ public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrat
     //#region ITokenProvider
 
     @Override
-    public ITokenStrategy getTokenStrategy() {
+    public ITokenStrategy<String> getTokenStrategy() {
         return this;
     }
 
@@ -45,17 +44,7 @@ public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrat
 
     @Override
     public String getToken(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        return getToken(request);
-    }
-
-    public String getToken(HttpServletRequest request) {
         return request.getSession().getId();
-    }
-
-    @Override
-    public UsernamePasswordAuthenticationToken createAuthenticationToken() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     //#endregion

@@ -8,18 +8,29 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-public class JWTAuthenticationToken extends UsernamePasswordAuthenticationToken {
+// TODO 完成JWT Token转换
+public class JWTAuthenticationToken {
 
     public JWTAuthenticationToken(Object principal, Object credentials) {
-        super(principal, credentials);
     }
 
     public JWTAuthenticationToken(Object principal, Object credentials, 
         Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, authorities);
+    }
+
+    public String getAccessToken() {
+        return null;
+    }
+
+    public String getRefreshToken() {
+        return null;
+    }
+
+    public Authentication getAuthentication() {
+        return null;
     }
 
     public static String stringify(JWTAuthenticationToken jwtToken) {
@@ -28,7 +39,7 @@ public class JWTAuthenticationToken extends UsernamePasswordAuthenticationToken 
 
         Map<String, Object> header = new HashMap<>();
         header.put("typ", "JWT");
-        header.put("alg", "HS512");
+        header.put("alg", algorithm.getName());
         
         String token = JWT.create()
             .withHeader(header)

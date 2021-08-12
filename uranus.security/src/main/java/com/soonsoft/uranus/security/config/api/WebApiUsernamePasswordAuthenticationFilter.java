@@ -3,32 +3,32 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
+import com.soonsoft.uranus.security.config.api.provider.JWTTokenProvider;
+import com.soonsoft.uranus.security.jwt.ITokenProvider;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-// see #org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+// 使用AbstractAuthenticationFilterConfigurer，只能继承UsernamePasswordAuthenticationFilter
+// 如果想继承AbstractAuthenticationProcessingFilter则需要在Config中指定
+//      http.addFilterAt(new WebApiUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
-    private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login", "POST");
-
-    private ITokenStrategy tokenStrategy;
+    private ITokenProvider<?> tokenProvider;
     private IUsernamePasswordGetter usernamePasswordGetterHandler;
 
-    public WebApiUsernamePasswordAuthenticationFilter(ITokenStrategy tokenStrategy) {
-        this(tokenStrategy, new FormUsernamePasswordGetter());
+    public WebApiUsernamePasswordAuthenticationFilter(ITokenProvider<?> tokenProvider) {
+        this(tokenProvider, new FormUsernamePasswordGetter());
     }
 
-    public WebApiUsernamePasswordAuthenticationFilter(ITokenStrategy tokenStrategy, IUsernamePasswordGetter getter) {
-        super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
-        this.tokenStrategy = tokenStrategy;
+    public WebApiUsernamePasswordAuthenticationFilter(ITokenProvider<?> tokenProvider, IUsernamePasswordGetter getter) {
+        this.tokenProvider = tokenProvider;
         this.usernamePasswordGetterHandler = getter;
     }
     
@@ -48,13 +48,20 @@ public class WebApiUsernamePasswordAuthenticationFilter extends AbstractAuthenti
             username = usernamePassword.getUsername();
             password = usernamePassword.getPassword();
         }
-
-        //TODO UsernamePasswordAuthenticationToken authRequest = tokenStrategy.getToken(request, response, authentication)
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
                 username, password);
-        authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+        setDetails(request, authRequest);
 
         return this.getAuthenticationManager().authenticate(authRequest);
+    }
+
+    @Override
+    public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
+        // JWT不放Session里
+        if(tokenProvider instanceof JWTTokenProvider) {
+            return;
+        }
+        super.setSessionAuthenticationStrategy(sessionStrategy);
     }
     
     private static class FormUsernamePasswordGetter implements IUsernamePasswordGetter {

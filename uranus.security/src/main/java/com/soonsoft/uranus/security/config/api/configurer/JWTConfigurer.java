@@ -5,7 +5,7 @@ import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.config.api.provider.JWTTokenProvider;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
+import com.soonsoft.uranus.security.jwt.token.JWTSimpleTokenStrategy;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -32,13 +32,13 @@ public class JWTConfigurer implements ICustomConfigurer {
 
     @Override
     public void config(HttpSecurity http) {
-        ITokenProvider<?> tokenProvider = new JWTTokenProvider(tokenHeaderName);
+        ITokenProvider<?> tokenProvider = new JWTTokenProvider(tokenHeaderName, new JWTSimpleTokenStrategy());
         http.addFilterAt(
                 new SecurityContextPersistenceFilter(securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
 
         try {
-            http.apply(new WebApiLoginConfigurer<>((ITokenStrategy) tokenProvider));
+            http.apply(new WebApiLoginConfigurer<>(tokenProvider));
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }

@@ -3,8 +3,10 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.security.config.api.provider.JWTTokenProvider;
 import com.soonsoft.uranus.security.jwt.ISessionIdStrategy;
 import com.soonsoft.uranus.security.jwt.ITokenProvider;
+import com.soonsoft.uranus.security.jwt.token.JWTAuthenticationToken;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -46,8 +48,14 @@ public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecur
     }
 
     protected void setJWTAuthentication(SecurityContext securityContext, HttpServletRequest request, HttpServletResponse response) {
-        // TODO JWT anuthentication build.
-        securityContext.setAuthentication(null);
+        
+        String accessToken = ((JWTTokenProvider) tokenProvider).getAccessToken(request);
+        if(accessToken == null) {
+            return;
+        }
+        
+        JWTAuthenticationToken authenticationToken = JWTAuthenticationToken.parse(accessToken);
+        securityContext.setAuthentication(authenticationToken.getAuthentication());
     }
     
 }

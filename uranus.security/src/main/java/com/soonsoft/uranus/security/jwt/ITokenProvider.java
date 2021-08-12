@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface ITokenProvider<T> {
 
-    ITokenStrategy getTokenStrategy();
+    ITokenStrategy<T> getTokenStrategy();
 
     boolean checkToken(HttpServletRequest request);
 
