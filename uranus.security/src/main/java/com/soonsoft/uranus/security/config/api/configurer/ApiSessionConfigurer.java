@@ -2,11 +2,11 @@ package com.soonsoft.uranus.security.config.api.configurer;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
+import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.config.api.provider.SessionTokenProvider;
-import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
+import com.soonsoft.uranus.security.config.api.session.SessionTokenProvider;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;

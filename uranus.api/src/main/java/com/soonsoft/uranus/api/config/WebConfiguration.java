@@ -12,9 +12,9 @@ import com.soonsoft.uranus.api.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfigFactory;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfigFactory.WebApplicationSecurityConfigType;
+import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.config.api.configurer.ApiSessionConfigurer;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
-import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 

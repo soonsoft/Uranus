@@ -6,9 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
-import com.soonsoft.uranus.security.jwt.token.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;

@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.jwt;
+package com.soonsoft.uranus.security.config.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

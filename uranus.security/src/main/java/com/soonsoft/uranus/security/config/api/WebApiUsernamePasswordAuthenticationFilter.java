@@ -3,8 +3,7 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.config.api.provider.JWTTokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
+import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

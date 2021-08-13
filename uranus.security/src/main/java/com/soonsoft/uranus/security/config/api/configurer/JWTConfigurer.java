@@ -2,10 +2,10 @@ package com.soonsoft.uranus.security.config.api.configurer;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.config.api.provider.JWTTokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.token.JWTSimpleTokenStrategy;
+import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTSimpleTokenStrategy;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;

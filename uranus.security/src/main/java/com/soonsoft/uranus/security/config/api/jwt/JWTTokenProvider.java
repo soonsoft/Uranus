@@ -1,12 +1,12 @@
-package com.soonsoft.uranus.security.config.api.provider;
+package com.soonsoft.uranus.security.config.api.jwt;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
-import com.soonsoft.uranus.security.jwt.token.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.config.api.ITokenProvider;
+import com.soonsoft.uranus.security.config.api.ITokenStrategy;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
 public class JWTTokenProvider implements ITokenProvider<JWTAuthenticationToken> {
 

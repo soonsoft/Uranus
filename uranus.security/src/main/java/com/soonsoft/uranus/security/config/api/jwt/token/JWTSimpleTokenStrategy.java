@@ -1,9 +1,9 @@
-package com.soonsoft.uranus.security.jwt.token;
+package com.soonsoft.uranus.security.config.api.jwt.token;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
+import com.soonsoft.uranus.security.config.api.ITokenStrategy;
 
 import org.springframework.security.core.Authentication;
 

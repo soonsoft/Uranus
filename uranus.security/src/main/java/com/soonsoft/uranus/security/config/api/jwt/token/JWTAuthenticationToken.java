@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.jwt.token;
+package com.soonsoft.uranus.security.config.api.jwt.token;
 
 import java.util.Collection;
 import java.util.HashMap;

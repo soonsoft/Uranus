@@ -3,10 +3,8 @@ package com.soonsoft.uranus.security.config.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.config.api.provider.JWTTokenProvider;
-import com.soonsoft.uranus.security.jwt.ISessionIdStrategy;
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.token.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
