@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
+import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -45,7 +46,7 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
                     .csrf().disable()
                 .logout(logout -> {
                     logout.logoutSuccessHandler(new WebApiLogoutSuccessHandler());
-                    logout.logoutUrl("/logout").permitAll();
+                    logout.logoutUrl(SecurityConfigUrlConstant.WebAplLogoutUrl).permitAll();
                 })
                 .exceptionHandling()
                     .authenticationEntryPoint(new WebApiAuthenticationEntryPoint())

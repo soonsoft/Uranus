@@ -24,30 +24,57 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
-    private static final String DEFAULT_LOGIN_PROCESSING_URL = "/auth/login";
-
-    public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider ) {
+    public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider, String loginProcessUrl) {
         this(
-            DEFAULT_LOGIN_PROCESSING_URL, 
+            loginProcessUrl, 
             new WebApiUsernamePasswordAuthenticationFilter(tokenProvider),
             new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), 
             new WebApiAuthenticationFailureHandler());
     }
 
-    public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider, String loginProcessingUrl, IUsernamePasswordGetter getter) {
-        this(tokenProvider , loginProcessingUrl, getter, new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), new WebApiAuthenticationFailureHandler());
+    public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider, String loginProcessUrl, String refreshProcessUrl) {
+        this(
+            loginProcessUrl, 
+            new WebApiUsernamePasswordAuthenticationFilter(tokenProvider, refreshProcessUrl),
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), 
+            new WebApiAuthenticationFailureHandler());
     }
 
     public WebApiLoginConfigurer(
-        ITokenProvider<?>  tokenProvider ,
-        String loginProcessingUrl, 
-        IUsernamePasswordGetter getter, 
+        ITokenProvider<?> tokenProvider, 
+        String loginProcessingUrl, IUsernamePasswordGetter usernamePasswordGetter) {
+        
+        this(
+            tokenProvider, 
+            loginProcessingUrl, usernamePasswordGetter, 
+            null, null, 
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), new WebApiAuthenticationFailureHandler());
+    }
+
+    public WebApiLoginConfigurer(
+        ITokenProvider<?> tokenProvider,
+        String loginProcessingUrl, IUsernamePasswordGetter usernamePasswordGetter,
+        String refreshProcessingUrl, IRefreshTokenGetter refreshTokenGetter) {
+
+        this(
+            tokenProvider, 
+            loginProcessingUrl, usernamePasswordGetter, 
+            refreshProcessingUrl, refreshTokenGetter, 
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), new WebApiAuthenticationFailureHandler());
+    }
+
+    public WebApiLoginConfigurer(
+        ITokenProvider<?> tokenProvider ,
+        String loginProcessingUrl,
+        IUsernamePasswordGetter usernamePasswordGetter, 
+        String refreshProcessingUrl, 
+        IRefreshTokenGetter refreshTokenGetter,
         AuthenticationSuccessHandler successHandler, 
         AuthenticationFailureHandler failureHandler) {
 
         this(
             loginProcessingUrl, 
-            new WebApiUsernamePasswordAuthenticationFilter(tokenProvider, getter), 
+            new WebApiUsernamePasswordAuthenticationFilter(tokenProvider, usernamePasswordGetter, refreshProcessingUrl, refreshTokenGetter), 
             successHandler, failureHandler);
     }
 

@@ -1,11 +1,11 @@
-package com.soonsoft.uranus.security.config.api.configurer;
+package com.soonsoft.uranus.security.config.api.jwt;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
 import com.soonsoft.uranus.security.config.api.jwt.token.JWTSimpleTokenStrategy;
+import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -16,9 +16,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
  */
 public class JWTConfigurer implements ICustomConfigurer {
 
-    private final static String DEFAULT_TOKEN_HEADER_NAME = "URANUS-AUTH_TOKEN";
+    private final static String DEFAULT_TOKEN_HEADER_NAME = "URANUS-AUTH-TOKEN";
 
     private String tokenHeaderName;
+    private String loginUrl = SecurityConfigUrlConstant.WebApiLoginUrl;
+    private String refreshUrl = SecurityConfigUrlConstant.WebApiRefreshUrl;
     private SecurityContextRepository securityContextRepository;
 
     public JWTConfigurer() {
@@ -33,12 +35,14 @@ public class JWTConfigurer implements ICustomConfigurer {
     @Override
     public void config(HttpSecurity http) {
         ITokenProvider<?> tokenProvider = new JWTTokenProvider(tokenHeaderName, new JWTSimpleTokenStrategy());
+
+        // 添加身份信息处理Filter
         http.addFilterAt(
                 new SecurityContextPersistenceFilter(securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
-
+        // 添加Login处理Filter
         try {
-            http.apply(new WebApiLoginConfigurer<>(tokenProvider));
+            http.apply(new WebApiLoginConfigurer<>(tokenProvider, loginUrl, refreshUrl));
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }

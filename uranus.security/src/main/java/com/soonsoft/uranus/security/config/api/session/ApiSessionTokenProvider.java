@@ -11,12 +11,12 @@ import com.soonsoft.uranus.security.config.api.ITokenStrategy;
 
 import org.springframework.security.core.Authentication;
 
-public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrategy<String>, ISessionIdStrategy {
+public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenStrategy<String>, ISessionIdStrategy {
 
     private String sessionIdHeaderName;
     private IRealHttpServletRequestHook httpRequestHook;
 
-    public SessionTokenProvider(String sessionIdHeaderName, IRealHttpServletRequestHook httpRequestHook) {
+    public ApiSessionTokenProvider(String sessionIdHeaderName, IRealHttpServletRequestHook httpRequestHook) {
         this.sessionIdHeaderName = sessionIdHeaderName;
         this.httpRequestHook = httpRequestHook;
     }

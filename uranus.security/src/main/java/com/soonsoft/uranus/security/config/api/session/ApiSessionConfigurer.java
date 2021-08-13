@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.config.api.configurer;
+package com.soonsoft.uranus.security.config.api.session;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
@@ -6,7 +6,7 @@ import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.config.api.session.SessionTokenProvider;
+import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -20,6 +20,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
     private final static String DEFAULT_SESSION_ID_HEADER_NAME = "URANUS-AUTH_SID";
 
     private String sessionIdHeaderName;
+    private String loginUrl = SecurityConfigUrlConstant.WebApiLoginUrl;
     private IRealHttpServletRequestHook requestHook;
     private SecurityContextRepository securityContextRepository;
 
@@ -39,7 +40,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
 
     @Override
     public void config(HttpSecurity http) {
-        ITokenProvider<?> tokenProvider = new SessionTokenProvider(sessionIdHeaderName, requestHook);
+        ITokenProvider<?> tokenProvider = new ApiSessionTokenProvider(sessionIdHeaderName, requestHook);
         if(securityContextRepository == null) {
             securityContextRepository = new WebApiHttpSessionSecurityContextRepository(tokenProvider);
         }
@@ -49,7 +50,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
                 SecurityContextPersistenceFilter.class);
 
         try {
-            http.apply(new WebApiLoginConfigurer<>(tokenProvider));
+            http.apply(new WebApiLoginConfigurer<>(tokenProvider, loginUrl));
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }
