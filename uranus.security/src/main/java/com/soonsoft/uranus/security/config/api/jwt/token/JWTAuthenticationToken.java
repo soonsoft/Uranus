@@ -20,7 +20,6 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-// TODO 完成JWT Token转换
 // https://github.com/auth0/java-jwt
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
