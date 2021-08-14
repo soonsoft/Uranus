@@ -16,9 +16,9 @@ public class AuthenticationController {
 
     }
 
-    @PostMapping("/auth/logoff")
-    public void logoff() {
-        
+    @PostMapping("/auth/logout")
+    public void logout() {
+
     }
 
 

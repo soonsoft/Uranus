@@ -34,4 +34,11 @@ public class APIResult extends JsonResult {
         return result;
     }
 
+    public static APIResult create(Object data, int total) {
+        APIResult result = new APIResult();
+        result.setData(data);
+        result.setTotalRows(total);
+        return result;
+    }
+
 }
