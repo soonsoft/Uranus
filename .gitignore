@@ -42,11 +42,11 @@ uranus.test/.project
 uranus.test/target
 uranus.test/.classpath
 
-*.log
 uranus.api/.project
 uranus.api/target
 uranus.api/.classpath
 uranus.api/bin
+
+*.log
 .DS_Store
 .factorypath
-uranus.test/.classpath
