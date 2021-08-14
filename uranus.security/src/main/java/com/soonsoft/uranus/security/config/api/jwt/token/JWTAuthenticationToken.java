@@ -25,9 +25,9 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
     private final Object principal;
     // AccessToken 有效时间，单位：分钟，默认值（2小时）
-    private int accessTokenExpireTime = 120;
+    private Date accessTokenExpireTime;
     // RefreshToken 有效时间，单位：分钟，默认值（15天）
-    private int refreshTokenExpireTime = 21600;
+    private Date refreshTokenExpireTime;
 
     private String secret = "uranus-security-secret";
 
@@ -35,6 +35,10 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         super.setAuthenticated(true);
         this.principal = principal;
+        // 2小时
+        setAccessTokenExpireTime(120);
+        // 15天
+        setRefreshTokenExpireTime(21600);
     }
 
     public String getAccessToken() {
@@ -52,7 +56,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         }
         
         String token = JWT.create()
-            .withExpiresAt(getExpireTime(accessTokenExpireTime))
+            .withExpiresAt(accessTokenExpireTime)
             .withHeader(header)
             .withClaim("userId", userInfo.getUserId())
             .withClaim("username", userInfo.getUsername())
@@ -72,7 +76,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         UserInfo userInfo = (UserInfo) getPrincipal();
         
         String token = JWT.create()
-            .withExpiresAt(getExpireTime(refreshTokenExpireTime))
+            .withExpiresAt(refreshTokenExpireTime)
             .withHeader(header)
             .withClaim("username", userInfo.getUsername())
             .sign(algorithm);
@@ -80,20 +84,40 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         return token;
     }
 
-    private static Date getExpireTime(int minutes) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, minutes);
-        return calendar.getTime();
-    }
-
     @Override
     public Object getCredentials() {
         return null;
     }
 
+    public Date getAccessTokenExpireTime() {
+        return accessTokenExpireTime;
+    }
+
+    public void setAccessTokenExpireTime(int accessTokenExpireMinutes) {
+        this.accessTokenExpireTime = getExpireTime(accessTokenExpireMinutes);
+    }
+
+    public Date getRefreshTokenExpireTime() {
+        return refreshTokenExpireTime;
+    }
+
+    public void setRefreshTokenExpireTime(int refreshTokenExpireMinutes) {
+        this.refreshTokenExpireTime = getExpireTime(refreshTokenExpireMinutes);
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
     @Override
     public Object getPrincipal() {
         return principal;
+    }
+
+    private static Date getExpireTime(int minutes) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, minutes);
+        return calendar.getTime();
     }
 
     public static JWTAuthenticationToken parse(String token) {

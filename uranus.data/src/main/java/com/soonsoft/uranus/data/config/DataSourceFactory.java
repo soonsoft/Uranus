@@ -85,7 +85,7 @@ public class DataSourceFactory {
         hikariDataSource.setAutoCommit(hikariDataSourceProperty.isAutoCommit());
         hikariDataSource.setConnectionTimeout(hikariDataSourceProperty.getConnectionTimeout());
         hikariDataSource.setIdleTimeout(hikariDataSourceProperty.getIdleTimeout());
-        hikariDataSource.setKeepaliveTime(hikariDataSourceProperty.getKeepaliveTime());
+        // hikariDataSource.setKeepaliveTime(hikariDataSourceProperty.getKeepaliveTime());
         hikariDataSource.setMaxLifetime(hikariDataSourceProperty.getMaxLifetime());
         hikariDataSource.setMinimumIdle(hikariDataSourceProperty.getMinimumIdle());
         hikariDataSource.setMaximumPoolSize(hikariDataSourceProperty.getMaximumPoolSize());

@@ -3,6 +3,7 @@ package com.soonsoft.uranus.security.config.api.jwt;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.api.ITokenProvider;
+import com.soonsoft.uranus.security.config.api.ITokenStorage;
 import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextPersistenceFilter;
@@ -22,19 +23,29 @@ public class JWTConfigurer implements ICustomConfigurer {
     private String loginUrl = SecurityConfigUrlConstant.WebApiLoginUrl;
     private String refreshUrl = SecurityConfigUrlConstant.WebApiRefreshUrl;
     private SecurityContextRepository securityContextRepository;
+    private ITokenStorage tokenStorage;
 
     public JWTConfigurer(String tokenHeaderName) {
-        this(tokenHeaderName, null);
+        this(tokenHeaderName, null, null);
+    }
+
+    public JWTConfigurer(String tokenHeaderName, ITokenStorage tokenStorage) {
+        this(tokenHeaderName, null, tokenStorage);
     }
 
     public JWTConfigurer(String tokenHeaderName, SecurityContextRepository repo) {
+        this(tokenHeaderName, repo, null);
+    }
+
+    public JWTConfigurer(String tokenHeaderName, SecurityContextRepository repo, ITokenStorage tokenStorage) {
         this.tokenHeaderName = tokenHeaderName;
         this.securityContextRepository = repo;
+        this.tokenStorage = tokenStorage;
     }
 
     @Override
     public void config(HttpSecurity http) {
-        ITokenProvider<?> tokenProvider = new JWTTokenProvider(tokenHeaderName, new JWTSimpleTokenStrategy());
+        ITokenProvider<?> tokenProvider = new JWTTokenProvider(tokenHeaderName, new JWTSimpleTokenStrategy(tokenStorage));
 
         if(securityContextRepository == null) {
             securityContextRepository = new WebApiHttpSessionSecurityContextRepository(tokenProvider);

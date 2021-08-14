@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;

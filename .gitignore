@@ -49,3 +49,4 @@ uranus.api/.classpath
 uranus.api/bin
 .DS_Store
 .factorypath
+uranus.test/.classpath

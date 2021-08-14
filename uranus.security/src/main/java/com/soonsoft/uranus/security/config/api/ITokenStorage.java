@@ -6,6 +6,6 @@ public interface ITokenStorage {
 
     void remove(String token);
 
-    void update(String token);
+    void put(String token);
     
 }

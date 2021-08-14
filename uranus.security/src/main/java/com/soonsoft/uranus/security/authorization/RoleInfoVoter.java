@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.security.authorization;
 
-import org.apache.commons.lang3.StringUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.vote.RoleVoter;
 
