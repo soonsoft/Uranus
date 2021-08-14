@@ -14,5 +14,17 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
         JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(authentication.getPrincipal(), authentication.getAuthorities());
         return jwtAuthenticationToken;
     }
+
+    @Override
+    public boolean checkToken(String token) {
+        // TODO 检查refreshToken是不是有效，refreshToken是一次性的
+        return true;
+    }
+
+    @Override
+    public void updateToken(String token) {
+        // TODO 更新refreshToken
+        
+    }
     
 }

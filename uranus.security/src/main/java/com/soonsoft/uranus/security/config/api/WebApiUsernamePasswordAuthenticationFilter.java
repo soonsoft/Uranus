@@ -112,6 +112,12 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
 	}
 
     protected Authentication refreshAuthenticate(String refreshToken) {
+        if(!StringUtils.isEmpty(refreshToken)) {
+            return null;
+        }
+        if(!tokenProvider.getTokenStrategy().checkToken(refreshToken)) {
+            return null;
+        }
         return tokenProvider.refreshToken(refreshToken);
     }
     

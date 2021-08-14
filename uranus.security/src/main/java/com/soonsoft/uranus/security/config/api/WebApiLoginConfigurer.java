@@ -115,7 +115,11 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
             } else {
                 JWTAuthenticationToken jwtToken = (JWTAuthenticationToken) token;
                 securityResult.setAccessToken(jwtToken.getAccessToken());
-                securityResult.setRefreshToken(jwtToken.getRefreshToken());
+
+                String refreshToken = jwtToken.getRefreshToken();
+                securityResult.setRefreshToken(refreshToken);
+
+                tokenStrategy.updateToken(refreshToken);
             }
             response.getWriter().print(securityResult);
         }

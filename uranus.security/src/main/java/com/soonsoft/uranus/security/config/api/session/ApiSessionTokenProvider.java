@@ -53,6 +53,17 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
         return request.getSession().getId();
     }
 
+    @Override
+    public boolean checkToken(String token) {
+        // Session 模式下无效
+        return false;
+    }
+
+    @Override
+    public void updateToken(String token) {
+        // Session 模式下无效
+    }
+
     //#endregion
 
     //#region ISessionIdStrategy
