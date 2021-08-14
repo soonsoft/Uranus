@@ -17,9 +17,7 @@ import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * DBSecurityFactory
- */
+
 public class DBSecurityFactory {
 
     public IUserManager createUserManager(IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {

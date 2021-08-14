@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.soonsoft.uranus.site.config.WebErrorConfiguration;
 import com.soonsoft.uranus.site.config.properties.ErrorPageProperties;
 import com.soonsoft.uranus.web.error.WebErrorCommonHandler;
-import com.soonsoft.uranus.web.error.vo.JsonErrorModel;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
+import com.soonsoft.uranus.web.mvc.model.JsonResult;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -92,7 +92,7 @@ public class WebErrorController implements ErrorController {
     }
 
     @RequestMapping(value = "${server.error.path:${error.path:/error}}")
-    public ResponseEntity<JsonErrorModel> error(
+    public ResponseEntity<JsonResult> error(
             HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -108,7 +108,7 @@ public class WebErrorController implements ErrorController {
      */
     @RequestMapping(value = ERROR_PATH)
     @ResponseBody
-    public ResponseEntity<JsonErrorModel> error(
+    public ResponseEntity<JsonResult> error(
             @PathVariable("status_code") Integer statusCode,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -123,10 +123,11 @@ public class WebErrorController implements ErrorController {
 
         response.setStatus(status.value());
 
-        JsonErrorModel jsonModel = new JsonErrorModel();
-        jsonModel.setStatusCode(model.getStatusCode());
-        jsonModel.setMessage(model.getMessage());
-        return new ResponseEntity<>(jsonModel, status);
+        JsonResult jsonResult = (JsonResult) JsonResult.create();
+        jsonResult.setMessage(model.getMessage());
+        jsonResult.put("statusCode", model.getStatusCode());
+        jsonResult.setSuccess(false);
+        return new ResponseEntity<>(jsonResult, status);
     }
 
     protected HttpStatus getStatus(Integer statusCode, HttpServletRequest request) {

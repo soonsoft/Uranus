@@ -11,8 +11,8 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
 
     @Override
     public JWTAuthenticationToken getToken(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        // TODO Auto-generated method stub
-        return null;
+        JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(authentication.getPrincipal(), authentication.getAuthorities());
+        return jwtAuthenticationToken;
     }
     
 }

@@ -4,8 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -75,7 +73,9 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         }
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
                 username, password);
-        setDetails(request, authRequest);
+        if(ITokenProvider.SESSION_ID_TYPE.equals(tokenProvider.getTokenType())) {
+            setDetails(request, authRequest);
+        }
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }
@@ -83,7 +83,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
     @Override
     public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
         // JWT不放Session里
-        if(tokenProvider instanceof JWTTokenProvider) {
+        if(ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
             return;
         }
         super.setSessionAuthenticationStrategy(sessionStrategy);
@@ -112,9 +112,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
 	}
 
     protected Authentication refreshAuthenticate(String refreshToken) {
-        // TODO 验证Refresh Token 返回Authentication
-        return null;
-
+        return tokenProvider.refreshToken(refreshToken);
     }
     
     private static class FormUsernamePasswordGetter implements IUsernamePasswordGetter {

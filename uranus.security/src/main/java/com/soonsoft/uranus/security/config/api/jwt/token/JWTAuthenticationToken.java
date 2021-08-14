@@ -44,7 +44,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         header.put(PublicClaims.TYPE, "JWT");
         header.put(PublicClaims.ALGORITHM, algorithm.getName());
 
-        UserInfo userInfo = (UserInfo) getDetails();
+        UserInfo userInfo = (UserInfo) getPrincipal();
         Collection<GrantedAuthority> authorities = userInfo.getAuthorities();
         List<String> roles = null;
         if(authorities != null) {
@@ -69,12 +69,12 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         header.put(PublicClaims.TYPE, "JWT");
         header.put(PublicClaims.ALGORITHM, algorithm.getName());
 
-        UserInfo userInfo = (UserInfo) getDetails();
+        UserInfo userInfo = (UserInfo) getPrincipal();
         
         String token = JWT.create()
             .withExpiresAt(getExpireTime(refreshTokenExpireTime))
             .withHeader(header)
-            .withClaim("userId", userInfo.getUserId())
+            .withClaim("username", userInfo.getUsername())
             .sign(algorithm);
             
         return token;
@@ -111,8 +111,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
             authorities = roles.stream().map(i -> new RoleInfo(i)).collect(Collectors.toList());
         }
 
-        JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(username, authorities);
-        jwtAuthenticationToken.setDetails(userInfo);
+        JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(userInfo, authorities);
         return jwtAuthenticationToken;
     }
 

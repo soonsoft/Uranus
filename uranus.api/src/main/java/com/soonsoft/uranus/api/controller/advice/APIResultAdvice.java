@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.api.controller.advice;
 
 import com.soonsoft.uranus.api.model.APIResult;
+import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 import com.soonsoft.uranus.web.mvc.model.IResultData;
 
 import org.springframework.core.MethodParameter;
@@ -44,6 +45,11 @@ public class APIResultAdvice implements ResponseBodyAdvice<Object> {
                 return APIResult.create(500, jsonResult.getMessage());
             }
             return APIResult.create(jsonResult.getData());
+        }
+
+        if(body instanceof WebErrorModel) {
+            WebErrorModel webError = (WebErrorModel) body;
+            return APIResult.create(webError.getStatusCode(), webError.getMessage());
         }
 
         return APIResult.create(body);

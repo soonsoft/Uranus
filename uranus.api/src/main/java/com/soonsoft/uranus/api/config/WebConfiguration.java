@@ -2,7 +2,10 @@ package com.soonsoft.uranus.api.config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.ServletRequest;
@@ -10,11 +13,21 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.api.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.authentication.IUserManager;
+import com.soonsoft.uranus.security.authorization.IFunctionManager;
+import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfigFactory;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfigFactory.WebApplicationSecurityConfigType;
 import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
+import com.soonsoft.uranus.security.config.api.jwt.JWTConfigurer;
 import com.soonsoft.uranus.security.config.api.session.ApiSessionConfigurer;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
+import com.soonsoft.uranus.security.entity.FunctionInfo;
+import com.soonsoft.uranus.security.entity.RoleInfo;
+import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
+import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
+import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 
@@ -23,6 +36,7 @@ import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBea
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -52,7 +66,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         List<String> exposedHeaders = new ArrayList<>();
         exposedHeaders.add("Access-Control-Allow-Origin");
 
-        String sessionIdHeaderName = securityProperties.getSessionIdHeaderName();
+        String sessionIdHeaderName = securityProperties.getAccessTokenHeaderName();
         if(!StringUtils.isEmpty(sessionIdHeaderName)) {
             exposedHeaders.add(sessionIdHeaderName);
         }
@@ -81,14 +95,83 @@ public class WebConfiguration implements WebMvcConfigurer {
         return WebApplicationContext.getInstance();
     }
 
+    // @Bean
+    // public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
+    //     IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
+    //     // Web-API应用程序（多页应用），身份验证配置
+    //     String sessionIdHeader = securityProperties.getAccessTokenHeaderName();
+    //     WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
+    //         WebApplicationSecurityConfigType.API, new ApiSessionConfigurer(sessionIdHeader, requestHook));
+    //     factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
+    //         initUserManager(userManager);
+    //         initRoleManager(roleManager);
+    //         initFunctionManager(functionManager);
+    //     });
+    //     return factory;
+    // }
+
     @Bean
     public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
-        IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
-        // Web-API应用程序，身份验证配置
-        String sessionIdHeader = securityProperties.getSessionIdHeaderName();
-        return new WebApplicationSecurityConfigFactory(
-            WebApplicationSecurityConfigType.API, new ApiSessionConfigurer(sessionIdHeader, requestHook));
+        // Web-API应用程序（单页应用），身份验证配置
+        String accessTokenHeaderName = securityProperties.getAccessTokenHeaderName();
+        WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
+            WebApplicationSecurityConfigType.API, new JWTConfigurer(accessTokenHeaderName));
+        factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
+            initUserManager(userManager);
+            initRoleManager(roleManager);
+            initFunctionManager(functionManager);
+        });
+        return factory;
     }
+
+    //#region 测试数据
+
+    private void initUserManager(IUserManager userManager) {
+        Set<GrantedAuthority> roles = new HashSet<>();
+        roles.add(new RoleInfo("Admin", "管理员"));
+        
+        List<UserInfo> users = new ArrayList<>();
+        String salt = null;
+        UserInfo user = new UserInfo("admin", userManager.encryptPassword("1", salt), roles);
+        user.setNickName("张三");
+        user.setPasswordSalt(salt);
+        user.setCellPhone("139-0099-8877");
+        user.setCreateTime(new Date());
+        users.add(user);
+
+        ((SimpleUserManager) userManager).addAll(users);
+    }
+
+    private void initRoleManager(IRoleManager roleManager) {
+        List<RoleInfo> roles = new ArrayList<>();
+        roles.add(new RoleInfo("Admin", "管理员"));
+        ((SimpleRoleManager) roleManager).setRoleInfos(roles);
+    }
+
+    private void initFunctionManager(IFunctionManager functionManager) {
+        List<RoleInfo> allowRoles = new ArrayList<>();
+        allowRoles.add(new RoleInfo("Admin"));
+
+        List<FunctionInfo> functions = new ArrayList<>();
+        FunctionInfo function = new FunctionInfo("1", "queryProductList", "/product/list");
+        functions.add(function);
+
+        function = new FunctionInfo("2", "addProduct", "product/add");
+        functions.add(function);
+
+        function = new FunctionInfo("3", "editProduct", "product/edit");
+        functions.add(function);
+
+        function = new FunctionInfo("4", "removeProduct", "product/remove");
+        functions.add(function);
+
+        function = new FunctionInfo("5", "checkProduct", "product/check");
+        functions.add(function);
+
+        ((SimpleFunctionManager) functionManager).setFunctions(functions);
+    }
+
+    //#endregion
 
     private static class HeaderSessionIdHook implements IRealHttpServletRequestHook {
 

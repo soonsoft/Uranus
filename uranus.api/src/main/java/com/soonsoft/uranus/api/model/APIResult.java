@@ -9,11 +9,18 @@ public class APIResult extends JsonResult {
     protected APIResult() {
         super();
         setStatusCode(0);
-        
+        setSuccess(true);
     }
 
+    /**
+     * 设置错误码
+     * @param code 错误码（成功： 0， Http错误：三位HttpStatus，业务错误：四位及以上）
+     */
     public void setStatusCode(int code) {
         put(STATUS_CODE_NAME, code);
+        if(code != 0) {
+            setSuccess(false);
+        }
     }
 
     public int getStatusCode() {

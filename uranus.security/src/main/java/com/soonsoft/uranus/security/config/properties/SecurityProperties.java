@@ -48,15 +48,15 @@ public class SecurityProperties {
         resourcePathList = pathList;
     }
 
-    @Value("${uranus.security.sessionid-header:X-AUTH-URANUS-SID}")
-    private String sessionIdHeaderName;
+    @Value("${uranus.security.token-header:X-URANUS-AUTH-TOKEN}")
+    private String accessTokenHeaderName;
 
-    public String getSessionIdHeaderName() {
-        return sessionIdHeaderName;
+    public String getAccessTokenHeaderName() {
+        return accessTokenHeaderName;
     }
 
-    public void setSessionIdHeaderName(String sessionIdHeaderName) {
-        this.sessionIdHeaderName = sessionIdHeaderName;
+    public void setAccessTokenHeaderName(String accessTokenHeaderName) {
+        this.accessTokenHeaderName = accessTokenHeaderName;
     }
     
 }

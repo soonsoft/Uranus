@@ -24,6 +24,11 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
     //#region ITokenProvider
 
     @Override
+    public String getTokenType() {
+        return SESSION_ID_TYPE;
+    }
+
+    @Override
     public ITokenStrategy<String> getTokenStrategy() {
         return this;
     }
@@ -34,8 +39,9 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
     }
 
     @Override
-    public void updateToken(HttpServletResponse response, String token) {
-        response.setHeader(sessionIdHeaderName, token);
+    public Authentication refreshToken(String refreshToken) {
+        // Session 模式下无效
+        return null;
     }
 
     //#endregion

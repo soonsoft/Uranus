@@ -18,9 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.web.error.WebErrorCommonHandler;
-import com.soonsoft.uranus.web.error.vo.JsonErrorModel;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 import com.soonsoft.uranus.api.config.properties.ErrorPageProperties;
+import com.soonsoft.uranus.api.model.APIResult;
 
 @ControllerAdvice
 @Controller
@@ -43,7 +43,7 @@ public class WebErrorController implements ErrorController {
 
 
     @RequestMapping(value = "${server.error.path:${error.path:/error}}")
-    public ResponseEntity<JsonErrorModel> error(
+    public ResponseEntity<APIResult> error(
             HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -59,7 +59,7 @@ public class WebErrorController implements ErrorController {
      */
     @RequestMapping(value = ERROR_PATH)
     @ResponseBody
-    public ResponseEntity<JsonErrorModel> error(
+    public ResponseEntity<APIResult> error(
             @PathVariable("status_code") Integer statusCode,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -73,7 +73,7 @@ public class WebErrorController implements ErrorController {
         }
 
         response.setStatus(status.value());
-        return new ResponseEntity<>(new JsonErrorModel(model), status);
+        return new ResponseEntity<>(APIResult.create(model.getStatusCode(), model.getMessage()), status);
     }
 
     protected HttpStatus getStatus(Integer statusCode, HttpServletRequest request) {

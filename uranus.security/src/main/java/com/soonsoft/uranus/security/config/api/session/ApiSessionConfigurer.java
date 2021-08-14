@@ -6,6 +6,7 @@ import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
+import com.soonsoft.uranus.security.config.api.WebApiSecurityContextPersistenceFilter;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,7 +47,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
         }
 
         http.addFilterAt(
-                new SecurityContextPersistenceFilter(securityContextRepository), 
+                new WebApiSecurityContextPersistenceFilter(securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
 
         try {
