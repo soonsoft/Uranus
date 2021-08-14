@@ -1,18 +1,22 @@
-package com.soonsoft.uranus.security.jwt;
+package com.soonsoft.uranus.security.config.api.session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
+import com.soonsoft.uranus.security.config.api.ISessionIdStrategy;
+import com.soonsoft.uranus.security.config.api.ITokenProvider;
+import com.soonsoft.uranus.security.config.api.ITokenStrategy;
 
 import org.springframework.security.core.Authentication;
 
-public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrategy, ISessionIdStrategy {
+public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenStrategy<String>, ISessionIdStrategy {
 
     private String sessionIdHeaderName;
     private IRealHttpServletRequestHook httpRequestHook;
 
-    public SessionTokenProvider(String sessionIdHeaderName, IRealHttpServletRequestHook httpRequestHook) {
+    public ApiSessionTokenProvider(String sessionIdHeaderName, IRealHttpServletRequestHook httpRequestHook) {
         this.sessionIdHeaderName = sessionIdHeaderName;
         this.httpRequestHook = httpRequestHook;
     }
@@ -20,12 +24,7 @@ public class SessionTokenProvider implements ITokenProvider<String>, ITokenStrat
     //#region ITokenProvider
 
     @Override
-    public ITokenStrategy getTokenStrategy() {
-        return this;
-    }
-
-    @Override
-    public ISessionIdStrategy getSessionIdStrategy() {
+    public ITokenStrategy<String> getTokenStrategy() {
         return this;
     }
 

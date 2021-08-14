@@ -6,8 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -25,29 +24,57 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
     public static final String SECURITY_FORM_USERNAME_NAME = "username";
     public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
-    private static final String DEFAULT_LOGIN_PROCESSING_URL = "/account/login";
-
-    public WebApiLoginConfigurer(ITokenStrategy tokenStrategy) {
+    public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider, String loginProcessUrl) {
         this(
-            DEFAULT_LOGIN_PROCESSING_URL, 
-            new WebApiUsernamePasswordAuthenticationFilter(),
-            new WebApiAuthenticationSuccessHandler(tokenStrategy), 
+            loginProcessUrl, 
+            new WebApiUsernamePasswordAuthenticationFilter(tokenProvider),
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), 
             new WebApiAuthenticationFailureHandler());
     }
 
-    public WebApiLoginConfigurer(ITokenStrategy tokenStrategy, String loginProcessingUrl, IUsernamePasswordGetter getter) {
-        this(loginProcessingUrl, getter, new WebApiAuthenticationSuccessHandler(tokenStrategy), new WebApiAuthenticationFailureHandler());
+    public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider, String loginProcessUrl, String refreshProcessUrl) {
+        this(
+            loginProcessUrl, 
+            new WebApiUsernamePasswordAuthenticationFilter(tokenProvider, refreshProcessUrl),
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), 
+            new WebApiAuthenticationFailureHandler());
     }
 
     public WebApiLoginConfigurer(
-        String loginProcessingUrl, 
-        IUsernamePasswordGetter getter, 
+        ITokenProvider<?> tokenProvider, 
+        String loginProcessingUrl, IUsernamePasswordGetter usernamePasswordGetter) {
+        
+        this(
+            tokenProvider, 
+            loginProcessingUrl, usernamePasswordGetter, 
+            null, null, 
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), new WebApiAuthenticationFailureHandler());
+    }
+
+    public WebApiLoginConfigurer(
+        ITokenProvider<?> tokenProvider,
+        String loginProcessingUrl, IUsernamePasswordGetter usernamePasswordGetter,
+        String refreshProcessingUrl, IRefreshTokenGetter refreshTokenGetter) {
+
+        this(
+            tokenProvider, 
+            loginProcessingUrl, usernamePasswordGetter, 
+            refreshProcessingUrl, refreshTokenGetter, 
+            new WebApiAuthenticationSuccessHandler(tokenProvider.getTokenStrategy()), new WebApiAuthenticationFailureHandler());
+    }
+
+    public WebApiLoginConfigurer(
+        ITokenProvider<?> tokenProvider ,
+        String loginProcessingUrl,
+        IUsernamePasswordGetter usernamePasswordGetter, 
+        String refreshProcessingUrl, 
+        IRefreshTokenGetter refreshTokenGetter,
         AuthenticationSuccessHandler successHandler, 
         AuthenticationFailureHandler failureHandler) {
 
         this(
             loginProcessingUrl, 
-            new WebApiUsernamePasswordAuthenticationFilter(getter), 
+            new WebApiUsernamePasswordAuthenticationFilter(tokenProvider, usernamePasswordGetter, refreshProcessingUrl, refreshTokenGetter), 
             successHandler, failureHandler);
     }
 
@@ -69,9 +96,9 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
     // 登录成功处理器
     private static class WebApiAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-        private ITokenStrategy tokenStrategy;
+        private ITokenStrategy<?> tokenStrategy;
 
-        public WebApiAuthenticationSuccessHandler(ITokenStrategy tokenStrategy) {
+        public WebApiAuthenticationSuccessHandler(ITokenStrategy<?> tokenStrategy) {
             this.tokenStrategy = tokenStrategy;
         }
 
@@ -81,10 +108,15 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
             final Integer statusCode = HttpStatus.OK.value();
             response.setStatus(statusCode);
             SecurityResult securityResult = new SecurityResult(statusCode, authentication);
-            securityResult.setToken(
-                    tokenStrategy != null 
-                        ? tokenStrategy.getToken(request, response, authentication) 
-                        : StringUtils.Empty);
+            
+            Object token = tokenStrategy.getToken(request, response, authentication);
+            if(token instanceof String) {
+                securityResult.setAccessToken((String) token);
+            } else {
+                JWTAuthenticationToken jwtToken = (JWTAuthenticationToken) token;
+                securityResult.setAccessToken(jwtToken.getAccessToken());
+                securityResult.setRefreshToken(jwtToken.getRefreshToken());
+            }
             response.getWriter().print(securityResult);
         }
 

@@ -6,18 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthenticationController {
 
-    @PostMapping("/auth/login")
-    public void login() {
-        
-    }
 
     @PostMapping("/auth/refresh-token")
     public void refreshToken(String refreshToken) {
-
-    }
-
-    @PostMapping("/auth/logout")
-    public void logout() {
 
     }
 

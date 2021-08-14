@@ -3,6 +3,7 @@ package com.soonsoft.uranus.security.config.site;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
+import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -29,14 +30,14 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
                 .and()
                     .csrf().disable()
                 .formLogin()
-                    .loginPage("/login")
+                    .loginPage(SecurityConfigUrlConstant.SiteLoginUrl)
                     .usernameParameter("username")
                     .passwordParameter("password")
                     .defaultSuccessUrl("/").permitAll()
-                    .failureUrl("/login?error").permitAll()
+                    .failureUrl(SecurityConfigUrlConstant.SiteLoginUrl + "?error").permitAll()
                 .and()
                     .logout()
-                    .logoutUrl("/logout").permitAll();
+                    .logoutUrl(SecurityConfigUrlConstant.SiteLogoutUrl).permitAll();
         } catch(Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
         }

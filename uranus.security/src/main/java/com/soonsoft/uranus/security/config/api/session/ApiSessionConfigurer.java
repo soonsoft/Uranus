@@ -1,27 +1,31 @@
-package com.soonsoft.uranus.security.config.api.configurer;
+package com.soonsoft.uranus.security.config.api.session;
 
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
+import com.soonsoft.uranus.security.config.api.ITokenProvider;
+import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.jwt.IRealHttpServletRequestHook;
-import com.soonsoft.uranus.security.jwt.ITokenProvider;
-import com.soonsoft.uranus.security.jwt.ITokenStrategy;
-import com.soonsoft.uranus.security.jwt.JWTHttpSessionSecurityContextRepository;
-import com.soonsoft.uranus.security.jwt.JWTSecurityContextPersistenceFilter;
-import com.soonsoft.uranus.security.jwt.SessionTokenProvider;
+import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
+/**
+ * API 接口适配Session模式，适合前后端分离的多页应用
+ */
 public class ApiSessionConfigurer implements ICustomConfigurer {
 
+    private final static String DEFAULT_SESSION_ID_HEADER_NAME = "URANUS-AUTH_SID";
+
     private String sessionIdHeaderName;
+    private String loginUrl = SecurityConfigUrlConstant.WebApiLoginUrl;
     private IRealHttpServletRequestHook requestHook;
     private SecurityContextRepository securityContextRepository;
 
     public ApiSessionConfigurer(IRealHttpServletRequestHook requestHook) {
-        this(null, requestHook);
+        this(DEFAULT_SESSION_ID_HEADER_NAME, requestHook);
     }
 
     public ApiSessionConfigurer(String sessionIdHeaderName, IRealHttpServletRequestHook requestHook) {
@@ -36,20 +40,24 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
 
     @Override
     public void config(HttpSecurity http) {
-        ITokenProvider<?> tokenProvider = new SessionTokenProvider(sessionIdHeaderName, requestHook);
+        ITokenProvider<?> tokenProvider = new ApiSessionTokenProvider(sessionIdHeaderName, requestHook);
         if(securityContextRepository == null) {
-            securityContextRepository = new JWTHttpSessionSecurityContextRepository(tokenProvider);
+            securityContextRepository = new WebApiHttpSessionSecurityContextRepository(tokenProvider);
         }
 
         http.addFilterAt(
-                new JWTSecurityContextPersistenceFilter(tokenProvider, securityContextRepository), 
+                new SecurityContextPersistenceFilter(securityContextRepository), 
                 SecurityContextPersistenceFilter.class);
 
         try {
-            http.apply(new WebApiLoginConfigurer<>((ITokenStrategy) tokenProvider));
+            http.apply(new WebApiLoginConfigurer<>(tokenProvider, loginUrl));
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }
+    }
+
+    public String getSessionIdHeaderName() {
+        return sessionIdHeaderName;
     }
     
 }
