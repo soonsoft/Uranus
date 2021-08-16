@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -77,7 +79,14 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
             setDetails(request, authRequest);
         }
 
-        return this.getAuthenticationManager().authenticate(authRequest);
+        Authentication authentication = this.getAuthenticationManager().authenticate(authRequest);
+        if(ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
+            JWTAuthenticationToken jwtAuthenticationToken = 
+                new JWTAuthenticationToken(authentication.getPrincipal(), authentication.getAuthorities());
+            tokenProvider.getTokenStrategy().updateRefreshToken(jwtAuthenticationToken.getRefreshToken());
+            authentication = jwtAuthenticationToken;
+        }
+        return authentication;
     }
 
     @Override
@@ -115,10 +124,12 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         if(!StringUtils.isEmpty(refreshToken)) {
             return null;
         }
-        if(!tokenProvider.getTokenStrategy().checkToken(refreshToken)) {
+        if(!tokenProvider.getTokenStrategy().checkRefreshToken(refreshToken)) {
             return null;
         }
-        return tokenProvider.getTokenStrategy().refreshToken(refreshToken);
+        JWTAuthenticationToken authentication = (JWTAuthenticationToken) tokenProvider.refreshToken(refreshToken);
+        tokenProvider.getTokenStrategy().updateRefreshToken(authentication.getRefreshToken());
+        return authentication;
     }
     
     private static class FormUsernamePasswordGetter implements IUsernamePasswordGetter {
