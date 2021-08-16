@@ -19,8 +19,8 @@ public interface ITokenStrategy<T> {
      */
     T getToken(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
 
-    boolean checkToken(String token);
+    boolean checkRefreshToken(String token);
 
-    void updateToken(String token);
+    void updateRefreshToken(String token);
 
 }

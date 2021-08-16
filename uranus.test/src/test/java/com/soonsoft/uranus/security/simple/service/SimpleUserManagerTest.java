@@ -5,9 +5,7 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * SimpleUserManagerTest
- */
+
 public class SimpleUserManagerTest {
 
     private SimpleUserManager userManager = new SimpleUserManager(null);
@@ -15,7 +13,7 @@ public class SimpleUserManagerTest {
     {
         UserInfo userInfo = new UserInfo("zhousong", "1");
         userInfo.setCellPhone("13605160000");
-        userInfo.setNickName("周松");
+        userInfo.setNickName("周大侠");
         userInfo.setPasswordSalt("0911");
         userManager.add(userInfo);
     }

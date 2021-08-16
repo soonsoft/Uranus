@@ -23,6 +23,11 @@ import org.springframework.security.core.GrantedAuthority;
 // https://github.com/auth0/java-jwt
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
+    // 默认 2小时
+    private final static int DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES = 120;
+    // 默认 15天
+    private final static int DEFAULT_REFRESH_TOKEN_EXPIRE_MINUTES = 21600;
+
     private final Object principal;
     // AccessToken 有效时间，单位：分钟，默认值（2小时）
     private Date accessTokenExpireTime;
@@ -35,10 +40,9 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         super.setAuthenticated(true);
         this.principal = principal;
-        // 2小时
-        setAccessTokenExpireTime(120);
-        // 15天
-        setRefreshTokenExpireTime(21600);
+
+        setAccessTokenExpireTime(DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES);
+        setRefreshTokenExpireTime(DEFAULT_REFRESH_TOKEN_EXPIRE_MINUTES);
     }
 
     public String getAccessToken() {
@@ -94,7 +98,8 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     public void setAccessTokenExpireTime(int accessTokenExpireMinutes) {
-        this.accessTokenExpireTime = getExpireTime(accessTokenExpireMinutes);
+        int minutes = accessTokenExpireMinutes > 0 ? accessTokenExpireMinutes : DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES;
+        this.accessTokenExpireTime = getExpireTime(minutes);
     }
 
     public Date getRefreshTokenExpireTime() {
@@ -102,7 +107,8 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     public void setRefreshTokenExpireTime(int refreshTokenExpireMinutes) {
-        this.refreshTokenExpireTime = getExpireTime(refreshTokenExpireMinutes);
+        int minutes = refreshTokenExpireMinutes > 0 ? refreshTokenExpireMinutes : DEFAULT_REFRESH_TOKEN_EXPIRE_MINUTES;
+        this.refreshTokenExpireTime = getExpireTime(minutes);
     }
 
     public void setSecret(String secret) {
