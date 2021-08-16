@@ -37,12 +37,20 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
     }
 
     @Override
-    public boolean checkRefreshToken(String token) {
-        boolean result = this.tokenStorage == null ? true : tokenStorage.contains(token);
-        if(result && this.tokenStorage != null) {
-            this.tokenStorage.remove(token);
+    public boolean checkRefreshToken(String refreshToken) {
+        if(this.tokenStorage != null) {
+            try {
+                DecodedJWT jwt = JWT.decode(refreshToken);
+                String key = jwt.getClaim("username").asString();
+                if(tokenStorage.contains(key, refreshToken)) {
+                    tokenStorage.remove(key);
+                }
+            } catch(JWTDecodeException e) {
+                LOGGER.warn("the refreshToken {} decode failed.", refreshToken);
+                return false;
+            }
         }
-        return result;
+        return true;
     }
 
     @Override
@@ -81,7 +89,8 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
     public void updateRefreshToken(JWTAuthenticationToken jwtAuthenticationToken) {
 
         if(this.tokenStorage != null) {
-            this.tokenStorage.put(jwtAuthenticationToken.getRefreshToken());
+            String key = ((UserInfo) jwtAuthenticationToken.getPrincipal()).getUsername();
+            this.tokenStorage.set(key, jwtAuthenticationToken.getRefreshToken());
         }
         
     }

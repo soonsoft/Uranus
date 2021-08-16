@@ -25,6 +25,7 @@ import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.simple.service.MemoryRefreshTokenStorage;
 import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
 import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
 import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
@@ -115,7 +116,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         // Web-API应用程序（单页应用），身份验证配置
         String accessTokenHeaderName = securityProperties.getAccessTokenHeaderName();
         WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
-            WebApplicationSecurityConfigType.API, new JWTConfigurer(accessTokenHeaderName));
+            WebApplicationSecurityConfigType.API, new JWTConfigurer(accessTokenHeaderName, new MemoryRefreshTokenStorage(21600)));
         factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
             initUserManager(userManager);
             initRoleManager(roleManager);
