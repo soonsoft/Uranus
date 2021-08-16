@@ -2,8 +2,6 @@ package com.soonsoft.uranus.security.config.api;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.core.Authentication;
-
 public interface ITokenProvider<T> {
 
     public final static String SESSION_ID_TYPE = "SESSION_ID";
@@ -14,7 +12,5 @@ public interface ITokenProvider<T> {
     ITokenStrategy<T> getTokenStrategy();
 
     boolean checkToken(HttpServletRequest request);
-
-    Authentication refreshToken(String refreshToken);
     
 }

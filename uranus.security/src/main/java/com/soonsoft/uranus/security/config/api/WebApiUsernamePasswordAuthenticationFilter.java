@@ -118,7 +118,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         if(!tokenProvider.getTokenStrategy().checkToken(refreshToken)) {
             return null;
         }
-        return tokenProvider.refreshToken(refreshToken);
+        return tokenProvider.getTokenStrategy().refreshToken(refreshToken);
     }
     
     private static class FormUsernamePasswordGetter implements IUsernamePasswordGetter {

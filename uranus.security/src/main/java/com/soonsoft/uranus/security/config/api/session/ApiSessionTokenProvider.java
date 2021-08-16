@@ -38,12 +38,6 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
         return request != null && !StringUtils.isBlank(request.getHeader(sessionIdHeaderName));
     }
 
-    @Override
-    public Authentication refreshToken(String refreshToken) {
-        // Session 模式下无效
-        return null;
-    }
-
     //#endregion
 
     //#region ITokenStrategy
@@ -62,6 +56,12 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
     @Override
     public void updateToken(String token) {
         // Session 模式下无效
+    }
+
+    @Override
+    public String refreshToken(String refreshToken) {
+        // Session 模式下无效
+        return null;
     }
 
     //#endregion
