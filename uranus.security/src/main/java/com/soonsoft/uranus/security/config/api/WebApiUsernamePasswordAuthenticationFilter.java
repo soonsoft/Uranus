@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
 import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -83,7 +84,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         if(ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
             JWTAuthenticationToken jwtAuthenticationToken = 
                 new JWTAuthenticationToken(authentication.getPrincipal(), authentication.getAuthorities());
-            tokenProvider.getTokenStrategy().updateRefreshToken(jwtAuthenticationToken.getRefreshToken());
+            ((JWTTokenProvider) tokenProvider).getTokenStrategy().updateRefreshToken(jwtAuthenticationToken);
             authentication = jwtAuthenticationToken;
         }
         return authentication;
@@ -121,14 +122,14 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
 	}
 
     protected Authentication refreshAuthenticate(String refreshToken) {
-        if(!StringUtils.isEmpty(refreshToken)) {
+        if(StringUtils.isEmpty(refreshToken)) {
             return null;
         }
         if(!tokenProvider.getTokenStrategy().checkRefreshToken(refreshToken)) {
             return null;
         }
-        JWTAuthenticationToken authentication = (JWTAuthenticationToken) tokenProvider.refreshToken(refreshToken);
-        tokenProvider.getTokenStrategy().updateRefreshToken(authentication.getRefreshToken());
+        JWTAuthenticationToken authentication = (JWTAuthenticationToken) tokenProvider.getTokenStrategy().refreshToken(refreshToken);
+        ((JWTTokenProvider) tokenProvider).getTokenStrategy().updateRefreshToken(authentication);
         return authentication;
     }
     

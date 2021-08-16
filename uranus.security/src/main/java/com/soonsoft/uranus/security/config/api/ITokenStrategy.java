@@ -20,23 +20,24 @@ public interface ITokenStrategy<T> {
     T getToken(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
 
     /**
-     * 检查token是否有效
+     * 检查refresh-token是否有效
+     * 【注意】refresh-token有效期很长，但它是一次性的，只能验证一次，一定要确保验证后就失效
      * @param token
      * @return 有效返回true，无效返回false
      */
-    boolean checkToken(String token);
+    boolean checkRefreshToken(String refreshToken);
 
     /**
-     * 更新缓存中的token信息
-     * @param token token
-     */
-    void updateToken(String token);
-
-    /**
-     * 刷新 Token
+     * 刷新refresh-token
      * @param token token信息
-     * @return
+     * @return 返回新的返回AuthenticationToken
      */
     T refreshToken(String token);
+
+    /**
+     * 更新refresh-token，旧refresh-token会失效
+     * @param token 返回AuthenticationToken 对象
+     */
+    void updateRefreshToken(T token);
 
 }

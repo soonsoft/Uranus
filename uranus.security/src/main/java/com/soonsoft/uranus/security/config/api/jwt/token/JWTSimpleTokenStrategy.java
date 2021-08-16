@@ -38,14 +38,11 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
 
     @Override
     public boolean checkRefreshToken(String token) {
-        return this.tokenStorage == null ? true : tokenStorage.contains(token);
-    }
-
-    @Override
-    public void updateRefreshToken(String token) {
-        if(this.tokenStorage != null) {
-            this.tokenStorage.put(token);
+        boolean result = this.tokenStorage == null ? true : tokenStorage.contains(token);
+        if(result && this.tokenStorage != null) {
+            this.tokenStorage.remove(token);
         }
+        return result;
     }
 
     @Override
@@ -72,11 +69,21 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
         try {
             UserInfo userInfo = userManager.getUser(username);
             JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(userInfo, userInfo.getAuthorities());
+
             return jwtAuthenticationToken;
         } catch(Exception e) {
             LOGGER.error("get userInfo by username [" + username + "] failed.", e);
             return null;
         }
+    }
+
+    @Override
+    public void updateRefreshToken(JWTAuthenticationToken jwtAuthenticationToken) {
+
+        if(this.tokenStorage != null) {
+            this.tokenStorage.put(jwtAuthenticationToken.getRefreshToken());
+        }
+        
     }
     
 }

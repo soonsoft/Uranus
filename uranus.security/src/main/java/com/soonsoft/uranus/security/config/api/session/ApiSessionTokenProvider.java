@@ -54,14 +54,14 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
     }
 
     @Override
-    public void updateRefreshToken(String token) {
-        // Session 模式下无效
-    }
-
-    @Override
     public String refreshToken(String refreshToken) {
         // Session 模式下无效
         return null;
+    }
+
+    @Override
+    public void updateRefreshToken(String token) {
+        // Session 模式下无效
     }
 
     //#endregion
