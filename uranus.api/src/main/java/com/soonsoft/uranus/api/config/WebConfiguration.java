@@ -96,23 +96,26 @@ public class WebConfiguration implements WebMvcConfigurer {
         return WebApplicationContext.getInstance();
     }
 
-    // @Bean
-    // public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
-    //     IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
-    //     // Web-API应用程序（多页应用），身份验证配置
-    //     String sessionIdHeader = securityProperties.getAccessTokenHeaderName();
-    //     WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
-    //         WebApplicationSecurityConfigType.API, new ApiSessionConfigurer(sessionIdHeader, requestHook));
-    //     factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
-    //         initUserManager(userManager);
-    //         initRoleManager(roleManager);
-    //         initFunctionManager(functionManager);
-    //     });
-    //     return factory;
-    // }
-
     @Bean
     public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
+        return createJWTFactory();
+    }
+
+    protected WebApplicationSecurityConfigFactory createSesstionIdFactory() {
+        IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
+        // Web-API应用程序（多页应用），身份验证配置
+        String sessionIdHeader = securityProperties.getAccessTokenHeaderName();
+        WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
+            WebApplicationSecurityConfigType.API, new ApiSessionConfigurer(sessionIdHeader, requestHook));
+        factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
+            initUserManager(userManager);
+            initRoleManager(roleManager);
+            initFunctionManager(functionManager);
+        });
+        return factory;
+    }
+
+    protected WebApplicationSecurityConfigFactory createJWTFactory() {
         // Web-API应用程序（单页应用），身份验证配置
         String accessTokenHeaderName = securityProperties.getAccessTokenHeaderName();
         WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(

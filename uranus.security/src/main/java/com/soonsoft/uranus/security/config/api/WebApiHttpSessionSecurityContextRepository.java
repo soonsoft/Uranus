@@ -28,8 +28,7 @@ public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecur
         HttpServletRequest request = requestResponseHolder.getRequest();
         HttpServletResponse response = requestResponseHolder.getResponse();
 
-        boolean isSessionMode = tokenProvider instanceof ISessionIdStrategy;
-        if(isSessionMode) {
+        if(ITokenProvider.SESSION_ID_TYPE.equals(tokenProvider.getTokenType())) {
             // API适配SessionId
             ((ISessionIdStrategy) tokenProvider).updateSessionId(request, response);
         } 
@@ -42,7 +41,7 @@ public class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecur
             return securityContext;
         }
 
-        if(!isSessionMode) {
+        if(ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
             // API适配JWT-Token
             setJWTAuthentication(securityContext, request, response);
         }
