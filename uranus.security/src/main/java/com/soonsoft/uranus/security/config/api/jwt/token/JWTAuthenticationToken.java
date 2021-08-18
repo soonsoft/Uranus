@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.security.config.api.jwt.token;
 
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +28,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
     private final static int DEFAULT_REFRESH_TOKEN_EXPIRE_MINUTES = 21600;
 
     private final Object principal;
+    private final Date issuedTime;
     // AccessToken 有效时间，单位：分钟，默认值（2小时）
     private Date accessTokenExpireTime;
     // RefreshToken 有效时间，单位：分钟，默认值（15天）
@@ -41,6 +41,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         super.setAuthenticated(true);
         this.principal = principal;
 
+        this.issuedTime = new Date();
         setAccessTokenExpireTime(DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES);
         setRefreshTokenExpireTime(DEFAULT_REFRESH_TOKEN_EXPIRE_MINUTES);
     }
@@ -60,6 +61,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         }
         
         String token = JWT.create()
+            .withIssuedAt(issuedTime)
             .withExpiresAt(accessTokenExpireTime)
             .withHeader(header)
             .withClaim("userId", userInfo.getUserId())
@@ -80,6 +82,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         UserInfo userInfo = (UserInfo) getPrincipal();
         
         String token = JWT.create()
+            .withIssuedAt(issuedTime)
             .withExpiresAt(refreshTokenExpireTime)
             .withHeader(header)
             .withClaim("username", userInfo.getUsername())
@@ -120,10 +123,9 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         return principal;
     }
 
-    private static Date getExpireTime(int minutes) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, minutes);
-        return calendar.getTime();
+    private Date getExpireTime(long minutes) {
+        long expireTime = issuedTime.getTime() + minutes * 60L * 1000L;
+        return new Date(expireTime);
     }
 
     public static JWTAuthenticationToken parse(String token) {

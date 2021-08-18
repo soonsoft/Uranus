@@ -46,6 +46,7 @@ public class JWTAuthenticationTokenTest {
 
        JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getAuthorities());
        String refreshToken = jwtAuthenticationToken.getRefreshToken();
+       System.out.println(refreshToken);
        Assert.assertTrue(refreshToken.equals(jwtAuthenticationToken.getRefreshToken()));
 
     }
