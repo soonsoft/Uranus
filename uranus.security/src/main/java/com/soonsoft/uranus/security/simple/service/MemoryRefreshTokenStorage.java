@@ -27,5 +27,10 @@ public class MemoryRefreshTokenStorage implements ITokenStorage {
     public void set(String key, String token) {
         refreshTokenStore.put(key, token);
     }
+
+    @Override
+    public String get(String key) {
+        return refreshTokenStore.get(key);
+    }
     
 }

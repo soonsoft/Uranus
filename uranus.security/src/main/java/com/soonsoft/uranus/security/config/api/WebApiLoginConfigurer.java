@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.Authentication;
@@ -130,9 +131,17 @@ public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         @Override
         public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                 AuthenticationException exception) throws IOException, ServletException {
-            final Integer statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+                
+            Integer statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+            String message = "Incorrect username or password.";
+            
+            if(exception instanceof BadCredentialsException) {
+                statusCode = HttpStatus.UNAUTHORIZED.value();
+                message = exception.getMessage();
+            }
+
             response.setStatus(statusCode);
-            response.getWriter().print(new SecurityResult(statusCode, "Incorrect username or password."));
+            response.getWriter().print(new SecurityResult(statusCode, message));
         }
 
     }

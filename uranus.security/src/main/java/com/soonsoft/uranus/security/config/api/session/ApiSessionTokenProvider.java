@@ -48,9 +48,9 @@ public class ApiSessionTokenProvider implements ITokenProvider<String>, ITokenSt
     }
 
     @Override
-    public boolean checkRefreshToken(String token) {
+    public String checkRefreshToken(String token) {
         // Session 模式下无效
-        return false;
+        return null;
     }
 
     @Override

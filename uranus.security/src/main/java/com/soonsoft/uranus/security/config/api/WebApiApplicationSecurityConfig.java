@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.security.config.api;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
+import com.soonsoft.uranus.security.config.api.jwt.JWTConfigurer;
+import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
+import com.soonsoft.uranus.security.entity.UserInfo;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfig {
@@ -33,6 +38,7 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
 
     @Override
     public void config(HttpSecurity http) {
+        final LogoutHandler logoutHandler = getLogoutHandler();
         try {
             http.requestMatchers()
                     .antMatchers("/**")
@@ -45,6 +51,9 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
                 .and()
                     .csrf().disable()
                 .logout(logout -> {
+                    if(logoutHandler != null) {
+                        logout.addLogoutHandler(logoutHandler);
+                    }
                     logout.logoutSuccessHandler(new WebApiLogoutSuccessHandler());
                     logout.logoutUrl(SecurityConfigUrlConstant.WebAplLogoutUrl).permitAll();
                 })
@@ -55,6 +64,32 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
         } catch (Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
         }
+    }
+
+    protected LogoutHandler getLogoutHandler() {
+        List<ICustomConfigurer> configurerList = getConfigurerList();
+        if(configurerList != null) {
+            for(ICustomConfigurer configurer : configurerList) {
+                if(configurer instanceof JWTConfigurer) {
+                    final ITokenStorage tokenStorage = ((JWTConfigurer) configurer).getTokenStorage();
+                    return new LogoutHandler(){
+                        @Override
+                        public void logout(HttpServletRequest request, HttpServletResponse response,
+                                Authentication authentication) {
+                            
+                            if(authentication instanceof JWTAuthenticationToken) {
+                                JWTAuthenticationToken jwtAuthenticationToken = (JWTAuthenticationToken) authentication;
+                                String username = ((UserInfo) jwtAuthenticationToken.getPrincipal()).getUsername();
+                                tokenStorage.remove(username);
+                            }
+
+                        }
+                        
+                    };
+                }
+            }
+        }
+        return null;
     }
 
     private static class WebApiAuthenticationEntryPoint implements AuthenticationEntryPoint {

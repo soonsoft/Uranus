@@ -57,6 +57,10 @@ public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
         }
     }
 
+    protected List<ICustomConfigurer> getConfigurerList() {
+        return this.configurerList;
+    }
+
     protected void setConfig(HttpSecurity http) {
         if(configurerList != null) {
             configurerList.forEach(c -> c.config(http));

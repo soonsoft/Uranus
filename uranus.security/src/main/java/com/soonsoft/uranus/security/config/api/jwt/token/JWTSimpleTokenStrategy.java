@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.security.config.api.jwt.token;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,38 +39,40 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
     }
 
     @Override
-    public boolean checkRefreshToken(String refreshToken) {
+    public String checkRefreshToken(String refreshToken) {
+        String jti = null;
         if(this.tokenStorage != null) {
             try {
                 DecodedJWT jwt = JWT.decode(refreshToken);
-                String key = jwt.getClaim("username").asString();
-                if(tokenStorage.contains(key, refreshToken)) {
-                    tokenStorage.remove(key);
+                Date expiresAt = jwt.getExpiresAt();
+                if(expiresAt != null) {
+                    if(expiresAt.getTime() < System.currentTimeMillis()) {
+                        return null;
+                    }
+                }
+                jti = jwt.getId();
+                jti = StringUtils.isBlank(jti) ? null : jti;
+                if(jti != null && tokenStorage.contains(jti, refreshToken)) {
+                    tokenStorage.remove(jti);
+                } else {
+                    return null;
                 }
             } catch(JWTDecodeException e) {
                 LOGGER.warn("the refreshToken {} decode failed.", refreshToken);
-                return false;
+                return null;
             }
         }
-        return true;
+        return jti;
     }
 
     @Override
-    public JWTAuthenticationToken refreshToken(String refreshToken) {
+    public JWTAuthenticationToken refreshToken(String jti) {
         IUserManager userManager = SecurityManager.current().getUserManager();
         if(userManager == null) {
             return null;
         }
 
-        String username = null;
-
-        try {
-            DecodedJWT jwt = JWT.decode(refreshToken);
-            username = jwt.getClaim("username").asString();
-        } catch(JWTDecodeException e) {
-            LOGGER.warn("the refreshToken {} decode failed.", refreshToken);
-            return null;
-        }
+        String username = jti;
 
         if(StringUtils.isEmpty(username)) {
             return null;
@@ -77,7 +81,6 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
         try {
             UserInfo userInfo = userManager.getUser(username);
             JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(userInfo, userInfo.getAuthorities());
-
             return jwtAuthenticationToken;
         } catch(Exception e) {
             LOGGER.error("get userInfo by username [" + username + "] failed.", e);
@@ -89,8 +92,8 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
     public void updateRefreshToken(JWTAuthenticationToken jwtAuthenticationToken) {
 
         if(this.tokenStorage != null) {
-            String key = ((UserInfo) jwtAuthenticationToken.getPrincipal()).getUsername();
-            this.tokenStorage.set(key, jwtAuthenticationToken.getRefreshToken());
+            String jti = ((UserInfo) jwtAuthenticationToken.getPrincipal()).getUsername();
+            this.tokenStorage.set(jti, jwtAuthenticationToken.getRefreshToken());
         }
         
     }

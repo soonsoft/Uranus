@@ -62,5 +62,9 @@ public class JWTConfigurer implements ICustomConfigurer {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }
     }
+
+    public ITokenStorage getTokenStorage() {
+        return this.tokenStorage;
+    }
     
 }

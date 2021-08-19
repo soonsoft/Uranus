@@ -85,7 +85,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
             .withIssuedAt(issuedTime)
             .withExpiresAt(refreshTokenExpireTime)
             .withHeader(header)
-            .withClaim("username", userInfo.getUsername())
+            .withJWTId(userInfo.getUsername())
             .sign(algorithm);
             
         return token;
@@ -105,6 +105,10 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         this.accessTokenExpireTime = getExpireTime(minutes);
     }
 
+    public void setAccessTokenExpireTime(Date accessTokenExpireTime) {
+        this.accessTokenExpireTime = accessTokenExpireTime;
+    }
+
     public Date getRefreshTokenExpireTime() {
         return refreshTokenExpireTime;
     }
@@ -112,6 +116,10 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
     public void setRefreshTokenExpireTime(int refreshTokenExpireMinutes) {
         int minutes = refreshTokenExpireMinutes > 0 ? refreshTokenExpireMinutes : DEFAULT_REFRESH_TOKEN_EXPIRE_MINUTES;
         this.refreshTokenExpireTime = getExpireTime(minutes);
+    }
+
+    public void setRefreshTokenExpireTime(Date refreshTokenExpireTime) {
+        this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
     public void setSecret(String secret) {
@@ -134,6 +142,13 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         }
 
         DecodedJWT jwt = JWT.decode(token);
+
+        Date expiresAt = jwt.getExpiresAt();
+        if(expiresAt != null) {
+            if(expiresAt.getTime() < System.currentTimeMillis()) {
+                return null;
+            }
+        }
             
         String username = jwt.getClaim("username").asString();
         UserInfo userInfo = new UserInfo(username);
@@ -144,6 +159,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         }
 
         JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(userInfo, authorities);
+        jwtAuthenticationToken.setAccessTokenExpireTime(expiresAt);
         return jwtAuthenticationToken;
     }
 

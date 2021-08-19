@@ -20,19 +20,19 @@ public interface ITokenStrategy<T> {
     T getToken(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
 
     /**
-     * 检查refresh-token是否有效
+     * 检查refresh-token是否有效，并返回jlt
      * 【注意】refresh-token有效期很长，但它是一次性的，只能验证一次，一定要确保验证后就失效
      * @param token
-     * @return 有效返回true，无效返回false
+     * @return 返回jlt（唯一标识），如果为null意味着refresh-token无效
      */
-    boolean checkRefreshToken(String refreshToken);
+    String checkRefreshToken(String refreshToken);
 
     /**
      * 刷新refresh-token
-     * @param token token信息
+     * @param jlt 唯一标识
      * @return 返回新的返回AuthenticationToken
      */
-    T refreshToken(String token);
+    T refreshToken(String jlt);
 
     /**
      * 更新refresh-token，旧refresh-token会失效

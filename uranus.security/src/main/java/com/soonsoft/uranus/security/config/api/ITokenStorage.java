@@ -7,5 +7,7 @@ public interface ITokenStorage {
     void remove(String key);
 
     void set(String key, String token);
+
+    String get(String key);
     
 }

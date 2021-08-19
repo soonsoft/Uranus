@@ -7,6 +7,7 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
 import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -63,7 +64,11 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         request.removeAttribute(SECURITY_PROCESSING_TYPE);
         if(REFRESH_TYPE.equals(processingType)) {
             String refreshToken = refreshTokenGetter == null ? null : refreshTokenGetter.getRefreshToken(request);
-            return refreshAuthenticate(refreshToken);
+            Authentication authentication = refreshAuthenticate(refreshToken);
+            if(authentication == null) {
+                throw new BadCredentialsException("Refresh Token is invalid.");
+            }
+            return authentication;
         }
 
         String username = null;
@@ -125,10 +130,11 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         if(StringUtils.isEmpty(refreshToken)) {
             return null;
         }
-        if(!tokenProvider.getTokenStrategy().checkRefreshToken(refreshToken)) {
+        String jti = tokenProvider.getTokenStrategy().checkRefreshToken(refreshToken);
+        if(jti == null) {
             return null;
         }
-        JWTAuthenticationToken authentication = (JWTAuthenticationToken) tokenProvider.getTokenStrategy().refreshToken(refreshToken);
+        JWTAuthenticationToken authentication = (JWTAuthenticationToken) tokenProvider.getTokenStrategy().refreshToken(jti);
         ((JWTTokenProvider) tokenProvider).getTokenStrategy().updateRefreshToken(authentication);
         return authentication;
     }
