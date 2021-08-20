@@ -3,6 +3,7 @@ package com.soonsoft.uranus.api.controller.advice;
 import com.soonsoft.uranus.api.model.APIResult;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 import com.soonsoft.uranus.web.mvc.model.IResultData;
+import com.soonsoft.uranus.web.mvc.model.PagingList;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -37,6 +38,10 @@ public class APIResultAdvice implements ResponseBodyAdvice<Object> {
 
         if(body instanceof APIResult) {
             return body;
+        }
+
+        if(body instanceof PagingList) {
+            return APIResult.create(body, ((PagingList<?>) body).getPageTotal());
         }
 
         if(body instanceof IResultData) {

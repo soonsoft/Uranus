@@ -3,7 +3,7 @@ package com.soonsoft.uranus.api.controller.product;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.soonsoft.uranus.api.model.APIResult;
+import com.soonsoft.uranus.web.mvc.model.PagingList;
 import com.soonsoft.uranus.web.mvc.model.RequestData;
 
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ import org.springframework.web.client.HttpServerErrorException;
 public class ProductController {
 
     @GetMapping("/list")
-    public APIResult getProductList() {
+    public PagingList<String> getProductList() {
         List<String> list = new ArrayList<>();
         list.add("iPhone 11");
         list.add("iPhone 11 Pro");
@@ -31,7 +31,7 @@ public class ProductController {
         list.add("iPhone 12 Pro");
         list.add("iPhone 12 Pro MAX");
 
-        return APIResult.create(list);
+        return new PagingList<>(list);
     }
 
     @PostMapping("/add")
