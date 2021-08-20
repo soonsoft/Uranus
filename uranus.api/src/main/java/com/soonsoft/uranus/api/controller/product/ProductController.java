@@ -3,6 +3,9 @@ package com.soonsoft.uranus.api.controller.product;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
+import com.soonsoft.uranus.api.model.req.ProductReq;
 import com.soonsoft.uranus.web.mvc.model.PagingList;
 import com.soonsoft.uranus.web.mvc.model.RequestData;
 
@@ -35,7 +38,7 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public void addProduct(@RequestBody RequestData parameter) {
+    public void addProduct(@Valid @RequestBody ProductReq product) {
     }
 
     @PutMapping("/edit")

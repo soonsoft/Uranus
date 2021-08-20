@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-        <spring-boot-version>2.5.3</spring-boot-version>
+        <spring-boot-version>2.5.4</spring-boot-version>
         <spring-version>5.3.9</spring-version>
         <spring-security-version>5.5.2</spring-security-version>
     </properties>
@@ -63,6 +63,7 @@
                 <version>${spring-security-version}</version>
             </dependency>
 
+
             <!-- SpringBoot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -78,6 +79,12 @@
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>2.2.0</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-validation</artifactId>
+                <version>${spring-boot-version}</version>
             </dependency>
 
             <!-- Apache Commons -->
@@ -174,19 +181,17 @@
                 <version>1.2.5</version>
             </dependency>
 
-            <!-- JSR-303 -->
-            <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
+            <!-- JSR-303 
             <dependency>
                 <groupId>javax.validation</groupId>
                 <artifactId>validation-api</artifactId>
                 <version>2.0.1.Final</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>7.0.1.Final</version>
-            </dependency>
+            </dependency>-->
 
             <!-- Test -->
             <!-- https://mvnrepository.com/artifact/junit/junit -->

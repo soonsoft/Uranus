@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.web.error;
 
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
@@ -9,6 +11,7 @@ import com.soonsoft.uranus.web.error.properties.ErrorMessageProperties;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 public abstract class WebErrorCommonHandler {
 
@@ -18,7 +21,7 @@ public abstract class WebErrorCommonHandler {
     private final static String HTTP_STATUS_CODE = "javax.servlet.error.status_code";
 
     private final static Predicate1<Throwable> messageExceptionPredicate = e -> {
-        return e instanceof BusinessException || e instanceof IllegalArgumentException || e instanceof WebActionException;
+        return e instanceof BusinessException || e instanceof IllegalArgumentException || e instanceof WebActionException || e instanceof MethodArgumentNotValidException;
     };
 
     public static WebErrorModel buildWebErrorModel(HttpStatus status, Throwable exception, ErrorMessageProperties errorPageProperties) {
@@ -26,10 +29,10 @@ public abstract class WebErrorCommonHandler {
     }
 
     public static WebErrorModel buildWebErrorModel(
-        HttpStatus status, 
-        Throwable exception, 
-        ErrorMessageProperties errorPageProperties, 
-        Predicate1<Throwable> messageExceptionPredicate) {
+        final HttpStatus status, 
+        final Throwable exception, 
+        final ErrorMessageProperties errorPageProperties, 
+        final Predicate1<Throwable> messageExceptionPredicate) {
         
         
         WebErrorModel model = new WebErrorModel();
@@ -59,8 +62,12 @@ public abstract class WebErrorCommonHandler {
         }
 
         // 如果有异常信息，则用异常信息覆盖
-        if(model.getException() != null && (messageExceptionPredicate != null && messageExceptionPredicate.test(model.getException()))) {
-            message = model.getException().getMessage();
+        if(exception != null && (messageExceptionPredicate != null && messageExceptionPredicate.test(exception))) {
+            if(exception instanceof MethodArgumentNotValidException) {
+                message = getMethodArgumentNotValidExceptionMessage((MethodArgumentNotValidException) exception);
+            } else {
+                message = model.getException().getMessage();
+            }
         }
 
         if(StringUtils.isEmpty(message)) {
@@ -86,6 +93,10 @@ public abstract class WebErrorCommonHandler {
                 return HttpStatus.INTERNAL_SERVER_ERROR;
             }
         }
+    }
+
+    private static String getMethodArgumentNotValidExceptionMessage(MethodArgumentNotValidException e) {
+        return e.getAllErrors().stream().map(p -> p.getDefaultMessage()).collect(Collectors.joining(","));
     }
 
 
