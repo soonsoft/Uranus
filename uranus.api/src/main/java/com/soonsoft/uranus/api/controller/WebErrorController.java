@@ -43,6 +43,7 @@ public class WebErrorController implements ErrorController {
 
 
     @RequestMapping(value = "${server.error.path:${error.path:/error}}")
+    @ResponseBody
     public ResponseEntity<APIResult> error(
             HttpServletRequest request,
             HttpServletResponse response) {

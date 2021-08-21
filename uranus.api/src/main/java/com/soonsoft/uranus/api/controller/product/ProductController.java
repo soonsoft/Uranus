@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.soonsoft.uranus.api.model.req.ProductReq;
+import com.soonsoft.uranus.api.model.vo.ProductInfo;
+import com.soonsoft.uranus.api.model.vo.ProductVO;
 import com.soonsoft.uranus.web.mvc.model.PagingList;
-import com.soonsoft.uranus.web.mvc.model.RequestData;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -25,7 +26,7 @@ import org.springframework.web.client.HttpServerErrorException;
 public class ProductController {
 
     @GetMapping("/list")
-    public PagingList<String> getProductList() {
+    public PagingList<String> getProductList(@RequestParam Integer pageIndex, @RequestParam Integer pageSize) {
         List<String> list = new ArrayList<>();
         list.add("iPhone 11");
         list.add("iPhone 11 Pro");
@@ -38,11 +39,11 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public void addProduct(@Valid @RequestBody ProductReq product) {
+    public void addProduct(@Valid @RequestBody ProductInfo product) {
     }
 
     @PutMapping("/edit")
-    public void editProduct(@RequestBody RequestData parameter) {
+    public void editProduct(@Valid @RequestBody ProductVO product) {
     }
 
     @DeleteMapping("/remove")

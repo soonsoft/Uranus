@@ -42,6 +42,7 @@ public abstract class StringUtils {
     }
 
     public static String format(String input, String... parts) {
+        // TODO 实现 format("aaa{0},bbb{1}", "1", "2") = aaa1,bbb2;
         return input;
     }
 }
