@@ -1,0 +1,882 @@
+/* 菜单按钮 */
+.ui-menu-button .menu-button-img {
+  position: relative;
+  margin-left: 8px;
+  margin-top: 8px;
+  width: 32px;
+  height: 32px;
+  border: none 0;
+}
+.ui-menu-button-show {
+  opacity: 1;
+}
+.ui-menu-button .menu-button-background {
+  display: none;
+  position: absolute;
+  width: 48px;
+  height: 100%;
+}
+.ui-menu-button:hover .menu-button-background {
+  display: inline-block;
+}
+.ui-menu-button:active .menu-button-background {
+  opacity: 0.7;
+}
+.ui-menu-button-show .menu-button-background {
+  display: inline-block;
+}
+/* 默认风格的汉堡菜单 */
+.normal-hamburg .menu-inner-line {
+  background-color: #fff;
+  width: 24px;
+  height: 2px;
+  display: block;
+  position: absolute;
+  left: 12px;
+}
+.normal-hamburg b.a {
+  top: 17px;
+  -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate3d(0, 0, 0) rotate(0deg);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate3d(0, 0, 0) rotate(0deg);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate3d(0, 0, 0) rotate(0deg);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.normal-hamburg b.b {
+  top: 23px;
+  opacity: 1;
+  -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  -o-transform: translate3d(0, 0, 0) rotate(0deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  -ms-transform: translate3d(0, 0, 0) rotate(0deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  -moz-transform: translate3d(0, 0, 0) rotate(0deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s;
+}
+.normal-hamburg b.c {
+  bottom: 17px;
+  -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate3d(0, 0, 0) rotate(0deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate3d(0, 0, 0) rotate(0deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate3d(0, 0, 0) rotate(0deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.normal-hamburg-close b.a {
+  -webkit-transform: translate3d(0, 8px, 0) rotate(45deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -o-transform: translate3d(0, 6px, 0) rotate(45deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -ms-transform: translate3d(0, 6px, 0) rotate(45deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -moz-transform: translate3d(0, 6px, 0) rotate(45deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  transform: translate3d(0, 6px, 0) rotate(45deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+}
+.normal-hamburg-close b.b {
+  opacity: 0;
+  -webkit-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -o-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -ms-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -moz-transform: translate3d(4px, 0, 0) rotate(-180deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  transform: translate3d(4px, 0, 0) rotate(-180deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+}
+.normal-hamburg-close b.c {
+  -webkit-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -o-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -ms-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  -moz-transform: translate3d(0, -6px, 0) rotate(-45deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+  transform: translate3d(0, -6px, 0) rotate(-45deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 50ms;
+}
+/* 现代风格的汉堡菜单 */
+.modern-hamburg .menu-inner-line {
+  background-color: #fff;
+  width: 24px;
+  height: 2px;
+  display: block;
+  position: absolute;
+  left: 12px;
+}
+.modern-hamburg b.a {
+  top: 17px;
+  opacity: 1;
+  -webkit-transform: translate(0, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -o-transform: translate(0, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -ms-transform: translate(0, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -moz-transform: translate(0, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  transform: translate(0, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+}
+.modern-hamburg b.b {
+  top: 23px;
+  -webkit-transform: rotate(0deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: rotate(0deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: rotate(0deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: rotate(0deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: rotate(0deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.modern-hamburg b.c {
+  bottom: 17px;
+  opacity: 1;
+  -webkit-transform: translate(0, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -o-transform: translate(0, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -ms-transform: translate(0, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  -moz-transform: translate(0, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+  transform: translate(0, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s, opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.35s;
+}
+.modern-hamburg-close b.a {
+  opacity: 0;
+  -webkit-transform: translate(24px, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate(24px, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate(24px, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate(24px, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate(24px, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.modern-hamburg-close b.b {
+  -webkit-transform: rotate(90deg);
+  -webkit-transition: -webkit-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  -o-transform: rotate(90deg);
+  -o-transition: -o-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  -ms-transform: rotate(90deg);
+  -ms-transition: -ms-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  -moz-transform: rotate(90deg);
+  -moz-transition: -moz-transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+  transform: rotate(90deg);
+  transition: transform 0.35s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s;
+}
+.modern-hamburg-close b.c {
+  opacity: 0;
+  -webkit-transform: translate(-12px, 0);
+  -webkit-transition: -webkit-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -o-transform: translate(-12px, 0);
+  -o-transition: -o-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -ms-transform: translate(-12px, 0);
+  -ms-transition: -ms-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  -moz-transform: translate(-12px, 0);
+  -moz-transition: -moz-transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transform: translate(-12px, 0);
+  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.35s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+/* 内容区域 */
+.content-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+}
+/* 菜单面板 */
+.ui-menu-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  z-index: 100;
+  display: block;
+}
+/* 收窄的菜单面板 */
+.ui-menu-panel-narrow {
+  width: 48px;
+}
+.ui-menu-panel b,
+.ui-menu-panel u {
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-weight: normal !important;
+  text-decoration: none !important;
+}
+.ui-menu-panel .menu-list {
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.ui-menu-panel .direct {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  display: inline-block;
+  width: 100%;
+  background-color: #000;
+  opacity: 0;
+}
+.ui-menu-panel .direct:hover {
+  text-decoration: none;
+}
+/* IE8兼容性 */
+.ui-menu-panel .direct:active {
+  background-color: #000;
+}
+.ui-menu-panel .menu-item-background {
+  width: 100%;
+  height: 100%;
+  position: absolute !important;
+  display: none;
+  top: 0;
+  left: 0;
+}
+.ui-menu-panel .menu-item-color {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  opacity: 0.2;
+}
+.ui-menu-panel .menu-item-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.ui-menu-panel .allow {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  position: absolute;
+  right: 8px;
+  top: 12px;
+  text-align: center;
+  line-height: 24px;
+}
+.ui-menu-panel .menu-item-container .allow {
+  left: 100%;
+}
+/* 菜单项 dt */
+.ui-menu-panel .menu-item {
+  height: 48px;
+  font-size: 15px;
+  position: relative;
+}
+.ui-menu-panel .menu-item .menu-item-container {
+  position: absolute;
+  width: auto;
+  left: 0;
+  right: 32px;
+}
+.ui-menu-panel-narrow .menu-item .menu-item-container {
+  overflow: hidden;
+  width: 48px;
+}
+.ui-menu-panel .menu-item-text {
+  margin-left: 8px;
+  line-height: 48px;
+}
+.ui-menu-panel .icon {
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  vertical-align: top;
+  margin-left: 8px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.ui-menu-panel .icon-img {
+  height: 100%;
+  width: 100%;
+  vertical-align: top;
+  margin: 0;
+  border: none 0;
+}
+/* 普通风格的子菜单面板 dd */
+.ui-menu-panel .submenu-panel {
+  display: none;
+  height: 0;
+  overflow: hidden;
+  position: relative;
+}
+.ui-menu-panel .submenu-panel .submenu-list {
+  cursor: pointer;
+  position: absolute;
+  width: 100%;
+}
+.ui-menu-panel .submenu-panel .submenu-item {
+  height: 30px;
+  line-height: 30px;
+  font-size: 13px;
+  position: relative;
+}
+.ui-menu-panel .submenu-panel .submenu-item-text {
+  margin-left: 47px;
+}
+/* 现代菜单的弹出子菜单面板 */
+.ui-menu-panel .submenu-slide-panel {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+  display: none;
+  top: 0;
+  left: 0;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  opacity: 0.1;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-list {
+  overflow: hidden;
+  position: relative;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-item {
+  width: 100%;
+  height: 48px;
+  line-height: 48px;
+  position: relative;
+}
+.ui-menu-panel .submenu-slide-panel .submenu-item-text {
+  margin-left: 16px;
+}
+/* 交互样式 */
+.ui-menu-panel .menu-item,
+.ui-menu-panel .submenu-item {
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  -icab-text-overflow: ellipsis;
+  -khtml-text-overflow: ellipsis;
+  -moz-text-overflow: ellipsis;
+  -webkit-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  opacity: 0.65;
+  cursor: pointer;
+}
+.ui-menu-panel .menu-item:hover,
+.ui-menu-panel .submenu-item:hover {
+  opacity: 1;
+}
+.ui-menu-panel .menu-item:hover .menu-item-background,
+.ui-menu-panel .submenu-item:hover .menu-item-background {
+  display: block;
+}
+.ui-menu-panel .menu-item:active .menu-item-color,
+.ui-menu-panel .submenu-item:active .menu-item-color {
+  background-color: #000;
+}
+.ui-menu-panel .selection-menu,
+.ui-menu-panel .current-menu {
+  opacity: 1;
+}
+
+.ui-tile-container {
+  position: relative;
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+}
+.ui-tile-container .tile-margin {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  visibility: hidden;
+  top: 0px;
+  left: 0px;
+}
+.ui-tile-group {
+  position: absolute;
+}
+.ui-tile-group-title {
+  width: 100%;
+  height: 48px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 64px;
+  overflow: hidden;
+  font-size: 18px;
+}
+.ui-tile-group-content {
+  width: 100%;
+  position: absolute;
+  top: 48px;
+  left: 0;
+  overflow: visible;
+}
+.ui-tile {
+  position: absolute;
+  overflow: visible;
+  font-family: 'Microsoft YaHei light', 'Microsoft YaHei';
+}
+.tile-small {
+  width: 62px;
+  height: 62px;
+}
+.tile-medium {
+  width: 128px;
+  height: 128px;
+}
+.tile-wide {
+  width: 260px;
+  height: 128px;
+}
+.tile-large {
+  width: 260px;
+  height: 260px;
+}
+.ui-tile .tile-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+}
+.ui-tile .tile-link {
+  cursor: pointer;
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background-color: #000;
+  opacity: 0;
+}
+.ui-tile .tile-link:active {
+  opacity: 0.4;
+}
+.ui-tile .tile-content {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.ui-tile .tile-inner .update-panel {
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  color: #fff;
+}
+.ui-tile .tile-inner .update-inner {
+  margin: 10px;
+  padding: 0;
+  line-height: 16px;
+}
+.ui-tile .tile-title {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  overflow: hidden;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+  color: #fff;
+}
+.ui-tile .tile-title-text {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.ui-tile .tile-icon {
+  position: absolute;
+}
+.ui-tile .tile-small-icon {
+  position: absolute;
+  display: block;
+  width: 32px;
+  height: 32px;
+  right: 5px;
+  bottom: 5px;
+}
+.ui-tile .tile-small-icon-show {
+  display: block;
+}
+
+/* tile-calendar */
+/* 中 */
+.tile-medium .day-text,
+.tile-medium .week-text,
+.tile-medium .year-month-text {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  left: 0;
+}
+.tile-medium .day-text {
+  top: 18px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 48px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+}
+.tile-medium .week-text {
+  bottom: 40px;
+}
+.tile-medium .year-month-text {
+  bottom: 20px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+/* 宽 */
+.tile-wide .day-text,
+.tile-wide .week-text,
+.tile-wide .year-month-text,
+.tile-large .day-text,
+.tile-large .week-text,
+.tile-large .year-month-text {
+  position: absolute;
+  display: inline-block;
+  width: auto;
+  height: 20px;
+  line-height: 20px;
+}
+.tile-wide .day-text,
+.tile-large .day-text {
+  right: 10px;
+  bottom: 34px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 48px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+}
+.tile-wide .week-text,
+.tile-large .week-text {
+  left: 10px;
+  top: 10px;
+  font-size: 16px;
+}
+.tile-wide .year-month-text,
+.tile-large .year-month-text {
+  left: 10px;
+  top: 30px;
+  font-size: 16px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+}
+
+.tile-medium .clock-hour {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 50%;
+  top: 0;
+  left: 0;
+  font-size: 48px;
+  line-height: 72px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+}
+.tile-medium .clock-minute {
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 50%;
+  top: 50%;
+  left: 0;
+  font-size: 48px;
+  line-height: 40px;
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  opacity: 0.7;
+}
+.tile-medium .clock-spliter {
+  width: 60%;
+  margin-left: 20%;
+  background-color: #fff;
+  height: 1px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+}
+.tile-wide .clock-hour,
+.tile-large .clock-hour {
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-weight: bold;
+  font-size: 64px;
+}
+.tile-wide .clock-minute,
+.tile-large .clock-minute {
+  font-family: 'Segoe UI', 'Microsoft YaHei';
+  font-size: 64px;
+  opacity: 0.7;
+}
+.tile-wide .clock-spliter,
+.tile-large .clock-spliter {
+  font-size: 64px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.ui-tile .tile-picture-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.ui-tile .tile-picture {
+  position: absolute;
+  left: 0;
+  top: 0;
+  -webkit-transform: scale(1.5, 1.5);
+  -ms-transform: scale(1.5, 1.5);
+  -o-transform: scale(1.5, 1.5);
+  -moz-transform: scale(1.5, 1.5);
+  transform: scale(1.5, 1.5);
+}
+.ui-tile .tile-picture-play {
+  -webkit-transform: scale(1, 1);
+  -webkit-transition: -webkit-transform 8s linear 0s;
+  -ms-transform: scale(1, 1);
+  -ms-transition: -ms-transform 8s linear 0s;
+  -o-transform: scale(1, 1);
+  -o-transition: -o-transform 8s linear 0s;
+  -moz-transform: scale(1, 1);
+  -moz-transition: -moz-transform 8s linear 0s;
+  transform: scale(1, 1);
+  transition: transform 8s linear 0s;
+}
+
+.ui-tile .weather-graph {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+.ui-tile .weather-info {
+  position: absolute;
+  left: 0;
+  bottom: 5px;
+  width: 100%;
+  height: auto;
+  color: #fff;
+}
+.ui-tile .weather-city {
+  font-size: 13px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.ui-tile .weather-temperature {
+  font-weight: bold;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.ui-tile .weather-curr-temp {
+  display: inline-block;
+  font-size: 24px;
+  vertical-align: baseline;
+  margin-right: 10px;
+  font-family: "Segoe UI", "Microsoft YaHei";
+  font-weight: bold;
+}
+.ui-tile .weather-low-high {
+  display: inline-block;
+  font-size: 13px;
+  vertical-align: text-bottom;
+}
+.ui-tile .weather-description,
+.ui-tile .weather-wind {
+  font-size: 13px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.tile-large .weather-days {
+  width: 100%;
+  height: 100%;
+}
+.tile-large .weather-day {
+  height: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.tile-large .weather-item {
+  width: 100%;
+  height: 128px;
+  overflow: hidden;
+  opacity: 0;
+  background-color: #5CA9D5;
+  position: absolute;
+  left: 0;
+  bottom: 22px;
+}
+.tile-large .weather-handle {
+  width: 100%;
+  height: 22px;
+  line-height: 22px;
+  overflow: hidden;
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: 12px;
+}
+.tile-large .weather-current-handle {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.tile-large .weather-text {
+  margin-left: 5px;
+  color: #fff;
+}
+
+.user-settings {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+.user-settings-background {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 120px;
+}
+.user-settings .horizontal {
+  width: 220px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* 用户头像和用户信息 */
+.user-settings .user-info {
+  margin-top: 22px;
+  margin-bottom: 22px;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #fff;
+}
+.user-settings .protrait-cover {
+  width: 72px;
+  height: 72px;
+  border: solid 2px #fff;
+  border-radius: 50%;
+  overflow: hidden;
+  float: left;
+  margin-right: 10px;
+}
+.user-settings .protrait-img {
+  width: 100%;
+  height: 100%;
+}
+.user-settings .user-info-panel {
+  width: auto;
+  height: 72px;
+  overflow: hidden;
+  float: left;
+}
+.user-settings .user-info-text {
+  line-height: 1em;
+}
+/* 主题色 */
+.user-settings .highlight-panel {
+  padding-left: 10px;
+}
+.user-settings .highlight-group-title {
+  font-size: 14px;
+  line-height: 30px;
+  height: 24px;
+  font-weight: normal;
+}
+.user-settings .highlight-item {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  background-color: transparent;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-right: 8px;
+}
+.user-settings .highlight-item-checker {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: none;
+  text-align: center;
+  line-height: 24px;
+  opacity: 0.7;
+  color: #fff;
+}
+.user-settings .highlight-item-selected .highlight-item-checker {
+  display: block;
+}
+/* 操作列表 */
+.user-settings .operate-list {
+  width: 100%;
+}
+.user-settings .operate-list-ul {
+  list-style: none;
+  width: 100%;
+}
+.user-settings .operate-list-li {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  position: relative;
+}
+.user-settings .operate-text {
+  margin-left: 10px;
+}
+.user-settings .operate-list-anchor {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #000;
+  opacity: 0;
+}
+.user-settings .operate-list-anchor:active {
+  opacity: 0.3;
+}

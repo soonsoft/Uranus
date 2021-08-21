@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="shared/layout::layout_head(~{::title/text()},~{::links},~{::styles})">
+    <meta charset="UTF-8">
+    <title>COMMING SOON</title>
+    
+    <th:block th:fragment="links">
+    </th:block>
+
+    <th:block th:fragment="styles">
+    <style type="text/css">
+        .building { 
+            width: 100%; 
+            height: 18vh;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            text-align: center;
+            margin-top: -9vh;
+            font-weight: normal;
+            font-size: 16vh;
+            line-height: 16vh;
+            font-family: 'Segoe UI LIGHT', 'Microsoft YaHei Light', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .building-background {
+            background: linear-gradient(to right, #FDC30C 0%, #FE3D81 40%, #6626D4 50%, #0E97D3 70%);
+        }
+
+        .masked-copy {
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+        }
+    </style>
+    </th:block>
+</head>
+
+<body th:replace="shared/layout::layout_body(~{::#contains},~{::script})">
+    <div id="contains" class="content-container">
+        <h1 class="building font-highlight building-background masked-copy">COMING SOON</h1>
+    </div>
+    <script></script>
+</body>
+</html>

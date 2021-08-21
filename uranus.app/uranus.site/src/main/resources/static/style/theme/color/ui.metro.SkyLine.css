@@ -1,0 +1,106 @@
+/*
+	Color: #00C8F8
+	Name: 天际蓝
+*/
+.head-color {
+  background-color: #00C8F8;
+}
+.title-color {
+  background-color: #52DAFA;
+  color: #ffffff;
+}
+a {
+  color: #00C8F8;
+}
+.font-highlight {
+  color: #00C8F8 !important;
+}
+.font-highlight-hover:hover {
+  color: #00C8F8 !important;
+}
+.background-highlight {
+  background-color: #00C8F8 !important;
+  color: #ffffff !important;
+}
+.background-highlight-hover:hover,
+.background-highlight-active:active {
+  background-color: #00C8F8 !important;
+  color: #ffffff !important;
+}
+.border-highlight {
+  border-color: #00C8F8 !important;
+}
+.border-highlight-hover:hover {
+  border-color: #00C8F8 !important;
+}
+.tool-button:hover,
+.button-highlight {
+  color: #00C8F8;
+  border-color: #00C8F8;
+}
+.icon-button:active,
+.tool-button:active {
+  background-color: #00C8F8;
+  color: #ffffff;
+}
+.tools input[type="text"]:focus,
+.tools textarea:focus,
+.tools select:focus {
+  background-color: transparent;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #00C8F8;
+}
+input[type="radio"]:checked {
+  border-color: #00C8F8;
+  background-color: #00C8F8;
+}
+input[type="checkbox"]:checked {
+  border-color: #00C8F8;
+  background-color: #00C8F8;
+}
+.closable-button:hover {
+  color: #00C8F8;
+}
+::selection {
+  background-color: #00C8F8;
+  color: #ffffff;
+}
+::-moz-selection {
+  background-color: #00C8F8;
+  color: #ffffff;
+}
+/* UI Ctrls Style */
+/* dateChooser */
+.ui-date-chooser-panel .date-chooser-year-td:hover,
+.ui-date-chooser-panel .date-chooser-month-td:hover,
+.ui-date-chooser-panel .date-chooser-calendar-td:hover {
+  color: #00C8F8;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-prev:hover {
+  border-right-color: #00C8F8;
+}
+.ui-date-chooser-panel .date-chooser-next:hover {
+  border-left-color: #00C8F8;
+}
+/* 环形loading动画的主题色 */
+.page-progress.circles .circle::after {
+  background-color: #00C8F8 !important;
+}
+/* tag */
+.ui-tag-highlight {
+  background-color: #52DAFA;
+  border-color: #00C8F8;
+  color: #fff;
+}
+.ui-tag-highlight .ui-tag-close:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.4);
+}

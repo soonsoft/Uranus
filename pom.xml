@@ -16,10 +16,9 @@
         <module>uranus.configuration</module>
         <module>uranus.data</module>
         <module>uranus.web</module>
-        <module>uranus.site</module>
-        <module>uranus.api</module>
         <module>uranus.security</module>
         <module>uranus.services</module>
+        <module>uranus.app</module>
     </modules>
 
     <properties>
@@ -180,18 +179,6 @@
                 <artifactId>logback-classic</artifactId>
                 <version>1.2.5</version>
             </dependency>
-
-            <!-- JSR-303 
-            <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>2.0.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>7.0.1.Final</version>
-            </dependency>-->
 
             <!-- Test -->
             <!-- https://mvnrepository.com/artifact/junit/junit -->

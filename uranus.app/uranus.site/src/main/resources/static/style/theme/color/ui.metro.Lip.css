@@ -1,0 +1,106 @@
+/*
+	Color: #D783A7
+	Name: 唇色
+*/
+.head-color {
+  background-color: #D783A7;
+}
+.title-color {
+  background-color: #DD96B4;
+  color: #ffffff;
+}
+a {
+  color: #D783A7;
+}
+.font-highlight {
+  color: #D783A7 !important;
+}
+.font-highlight-hover:hover {
+  color: #D783A7 !important;
+}
+.background-highlight {
+  background-color: #D783A7 !important;
+  color: #ffffff !important;
+}
+.background-highlight-hover:hover,
+.background-highlight-active:active {
+  background-color: #D783A7 !important;
+  color: #ffffff !important;
+}
+.border-highlight {
+  border-color: #D783A7 !important;
+}
+.border-highlight-hover:hover {
+  border-color: #D783A7 !important;
+}
+.tool-button:hover,
+.button-highlight {
+  color: #D783A7;
+  border-color: #D783A7;
+}
+.icon-button:active,
+.tool-button:active {
+  background-color: #D783A7;
+  color: #ffffff;
+}
+.tools input[type="text"]:focus,
+.tools textarea:focus,
+.tools select:focus {
+  background-color: transparent;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #D783A7;
+}
+input[type="radio"]:checked {
+  border-color: #D783A7;
+  background-color: #D783A7;
+}
+input[type="checkbox"]:checked {
+  border-color: #D783A7;
+  background-color: #D783A7;
+}
+.closable-button:hover {
+  color: #D783A7;
+}
+::selection {
+  background-color: #D783A7;
+  color: #ffffff;
+}
+::-moz-selection {
+  background-color: #D783A7;
+  color: #ffffff;
+}
+/* UI Ctrls Style */
+/* dateChooser */
+.ui-date-chooser-panel .date-chooser-year-td:hover,
+.ui-date-chooser-panel .date-chooser-month-td:hover,
+.ui-date-chooser-panel .date-chooser-calendar-td:hover {
+  color: #D783A7;
+  cursor: pointer;
+}
+.ui-date-chooser-panel .date-chooser-prev:hover {
+  border-right-color: #D783A7;
+}
+.ui-date-chooser-panel .date-chooser-next:hover {
+  border-left-color: #D783A7;
+}
+/* 环形loading动画的主题色 */
+.page-progress.circles .circle::after {
+  background-color: #D783A7 !important;
+}
+/* tag */
+.ui-tag-highlight {
+  background-color: #DD96B4;
+  border-color: #D783A7;
+  color: #fff;
+}
+.ui-tag-highlight .ui-tag-close:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.4);
+}
