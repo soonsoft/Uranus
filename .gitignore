@@ -22,10 +22,6 @@ uranus.services/uranus.membership/.project
 uranus.services/uranus.membership/target
 uranus.services/uranus.membership/.classpath
 
-uranus.site/.project
-uranus.site/target
-uranus.site/.classpath
-
 uranus.utils/.project
 uranus.utils/target
 uranus.utils/.classpath
@@ -42,10 +38,15 @@ uranus.test/.project
 uranus.test/target
 uranus.test/.classpath
 
-uranus.api/.project
-uranus.api/target
-uranus.api/.classpath
-uranus.api/bin
+uranus.app/uranus.site/.project
+uranus.app/uranus.site/target
+uranus.app/uranus.site/.classpath
+uranus.app/uranus.api/bin
+
+uranus.app/uranus.api/.project
+uranus.app/uranus.api/target
+uranus.app/uranus.api/.classpath
+uranus.app/uranus.api/bin
 
 *.log
 .DS_Store

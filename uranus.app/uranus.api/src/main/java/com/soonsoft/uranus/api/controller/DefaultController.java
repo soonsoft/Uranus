@@ -1,18 +1,24 @@
 package com.soonsoft.uranus.api.controller;
 
-import com.soonsoft.uranus.web.mvc.model.IResultData;
-import com.soonsoft.uranus.web.mvc.model.JsonResult;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 public class DefaultController {
+    
+    @GetMapping(value="/")
+    public String index() {
+        return "Welcome to URANUS API.";
+    }
 
-    @RequestMapping(value="/", method = RequestMethod.GET)
-    public IResultData index() {
-        return JsonResult.create("Welcome to URANUS API.");
+    @GetMapping(value="/value/boolean")
+    public Boolean getBoolean() {
+        return Boolean.TRUE;
+    }
+
+    @GetMapping(value="/value/bytes")
+    public byte[] getByteArray() {
+        return "The Text Value.".getBytes();
     }
 
 }
