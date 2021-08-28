@@ -9,6 +9,8 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,9 +22,15 @@ public class APIResultAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        if(returnType != null) {
-            Class<?> returnClass = returnType.getParameterType();
-            return returnClass != ResponseEntity.class && !returnClass.isAssignableFrom(View.class) && !returnClass.isAssignableFrom(APIResult.class);
+        if(StringHttpMessageConverter.class.isAssignableFrom(converterType) 
+            || AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType)) {
+            if(returnType != null) {
+                Class<?> returnClass = returnType.getParameterType();
+                return returnClass != ResponseEntity.class 
+                    && !View.class.isAssignableFrom(returnClass) 
+                    && !APIResult.class.isAssignableFrom(returnClass);
+            }
+            return false;
         }
         return false;
     }
@@ -34,14 +42,17 @@ public class APIResultAdvice implements ResponseBodyAdvice<Object> {
         Class<? extends HttpMessageConverter<?>> selectedConverterType, 
         ServerHttpRequest request, 
         ServerHttpResponse response) {
-        
 
         if(body instanceof APIResult) {
             return body;
         }
 
         if(body instanceof PagingList) {
-            return APIResult.create(body, ((PagingList<?>) body).getPageTotal());
+            PagingList<?> pagingList = (PagingList<?>) body;
+            APIResult result = APIResult.create(pagingList, pagingList.getPageTotal());
+            result.put("pageIndex", pagingList.getPageIndex());
+            result.put("pageSize", pagingList.getPageSize());
+            return result;
         }
 
         if(body instanceof IResultData) {
@@ -58,7 +69,6 @@ public class APIResultAdvice implements ResponseBodyAdvice<Object> {
         }
         
         return APIResult.create(body);
-
     }
     
 }

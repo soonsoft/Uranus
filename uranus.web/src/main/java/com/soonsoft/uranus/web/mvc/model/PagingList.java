@@ -10,7 +10,11 @@ public class PagingList<T> implements List<T> {
 
     private final List<T> originalList;
 
-    private final int pageTotal;
+    private final Integer pageTotal;
+
+    private Integer pageIndex;
+
+    private Integer pageSize;
 
     public PagingList(List<T> list) {
         this(list, list == null ? 0 : list.size());
@@ -145,7 +149,24 @@ public class PagingList<T> implements List<T> {
         return originalList.toString();
     }
 
-    public int getPageTotal() {
+    public Integer getPageTotal() {
         return this.pageTotal;
     }
+
+    public Integer getPageIndex() {
+        return pageIndex;
+    }
+
+    public void setPageIndex(Integer pageIndex) {
+        this.pageIndex = pageIndex;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
 }

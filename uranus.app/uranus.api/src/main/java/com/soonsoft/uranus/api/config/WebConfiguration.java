@@ -1,6 +1,8 @@
 package com.soonsoft.uranus.api.config;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -37,6 +39,10 @@ import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBea
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -78,6 +84,16 @@ public class WebConfiguration implements WebMvcConfigurer {
             .allowedHeaders("*")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD")
             .exposedHeaders(exposedHeaders.toArray(new String[exposedHeaders.size()]));
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        List<HttpMessageConverter<?>> newConverters = new ArrayList<>();
+        newConverters.add(new GenericJsonHttpMessageConverter());
+        newConverters.addAll(converters);
+
+        converters.clear();
+        converters.addAll(newConverters);
     }
 
     @Bean
@@ -177,6 +193,21 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     //#endregion
 
+    // 对Action返回String类型进行包装
+    private static class GenericJsonHttpMessageConverter extends MappingJackson2HttpMessageConverter {
+
+        @Override
+        public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
+            return type instanceof Class && CharSequence.class.isAssignableFrom((Class<?>) type) && CharSequence.class.isAssignableFrom(clazz);
+        }
+
+        @Override
+        protected void addDefaultHeaders(HttpHeaders headers, Object t, MediaType contentType) throws IOException {
+            super.addDefaultHeaders(headers, t, MediaType.APPLICATION_JSON);
+        }
+    }
+
+    // 从HttpRequestHeader中初始化Session，替换原来的cookie
     private static class HeaderSessionIdHook implements IRealHttpServletRequestHook {
 
         private Field requestField;
@@ -239,4 +270,6 @@ public class WebConfiguration implements WebMvcConfigurer {
             }
         }
     }
+
+
 }
