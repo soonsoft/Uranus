@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.api.controller.product;
+package com.soonsoft.uranus.api.controller.example;
 
 import java.util.ArrayList;
 import java.util.List;

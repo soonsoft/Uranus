@@ -11,14 +11,4 @@ public class DefaultController {
         return "Welcome to URANUS API.";
     }
 
-    @GetMapping(value="/value/boolean")
-    public Boolean getBoolean() {
-        return Boolean.TRUE;
-    }
-
-    @GetMapping(value="/value/bytes")
-    public byte[] getByteArray() {
-        return "The Text Value.".getBytes();
-    }
-
 }
