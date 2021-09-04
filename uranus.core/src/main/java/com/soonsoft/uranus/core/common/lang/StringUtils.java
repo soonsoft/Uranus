@@ -1,9 +1,14 @@
 package com.soonsoft.uranus.core.common.lang;
 
+import com.soonsoft.uranus.core.error.format.StringFormatException;
+
 /**
  * StringUtils
  */
 public abstract class StringUtils {
+
+    private final static String FORMAT_OPEN = "{";
+    private final static String FORMAT_CLOSE = "}";
 
     public static String Empty = "";
 
@@ -41,8 +46,62 @@ public abstract class StringUtils {
         return false;
     }
 
-    public static String format(String input, String... parts) {
-        // TODO 实现 format("aaa{0},bbb{1}", "1", "2") = aaa1,bbb2;
-        return input;
+    public static String format(final String input, String... parts) {
+        if(isBlank(input)) {
+            return input;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        int index = 0;
+        for(;;) {
+            int openIndex = input.indexOf(FORMAT_OPEN, index);
+            int closeIndex = input.indexOf(FORMAT_CLOSE, index);
+
+            // 没有占位符
+            if(openIndex < 0 && closeIndex < 0) {
+                builder.append(input.substring(index));
+                break;
+            }
+            
+            // 处理'}'符号输出
+            if(closeIndex > -1 && (closeIndex < openIndex || openIndex == -1)) {
+                if(input.charAt(closeIndex + 1) != FORMAT_CLOSE.charAt(0)) {
+                    throw new StringFormatException("字符'}'， index:" + closeIndex + "， 标记符输出格式错误，应为}}");
+                }
+                builder.append(input.substring(index, closeIndex + 1));
+                index = closeIndex + 2;
+                continue;
+            }
+
+            // 填充普通字符
+            builder.append(input.substring(index, openIndex));
+            index = openIndex + 1;
+
+            // 处理'{'符号输出
+            if(input.charAt(index) == FORMAT_OPEN.charAt(0)) {
+                builder.append(input.charAt(index));
+                index += 1;
+                continue;
+            }
+
+            if(closeIndex == -1) {
+                throw new StringFormatException("缺少闭合标记，正确的占位符例子：{0}、{1}……");
+            }
+
+            int fillIndex = Integer.parseInt(input.substring(index, closeIndex));
+            builder.append(parts[fillIndex]);
+            index = closeIndex + 1;
+        }
+
+        return builder.toString();
+    }
+
+    public static String join(CharSequence delimiter, Iterable<? extends CharSequence> elements) {
+        return String.join(delimiter, elements);
+    }
+
+    public static String join(CharSequence delimiter, CharSequence... elements) {
+        return String.join(delimiter, elements);
+
     }
 }

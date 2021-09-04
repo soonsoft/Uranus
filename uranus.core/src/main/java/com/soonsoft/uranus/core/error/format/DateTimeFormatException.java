@@ -1,9 +1,6 @@
-package com.soonsoft.uranus.core.error;
+package com.soonsoft.uranus.core.error.format;
 
-/**
- * DateTimeFormatException
- */
-public class DateTimeFormatException extends ApplicationRuntimeException {
+public class DateTimeFormatException extends FormatException {
 
     public DateTimeFormatException() {
         super();

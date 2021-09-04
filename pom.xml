@@ -19,6 +19,8 @@
         <module>uranus.security</module>
         <module>uranus.services</module>
         <module>uranus.app</module>
+        
+        <module>uranus.test</module>
     </modules>
 
     <properties>
