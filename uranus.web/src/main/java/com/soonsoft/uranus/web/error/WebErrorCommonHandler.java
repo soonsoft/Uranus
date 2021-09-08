@@ -11,6 +11,7 @@ import com.soonsoft.uranus.web.error.properties.ErrorMessageProperties;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 public abstract class WebErrorCommonHandler {
@@ -63,8 +64,8 @@ public abstract class WebErrorCommonHandler {
 
         // 如果有异常信息，则用异常信息覆盖
         if(exception != null && (messageExceptionPredicate != null && messageExceptionPredicate.test(exception))) {
-            if(exception instanceof MethodArgumentNotValidException) {
-                message = getMethodArgumentNotValidExceptionMessage((MethodArgumentNotValidException) exception);
+            if(exception instanceof BindException) {
+                message = getValidationMessage((BindException) exception);
             } else {
                 message = model.getException().getMessage();
             }
@@ -95,7 +96,7 @@ public abstract class WebErrorCommonHandler {
         }
     }
 
-    private static String getMethodArgumentNotValidExceptionMessage(MethodArgumentNotValidException e) {
+    private static String getValidationMessage(BindException e) {
         return e.getAllErrors().stream().map(p -> p.getDefaultMessage()).collect(Collectors.joining(","));
     }
 

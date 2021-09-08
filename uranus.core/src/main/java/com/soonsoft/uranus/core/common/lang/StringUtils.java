@@ -46,6 +46,36 @@ public abstract class StringUtils {
         return false;
     }
 
+    /**
+     * 字符串格式化函数
+     * 占位符：
+     *   %s 字符串
+     *   %c 字符
+     *   %b 布尔类型
+     *   %d 整数（十进制）
+     *   %x 整数（十六进制）
+     *   %o 整数（八进制）
+     *   %f 浮点
+     *   %a 十六进制浮点
+     *   %% 百分比
+     * @param input 格式化模板
+     * @param params 填充的参数
+     * @return 格式化后的字符串
+     */
+    public static String format(String input, Object... params) {
+        if (StringUtils.isBlank(input)) {
+            return input;
+        }
+        return String.format(input, params);
+    }
+
+    /**
+     * 简单的字符串格式化函数
+     *   StringUtils.format("he{0}{1}o", "l", "l")
+     * @param input 格式化模板
+     * @param params 填充的参数
+     * @return 格式化后的字符串
+     */
     public static String format(final String input, String... parts) {
         if(isBlank(input)) {
             return input;

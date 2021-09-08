@@ -52,3 +52,4 @@ uranus.app/uranus.api/bin
 .DS_Store
 .factorypath
 uranus.app/uranus.api/target
+uranus.app/uranus.site/target
