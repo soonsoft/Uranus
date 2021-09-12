@@ -46,6 +46,41 @@ public abstract class StringUtils {
         return false;
     }
 
+    public static String toHexString(byte[] input) {
+        if(input == null || input.length == 0) {
+            return Empty;
+        }
+
+        StringBuilder builder = new StringBuilder(input.length * 2);
+        for(int i = 0; i < input.length; i++) {
+            int val = input[i] & 0xFF;
+            String hexVal = Integer.toHexString(val);
+            if(hexVal.length() < 2) {
+                builder.append("0");
+            }
+            builder.append(hexVal);
+        }
+        return builder.toString();
+    }
+
+    public static boolean startsWith(String str, String prefix) {
+        return (str != null && prefix != null && str.length() >= prefix.length() && str.startsWith(prefix));
+    }
+
+    public static boolean startsWithIgnoreCase(String str, String prefix) {
+		return (str != null && prefix != null && str.length() >= prefix.length() &&
+				str.regionMatches(true, 0, prefix, 0, prefix.length()));
+	}
+
+    public static boolean endsWith(String str, String suffix) {
+        return (str != null && suffix != null && str.length() >= suffix.length() && str.endsWith(suffix));
+    }
+
+	public static boolean endsWithIgnoreCase(String str, String suffix) {
+		return (str != null && suffix != null && str.length() >= suffix.length() &&
+				str.regionMatches(true, str.length() - suffix.length(), suffix, 0, suffix.length()));
+	}
+
     /**
      * 字符串格式化函数
      * 占位符：
