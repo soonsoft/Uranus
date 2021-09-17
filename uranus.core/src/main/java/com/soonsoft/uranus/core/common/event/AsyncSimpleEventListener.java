@@ -1,6 +1,8 @@
 package com.soonsoft.uranus.core.common.event;
 
 import java.util.LinkedList;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 
 /**
@@ -20,8 +22,8 @@ public class AsyncSimpleEventListener<E> extends SimpleEventListener<E> {
     public void trigger(E event) {
          LinkedList<Consumer<E>> handlerList = getHandlerList();
          if(handlerList != null) {
-            //TriggerTask<E> task = new TriggerTask<>(handlerList, event);
-            // TODO 将task放入线程池 
+            TriggerTask<E> task = new TriggerTask<>(handlerList, event);
+            getThreadPool().execute(task);
          }
     }
 
@@ -34,6 +36,10 @@ public class AsyncSimpleEventListener<E> extends SimpleEventListener<E> {
         LinkedList<Consumer<E>> copyHandlerList = new LinkedList<>();
         copyHandlerList.addAll(handlerList);
         return copyHandlerList;
+    }
+
+    protected AbstractExecutorService getThreadPool() {
+        return ForkJoinPool.commonPool();
     }
     
     static final class TriggerTask<E> implements Runnable {
