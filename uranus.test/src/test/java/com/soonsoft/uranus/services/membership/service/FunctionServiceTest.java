@@ -8,8 +8,8 @@ import com.soonsoft.uranus.data.EnableDatabaseAccess;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.services.membership.config.DataSourceConfig;
 import com.soonsoft.uranus.services.membership.config.MembershipServiceConfig;
-import com.soonsoft.uranus.services.membership.dto.AuthRole;
-import com.soonsoft.uranus.services.membership.dto.SysMenu;
+import com.soonsoft.uranus.services.membership.po.AuthRole;
+import com.soonsoft.uranus.services.membership.po.SysMenu;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -53,3 +53,6 @@ uranus.app/uranus.api/bin
 .factorypath
 uranus.app/uranus.api/target
 uranus.app/uranus.site/target
+uranus.app/uranus.api/.classpath
+uranus.app/uranus.api/.classpath
+uranus.app/uranus.site/.classpath

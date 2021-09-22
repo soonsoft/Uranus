@@ -64,7 +64,6 @@
                 <version>${spring-security-version}</version>
             </dependency>
 
-
             <!-- SpringBoot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -201,8 +200,6 @@
                 <artifactId>mybatis-spring-boot-starter-test</artifactId>
                 <version>2.2.0</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
 

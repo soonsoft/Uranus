@@ -28,10 +28,10 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
-import com.soonsoft.uranus.services.membership.dto.AuthRole;
-import com.soonsoft.uranus.services.membership.dto.AuthRoleIdAndFunctionId;
-import com.soonsoft.uranus.services.membership.dto.SysMenu;
 import com.soonsoft.uranus.services.membership.model.Transformer;
+import com.soonsoft.uranus.services.membership.po.AuthRole;
+import com.soonsoft.uranus.services.membership.po.AuthRoleIdAndFunctionId;
+import com.soonsoft.uranus.services.membership.po.SysMenu;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;

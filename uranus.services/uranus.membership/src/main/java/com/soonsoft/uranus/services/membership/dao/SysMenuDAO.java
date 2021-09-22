@@ -3,7 +3,7 @@ package com.soonsoft.uranus.services.membership.dao;
 import java.util.List;
 import java.util.Map;
 
-import com.soonsoft.uranus.services.membership.dto.SysMenu;
+import com.soonsoft.uranus.services.membership.po.SysMenu;
 
 /**
  * SysMenuDAO
