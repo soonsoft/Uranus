@@ -72,6 +72,7 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
                 String location = mapperLocations[i].trim();
                 CollectionUtils.addAll(resourceList, pathResolver.getResource(location));
             }
+            bean.setMapperLocations(resourceList.toArray(new Resource[0]));
         }
         bean.setConfiguration(mybatisConfig);
 
