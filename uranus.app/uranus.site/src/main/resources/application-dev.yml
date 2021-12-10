@@ -6,9 +6,9 @@ uranus:
   datasource:
     master:
       driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://139.196.140.101:5447/yzgdb
+      url: jdbc:postgresql://localhost:5432/postgres
       username: postgres
-      password: P@s5w0rd
+      password: soon0116
       minimum-idle: 1
       maximum-pool-size: 10
       connection-timeout: 15000

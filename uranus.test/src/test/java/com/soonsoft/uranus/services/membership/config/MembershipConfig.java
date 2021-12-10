@@ -1,5 +1,9 @@
 package com.soonsoft.uranus.services.membership.config;
 
+import javax.sql.DataSource;
+
+import com.soonsoft.uranus.data.EnableDatabaseAccess;
+import com.soonsoft.uranus.data.config.DataSourceFactory;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.services.membership.service.FunctionService;
 import com.soonsoft.uranus.services.membership.service.RoleService;
@@ -15,16 +19,23 @@ import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+
 @SpringBootConfiguration
-@ComponentScan(basePackages = "com.soonsoft.uranus.services.membership")
-public class MembershipServiceConfig {
+@Import(value = MembershipDataSourceProperty.class)
+@EnableDatabaseAccess(primaryName = "membership")
+public class MembershipConfig {
+
+    @Bean(name = "membership")
+    public DataSource dataSource(MembershipDataSourceProperty membershipDataSourceProperty) {
+        return DataSourceFactory.create(membershipDataSourceProperty);
+    }
 
     @Bean
-    public PasswordEncoder getPasswordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
@@ -46,7 +57,7 @@ public class MembershipServiceConfig {
         return userService;
     }
 
-    @Bean
+    @Bean("membershipRoleService")
     public RoleService roleService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         AuthRoleDAO roleDAO = new AuthRoleDAO();
         roleDAO.setMembershipAccess(securityAccess);
