@@ -11,10 +11,10 @@ import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.services.membership.dto.AuthPassword;
-import com.soonsoft.uranus.services.membership.dto.AuthRole;
-import com.soonsoft.uranus.services.membership.dto.AuthUser;
-import com.soonsoft.uranus.services.membership.dto.SysMenu;
+import com.soonsoft.uranus.services.membership.po.AuthPassword;
+import com.soonsoft.uranus.services.membership.po.AuthRole;
+import com.soonsoft.uranus.services.membership.po.AuthUser;
+import com.soonsoft.uranus.services.membership.po.SysMenu;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.security.core.GrantedAuthority;

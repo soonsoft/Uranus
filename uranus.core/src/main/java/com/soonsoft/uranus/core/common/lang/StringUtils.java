@@ -46,6 +46,71 @@ public abstract class StringUtils {
         return false;
     }
 
+    public static String toHexString(byte[] input) {
+        if(input == null || input.length == 0) {
+            return Empty;
+        }
+
+        StringBuilder builder = new StringBuilder(input.length * 2);
+        for(int i = 0; i < input.length; i++) {
+            int val = input[i] & 0xFF;
+            String hexVal = Integer.toHexString(val);
+            if(hexVal.length() < 2) {
+                builder.append("0");
+            }
+            builder.append(hexVal);
+        }
+        return builder.toString();
+    }
+
+    public static boolean startsWith(String str, String prefix) {
+        return (str != null && prefix != null && str.length() >= prefix.length() && str.startsWith(prefix));
+    }
+
+    public static boolean startsWithIgnoreCase(String str, String prefix) {
+		return (str != null && prefix != null && str.length() >= prefix.length() &&
+				str.regionMatches(true, 0, prefix, 0, prefix.length()));
+	}
+
+    public static boolean endsWith(String str, String suffix) {
+        return (str != null && suffix != null && str.length() >= suffix.length() && str.endsWith(suffix));
+    }
+
+	public static boolean endsWithIgnoreCase(String str, String suffix) {
+		return (str != null && suffix != null && str.length() >= suffix.length() &&
+				str.regionMatches(true, str.length() - suffix.length(), suffix, 0, suffix.length()));
+	}
+
+    /**
+     * 字符串格式化函数
+     * 占位符：
+     *   %s 字符串
+     *   %c 字符
+     *   %b 布尔类型
+     *   %d 整数（十进制）
+     *   %x 整数（十六进制）
+     *   %o 整数（八进制）
+     *   %f 浮点
+     *   %a 十六进制浮点
+     *   %% 百分比
+     * @param input 格式化模板
+     * @param params 填充的参数
+     * @return 格式化后的字符串
+     */
+    public static String format(String input, Object... params) {
+        if (StringUtils.isBlank(input)) {
+            return input;
+        }
+        return String.format(input, params);
+    }
+
+    /**
+     * 简单的字符串格式化函数
+     *   StringUtils.format("he{0}{1}o", "l", "l")
+     * @param input 格式化模板
+     * @param params 填充的参数
+     * @return 格式化后的字符串
+     */
     public static String format(final String input, String... parts) {
         if(isBlank(input)) {
             return input;

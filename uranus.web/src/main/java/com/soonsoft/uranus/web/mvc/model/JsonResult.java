@@ -4,9 +4,6 @@ import java.util.HashMap;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
-/**
- * JsonResult
- */
 public class JsonResult extends HashMap<String, Object> implements IResultData {
 
     private final static String SUCCESS_NAME = "success";

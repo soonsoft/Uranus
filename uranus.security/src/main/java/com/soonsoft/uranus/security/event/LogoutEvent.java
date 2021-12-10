@@ -5,9 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 
-/**
- * LogoutEvent
- */
 public class LogoutEvent {
 
     private HttpServletRequest request;

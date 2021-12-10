@@ -1,6 +1,6 @@
 package com.soonsoft.uranus.services.membership.dao;
 
-import com.soonsoft.uranus.services.membership.dto.AuthPassword;
+import com.soonsoft.uranus.services.membership.po.AuthPassword;
 
 /**
  * AuthPasswordDAO

@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.services.membership.dto;
+package com.soonsoft.uranus.services.membership.po;
 
 import java.util.Collection;
 import java.util.HashSet;

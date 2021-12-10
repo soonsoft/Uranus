@@ -34,4 +34,10 @@ public class StringUtilsTest {
         Assert.assertTrue("StringUtils.format(\"abc{0}efg\", \"d\")".equals(StringUtils.format("StringUtils.format(\"abc{{0}}efg\", \"{0}\")", "d")));
         Assert.assertTrue("}{}aaa".equals(StringUtils.format("}}{{}}{0}", "aaa")));
     }
+
+    @Test
+    public void test_toHexString() {
+        byte[] arr = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 99, 44, 98, 127, -90, 93, -100, 100 };
+        System.out.println(StringUtils.toHexString(arr));
+    }
 }

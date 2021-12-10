@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.data.config.factorybean;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.sql.DataSource;
@@ -52,7 +53,7 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
     //#endregion
 
-    private SqlSessionFactory createSessionFactory() {
+    private SqlSessionFactory createSessionFactory() throws IOException {
         // http://www.mybatis.org/mybatis-3/zh/configuration.html
         org.apache.ibatis.session.Configuration mybatisConfig = new org.apache.ibatis.session.Configuration();
         mybatisConfig.setCacheEnabled(true);
@@ -62,7 +63,7 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(getDataSource());
-        bean.setTypeAliasesPackage("com.soonsoft.uranus.services.**.dto");
+        bean.setTypeAliasesPackage("com.soonsoft.uranus.services.**.po");
 
         PathMatchingResourcePatternResolver pathResolver = new PathMatchingResourcePatternResolver();
         String[] mapperLocations = getMapperLocations();
@@ -70,8 +71,9 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
             ArrayList<Resource> resourceList = new ArrayList<>(20);
             for (int i = 0; i < mapperLocations.length; i++) {
                 String location = mapperLocations[i].trim();
-                CollectionUtils.addAll(resourceList, pathResolver.getResource(location));
+                CollectionUtils.addAll(resourceList, pathResolver.getResources(location));
             }
+            bean.setMapperLocations(resourceList.toArray(new Resource[0]));
         }
         bean.setConfiguration(mybatisConfig);
 

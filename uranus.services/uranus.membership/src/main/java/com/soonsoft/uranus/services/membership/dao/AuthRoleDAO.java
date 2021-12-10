@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.soonsoft.uranus.data.entity.Page;
-import com.soonsoft.uranus.services.membership.dto.AuthRole;
+import com.soonsoft.uranus.services.membership.po.AuthRole;
 
 /**
  * AuthRoleDAO

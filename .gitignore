@@ -41,7 +41,7 @@ uranus.test/.classpath
 uranus.app/uranus.site/.project
 uranus.app/uranus.site/target
 uranus.app/uranus.site/.classpath
-uranus.app/uranus.api/bin
+uranus.app/uranus.site/bin
 
 uranus.app/uranus.api/.project
 uranus.app/uranus.api/target
@@ -51,4 +51,3 @@ uranus.app/uranus.api/bin
 *.log
 .DS_Store
 .factorypath
-uranus.app/uranus.api/target

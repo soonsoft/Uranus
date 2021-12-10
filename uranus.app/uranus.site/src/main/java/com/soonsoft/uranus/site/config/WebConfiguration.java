@@ -49,17 +49,6 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
-        WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(WebApplicationSecurityConfigType.SITE);
-        factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
-            initUserManager(userManager);
-            initRoleManager(roleManager);
-            initFunctionManager(functionManager);
-        });
-        return factory;
-    }
-
-    @Bean
     public DelegatingFilterProxyRegistrationBean httpContextFilterRegistrationBean() {
         DelegatingFilterProxyRegistrationBean registrationBean = new DelegatingFilterProxyRegistrationBean("httpContextFilter");
         return registrationBean;
@@ -73,6 +62,17 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Bean
     public ApplicationContextAware applicationContextAware() {
         return WebApplicationContext.getInstance();
+    }
+
+    @Bean
+    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
+        WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(WebApplicationSecurityConfigType.SITE);
+        factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
+            initUserManager(userManager);
+            initRoleManager(roleManager);
+            initFunctionManager(functionManager);
+        });
+        return factory;
     }
 
     private void initUserManager(IUserManager userManager) {

@@ -1,8 +1,5 @@
 package com.soonsoft.uranus.web.mvc.model;
 
-/**
- * IResultData
- */
 public interface IResultData {
 
     IResultData setSuccess(boolean success);

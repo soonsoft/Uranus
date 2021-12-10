@@ -2,26 +2,18 @@ package com.soonsoft.uranus.services.membership.service;
 
 import java.util.Date;
 
-import com.soonsoft.uranus.data.EnableDatabaseAccess;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.services.membership.config.DataSourceConfig;
-import com.soonsoft.uranus.services.membership.config.MembershipServiceConfig;
+import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-/**
- * UserServiceTest
- */
 @RunWith(SpringRunner.class)
-@MybatisTest
-@ContextConfiguration(classes = {DataSourceConfig.class, MembershipServiceConfig.class})
-@EnableDatabaseAccess
+@ContextConfiguration(classes = { MembershipConfig.class })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserServiceTest {
 
