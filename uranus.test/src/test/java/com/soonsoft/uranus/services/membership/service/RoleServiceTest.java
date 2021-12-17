@@ -3,9 +3,12 @@ package com.soonsoft.uranus.services.membership.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
+import com.soonsoft.uranus.services.membership.model.MembershipRole;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 
 import org.junit.Assert;
@@ -36,6 +39,16 @@ public class RoleServiceTest {
         Assert.assertNotNull(roles);
         Assert.assertTrue(roles.size() == 1);
         Assert.assertTrue(page.getTotal() > 0);
+    }
+
+    @Test
+    public void test_createRole() {
+        RoleInfo role = new MembershipRole(UUID.randomUUID().toString(), "CTO");
+        role.setDescription("首席技术官");
+        role.setEnable(true);
+
+        boolean result = roleService.createRole(role);
+        Assert.assertTrue(result);
     }
     
 }

@@ -12,7 +12,7 @@
   <insert id="insert" parameterType="authRole">
     INSERT INTO auth_role(role_id, role_name, description, status)
       VALUES (
-        #{roleId}::uuid,
+        #{roleId},
         #{roleName, jdbcType=VARCHAR},
         #{description, jdbcType=VARCHAR},
         #{status, jdbcType=INTEGER}
@@ -26,12 +26,12 @@
         <if test="description != null">description = #{description, jdbcType=VARCHAR},</if>
         <if test="status != null">status = #{status, jdbcType=INTEGER}</if>
       </trim>
-      WHERE role_id = #{roleId}::uuid
+      WHERE role_id = #{roleId}
   </update>
 
   <delete id="delete" parameterType="java.lang.String">
     DELETE FROM auth_role
-      WHERE role_id = #{roleId}:uuid
+      WHERE role_id = #{roleId}
   </delete>
 
   <delete id="deleteByRoleName" parameterType="java.lang.String">

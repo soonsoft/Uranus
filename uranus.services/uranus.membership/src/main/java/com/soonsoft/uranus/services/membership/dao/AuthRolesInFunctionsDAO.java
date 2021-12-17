@@ -1,9 +1,11 @@
 package com.soonsoft.uranus.services.membership.dao;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 import com.soonsoft.uranus.core.common.collection.MapUtils;
@@ -19,15 +21,15 @@ public class AuthRolesInFunctionsDAO extends BaseDAO {
         return getMembershipAccess().insert("membership.auth_roles_in_functions.insert", record);
     }
 
-    public int deleteByRoleId(String roleId) {
+    public int deleteByRoleId(UUID roleId) {
         return getMembershipAccess().delete("membership.auth_roles_in_functions.deleteByRoleId", roleId);
     }
 
-    public int deleteByFunctionId(String functionId) {
+    public int deleteByFunctionId(UUID functionId) {
         return getMembershipAccess().delete("membership.auth_roles_in_functions.deleteByFunctionId", functionId);
     }
 
-    public Map<String, Set<Object>> selectByFunctions(List<String> functionIdList, Integer status) {
+    public Map<UUID, Set<Object>> selectByFunctions(Collection<UUID> functionIdList, Integer status) {
         Map<String, Object> params = MapUtils.createHashMap(2);
         params.put("functions", functionIdList);
         if(status != null) {
@@ -48,7 +50,7 @@ public class AuthRolesInFunctionsDAO extends BaseDAO {
         );
     }
 
-    public Map<String, Set<Object>> selectByRoles(List<String> roleIdList, Integer status) {
+    public Map<UUID, Set<Object>> selectByRoles(Collection<UUID> roleIdList, Integer status) {
         Map<String, Object> params = MapUtils.createHashMap(2);
         params.put("roles", roleIdList);
         if(status != null) {
@@ -62,22 +64,22 @@ public class AuthRolesInFunctionsDAO extends BaseDAO {
         );
     }
 
-    private static String getFunctionId(AuthRoleIdAndFunctionId record) {
+    private static UUID getFunctionId(AuthRoleIdAndFunctionId record) {
         return record.getFunctionId();
     }
 
-    private static String getRoleId(AuthRoleIdAndFunctionId record) {
+    private static UUID getRoleId(AuthRoleIdAndFunctionId record) {
         return record.getRoleId();
     }
 
-    private Map<String, Set<Object>> orderData(
+    private Map<UUID, Set<Object>> orderData(
         List<AuthRoleIdAndFunctionId> records, 
-        Function<AuthRoleIdAndFunctionId, String> keyGetter,
+        Function<AuthRoleIdAndFunctionId, UUID> keyGetter,
         Function<AuthRoleIdAndFunctionId, Object> valueGetter) {
         if(records == null || records.isEmpty()) {
             return null;
         }
-        Map<String, Set<Object>> value = MapUtils.createHashMap(32);
+        Map<UUID, Set<Object>> value = MapUtils.createHashMap(32);
         records.forEach(i -> {
             Set<Object> collection = value.get(keyGetter.apply(i));
             if(collection == null) {

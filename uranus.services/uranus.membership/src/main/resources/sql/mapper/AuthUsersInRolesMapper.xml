@@ -19,14 +19,14 @@
   <insert id="insert" parameterType="authUserIdAndRoleId">
     INSERT INTO auth_users_in_roles(user_id, role_id)
       VALUES (
-        #{userId}::uuid,
-        #{roleId}::uuid
+        #{userId},
+        #{roleId}
       )
   </insert>
 
   <delete id="deleteByUserId" parameterType="java.lang.String">
       DELETE FROM auth_users_in_roles
-        WHERE user_id = #{userId}::uuid
+        WHERE user_id = #{userId}
     </delete>
 
   <select id="selectByUserId" parameterType="java.util.Map" resultMap="authRoleMap">
@@ -34,7 +34,7 @@
         r.role_id, r.role_name, r.description, r.status
       FROM auth_users_in_roles t
       INNER JOIN auth_role r ON t.role_id = r.role_id AND r.status = 1
-      WHERE t.user_id = #{userId}::uuid
+      WHERE t.user_id = #{userId}
   </select>
 
   <select id="selectByUsers" parameterType="java.util.Map" resultMap="authUserIdAndRoleIdMap">
@@ -49,7 +49,7 @@
         </trim>
       WHERE t.user_id IN
         <foreach collection="users" item="userId" index="index" open="(" separator="," close=")">
-          #{userId}::uuid
+          #{userId}
         </foreach>
   </select>
 
@@ -65,7 +65,7 @@
           </trim>
         WHERE t.role_id IN
           <foreach collection="roles" item="roleId" index="index" open="(" separator="," close=")">
-            #{roleId}::uuid
+            #{roleId}
           </foreach>
     </select>
 

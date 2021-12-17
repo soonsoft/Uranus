@@ -14,7 +14,7 @@
   <insert id="insert" parameterType="authUser">
     INSERT INTO auth_user(user_id, user_name, nick_name, cell_phone, status, create_time)
       VALUES (
-        #{userId}::uuid,
+        #{userId},
         #{userName, jdbcType=VARCHAR},
         #{nickName, jdbcType=VARCHAR},
         #{cellPhone, jdbcType=VARCHAR},
@@ -30,12 +30,12 @@
           <if test="cellPhone != null">cell_phone = #{cellPhone, jdbcType=VARCHAR},</if>
           <if test="status != null">status = #{status, jdbcType=INTEGER}</if>
         </trim>
-        WHERE user_id = #{userId}::uuid
+        WHERE user_id = #{userId}
     </update>
   
     <delete id="delete" parameterType="java.lang.String">
       DELETE FROM auth_user
-        WHERE user_id = #{userId}:uuid
+        WHERE user_id = #{userId}
     </delete>
 
     <delete id="deleteByUserName" parameterType="java.lang.String">

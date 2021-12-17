@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.services.membership.po;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * AuthRole
@@ -11,7 +12,7 @@ public class AuthRole {
 
     public static final Integer DISABLED = 0;
 
-    private String roleId;
+    private UUID roleId;
 
     private String roleName;
 
@@ -28,43 +29,20 @@ public class AuthRole {
     private List<Object> menus;
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        AuthRole other = (AuthRole) obj;
-        if (this.hashCode() != other.hashCode()) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public String toString() {
-        return "AuthRole [description=" + description + ", roleId=" + roleId + ", roleName=" + roleName + ", status=" + status + "]";
+        return "AuthRole [description=" + description 
+        + ", roleId=" + roleId != null ? roleId.toString() : null 
+        + ", roleName=" + roleName 
+        + ", status=" + status + "]";
     }
 
     //#region getter and setter
 
-    public String getRoleId() {
+    public UUID getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(String roleId) {
+    public void setRoleId(UUID roleId) {
         this.roleId = roleId;
     }
 
@@ -99,8 +77,6 @@ public class AuthRole {
     public void setMenus(List<Object> menus) {
         this.menus = menus;
     }
-
-
 
     //#endregion
 }

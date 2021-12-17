@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.paging;
+package com.soonsoft.uranus.data.service.mybatis.interceptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-import com.soonsoft.uranus.data.service.mybatis.PageRowBounds;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.data.paging.IPagingDailect;
 
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;
@@ -60,13 +60,13 @@ public class PagingInterceptor implements Interceptor {
         Object parameter = args[1];
         RowBounds rowBounds = (RowBounds) args[2];
 
-        if(!(rowBounds instanceof PageRowBounds)) {
+        if(!(rowBounds instanceof PagingRowBounds)) {
             return invocation.proceed();
         }
 
         BoundSql originalSql = statement.getBoundSql(parameter);
         String countingSql = this.pagingDailect.buildCountingSql(originalSql.getSql());
-        PageRowBounds pageRowBounds = (PageRowBounds) rowBounds;
+        PagingRowBounds pageRowBounds = (PagingRowBounds) rowBounds;
         if(!StringUtils.isEmpty(countingSql)) {
             String statementId = statement.getId() + COUNTING_SUFFIX;
             ResultMap countingResultMap = 

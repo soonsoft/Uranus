@@ -1,60 +1,33 @@
 package com.soonsoft.uranus.services.membership.po;
 
-/**
- * AuthUserIdAndRoleId
- */
+import java.util.UUID;
+
+
 public class AuthUserIdAndRoleId {
 
-    private String userId;
+    private UUID userId;
 
     private String username;
 
-    private String roleId;
+    private UUID roleId;
 
     private String roleName;
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-        result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        AuthUserIdAndRoleId other = (AuthUserIdAndRoleId) obj;
-        if(this.hashCode() != other.hashCode()) {
-            return false;
-        }
-        return true;
-    }
-
     //#region getter and setter
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
-    public String getRoleId() {
+    public UUID getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(String roleId) {
+    public void setRoleId(UUID roleId) {
         this.roleId = roleId;
     }
 

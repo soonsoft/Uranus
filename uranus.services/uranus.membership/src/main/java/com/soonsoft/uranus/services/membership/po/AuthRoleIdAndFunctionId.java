@@ -1,17 +1,16 @@
 package com.soonsoft.uranus.services.membership.po;
 
-/**
- * AuthRoleIdAndFunctionId
- */
+import java.util.UUID;
+
 public class AuthRoleIdAndFunctionId extends AuthRole {
 
-    private String functionId;
+    private UUID functionId;
 
-    public String getFunctionId() {
+    public UUID getFunctionId() {
         return functionId;
     }
 
-    public void setFunctionId(String functionId) {
+    public void setFunctionId(UUID functionId) {
         this.functionId = functionId;
     }
     

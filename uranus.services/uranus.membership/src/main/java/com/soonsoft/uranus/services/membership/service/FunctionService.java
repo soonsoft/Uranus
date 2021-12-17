@@ -175,12 +175,12 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         if (menus == null) {
             return new ArrayList<>(0);
         }
-        List<String> functionIdList = new ArrayList<>(menus.size());
+        List<UUID> functionIdList = new ArrayList<>(menus.size());
         menus.forEach(i -> {
             functionIdList.add(i.getFunctionId());
         });
 
-        Map<String, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList, 1);
+        Map<UUID, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList, 1);
         if (functionRoleMap != null) {
             menus.forEach(i -> {
                 Set<Object> roleSet = functionRoleMap.get(i.getFunctionId());
@@ -197,8 +197,8 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createMenu(SysMenu menu) {
         Guard.notNull(menu, "the SysMenu is required.");
-        if(StringUtils.isEmpty(menu.getFunctionId())) {
-            menu.setFunctionId(UUID.randomUUID().toString());
+        if(menu.getFunctionId() != null) {
+            menu.setFunctionId(UUID.randomUUID());
         }
 
         int effectRows = 0;
@@ -220,7 +220,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean updateMenu(SysMenu menu) {
         Guard.notNull(menu, "the SysMenu is required.");
-        Guard.notEmpty(menu.getFunctionId(), "the SysMenu.functionId is required.");
+        Guard.notNull(menu.getFunctionId(), "the SysMenu.functionId is required.");
 
         int effectRows = 0;
 
@@ -235,20 +235,24 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     }
 
     public void updateFunctionStore(String roleId, List<String> functionIdList) {
+        Guard.notEmpty(roleId, "the parameter roleId is required.");
+        Guard.notEmpty(functionIdList, "the parameter functionIdList can not be empty.");
+
+        Set<UUID> functionIdSet = new HashSet<>();
+        functionIdList.forEach(i -> functionIdSet.add(UUID.fromString(i)));
+
         // 加载新的菜单数据
-        Map<String, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList,
-                SysMenu.STATUS_ENABLED);
-
-        Set<String> functionIdSet = new HashSet<>();
-        functionIdSet.addAll(functionIdList);
-
+        Map<UUID, Set<Object>> functionRoleMap = 
+            rolesInFunctionsDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
+        
         synchronized (locker) {
             sequence.forEach(functionId -> {
                 FunctionInfo functionInfo = functionStore.get(functionId);
                 if (functionInfo == null) {
                     return;
                 }
-                if (!functionIdSet.contains(functionId)) {
+                UUID functionGuid = UUID.fromString(functionId);
+                if (!functionIdSet.contains(functionGuid)) {
                     // 移除取消的菜单权限
                     List<RoleInfo> roles = functionInfo.getAllowRoles();
                     if (roles != null) {
@@ -263,7 +267,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
                 } else {
                     // 更新菜单的可用角色列表
                     List<RoleInfo> newRoles = new ArrayList<>();
-                    Set<Object> roleSet = functionRoleMap.get(functionId);
+                    Set<Object> roleSet = functionRoleMap.get(functionGuid);
                     if (roleSet != null) {
                         for (Object item : roleSet) {
                             newRoles.add(Transformer.toRoleInfo((AuthRole) item));

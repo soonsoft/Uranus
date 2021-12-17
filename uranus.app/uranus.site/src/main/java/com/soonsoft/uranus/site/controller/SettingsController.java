@@ -14,7 +14,6 @@ import com.soonsoft.uranus.services.membership.service.FunctionService;
 import com.soonsoft.uranus.services.membership.service.RoleService;
 import com.soonsoft.uranus.services.membership.service.UserService;
 import com.soonsoft.uranus.site.controller.base.BaseController;
-import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
 import com.soonsoft.uranus.web.mvc.model.RequestData;
 
@@ -63,10 +62,11 @@ public class SettingsController extends BaseController {
         return json(JsonResult.create(users, page.getTotal()));
     }
 
+    // TODO update parameter type
     @RequestMapping(value = "/settings/users/save", method = RequestMethod.POST)
     public View saveUser(@RequestBody AuthUser user) {
         UserService userService = getUserService();
-        if(StringUtils.isEmpty(user.getUserId())) {
+        if(user.getUserId() == null) {
             String defaultPassword = "1";
             String salt = "";
 
@@ -105,9 +105,10 @@ public class SettingsController extends BaseController {
         return json(JsonResult.create(roles, page.getTotal()));
     }
 
+    // TODO update parameter type
     @RequestMapping(value = "/settings/roles/save", method = RequestMethod.POST)
     public View saveRole(@RequestBody AuthRole role) {
-        if(StringUtils.isEmpty(role.getRoleId())) {
+        if(role.getRoleId() == null) {
             getRoleService().createRole(role);
         } else {
             getRoleService().updateRole(role);

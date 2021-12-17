@@ -33,7 +33,7 @@ public abstract class Transformer {
         boolean enabled = authUser.getStatus() == AuthUser.ENABLED;
         UserInfo user = new UserInfo(authUser.getUserName(), password.getPasswordValue(), enabled, true, true, true, roleInfoSet); 
 
-        user.setUserId(authUser.getUserId());
+        user.setUserId(authUser.getUserId().toString());
         user.setCellPhone(authUser.getCellPhone());
         user.setNickName(authUser.getNickName());
         user.setCreateTime(authUser.getCreateTime());
@@ -44,7 +44,7 @@ public abstract class Transformer {
     public static AuthUser toAuthUser(UserInfo userInfo) {
         AuthUser authUser = new AuthUser();
         
-        authUser.setUserId(userInfo.getUserId());
+        authUser.setUserId(UUID.fromString(userInfo.getUserId()));
         authUser.setUserName(userInfo.getUsername());
         authUser.setNickName(userInfo.getNickName());
         authUser.setStatus(userInfo.isEnabled() ? AuthUser.ENABLED : AuthUser.DISABLED);
@@ -58,9 +58,9 @@ public abstract class Transformer {
         AuthRole authRole = new AuthRole();
         if(StringUtils.isEmpty(role.getRole()) 
             || StringUtils.equals(MembershipRole.EMPTY_ROLE, role.getRole())) {
-            authRole.setRoleId(UUID.randomUUID().toString());
+            authRole.setRoleId(UUID.randomUUID());
         } else {
-            authRole.setRoleId(role.getRole());
+            authRole.setRoleId(UUID.fromString(role.getRole()));
         }
         authRole.setRoleName(role.getRoleName());
         authRole.setDescription(role.getDescription());
@@ -69,7 +69,7 @@ public abstract class Transformer {
     }
 
     public static RoleInfo toRoleInfo(AuthRole authRole) {
-        MembershipRole role = new MembershipRole(authRole.getRoleId(), authRole.getRoleName());
+        MembershipRole role = new MembershipRole(authRole.getRoleId().toString(), authRole.getRoleName());
         role.setDescription(authRole.getDescription());
         role.setEnable(AuthRole.ENABLED.equals(authRole.getStatus()));
         return role;
@@ -79,14 +79,16 @@ public abstract class Transformer {
         FunctionInfo functionInfo = null;
 
         if(StringUtils.equals(SysMenu.TYPE_MENU, sysMenu.getType())) {
-            MenuInfo menu = new MenuInfo(sysMenu.getFunctionId(), sysMenu.getFunctionName(), sysMenu.getUrl());
-            menu.setParentResourceCode(sysMenu.getParentId());
+            MenuInfo menu = new MenuInfo(
+                sysMenu.getFunctionId().toString(), sysMenu.getFunctionName(), sysMenu.getUrl());
+            menu.setParentResourceCode(sysMenu.getParentId().toString());
             menu.setEnabled(SysMenu.STATUS_ENABLED.equals(sysMenu.getStatus()));
             menu.setIcon(sysMenu.getIcon());
 
             functionInfo = menu;
         } else {
-            functionInfo = new FunctionInfo(sysMenu.getFunctionId(), sysMenu.getFunctionName(), sysMenu.getUrl());
+            functionInfo = new FunctionInfo(
+                sysMenu.getFunctionId().toString(), sysMenu.getFunctionName(), sysMenu.getUrl());
         }
 
         Collection<AuthRole> roles = sysMenu.getRoles();
