@@ -5,9 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 
+import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.builder.SqlSourceBuilder;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.mapping.StatementType;
+import org.apache.ibatis.session.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +44,54 @@ public class RoleServiceTest {
         Assert.assertNotNull(roles);
         Assert.assertTrue(roles.size() == 1);
         Assert.assertTrue(page.getTotal() > 0);
+    }
+
+    @Test
+    public void test_dynamicSelectMapper() {
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        String mappedStatementId = "runtimeSelect";
+        String namespace = "membership.auth_role";
+        String statementName = namespace + "." + mappedStatementId;
+        Map<String, Object> parameter = new HashMap<>();
+
+        {
+            // 创建动态的查询语句
+            Configuration config = dba.getTemplate().getConfiguration();
+
+            if(!config.hasStatement(statementName)) {
+                SqlSourceBuilder sqlBuilder = new SqlSourceBuilder(config);
+                SqlSource sqlSource = sqlBuilder.parse(
+                    "SELECT role_id, role_name, description, status FROM auth_role", 
+                    parameter.getClass(), null);
+
+                MapperBuilderAssistant assistant = new MapperBuilderAssistant(config, null);
+                assistant.setCurrentNamespace(namespace);
+                assistant.addMappedStatement(
+                    mappedStatementId, 
+                    sqlSource, 
+                    StatementType.PREPARED, 
+                    SqlCommandType.SELECT, 
+                    null, 
+                    null, 
+                    null, 
+                    parameter.getClass(), 
+                    null, 
+                    Map.class, 
+                    null, 
+                    false, 
+                    false, 
+                    false, 
+                    null, 
+                    null, 
+                    null, 
+                    config.getDatabaseId(), 
+                    config.getDefaultScriptingLanguageInstance());
+            }
+        }
+
+        // 执行查询
+        List<Object> result = dba.select(statementName);
+        Assert.assertNotNull(result);
     }
     
 }

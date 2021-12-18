@@ -60,6 +60,7 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
         mybatisConfig.setLogPrefix("[Mybatis-SQL]");
         mybatisConfig.setLogImpl(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
         mybatisConfig.addInterceptor(new PagingInterceptor(new PostgreSQLPagingDailect()));
+        mybatisConfig.setShrinkWhitespacesInSql(true);
 
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(getDataSource());
