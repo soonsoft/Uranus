@@ -91,7 +91,7 @@ public class RoleServiceTest {
                     Map.class, 
                     null, 
                     false, 
-                    false, 
+                    true, 
                     false, 
                     null, 
                     null, 
