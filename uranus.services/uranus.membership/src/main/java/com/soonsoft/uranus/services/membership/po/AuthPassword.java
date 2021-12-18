@@ -1,13 +1,14 @@
 package com.soonsoft.uranus.services.membership.po;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * AuthPassword
  */
 public class AuthPassword {
     
-    private String userId;
+    private UUID userId;
 
     private String passwordValue;
 
@@ -20,14 +21,14 @@ public class AuthPassword {
     /**
      * @return the userId
      */
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
     /**
      * @param userId the userId to set
      */
-    public void setUserId(String userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

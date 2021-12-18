@@ -21,9 +21,9 @@
   <insert id="insertFunction" parameterType="sysMenu">
     INSERT INTO sys_function(function_id, function_name, parent_id, description, type, status, sort_value)
       VALUES (
-        #{functionId}::uuid,
+        #{functionId},
         #{functionName, jdbcType=VARCHAR},
-        #{parentId}::uuid,
+        #{parentId},
         #{description, jdbcType=VARCHAR},
         #{type, jdbcType=VARCHAR},
         #{status, jdbcType=INTEGER},
@@ -34,7 +34,7 @@
   <insert id="insertMenu" parameterType="sysMenu">
     INSERT INTO sys_menu(function_id, menu_key, url, icon, background, theme_info, tile_style)
       VALUES (
-        #{functionId}::uuid,
+        #{functionId},
         #{menuKey, jdbcType=VARCHAR},
         #{url, jdbcType=VARCHAR},
         #{icon, jdbcType=VARCHAR},
@@ -54,7 +54,7 @@
         <if test="status != null">status = #{status, jdbcType=INTEGER},</if>
         <if test="sortValue != null">sort_value = #{sortValue, jdbcType=INTEGER},</if>
       </trim>
-      WHERE function_id = #{functionId}::uuid
+      WHERE function_id = #{functionId}
   </update>
 
   <update id="updateMenu" parameterType="sysMenu">
@@ -67,17 +67,17 @@
         <if test="themeInfo != null">theme_info = #{themeInfo, jdbcType=VARCHAR},</if>
         <if test="tileStyle != null">tile_style = #{tileStyle, jdbcType=VARCHAR},</if>
       </trim>
-      WHERE function_id = #{functionId}::uuid
+      WHERE function_id = #{functionId}
   </update>
 
   <delete id="deleteFunction" parameterType="java.lang.String">
     DELETE FROM sys_function
-      WHERE function_id = #{functionId}:uuid
+      WHERE function_id = #{functionId}
   </delete>
 
   <delete id="deleteMenu" parameterType="java.lang.String">
     DELETE FROM sys_menu
-      WHERE function_id = #{functionId}:uuid
+      WHERE function_id = #{functionId}
   </delete>
 
   <select id="select" parameterType="java.util.Map" resultMap="sysMenuMap">

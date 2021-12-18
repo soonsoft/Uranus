@@ -1,35 +1,34 @@
 package com.soonsoft.uranus.services.membership.dao;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId;
 
-/**
- * AuthUsersInRolesDAO
- */
 public class AuthUsersInRolesDAO extends BaseDAO {
 
     public int insert(AuthUserIdAndRoleId userIdAndRoleId) {
         return getMembershipAccess().insert("membership.auth_users_in_roles.insert", userIdAndRoleId);
     }
 
-    public int deleteByUserId(String userId) {
+    public int deleteByUserId(UUID userId) {
         return getMembershipAccess().insert("membership.auth_users_in_roles.deleteByUserId", userId);
     }
     
-    public List<AuthRole> selectByUserId(String userId) {
+    public List<AuthRole> selectByUserId(UUID userId) {
         Map<String, Object> params = MapUtils.createHashMap(1);
         params.put("userId", userId);
         return getMembershipAccess().select("membership.auth_users_in_roles.selectByUserId", params);
     }
 
-    public Map<String, Set<Object>> selectByUsers(List<String> userIdList, Integer status) {
+    public Map<UUID, Set<Object>> selectByUsers(Collection<UUID> userIdList, Integer status) {
         Map<String, Object> params = MapUtils.createHashMap(2);
         params.put("users", userIdList);
         if(status != null) {
@@ -44,7 +43,7 @@ public class AuthUsersInRolesDAO extends BaseDAO {
         );
     }
 
-    public Map<String, Set<Object>> selectByRoles(List<String> roleIdList, Integer status) {
+    public Map<UUID, Set<Object>> selectByRoles(Collection<UUID> roleIdList, Integer status) {
         Map<String, Object> params = MapUtils.createHashMap(2);
         params.put("roles", roleIdList);
         if(status != null) {
@@ -59,22 +58,22 @@ public class AuthUsersInRolesDAO extends BaseDAO {
         );
     }
 
-    private static String getUserId(AuthUserIdAndRoleId record) {
+    private static UUID getUserId(AuthUserIdAndRoleId record) {
         return record.getUserId();
     }
 
-    private static String getRoleId(AuthUserIdAndRoleId record) {
+    private static UUID getRoleId(AuthUserIdAndRoleId record) {
         return record.getRoleId();
     }
 
-    private Map<String, Set<Object>> orderData(
+    private Map<UUID, Set<Object>> orderData(
         List<AuthUserIdAndRoleId> records, 
-        Function<AuthUserIdAndRoleId, String> keyGetter,
+        Function<AuthUserIdAndRoleId, UUID> keyGetter,
         Function<AuthUserIdAndRoleId, Object> valueGetter) {
         if(records == null || records.isEmpty()) {
             return null;
         }
-        Map<String, Set<Object>> value = MapUtils.createHashMap(32);
+        Map<UUID, Set<Object>> value = MapUtils.createHashMap(32);
         records.forEach(i -> {
             Set<Object> collection = value.get(keyGetter.apply(i));
             if(collection == null) {

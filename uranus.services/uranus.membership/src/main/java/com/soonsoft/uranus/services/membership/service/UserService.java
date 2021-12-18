@@ -23,7 +23,6 @@ import com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
-import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -110,7 +109,7 @@ public class UserService implements IUserManager {
         Guard.notNull(user, "the user is required.");
         Guard.notEmpty(user.getUserId(), "the user.userId is required.");
 
-        int affectRows = userDAO.delete(user.getUserId());
+        int affectRows = userDAO.delete(UUID.fromString(user.getUserId()));
         return affectRows > 0;
     }
 
@@ -130,7 +129,7 @@ public class UserService implements IUserManager {
         Guard.notEmpty(user.getUserId(), "the user.userId is required.");
 
         AuthUser authUser = new AuthUser();
-        authUser.setUserId(user.getUserId());
+        authUser.setUserId(UUID.fromString(user.getUserId()));
         authUser.setStatus(AuthUser.DISABLED);
 
         return update(authUser);
@@ -174,11 +173,11 @@ public class UserService implements IUserManager {
 
         List<AuthUser> users = userDAO.select(params, page);
         if(!CollectionUtils.isEmpty(users)) {
-            List<String> userIdList = new ArrayList<>(users.size());
+            List<UUID> userIdList = new ArrayList<>(users.size());
             for(AuthUser user : users) {
                 userIdList.add(user.getUserId());
             }
-            Map<String, Set<Object>> roleMap = usersInRolesDAO.selectByUsers(userIdList, null);
+            Map<UUID, Set<Object>> roleMap = usersInRolesDAO.selectByUsers(userIdList, null);
             if(!MapUtils.isEmpty(roleMap)) {
                 users.forEach(user -> {
                     List<Object> idList = new ArrayList<>();
@@ -199,8 +198,8 @@ public class UserService implements IUserManager {
         Guard.notNull("authUser", "the authUser is required.");
         Guard.notNull("authPassword", "the authPassword is required.");
 
-        if(StringUtils.isEmpty(authUser.getUserId())) {
-            authUser.setUserId(UUID.randomUUID().toString());
+        if(authUser.getUserId() != null) {
+            authUser.setUserId(UUID.randomUUID());
         }
         if(authUser.getCreateTime() == null) {
             authUser.setCreateTime(new Date());
@@ -220,7 +219,7 @@ public class UserService implements IUserManager {
             for(Object roleId : roles) {
                 AuthUserIdAndRoleId userIdAndRoleId = new AuthUserIdAndRoleId();
                 userIdAndRoleId.setUserId(authUser.getUserId());
-                userIdAndRoleId.setRoleId((String) roleId);
+                userIdAndRoleId.setRoleId((UUID) roleId);
                 effectRows += usersInRolesDAO.insert(userIdAndRoleId);
             }
         }
@@ -231,7 +230,7 @@ public class UserService implements IUserManager {
     @Transactional
     public boolean update(AuthUser authUser) {
         Guard.notNull(authUser, "the authUser is required.");
-        Guard.notEmpty(authUser.getUserId(), "the authUser.userId is required.");
+        Guard.notNull(authUser.getUserId(), "the authUser.userId is required.");
 
         int effectRows = userDAO.update(authUser);
         return effectRows > 0;

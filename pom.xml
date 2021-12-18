@@ -135,31 +135,40 @@
                 <version>2.11.2</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.1-api</artifactId>
+                <version>1.0.2.Final</version>
+            </dependency>
+
+
             <!-- 数据库驱动 -->
             <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.2.23</version>
+                <version>42.3.1</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.26</version>
+                <version>8.0.27</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8 -->
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
-                <version>21.1.0.0</version>
+                <version>21.3.0.0</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>9.4.0.jre11</version>
+                <version>9.5.0.jre17-preview</version>
             </dependency>
+
 
             <!-- 数据源 https://github.com/brettwooldridge/HikariCP -->
             <dependency>

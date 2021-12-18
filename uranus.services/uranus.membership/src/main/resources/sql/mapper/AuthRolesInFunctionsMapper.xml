@@ -13,19 +13,19 @@
   <insert id="insert" parameterType="authRoleIdAndFunctionId">
     INSERT INTO auth_roles_in_functions(role_id, function_id)
       VALUES (
-        #{roleId}::uuid,
-        #{functionId}::uuid
+        #{roleId},
+        #{functionId}
       )
   </insert>
 
   <delete id="deleteByRoleId" parameterType="java.lang.String">
     DELETE FROM auth_roles_in_functions
-      WHERE role_id = #{roleId}::uuid
+      WHERE role_id = #{roleId}
   </delete>
 
   <delete id="deleteByFunctionId" parameterType="java.lang.String">
       DELETE FROM auth_roles_in_functions
-        WHERE function_id = #{functionId}::uuid
+        WHERE function_id = #{functionId}
     </delete>
 
   <select id="selectByFunctions" parameterType="java.util.Map" resultMap="authRoleIdAndFunctionIdMap">
@@ -40,7 +40,7 @@
         </trim>
       WHERE t.function_id IN
         <foreach collection="functions" item="functionId" index="index" open="(" separator="," close=")">
-          #{functionId}::uuid
+          #{functionId}
         </foreach>
   </select>
 
@@ -56,7 +56,7 @@
         </trim>
       WHERE t.role_id IN
         <foreach collection="roles" item="roleId" index="index" open="(" separator="," close=")">
-          #{roleId}::uuid
+          #{roleId}
         </foreach>
   </select>
 

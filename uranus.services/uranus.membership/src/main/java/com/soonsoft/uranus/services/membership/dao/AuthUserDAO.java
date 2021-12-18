@@ -2,6 +2,7 @@ package com.soonsoft.uranus.services.membership.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
@@ -21,7 +22,7 @@ public class AuthUserDAO extends BaseDAO {
         return getMembershipAccess().update("membership.auth_user.update", user);
     }
 
-    public int delete(String userId) {
+    public int delete(UUID userId) {
         return getMembershipAccess().delete("membership.auth_user.delete", userId);
     }
 

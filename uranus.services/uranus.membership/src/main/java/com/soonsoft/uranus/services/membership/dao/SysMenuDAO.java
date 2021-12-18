@@ -2,6 +2,7 @@ package com.soonsoft.uranus.services.membership.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
@@ -18,7 +19,7 @@ public class SysMenuDAO extends BaseDAO {
         return getMembershipAccess().update("membership.sys_menu.updateMenu", menu);
     }
     
-    public int delete(String functionId) {
+    public int delete(UUID functionId) {
         return getMembershipAccess().delete("membership.sys_menu.deleteMenu", functionId);
     }
 

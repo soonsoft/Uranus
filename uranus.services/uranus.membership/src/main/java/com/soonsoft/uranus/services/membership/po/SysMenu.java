@@ -2,6 +2,7 @@ package com.soonsoft.uranus.services.membership.po;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * SysMenu
@@ -16,11 +17,11 @@ public class SysMenu {
 
     public static final String TYPE_ACTION = "action";
 
-    private String functionId;
+    private UUID functionId;
 
     private String functionName;
 
-    private String parentId;
+    private UUID parentId;
 
     private String description;
 
@@ -53,11 +54,11 @@ public class SysMenu {
 
     private Collection<AuthRole> roles;
 
-    public String getFunctionId() {
+    public UUID getFunctionId() {
         return functionId;
     }
 
-    public void setFunctionId(String functionId) {
+    public void setFunctionId(UUID functionId) {
         this.functionId = functionId;
     }
 
@@ -69,11 +70,11 @@ public class SysMenu {
         this.functionName = functionName;
     }
 
-    public String getParentId() {
+    public UUID getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(UUID parentId) {
         this.parentId = parentId;
     }
 

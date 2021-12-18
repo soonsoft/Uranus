@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.services.membership.dao;
 
+import java.util.UUID;
+
 import com.soonsoft.uranus.services.membership.po.AuthPassword;
 
 /**
@@ -7,7 +9,7 @@ import com.soonsoft.uranus.services.membership.po.AuthPassword;
  */
 public class AuthPasswordDAO extends BaseDAO {
 
-    public AuthPassword getUserPassword(String userId) {
+    public AuthPassword getUserPassword(UUID userId) {
         return this.getMembershipAccess().get("membership.auth_password.getByUserId", userId);
     }
 
