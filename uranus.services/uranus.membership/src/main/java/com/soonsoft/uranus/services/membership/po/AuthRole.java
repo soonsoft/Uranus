@@ -3,24 +3,31 @@ package com.soonsoft.uranus.services.membership.po;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * AuthRole
- */
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Table(name = "auth_role")
 public class AuthRole {
 
     public static final Integer ENABLED = 1;
 
     public static final Integer DISABLED = 0;
 
+    @Id
+    @Column(name = "role_id")
     private UUID roleId;
 
+    @Column(name = "role_name")
     private String roleName;
 
+    @Column(name = "description")
     private String description;
 
     /**
      * 状态 1: 有效, 2: 无效
      */
+    @Column(name = "status")
     private Integer status = ENABLED;
 
     /**
