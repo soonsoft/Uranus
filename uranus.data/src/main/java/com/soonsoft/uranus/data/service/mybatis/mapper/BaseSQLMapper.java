@@ -123,7 +123,7 @@ public abstract class BaseSQLMapper implements ISQLMapper {
         String statementName = builderAssistant.getCurrentNamespace() + DOT + id;
         if (configuration.hasStatement(statementName)) {
             //logger.warn(LEFT_SQ_BRACKET + statementName + "] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [" + getClass() + RIGHT_SQ_BRACKET);
-            //return null;
+            return null;
         }
         /* 缓存逻辑处理 */
         boolean flushCache = true;

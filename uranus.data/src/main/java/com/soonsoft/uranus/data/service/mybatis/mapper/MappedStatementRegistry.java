@@ -43,7 +43,7 @@ public class MappedStatementRegistry {
         mapperHandlerList.addAll(sqlMappers);
     }
 
-    public void register(Configuration configuration, Class<?> entityClasses) {
+    public void register(Configuration configuration, Class<?>... entityClasses) {
         register(configuration, DEFAULT_NAMESPACE, entityClasses);
     }
 

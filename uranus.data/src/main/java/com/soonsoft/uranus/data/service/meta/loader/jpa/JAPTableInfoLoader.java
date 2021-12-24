@@ -29,34 +29,37 @@ public class JAPTableInfoLoader implements ITableInfoLoader {
 
     private final static Map<Class<?>, JDBCType> JDBC_TYPE_MAPPER = new HashMap<>() {
         {
-            put(Boolean.class, JDBCType.BIT);
             put(Boolean.TYPE, JDBCType.BIT);
-            put(Character.class, JDBCType.CHAR);
             put(Character.TYPE, JDBCType.CHAR);
-            put(Byte.class, JDBCType.TINYINT);
             put(Byte.TYPE, JDBCType.TINYINT);
-            put(Short.class, JDBCType.SMALLINT);
             put(Short.TYPE, JDBCType.SMALLINT);
-            put(Integer.class, JDBCType.INTEGER);
             put(Integer.TYPE, JDBCType.INTEGER);
-            put(Long.class, JDBCType.BIGINT);
             put(Long.TYPE, JDBCType.BIGINT);
-            put(Float.class, JDBCType.FLOAT);
             put(Float.TYPE, JDBCType.FLOAT);
-            put(Double.class, JDBCType.DOUBLE);
             put(Double.TYPE, JDBCType.DOUBLE);
             put(Void.TYPE, JDBCType.NULL);
+
+            put(Boolean.class, JDBCType.BIT);
+            put(Character.class, JDBCType.CHAR);
+            put(Byte.class, JDBCType.TINYINT);
+            put(Short.class, JDBCType.SMALLINT);
+            put(Integer.class, JDBCType.INTEGER);
+            put(Long.class, JDBCType.BIGINT);
+            put(Float.class, JDBCType.FLOAT);
+            put(Double.class, JDBCType.DOUBLE);
+
+            put(byte[].class, JDBCType.BLOB);
             put(BigDecimal.class, JDBCType.DECIMAL);
             put(Number.class, JDBCType.DECIMAL);
             put(String.class, JDBCType.VARCHAR);
+
+            put(java.util.UUID.class, JDBCType.VARCHAR);
             put(java.util.Date.class, JDBCType.TIMESTAMP);
             put(java.time.LocalDate.class, JDBCType.DATE);
             put(java.time.LocalTime.class, JDBCType.TIME);
             put(java.sql.Date.class, JDBCType.DATE);
             put(java.sql.Time.class, JDBCType.TIME);
             put(java.sql.Timestamp.class, JDBCType.TIMESTAMP);
-            put(java.util.UUID.class, JDBCType.VARCHAR);
-            put(byte[].class, JDBCType.BLOB);
         }
     };
 
