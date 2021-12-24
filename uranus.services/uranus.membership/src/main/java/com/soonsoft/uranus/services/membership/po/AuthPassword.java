@@ -3,19 +3,27 @@ package com.soonsoft.uranus.services.membership.po;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * AuthPassword
- */
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Table(name = "auth_password")
 public class AuthPassword {
     
+    @Id
+    @Column(name = "user_id")
     private UUID userId;
 
+    @Column(name = "password_value")
     private String passwordValue;
 
+    @Column(name = "password_salt")
     private String passwordSalt;
 
+    @Column(name = "password_changed_time")
     private Date passwordChangedTime;
 
+    @Column(name = "create_time")
     private Date createTime;
     
     /**

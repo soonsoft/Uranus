@@ -2,113 +2,29 @@ package com.soonsoft.uranus.services.membership.po;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.UUID;
 
-/**
- * SysMenu
- */
-public class SysMenu {
+import javax.persistence.Column;
+import javax.persistence.Table;
 
-    public static final Integer STATUS_ENABLED = 1;
+@Table(name = "sys_menu")
+public class SysMenu extends SysFunction {
 
-    public static final Integer STATUS_DISABLED = 0;
-
-    public static final String TYPE_MENU = "menu";
-
-    public static final String TYPE_ACTION = "action";
-
-    private UUID functionId;
-
-    private String functionName;
-
-    private UUID parentId;
-
-    private String description;
-
-    /**
-     * 功能类型 menu: 菜单, action: 操作
-     */
-    private String type = TYPE_MENU;
-
-    /**
-     * 状态 1: 有效, 2: 无效
-     */
-    private Integer status = STATUS_ENABLED;
-
-    /**
-     * 排序
-     */
-    private int sortValue = 0;
-
+    @Column(name = "menu_key")
     private String menuKey;
 
-    private String url;
-
+    @Column(name = "icon")
     private String icon;
 
+    @Column(name = "background")
     private String background;
 
+    @Column(name = "theme_info")
     private String themeInfo;
 
+    @Column(name = "tile_style")
     private String tileStyle;
 
     private Collection<AuthRole> roles;
-
-    public UUID getFunctionId() {
-        return functionId;
-    }
-
-    public void setFunctionId(UUID functionId) {
-        this.functionId = functionId;
-    }
-
-    public String getFunctionName() {
-        return functionName;
-    }
-
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
-    public UUID getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(UUID parentId) {
-        this.parentId = parentId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-    
-    public int getSortValue() {
-        return sortValue;
-    }
-
-    public void setSortValue(int sortValue) {
-        this.sortValue = sortValue;
-    }
 
     public String getMenuKey() {
         return menuKey;
@@ -116,14 +32,6 @@ public class SysMenu {
 
     public void setMenuKey(String menuKey) {
         this.menuKey = menuKey;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getIcon() {

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import javax.persistence.Column;
@@ -16,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.data.service.meta.ColumnInfo;
 import com.soonsoft.uranus.data.service.meta.IDType;
 import com.soonsoft.uranus.data.service.meta.PrimaryKey;
@@ -27,13 +29,25 @@ public class JAPTableInfoLoader implements ITableInfoLoader {
 
     private final static Map<Class<?>, JDBCType> JDBC_TYPE_MAPPER = new HashMap<>() {
         {
+            put(Boolean.class, JDBCType.BIT);
+            put(Boolean.TYPE, JDBCType.BIT);
+            put(Character.class, JDBCType.CHAR);
+            put(Character.TYPE, JDBCType.CHAR);
             put(Byte.class, JDBCType.TINYINT);
+            put(Byte.TYPE, JDBCType.TINYINT);
             put(Short.class, JDBCType.SMALLINT);
+            put(Short.TYPE, JDBCType.SMALLINT);
             put(Integer.class, JDBCType.INTEGER);
+            put(Integer.TYPE, JDBCType.INTEGER);
             put(Long.class, JDBCType.BIGINT);
+            put(Long.TYPE, JDBCType.BIGINT);
             put(Float.class, JDBCType.FLOAT);
+            put(Float.TYPE, JDBCType.FLOAT);
             put(Double.class, JDBCType.DOUBLE);
+            put(Double.TYPE, JDBCType.DOUBLE);
+            put(Void.TYPE, JDBCType.NULL);
             put(BigDecimal.class, JDBCType.DECIMAL);
+            put(Number.class, JDBCType.DECIMAL);
             put(String.class, JDBCType.VARCHAR);
             put(java.util.Date.class, JDBCType.TIMESTAMP);
             put(java.time.LocalDate.class, JDBCType.DATE);
@@ -43,10 +57,6 @@ public class JAPTableInfoLoader implements ITableInfoLoader {
             put(java.sql.Timestamp.class, JDBCType.TIMESTAMP);
             put(java.util.UUID.class, JDBCType.VARCHAR);
             put(byte[].class, JDBCType.BLOB);
-            put(Boolean.class, JDBCType.BIT);
-            put(Character.class, JDBCType.CHAR);
-            put(Number.class, JDBCType.NUMERIC);
-            put(Void.class, JDBCType.NULL);
         }
     };
 
@@ -62,12 +72,8 @@ public class JAPTableInfoLoader implements ITableInfoLoader {
         tableInfo.setEntityType(entityClass);
         tableInfo.setColumns(new ArrayList<>());
 
-        Field[] fields = entityClass.getDeclaredFields();
-        for(int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            if(Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
+        List<Field> allFields = findAllFields(entityClass);
+        for(Field field : allFields) {
             loadColumnInfo(field, tableInfo);
         }
 
@@ -78,6 +84,38 @@ public class JAPTableInfoLoader implements ITableInfoLoader {
         tableInfo.setPrimaryKey(new PrimaryKey(keys));
 
         return tableInfo;
+    }
+
+    protected List<Field> findAllFields(Class<?> entityClass) {
+        List<Field> allFields = new ArrayList<>(20);
+        Stack<Class<?>> superClasses = new Stack<>();
+
+        Action1<Class<?>> fillAction = c -> {
+            Field[] fields = c.getDeclaredFields();
+            for(int i = 0; i < fields.length; i++) {
+                Field field = fields[i];
+                if(Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
+                allFields.add(field);
+            }
+        };
+
+        Class<?> superClass = entityClass;
+        while((superClass = superClass.getSuperclass()) != null) {
+            if(superClass == Object.class) {
+                break;
+            }
+            superClasses.push(superClass);
+        }
+
+        while(!superClasses.isEmpty()) {
+            fillAction.apply(superClasses.pop());
+        }
+
+        fillAction.apply(entityClass);
+
+        return allFields;
     }
 
     protected void loadColumnInfo(Field field, TableInfo tableInfo) {
