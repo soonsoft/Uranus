@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.service.mate.loader.jpa;
+package com.soonsoft.uranus.data.service.meta.loader.jpa;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -16,12 +16,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.soonsoft.uranus.data.service.mate.ColumnInfo;
-import com.soonsoft.uranus.data.service.mate.IDType;
-import com.soonsoft.uranus.data.service.mate.PrimaryKey;
-import com.soonsoft.uranus.data.service.mate.TableInfo;
-import com.soonsoft.uranus.data.service.mate.anno.MappingType;
-import com.soonsoft.uranus.data.service.mate.loader.ITableInfoLoader;
+import com.soonsoft.uranus.data.service.meta.ColumnInfo;
+import com.soonsoft.uranus.data.service.meta.IDType;
+import com.soonsoft.uranus.data.service.meta.PrimaryKey;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
+import com.soonsoft.uranus.data.service.meta.anno.MappingType;
+import com.soonsoft.uranus.data.service.meta.loader.ITableInfoLoader;
 
 public class JAPTableInfoLoader implements ITableInfoLoader {
 

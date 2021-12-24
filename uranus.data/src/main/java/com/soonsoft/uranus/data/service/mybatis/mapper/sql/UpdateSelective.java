@@ -1,8 +1,8 @@
 package com.soonsoft.uranus.data.service.mybatis.mapper.sql;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.data.service.mate.ColumnInfo;
-import com.soonsoft.uranus.data.service.mate.TableInfo;
+import com.soonsoft.uranus.data.service.meta.ColumnInfo;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
 
 public class UpdateSelective extends Update {
 

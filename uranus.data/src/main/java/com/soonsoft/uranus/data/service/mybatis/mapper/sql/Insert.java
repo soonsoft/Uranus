@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
-import com.soonsoft.uranus.data.service.mate.ColumnInfo;
-import com.soonsoft.uranus.data.service.mate.IDType;
-import com.soonsoft.uranus.data.service.mate.PrimaryKey;
-import com.soonsoft.uranus.data.service.mate.TableInfo;
+import com.soonsoft.uranus.data.service.meta.ColumnInfo;
+import com.soonsoft.uranus.data.service.meta.IDType;
+import com.soonsoft.uranus.data.service.meta.PrimaryKey;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
 import com.soonsoft.uranus.data.service.mybatis.mapper.BaseSQLMapper;
 
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;

@@ -6,9 +6,9 @@ import java.util.Collection;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.data.service.mate.ColumnInfo;
-import com.soonsoft.uranus.data.service.mate.PrimaryKey;
-import com.soonsoft.uranus.data.service.mate.TableInfo;
+import com.soonsoft.uranus.data.service.meta.ColumnInfo;
+import com.soonsoft.uranus.data.service.meta.PrimaryKey;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
 
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.keygen.KeyGenerator;

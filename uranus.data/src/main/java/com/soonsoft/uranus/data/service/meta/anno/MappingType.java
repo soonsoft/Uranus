@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.service.mate.anno;
+package com.soonsoft.uranus.data.service.meta.anno;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

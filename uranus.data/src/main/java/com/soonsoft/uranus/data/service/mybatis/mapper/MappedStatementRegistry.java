@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.soonsoft.uranus.data.service.mate.TableInfo;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
 
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.session.Configuration;

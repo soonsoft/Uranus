@@ -1,6 +1,6 @@
 package com.soonsoft.uranus.data.service.mybatis.mapper;
 
-import com.soonsoft.uranus.data.service.mate.TableInfo;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
 
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.MappedStatement;

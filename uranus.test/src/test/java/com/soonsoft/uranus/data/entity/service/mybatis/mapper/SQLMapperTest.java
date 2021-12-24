@@ -1,13 +1,13 @@
-package com.soonsoft.uranus.services.membership.service;
+package com.soonsoft.uranus.data.entity.service.mybatis.mapper;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.soonsoft.uranus.data.service.mate.TableInfo;
-import com.soonsoft.uranus.data.service.mate.loader.ITableInfoLoader;
-import com.soonsoft.uranus.data.service.mate.loader.jpa.JAPTableInfoLoader;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
+import com.soonsoft.uranus.data.service.meta.loader.ITableInfoLoader;
+import com.soonsoft.uranus.data.service.meta.loader.jpa.JAPTableInfoLoader;
 import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.mapper.sql.Delete;
 import com.soonsoft.uranus.data.service.mybatis.mapper.sql.GetByPrimary;
@@ -17,6 +17,7 @@ import com.soonsoft.uranus.data.service.mybatis.mapper.sql.Update;
 import com.soonsoft.uranus.data.service.mybatis.mapper.sql.UpdateSelective;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
+import com.soonsoft.uranus.services.membership.service.RoleService;
 
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.session.Configuration;

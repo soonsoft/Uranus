@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.service.mate;
+package com.soonsoft.uranus.data.service.meta;
 
 import java.util.List;
 

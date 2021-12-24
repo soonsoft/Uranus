@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.data.service.mate.ColumnInfo;
-import com.soonsoft.uranus.data.service.mate.TableInfo;
+import com.soonsoft.uranus.data.service.meta.ColumnInfo;
+import com.soonsoft.uranus.data.service.meta.TableInfo;
 import com.soonsoft.uranus.data.service.mybatis.mapper.BaseSQLMapper;
 
 import org.apache.ibatis.mapping.MappedStatement;
