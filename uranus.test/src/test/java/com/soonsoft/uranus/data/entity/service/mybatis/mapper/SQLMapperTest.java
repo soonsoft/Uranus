@@ -69,7 +69,7 @@ public class SQLMapperTest {
         String namespace = "uranus" + "." + authRoleTable.getTableName();
         String id = insert.getMapperName();
         
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -87,7 +87,7 @@ public class SQLMapperTest {
         String namespace = "uranus" + "." + authRoleTable.getTableName();
         String id = update.getMapperName();
         
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -108,7 +108,7 @@ public class SQLMapperTest {
         String namespace = "uranus" + "." + authRoleTable.getTableName();
         String id = get.getMapperName();
         
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -130,7 +130,7 @@ public class SQLMapperTest {
         String namespace = "uranus" + "." + authRoleTable.getTableName();
         String id = delete.getMapperName();
         
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -148,7 +148,7 @@ public class SQLMapperTest {
         String namespace = "uranus" + "." + authRoleTable.getTableName();
         String id = insertSelective.getMapperName();
         
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -169,7 +169,7 @@ public class SQLMapperTest {
         String namespace = "uranus" + "." + authRoleTable.getTableName();
         String id = updateSelective.getMapperName();
         
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);

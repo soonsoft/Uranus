@@ -33,9 +33,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * RoleService
- */
 public class RoleService implements IRoleManager, IRoleChangedListener<String> {
 
     private AuthRoleDAO roleDAO;
@@ -157,7 +154,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
             page = new Page();
         }
 
-        List<AuthRole> roles = roleDAO.select(params, page);
+        List<AuthRole> roles = roleDAO.selectRole(params, page);
         if (!CollectionUtils.isEmpty(roles)) {
             Set<UUID> roleIdSet = roles.stream().map(i -> i.getRoleId()).collect(Collectors.toSet());
             Map<UUID, Set<Object>> menuMap = rolesInFunctionsDAO.selectByRoles(roleIdSet, null);

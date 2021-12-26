@@ -26,6 +26,7 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
         Map<String, Object> annotationAttrs = annotationMetadata.getAnnotationAttributes(EnableDatabaseAccess.class.getName());
         String primaryName = (String) annotationAttrs.get("primaryName");
         String[] mybatisMapperLocations = (String[]) annotationAttrs.get("mybatisMapperLocations");
+        String[] entityClassPackages = (String[]) annotationAttrs.get("entityClassPackages");
         DatabaseAccessTypeEnum type = (DatabaseAccessTypeEnum)annotationAttrs.get("type");
         String[] dataSourceNames = findDataSourceBeanNames(registry);
 
@@ -45,7 +46,7 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
             String dataSourceName = dataSourceNames[i].trim();
             boolean primary = primaryName.equals(dataSourceName);
             registerTransactionManager(dataSourceName, registry, primary);
-            registerDatabaseAccess(type, dataSourceName, mybatisMapperLocations, registry, primary);
+            registerDatabaseAccess(type, dataSourceName, mybatisMapperLocations, entityClassPackages, registry, primary);
         }
     }
 
@@ -60,7 +61,14 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
 
     }
 
-    protected void registerDatabaseAccess(DatabaseAccessTypeEnum type, String dataSourceName, String[] mybatisMapperLocations, BeanDefinitionRegistry registry, boolean primary) {
+    protected void registerDatabaseAccess(
+            DatabaseAccessTypeEnum type, 
+            String dataSourceName, 
+            String[] mybatisMapperLocations, 
+            String[] entityClassPackages, 
+            BeanDefinitionRegistry registry, 
+            boolean primary) {
+
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(type.getFactoryClass());
         builder.addConstructorArgReference(dataSourceName);
         if(DatabaseAccessTypeEnum.MYBATIS == type) {
@@ -68,6 +76,10 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
                 throw new IllegalArgumentException("the parameter mybatisMapperLocations is required.");
             }
             builder.addPropertyValue("mapperLocations", mybatisMapperLocations);
+
+            if(entityClassPackages != null && entityClassPackages.length > 0) {
+                builder.addPropertyValue("entityClassPackages", entityClassPackages);
+            }
         }
 
         BeanDefinition beanDefinition = builder.getBeanDefinition();

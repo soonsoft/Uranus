@@ -26,7 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootConfiguration
 @Import(value = MembershipDataSourceProperty.class)
-@EnableDatabaseAccess(primaryName = "membership")
+@EnableDatabaseAccess(primaryName = "membership", entityClassPackages = "com.soonsoft.uranus.services.membership.po")
 public class MembershipConfig {
 
     @Bean(name = "membership")
@@ -41,12 +41,9 @@ public class MembershipConfig {
 
     @Bean
     public UserService userService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {
-        AuthUserDAO authUserDAO = new AuthUserDAO();
-        authUserDAO.setMembershipAccess(securityAccess);
-        AuthPasswordDAO authPasswordDAO = new AuthPasswordDAO();
-        authPasswordDAO.setMembershipAccess(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-        usersInRolesDAO.setMembershipAccess(securityAccess);
+        AuthUserDAO authUserDAO = new AuthUserDAO(securityAccess);
+        AuthPasswordDAO authPasswordDAO = new AuthPasswordDAO(securityAccess);
+        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
 
         UserService userService = new UserService();
         userService.setUserDAO(authUserDAO);
@@ -59,12 +56,9 @@ public class MembershipConfig {
 
     @Bean("membershipRoleService")
     public RoleService roleService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
-        AuthRoleDAO roleDAO = new AuthRoleDAO();
-        roleDAO.setMembershipAccess(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-        usersInRolesDAO.setMembershipAccess(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-        rolesInFunctionsDAO.setMembershipAccess(securityAccess);
+        AuthRoleDAO roleDAO = new AuthRoleDAO(securityAccess);
+        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
+        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
         
         RoleService roleService = new RoleService();
         roleService.setRoleDAO(roleDAO);
@@ -76,12 +70,9 @@ public class MembershipConfig {
 
     @Bean
     public FunctionService functionService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
-        SysFunctionDAO functionDAO = new SysFunctionDAO();
-        functionDAO.setMembershipAccess(securityAccess);
-        SysMenuDAO menuDAO = new SysMenuDAO();
-        menuDAO.setMembershipAccess(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-        rolesInFunctionsDAO.setMembershipAccess(securityAccess);
+        SysFunctionDAO functionDAO = new SysFunctionDAO(securityAccess);
+        SysMenuDAO menuDAO = new SysMenuDAO(securityAccess);
+        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
 
         FunctionService functionService = new FunctionService();
         functionService.setFunctionDAO(functionDAO);

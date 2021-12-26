@@ -9,23 +9,25 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import com.soonsoft.uranus.core.common.collection.MapUtils;
+import com.soonsoft.uranus.data.IDatabaseAccess;
+import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId;
 
-public class AuthUsersInRolesDAO extends BaseDAO {
+public class AuthUsersInRolesDAO extends MybatisBaseDAO<AuthUserIdAndRoleId> {
 
-    public int insert(AuthUserIdAndRoleId userIdAndRoleId) {
-        return getMembershipAccess().insert("membership.auth_users_in_roles.insert", userIdAndRoleId);
+    public AuthUsersInRolesDAO(IDatabaseAccess<?> databaseAccess) {
+        super(databaseAccess);
     }
 
     public int deleteByUserId(UUID userId) {
-        return getMembershipAccess().insert("membership.auth_users_in_roles.deleteByUserId", userId);
+        return getDatabaseAccess().insert("uranus.membership.deleteUserRoleByUserId", userId);
     }
     
     public List<AuthRole> selectByUserId(UUID userId) {
         Map<String, Object> params = MapUtils.createHashMap(1);
         params.put("userId", userId);
-        return getMembershipAccess().select("membership.auth_users_in_roles.selectByUserId", params);
+        return getDatabaseAccess().select("uranus.membership.selectRolesByUserId", params);
     }
 
     public Map<UUID, Set<Object>> selectByUsers(Collection<UUID> userIdList, Integer status) {
@@ -35,7 +37,7 @@ public class AuthUsersInRolesDAO extends BaseDAO {
             params.put("status", status);
         }
 
-        List<AuthUserIdAndRoleId> records =  getMembershipAccess().select("membership.auth_users_in_roles.selectByUsers", params);
+        List<AuthUserIdAndRoleId> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByUsers", params);
         return orderData(
             records, 
             AuthUsersInRolesDAO::getUserId, 
@@ -50,7 +52,7 @@ public class AuthUsersInRolesDAO extends BaseDAO {
             params.put("status", status);
         }
 
-        List<AuthUserIdAndRoleId> records =  getMembershipAccess().select("membership.auth_users_in_roles.selectByRoles", params);
+        List<AuthUserIdAndRoleId> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByRoles", params);
         return orderData(
             records, 
             AuthUsersInRolesDAO::getRoleId, 

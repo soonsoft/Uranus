@@ -22,12 +22,9 @@ public class FunctionServiceFactory extends BaseMembershipServiceFactory<Functio
     public FunctionService getObject() throws Exception {
         IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
-        SysFunctionDAO functionDAO = new SysFunctionDAO();
-        functionDAO.setMembershipAccess(securityAccess);
-        SysMenuDAO menuDAO = new SysMenuDAO();
-        menuDAO.setMembershipAccess(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-        rolesInFunctionsDAO.setMembershipAccess(securityAccess);
+        SysFunctionDAO functionDAO = new SysFunctionDAO(securityAccess);
+        SysMenuDAO menuDAO = new SysMenuDAO(securityAccess);
+        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
 
         FunctionService functionService = new FunctionService();
         functionService.setFunctionDAO(functionDAO);

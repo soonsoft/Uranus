@@ -22,12 +22,9 @@ public class RoleServiceFactory extends BaseMembershipServiceFactory<RoleService
     public RoleService getObject() throws Exception {
         IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
-        AuthRoleDAO roleDAO = new AuthRoleDAO();
-        roleDAO.setMembershipAccess(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-        usersInRolesDAO.setMembershipAccess(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-        rolesInFunctionsDAO.setMembershipAccess(securityAccess);
+        AuthRoleDAO roleDAO = new AuthRoleDAO(securityAccess);
+        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
+        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
         
         RoleService roleService = new RoleService();
         roleService.setRoleDAO(roleDAO);

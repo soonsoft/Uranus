@@ -28,9 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * UserService
- */
+
 public class UserService implements IUserManager {
 
     private AuthUserDAO userDAO;
@@ -50,7 +48,7 @@ public class UserService implements IUserManager {
             throw new NullPointerException("the user is null.");
         }
 
-        AuthPassword password = passwordDAO.getUserPassword(authUser.getUserId());
+        AuthPassword password = passwordDAO.getByPrimaryKey(authUser.getUserId());
         if(password == null) {
             throw new NullPointerException("the password is null.");
         }
@@ -118,7 +116,7 @@ public class UserService implements IUserManager {
     public boolean deleteUser(String username) {
         Guard.notEmpty(username, "the username is required.");
 
-        int affectRows = userDAO.deleteByUserName(username);
+        int affectRows = userDAO.deleteUser(username);
         return affectRows > 0;
     }
 
@@ -171,7 +169,7 @@ public class UserService implements IUserManager {
             page = new Page();
         }
 
-        List<AuthUser> users = userDAO.select(params, page);
+        List<AuthUser> users = userDAO.selectUser(params, page);
         if(!CollectionUtils.isEmpty(users)) {
             List<UUID> userIdList = new ArrayList<>(users.size());
             for(AuthUser user : users) {

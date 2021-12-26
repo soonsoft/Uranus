@@ -9,24 +9,25 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import com.soonsoft.uranus.core.common.collection.MapUtils;
+import com.soonsoft.uranus.data.IDatabaseAccess;
+import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthRoleIdAndFunctionId;
+import com.soonsoft.uranus.services.membership.po.FunctionRole;
 
-/**
- * AuthRolesInFunctionsDAO
- */
-public class AuthRolesInFunctionsDAO extends BaseDAO {
 
-    public int insert(AuthRoleIdAndFunctionId record) {
-        return getMembershipAccess().insert("membership.auth_roles_in_functions.insert", record);
+public class AuthRolesInFunctionsDAO extends MybatisBaseDAO<AuthRoleIdAndFunctionId> {
+
+    public AuthRolesInFunctionsDAO(IDatabaseAccess<?> databaseAccess) {
+        super(databaseAccess);
     }
 
     public int deleteByRoleId(UUID roleId) {
-        return getMembershipAccess().delete("membership.auth_roles_in_functions.deleteByRoleId", roleId);
+        return getDatabaseAccess().delete("uranus.membership.deletePermissionByRoleId", roleId);
     }
 
     public int deleteByFunctionId(UUID functionId) {
-        return getMembershipAccess().delete("membership.auth_roles_in_functions.deleteByFunctionId", functionId);
+        return getDatabaseAccess().delete("uranus.membership.deletePermissionByFunctionId", functionId);
     }
 
     public Map<UUID, Set<Object>> selectByFunctions(Collection<UUID> functionIdList, Integer status) {
@@ -35,11 +36,12 @@ public class AuthRolesInFunctionsDAO extends BaseDAO {
         if(status != null) {
             params.put("status", status);
         }
-        List<AuthRoleIdAndFunctionId> records = getMembershipAccess().select("membership.auth_roles_in_functions.selectByFunctions", params);
+        List<FunctionRole> records = getDatabaseAccess().select("uranus.membership.selectPermissionByFunctions", params);
         return orderData(
             records, 
-            AuthRolesInFunctionsDAO::getFunctionId, 
-            i -> {
+            e -> ((FunctionRole) e).getFunctionId(), 
+            e -> {
+                FunctionRole i = (FunctionRole) e;
                 AuthRole role = new AuthRole();
                 role.setRoleId(i.getRoleId());
                 role.setRoleName(i.getRoleName());
@@ -56,26 +58,18 @@ public class AuthRolesInFunctionsDAO extends BaseDAO {
         if(status != null) {
             params.put("status", status);
         }
-        List<AuthRoleIdAndFunctionId> records =  getMembershipAccess().select("membership.auth_roles_in_functions.selectByRoles", params);
+        List<AuthRoleIdAndFunctionId> records =  getDatabaseAccess().select("uranus.membership.selectPermissionByRoles", params);
         return orderData(
             records, 
-            AuthRolesInFunctionsDAO::getRoleId, 
-            AuthRolesInFunctionsDAO::getFunctionId
+            e -> ((AuthRoleIdAndFunctionId) e).getRoleId(),
+            e -> ((AuthRoleIdAndFunctionId) e).getFunctionId()
         );
     }
 
-    private static UUID getFunctionId(AuthRoleIdAndFunctionId record) {
-        return record.getFunctionId();
-    }
-
-    private static UUID getRoleId(AuthRoleIdAndFunctionId record) {
-        return record.getRoleId();
-    }
-
     private Map<UUID, Set<Object>> orderData(
-        List<AuthRoleIdAndFunctionId> records, 
-        Function<AuthRoleIdAndFunctionId, UUID> keyGetter,
-        Function<AuthRoleIdAndFunctionId, Object> valueGetter) {
+        List<?> records, 
+        Function<Object, UUID> keyGetter,
+        Function<Object, Object> valueGetter) {
         if(records == null || records.isEmpty()) {
             return null;
         }

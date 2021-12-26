@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="uranus.membership">
+
+    <resultMap id="authUserMap" type="com.soonsoft.uranus.services.membership.po.AuthUser">
+        <id column="user_id" property="userId" jdbcType="VARCHAR" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+        <result column="cell_phone" property="cellPhone" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <resultMap id="authRoleMap" type="com.soonsoft.uranus.services.membership.po.AuthRole">
+        <id column="role_id" property="roleId" jdbcType="VARCHAR" />
+        <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+    </resultMap>
+
+    <resultMap id="sysMenuMap" type="com.soonsoft.uranus.services.membership.po.SysMenu">
+        <id column="function_id" property="functionId" jdbcType="VARCHAR" />
+        <result column="function_name" property="functionName" jdbcType="VARCHAR" />
+        <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="type" property="type" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="sort_value" property="sortValue" jdbcType="INTEGER" />
+        <result column="menu_key" property="menuKey" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="icon" property="icon" jdbcType="VARCHAR" />
+        <result column="background" property="background" jdbcType="VARCHAR" />
+        <result column="theme_info" property="themeInfo" jdbcType="VARCHAR" />
+        <result column="tile_style" property="tileStyle" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <delete id="deleteUserByUserName" parameterType="java.lang.String">
+        DELETE FROM auth_user WHERE user_name = #{userName, jdbcType=VARCHAR}
+    </delete>
+
+    <select 
+        id="getUserByUserName" 
+        parameterType="java.lang.String" 
+        resultMap="authUserMap">
+        SELECT 
+            user_id, user_name, nick_name, cell_phone, status, create_time 
+            FROM auth_user 
+            WHERE user_name = #{userName, jdbcType=VARCHAR}
+    </select>
+
+    <select 
+        id="selectUser" 
+        parameterType="java.util.Map" 
+        resultMap="authUserMap">
+        SELECT 
+            user_id, user_name, nick_name, cell_phone, status, create_time
+            FROM auth_user
+            <trim prefix="where" suffixOverrides="and">
+                <if test="status != null">
+                    status = #{status, jdbcType=INTEGER} and
+                </if>
+                <if test="userName">
+                    user_name LIKE concat(concat('%', #{userName}), '%')
+                </if>
+            </trim>
+            ORDER BY user_name
+    </select>
+
+    <delete id="deleteRoleByRoleName" parameterType="java.lang.String">
+        DELETE FROM auth_role WHERE role_name = #{roleName, jdbcType=VARCHAR}
+    </delete>
+
+    <select id="selectRole" parameterType="java.util.Map" resultMap="authRoleMap">
+        SELECT 
+            role_id, role_name, description, status 
+            FROM auth_role
+            <trim prefix="where" suffixOverrides="and">
+                <if test="status != null">
+                    status = #{status, jdbcType=INTEGER} and
+                </if>
+                <if test="roleName">
+                    role_name LIKE concat(concat('%', #{roleName}), '%')
+                </if>
+            </trim>
+            ORDER BY role_name
+    </select>
+
+    <select id="selectMenu" 
+        parameterType="java.util.Map" 
+        resultMap="sysMenuMap">
+        SELECT 
+            f.function_id,
+            f.function_name,
+            f.parent_id,
+            f.description,
+            f.type,
+            f.status,
+            f.sort_value,
+            f.url,
+            m.menu_key,
+            m.icon,
+            m.background,
+            m.theme_info,
+            m.tile_style
+        FROM sys_function f
+        LEFT JOIN sys_menu m ON f.function_id = m.function_id
+        <trim prefix="where" suffixOverrides="and">
+            <if test="status != null">
+                status = #{status, jdbcType=INTEGER} and
+            </if>
+        </trim>
+        ORDER BY f.sort_value
+    </select>
+
+    <delete id="deletePermissionByRoleId" parameterType="java.lang.String">
+        DELETE FROM auth_roles_in_functions WHERE role_id = #{roleId}
+    </delete>
+
+    <delete id="deletePermissionByFunctionId" parameterType="java.lang.String">
+        DELETE FROM auth_roles_in_functions WHERE function_id = #{functionId}
+    </delete>
+
+    <select 
+        id="selectPermissionByFunctions" 
+        parameterType="java.util.Map" 
+        resultType="com.soonsoft.uranus.services.membership.po.FunctionRole">
+        SELECT 
+            r.role_id AS roleId, 
+            r.role_name AS roleName, 
+            r.description AS description, 
+            r.status AS status, 
+            t.function_id AS functionId
+            FROM auth_roles_in_functions t
+            INNER JOIN auth_role r ON t.role_id = r.role_id 
+            <trim prefix="and">
+                <if test="status != null">
+                    r.status = #{status, jdbcType=INTEGER}
+                </if>
+            </trim>
+            WHERE t.function_id IN
+            <foreach collection="functions" item="functionId" index="index" open="(" separator="," close=")">
+                #{functionId}
+            </foreach>
+    </select>
+
+    <select 
+        id="selectPermissionByRoles" 
+        parameterType="java.util.Map" 
+        resultType="com.soonsoft.uranus.services.membership.po.AuthRoleIdAndFunctionId">
+        SELECT 
+            t.role_id AS roleId, 
+            t.function_id AS functionId
+            FROM auth_roles_in_functions t
+            INNER JOIN auth_role r ON t.role_id = r.role_id 
+            <trim prefix="and">
+                <if test="status != null">
+                    r.status = #{status, jdbcType=INTEGER}
+                </if>
+            </trim>
+            WHERE t.role_id IN
+            <foreach collection="roles" item="roleId" index="index" open="(" separator="," close=")">
+                #{roleId}
+            </foreach>
+    </select>
+
+    <delete id="deleteUserRoleByUserId" parameterType="java.lang.String">
+        DELETE FROM auth_users_in_roles WHERE user_id = #{userId}
+    </delete>
+
+    <select 
+        id="selectRolesByUserId" 
+        parameterType="java.util.Map" 
+        resultType="com.soonsoft.uranus.services.membership.po.AuthRole">
+        SELECT 
+            r.role_id AS roleId, 
+            r.role_name AS roleName, 
+            r.description AS description, 
+            r.status AS status
+        FROM auth_users_in_roles t
+        INNER JOIN auth_role r ON t.role_id = r.role_id AND r.status = 1
+        WHERE t.user_id = #{userId}
+    </select>
+
+    <select 
+        id="selectUserRoleByUsers" 
+        parameterType="java.util.Map" 
+        resultType="com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId">
+        SELECT
+            t.user_id AS userId, 
+            t.role_id AS roleId, 
+            r.role_name AS roleName
+        FROM auth_users_in_roles t
+        INNER JOIN auth_role r ON t.role_id = r.role_id
+        <trim prefix="and">
+            <if test="status != null">
+                r.status = #{status, jdbcType=INTEGER}
+            </if>
+        </trim>
+        WHERE t.user_id IN
+        <foreach collection="users" item="userId" index="index" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <select 
+        id="selectUserRoleByRoles" 
+        parameterType="java.util.Map" 
+        resultType="com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId">
+        SELECT
+            t.role_id AS roleId, 
+            t.user_id AS userId, 
+            u.user_name AS userName
+        FROM auth_users_in_roles t
+        INNER JOIN auth_user u ON t.user_id = u.user_id
+            <trim prefix="and">
+            <if test="status != null">
+                u.status = #{status, jdbcType=INTEGER}
+            </if>
+            </trim>
+        WHERE t.role_id IN
+            <foreach collection="roles" item="roleId" index="index" open="(" separator="," close=")">
+            #{roleId}
+            </foreach>
+    </select>
+
+</mapper>

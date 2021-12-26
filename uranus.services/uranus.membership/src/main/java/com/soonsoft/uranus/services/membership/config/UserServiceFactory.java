@@ -27,14 +27,9 @@ public class UserServiceFactory extends BaseMembershipServiceFactory<UserService
     public UserService getObject() throws Exception {
         IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
-        AuthUserDAO userDAO = new AuthUserDAO();
-        userDAO.setMembershipAccess(securityAccess);
-
-        AuthPasswordDAO passwordDAO = new AuthPasswordDAO();
-        passwordDAO.setMembershipAccess(securityAccess);
-
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-        usersInRolesDAO.setMembershipAccess(securityAccess);
+        AuthUserDAO userDAO = new AuthUserDAO(securityAccess);
+        AuthPasswordDAO passwordDAO = new AuthPasswordDAO(securityAccess);
+        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
 
         UserService userService = new UserService();
         userService.setUserDAO(userDAO);

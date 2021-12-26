@@ -60,7 +60,7 @@ public class RoleServiceTest {
 
     @Test
     public void test_dynamicSelectMapper() {
-        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) roleService.getRolesInFunctionsDAO().getMembershipAccess();
+        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
         String mappedStatementId = "runtimeSelect";
         String namespace = "membership.auth_role";
         String statementName = namespace + "." + mappedStatementId;

@@ -6,13 +6,27 @@ import java.util.Map;
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.interceptor.PagingRowBounds;
+import com.soonsoft.uranus.data.service.mybatis.mapper.MappedStatementRegistry;
 import com.soonsoft.uranus.core.Guard;
 
 import org.mybatis.spring.SqlSessionTemplate;
 
 
 public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate> {
+
+    private MappedStatementRegistry mappedStatementRegistry;
     
+    public MappedStatementRegistry getMappedStatementRegistry() {
+        return mappedStatementRegistry;
+    }
+
+    public void setMappedStatementRegistry(MappedStatementRegistry mappedStatementRegistry) {
+        this.mappedStatementRegistry = mappedStatementRegistry;
+    }
+
+
+    //#region IDatabaseAccess implements
+
     @Override
     public int insert(String commandText) {
         return ensureGetTemplate().insert(commandText);
@@ -73,5 +87,7 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
         page.setTotal(rowBounds.getTotal());
         return (List<T>) result;
     }
+
+    //#endregion
     
 }

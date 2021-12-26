@@ -170,7 +170,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     // #endregion
 
     public List<SysMenu> getAllMenus(Map<String, Object> params) {
-        List<SysMenu> menus = menuDAO.select(params);
+        List<SysMenu> menus = menuDAO.selectMenu(params);
 
         if (menus == null) {
             return new ArrayList<>(0);
