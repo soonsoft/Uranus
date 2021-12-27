@@ -189,10 +189,13 @@ public abstract class BaseSQLMapper implements ISQLMapper {
 
     protected String getSQLParameter(ColumnInfo column) {
         String fieldName = column.getEntityFieldName();
-        String jdbcType = column.getColumnType() == null ? null : column.getColumnType().name();
-        // 如果该列运行使用null值，且业务逻辑中的确会传null值，则必须指定JDBCType，因为null无法推导JDBCType。
-        if(!column.isNotNull() && jdbcType == null) {
-            throw new IllegalArgumentException("column [] jdbcType is required.");
+        String jdbcType = null;
+        // 如果该列允许使用null值，且业务逻辑中的确会传null值，则必须指定JDBCType，因为null无法推导JDBCType。
+        if(!column.isNotNull()) {
+            jdbcType = column.getColumnType() == null ? null : column.getColumnType().name();
+            if(jdbcType == null) {
+                throw new IllegalArgumentException("column [] jdbcType is required.");
+            }
         }
         return "#{" 
             + fieldName 

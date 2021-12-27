@@ -45,7 +45,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     private AuthRolesInFunctionsDAO rolesInFunctionsDAO;
 
-    private Cache<String, FunctionInfo> functionStore;
+    private final Cache<String, FunctionInfo> functionStore;
 
     private List<String> sequence;
 
@@ -55,21 +55,21 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     private IEventListener<FunctionChangedEvent<SysMenu>> functionChangedDelegate = new SimpleEventListener<>();
 
     public FunctionService() {
-        this(null);
+        this(new Cache<>(128));
     }
 
     public FunctionService(Cache<String, FunctionInfo> functionStore) {
-        if (functionStore != null) {
-            this.functionStore = functionStore;
-        } else {
-            this.functionStore = new Cache<>(128);
-        }
+        Guard.notNull(functionStore, "the parameter functionStore is required.");
+
+        this.functionStore = functionStore;
 
         // 注册缓存更新
         addFunctionChanged(e -> {
             FunctionInfo functionInfo = Transformer.toFunctionInfo(e.getData());
             FunctionInfo oldFunctionInfo = functionStore.get(functionInfo.getResourceCode());
-            functionInfo.setAllowRoles(oldFunctionInfo.getAllowRoles());
+            if(oldFunctionInfo != null) {
+                functionInfo.setAllowRoles(oldFunctionInfo.getAllowRoles());
+            }
             functionStore.put(functionInfo.getResourceCode(), functionInfo);
         });
     }
@@ -197,7 +197,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createMenu(SysMenu menu) {
         Guard.notNull(menu, "the SysMenu is required.");
-        if(menu.getFunctionId() != null) {
+        if(menu.getFunctionId() == null) {
             menu.setFunctionId(UUID.randomUUID());
         }
 

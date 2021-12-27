@@ -53,7 +53,7 @@ public class JAPTableInfoLoader implements ITableInfoLoader {
             put(Number.class, JDBCType.DECIMAL);
             put(String.class, JDBCType.VARCHAR);
 
-            put(java.util.UUID.class, JDBCType.VARCHAR);
+            put(java.util.UUID.class, JDBCType.OTHER);
             put(java.util.Date.class, JDBCType.TIMESTAMP);
             put(java.time.LocalDate.class, JDBCType.DATE);
             put(java.time.LocalTime.class, JDBCType.TIME);

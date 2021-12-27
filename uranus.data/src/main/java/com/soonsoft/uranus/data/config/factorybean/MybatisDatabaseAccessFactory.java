@@ -188,7 +188,6 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(getDataSource());
-        //bean.setTypeAliasesPackage("com.soonsoft.uranus.services.**.po");
         bean.setTypeHandlers(getTypeHandlers());
 
         try {
