@@ -48,8 +48,8 @@ public abstract class MybatisBaseDAO<EntityType> {
         return this.databaseAccess.delete(getStatementName("delete"), getPrimaryValue(primaryValues));
     }
 
-    public EntityType getByPrimaryKey(Object... primaryValues) {
-        return this.databaseAccess.get(getStatementName("getByPrimaryKey"), getPrimaryValue(primaryValues));
+    public EntityType getByPrimary(Object... primaryValues) {
+        return this.databaseAccess.get(getStatementName("getByPrimary"), getPrimaryValue(primaryValues));
     }
 
     public String getStatementName(String name) {

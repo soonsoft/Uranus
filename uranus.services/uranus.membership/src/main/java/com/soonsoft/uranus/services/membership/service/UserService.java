@@ -48,7 +48,7 @@ public class UserService implements IUserManager {
             throw new NullPointerException("the user is null.");
         }
 
-        AuthPassword password = passwordDAO.getByPrimaryKey(authUser.getUserId());
+        AuthPassword password = passwordDAO.getByPrimary(authUser.getUserId());
         if(password == null) {
             throw new NullPointerException("the password is null.");
         }
@@ -196,7 +196,7 @@ public class UserService implements IUserManager {
         Guard.notNull("authUser", "the authUser is required.");
         Guard.notNull("authPassword", "the authPassword is required.");
 
-        if(authUser.getUserId() != null) {
+        if(authUser.getUserId() == null) {
             authUser.setUserId(UUID.randomUUID());
         }
         if(authUser.getCreateTime() == null) {
