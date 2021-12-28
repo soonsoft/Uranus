@@ -3,13 +3,14 @@ package com.soonsoft.uranus.security.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.security.authorization.Resource;
+import com.soonsoft.uranus.security.authorization.IResource;
 
 /**
  * 功能信息
  */
-public class FunctionInfo implements Resource {
+public class FunctionInfo implements IResource {
 
     public final static String MENU_TYPE = "menu";
     public final static String ACTION_TYPE = "action";
@@ -25,6 +26,8 @@ public class FunctionInfo implements Resource {
     private boolean enabled;
 
     private String type = ACTION_TYPE;
+
+    private List<String> allowUsers;
 
     private List<RoleInfo> allowRoles;
 
@@ -100,10 +103,27 @@ public class FunctionInfo implements Resource {
     }
 
     public void addAllowRole(RoleInfo role) {
+        Guard.notNull(role, "the parameter role is required.");
         if(this.allowRoles == null) {
             this.allowRoles = new ArrayList<>();
         }
         this.allowRoles.add(role);
+    }
+
+    public List<String> getAllowUsers() {
+        return allowUsers;
+    }
+
+    public void setAllowUsers(List<String> allowUsers) {
+        this.allowUsers = allowUsers;
+    }
+
+    public void addAllowUser(String user) {
+        Guard.notEmpty(user, "the parameter user is required.");
+        if(this.allowUsers == null) {
+            this.allowUsers = new ArrayList<>();
+        }
+        this.allowUsers.add(user);
     }
 
     public boolean isType(String type) {

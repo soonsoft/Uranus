@@ -4,9 +4,10 @@ import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authentication.WebUserDetailsService;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
-import com.soonsoft.uranus.security.authorization.RoleInfoVoter;
 import com.soonsoft.uranus.security.authorization.WebAccessDecisionManager;
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
+import com.soonsoft.uranus.security.authorization.voter.PermissionVoter;
+import com.soonsoft.uranus.security.authorization.voter.PrivilegeVoter;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,7 +49,8 @@ public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAda
         // Web应用程序，身份验证配置
         WebApplicationSecurityConfig config = factory.create();
         WebAccessDecisionManager accessDecisionManager = WebAccessDecisionManager.create();
-        accessDecisionManager.addVoter(new RoleInfoVoter());
+        accessDecisionManager.addVoter(new PrivilegeVoter());
+        accessDecisionManager.addVoter(new PermissionVoter());
 
         IFunctionManager functionManager = SecurityManager.current().getFunctionManager();
         WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();

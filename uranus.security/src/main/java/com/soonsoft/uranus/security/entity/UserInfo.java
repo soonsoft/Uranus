@@ -11,7 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 /**
- * User
+ * 用户信息
  */
 public class UserInfo extends User {
 
