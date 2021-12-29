@@ -25,12 +25,12 @@ import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
-import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
 import com.soonsoft.uranus.services.membership.model.Transformer;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
-import com.soonsoft.uranus.services.membership.po.AuthRoleIdAndFunctionId;
+import com.soonsoft.uranus.services.membership.po.AuthPermission;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -43,7 +43,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     private SysMenuDAO menuDAO;
 
-    private AuthRolesInFunctionsDAO rolesInFunctionsDAO;
+    private AuthPermissionDAO permissionDAO;
 
     private final Cache<String, FunctionInfo> functionStore;
 
@@ -54,13 +54,25 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     /** 事件定义 */
     private IEventListener<FunctionChangedEvent<SysMenu>> functionChangedDelegate = new SimpleEventListener<>();
 
-    public FunctionService() {
-        this(new Cache<>(128));
+    public FunctionService(
+            SysFunctionDAO functionDAO,
+            SysMenuDAO menuDAO,
+            AuthPermissionDAO permissionDAO) {
+
+        this(functionDAO, menuDAO, permissionDAO, new Cache<>(128));
     }
 
-    public FunctionService(Cache<String, FunctionInfo> functionStore) {
+    public FunctionService(
+            SysFunctionDAO functionDAO,
+            SysMenuDAO menuDAO,
+            AuthPermissionDAO permissionDAO,
+            Cache<String, FunctionInfo> functionStore) {
+
         Guard.notNull(functionStore, "the parameter functionStore is required.");
 
+        this.functionDAO = functionDAO;
+        this.menuDAO = menuDAO;
+        this.permissionDAO = permissionDAO;
         this.functionStore = functionStore;
 
         // 注册缓存更新
@@ -72,30 +84,6 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
             }
             functionStore.put(functionInfo.getResourceCode(), functionInfo);
         });
-    }
-
-    public SysFunctionDAO getFunctionDAO() {
-        return functionDAO;
-    }
-
-    public void setFunctionDAO(SysFunctionDAO functionDAO) {
-        this.functionDAO = functionDAO;
-    }
-
-    public SysMenuDAO getMenuDAO() {
-        return menuDAO;
-    }
-
-    public void setMenuDAO(SysMenuDAO menuDAO) {
-        this.menuDAO = menuDAO;
-    }
-
-    public AuthRolesInFunctionsDAO getRolesInFunctionsDAO() {
-        return rolesInFunctionsDAO;
-    }
-
-    public void setRolesInFunctionsDAO(AuthRolesInFunctionsDAO rolesInFunctionsDAO) {
-        this.rolesInFunctionsDAO = rolesInFunctionsDAO;
     }
 
     // #region IFunctionManager methods
@@ -180,7 +168,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
             functionIdList.add(i.getFunctionId());
         });
 
-        Map<UUID, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdList, 1);
+        Map<UUID, Set<Object>> functionRoleMap = permissionDAO.selectByFunctions(functionIdList, 1);
         if (functionRoleMap != null) {
             menus.forEach(i -> {
                 Set<Object> roleSet = functionRoleMap.get(i.getFunctionId());
@@ -243,7 +231,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
         // 加载新的菜单数据
         Map<UUID, Set<Object>> functionRoleMap = 
-            rolesInFunctionsDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
+            permissionDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
         
         synchronized (locker) {
             sequence.forEach(functionId -> {
@@ -302,13 +290,13 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         Collection<AuthRole> roles = menu.getRoles();
         if (!CollectionUtils.isEmpty(roles)) {
             if(isUpdate) {
-                rolesInFunctionsDAO.deleteByFunctionId(menu.getFunctionId());
+                permissionDAO.deleteByFunctionId(menu.getFunctionId());
             }
             for (AuthRole role : roles) {
-                AuthRoleIdAndFunctionId roleIdFunctionId = new AuthRoleIdAndFunctionId();
+                AuthPermission roleIdFunctionId = new AuthPermission();
                 roleIdFunctionId.setRoleId(role.getRoleId());
                 roleIdFunctionId.setFunctionId(menu.getFunctionId());
-                effectRows += rolesInFunctionsDAO.insert(roleIdFunctionId);
+                effectRows += permissionDAO.insert(roleIdFunctionId);
             }
         }
         return effectRows;

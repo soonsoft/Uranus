@@ -10,9 +10,10 @@ import com.soonsoft.uranus.services.membership.service.RoleService;
 import com.soonsoft.uranus.services.membership.service.UserService;
 import com.soonsoft.uranus.services.membership.dao.AuthPasswordDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthRoleDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPrivilegeDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthUserDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthUserRoleRelationDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
 
@@ -43,12 +44,10 @@ public class MembershipConfig {
     public UserService userService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {
         AuthUserDAO authUserDAO = new AuthUserDAO(securityAccess);
         AuthPasswordDAO authPasswordDAO = new AuthPasswordDAO(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
+        AuthUserRoleRelationDAO userRoleRelationDAO = new AuthUserRoleRelationDAO(securityAccess);
+        AuthPrivilegeDAO privilegeDAO = new AuthPrivilegeDAO(securityAccess);
 
-        UserService userService = new UserService();
-        userService.setUserDAO(authUserDAO);
-        userService.setPasswordDAO(authPasswordDAO);
-        userService.setUsersInRolesDAO(usersInRolesDAO);
+        UserService userService = new UserService(authUserDAO, authPasswordDAO, userRoleRelationDAO, privilegeDAO);
         userService.setPasswordEncoder(passwordEncoder);
 
         return userService;
@@ -57,13 +56,10 @@ public class MembershipConfig {
     @Bean("membershipRoleService")
     public RoleService roleService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         AuthRoleDAO roleDAO = new AuthRoleDAO(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
+        AuthUserRoleRelationDAO userRoleRelationDAO = new AuthUserRoleRelationDAO(securityAccess);
+        AuthPermissionDAO permissionDAO = new AuthPermissionDAO(securityAccess);
         
-        RoleService roleService = new RoleService();
-        roleService.setRoleDAO(roleDAO);
-        roleService.setUsersInRolesDAO(usersInRolesDAO);
-        roleService.setRolesInFunctionsDAO(rolesInFunctionsDAO);
+        RoleService roleService = new RoleService(roleDAO, userRoleRelationDAO, permissionDAO);
 
         return roleService;
     }
@@ -72,12 +68,9 @@ public class MembershipConfig {
     public FunctionService functionService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         SysFunctionDAO functionDAO = new SysFunctionDAO(securityAccess);
         SysMenuDAO menuDAO = new SysMenuDAO(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
+        AuthPermissionDAO permissionDAO = new AuthPermissionDAO(securityAccess);
 
-        FunctionService functionService = new FunctionService();
-        functionService.setFunctionDAO(functionDAO);
-        functionService.setMenuDAO(menuDAO);
-        functionService.setRolesInFunctionsDAO(rolesInFunctionsDAO);
+        FunctionService functionService = new FunctionService(functionDAO, menuDAO, permissionDAO);
         
         return functionService;
     }

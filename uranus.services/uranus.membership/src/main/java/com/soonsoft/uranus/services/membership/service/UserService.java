@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -13,13 +14,15 @@ import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.dao.AuthPasswordDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPrivilegeDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthUserDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthUserRoleRelationDAO;
 import com.soonsoft.uranus.services.membership.model.Transformer;
 import com.soonsoft.uranus.services.membership.po.AuthPassword;
+import com.soonsoft.uranus.services.membership.po.AuthPrivilege;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
-import com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId;
+import com.soonsoft.uranus.services.membership.po.AuthUserRoleRelation;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
@@ -37,7 +40,30 @@ public class UserService implements IUserManager {
 
     private PasswordEncoder passwordEncoder;
 
-    private AuthUsersInRolesDAO usersInRolesDAO;
+    private AuthUserRoleRelationDAO userRoleRelationDAO;
+
+    private AuthPrivilegeDAO privilegeDAO;
+
+    public UserService(
+            AuthUserDAO userDAO, 
+            AuthPasswordDAO passwordDAO, 
+            AuthUserRoleRelationDAO userRoleRelationDAO, 
+            AuthPrivilegeDAO privilegeDAO) {
+
+        this.userDAO = userDAO;
+        this.passwordDAO = passwordDAO;
+        this.userRoleRelationDAO = userRoleRelationDAO;
+        this.privilegeDAO = privilegeDAO;
+
+    }
+
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
+
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     //#region IUserManager methods
 
@@ -53,9 +79,10 @@ public class UserService implements IUserManager {
             throw new NullPointerException("the password is null.");
         }
 
-        List<AuthRole> roles = usersInRolesDAO.selectByUserId(authUser.getUserId());
+        List<AuthRole> roles = userRoleRelationDAO.selectByUserId(authUser.getUserId());
+        List<AuthPrivilege> privileges = privilegeDAO.selectUserPrivileges(authUser.getUserId());
 
-        return Transformer.toUserInfo(authUser, password, roles);
+        return Transformer.toUserInfo(authUser, password, roles, privileges);
     }
 
     @Override
@@ -175,7 +202,9 @@ public class UserService implements IUserManager {
             for(AuthUser user : users) {
                 userIdList.add(user.getUserId());
             }
-            Map<UUID, Set<Object>> roleMap = usersInRolesDAO.selectByUsers(userIdList, null);
+
+            // 加载用户关联的角色信息
+            Map<UUID, Set<Object>> roleMap = userRoleRelationDAO.selectByUsers(userIdList, null);
             if(!MapUtils.isEmpty(roleMap)) {
                 users.forEach(user -> {
                     List<Object> idList = new ArrayList<>();
@@ -184,6 +213,28 @@ public class UserService implements IUserManager {
                         idList.addAll(roles);
                     }
                     user.setRoles(idList);
+                });
+            }
+
+            // 加载用户关联的功能信息（用户特权）
+            List<AuthPrivilege> userPrivileges = privilegeDAO.selectMutilUserPrivileges(userIdList);
+            if(!CollectionUtils.isEmpty(userPrivileges)) {
+                Map<UUID, Set<AuthPrivilege>> value = MapUtils.createHashMap(32);
+                userPrivileges.forEach(p -> {
+                    Set<AuthPrivilege> privileges = value.get(p.getUserId());
+                    if(privileges == null) {
+                        privileges = new HashSet<>();
+                        value.put(p.getUserId(), privileges);
+                    }
+                    privileges.add(p);
+                });
+                users.forEach(u -> {
+                    Set<AuthPrivilege> privileges = value.get(u.getUserId());
+                    List<Object> functions = new ArrayList<>();
+                    if(!CollectionUtils.isEmpty(privileges)) {
+                        functions.addAll(privileges);
+                    }
+                    u.setFunctions(functions);
                 });
             }
         }
@@ -213,12 +264,12 @@ public class UserService implements IUserManager {
 
         List<Object> roles = authUser.getRoles();
         if(!CollectionUtils.isEmpty(roles)) {
-            usersInRolesDAO.deleteByUserId(authUser.getUserId());
+            userRoleRelationDAO.deleteByUserId(authUser.getUserId());
             for(Object roleId : roles) {
-                AuthUserIdAndRoleId userIdAndRoleId = new AuthUserIdAndRoleId();
+                AuthUserRoleRelation userIdAndRoleId = new AuthUserRoleRelation();
                 userIdAndRoleId.setUserId(authUser.getUserId());
                 userIdAndRoleId.setRoleId((UUID) roleId);
-                effectRows += usersInRolesDAO.insert(userIdAndRoleId);
+                effectRows += userRoleRelationDAO.insert(userIdAndRoleId);
             }
         }
 
@@ -233,40 +284,4 @@ public class UserService implements IUserManager {
         int effectRows = userDAO.update(authUser);
         return effectRows > 0;
     }
-
-    //#region getter and setter
-
-    public PasswordEncoder getPasswordEncoder() {
-        return passwordEncoder;
-    }
-
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public AuthUserDAO getUserDAO() {
-        return userDAO;
-    }
-
-    public void setUserDAO(AuthUserDAO userDAO) {
-        this.userDAO = userDAO;
-    }
-
-    public AuthPasswordDAO getPasswordDAO() {
-        return passwordDAO;
-    }
-
-    public void setPasswordDAO(AuthPasswordDAO passwordDAO) {
-        this.passwordDAO = passwordDAO;
-    }
-
-    public AuthUsersInRolesDAO getUsersInRolesDAO() {
-        return usersInRolesDAO;
-    }
-
-    public void setUsersInRolesDAO(AuthUsersInRolesDAO usersInRolesDAO) {
-        this.usersInRolesDAO = usersInRolesDAO;
-    }
-
-    //#endregion
 }

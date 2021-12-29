@@ -44,6 +44,11 @@ public class UserInfo extends User {
      */
     private Date createTime;
 
+    /**
+     * 用户拥有的特权
+     */
+    private Set<PrivilegeInfo> privileges;
+
     public UserInfo(String username) {
         this(username, EMPTY_PASSWORD);
     }
@@ -132,6 +137,14 @@ public class UserInfo extends User {
      */
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Set<PrivilegeInfo> getPrivileges() {
+        return privileges;
+    }
+
+    public void setPrivileges(Set<PrivilegeInfo> privileges) {
+        this.privileges = privileges;
     }
 
     @Override

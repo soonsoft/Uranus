@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.authorization.entity;
+package com.soonsoft.uranus.security.entity;
 
 import org.springframework.security.access.ConfigAttribute;
 

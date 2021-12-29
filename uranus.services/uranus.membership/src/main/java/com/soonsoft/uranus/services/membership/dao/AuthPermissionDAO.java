@@ -12,13 +12,13 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
-import com.soonsoft.uranus.services.membership.po.AuthRoleIdAndFunctionId;
+import com.soonsoft.uranus.services.membership.po.AuthPermission;
 import com.soonsoft.uranus.services.membership.po.FunctionRole;
 
 
-public class AuthRolesInFunctionsDAO extends MybatisBaseDAO<AuthRoleIdAndFunctionId> {
+public class AuthPermissionDAO extends MybatisBaseDAO<AuthPermission> {
 
-    public AuthRolesInFunctionsDAO(IDatabaseAccess<?> databaseAccess) {
+    public AuthPermissionDAO(IDatabaseAccess<?> databaseAccess) {
         super(databaseAccess);
     }
 
@@ -58,11 +58,11 @@ public class AuthRolesInFunctionsDAO extends MybatisBaseDAO<AuthRoleIdAndFunctio
         if(status != null) {
             params.put("status", status);
         }
-        List<AuthRoleIdAndFunctionId> records =  getDatabaseAccess().select("uranus.membership.selectPermissionByRoles", params);
+        List<AuthPermission> records =  getDatabaseAccess().select("uranus.membership.selectPermissionByRoles", params);
         return orderData(
             records, 
-            e -> ((AuthRoleIdAndFunctionId) e).getRoleId(),
-            e -> ((AuthRoleIdAndFunctionId) e).getFunctionId()
+            e -> ((AuthPermission) e).getRoleId(),
+            e -> ((AuthPermission) e).getFunctionId()
         );
     }
 

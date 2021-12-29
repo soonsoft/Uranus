@@ -16,11 +16,11 @@ import com.soonsoft.uranus.security.authorization.event.RoleChangedEvent;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.dao.AuthRoleDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthUserRoleRelationDAO;
 import com.soonsoft.uranus.services.membership.model.Transformer;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
-import com.soonsoft.uranus.services.membership.po.AuthRoleIdAndFunctionId;
+import com.soonsoft.uranus.services.membership.po.AuthPermission;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
@@ -37,38 +37,22 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
 
     private AuthRoleDAO roleDAO;
 
-    private AuthUsersInRolesDAO usersInRolesDAO;
+    private AuthUserRoleRelationDAO userRoleRelationDAO;
 
-    private AuthRolesInFunctionsDAO rolesInFunctionsDAO;
+    private AuthPermissionDAO permissionDAO;
 
     // 事件定义
     private IEventListener<RoleChangedEvent<String>> roleChangedDelegate = new SimpleEventListener<>(); 
 
-    public RoleService() {
-    }
+    public RoleService(
+            AuthRoleDAO roleDAO, 
+            AuthUserRoleRelationDAO userRoleRelationDAO,
+            AuthPermissionDAO permissionDAO) {
 
-    public AuthRoleDAO getRoleDAO() {
-        return roleDAO;
-    }
-
-    public void setRoleDAO(AuthRoleDAO roleDAO) {
         this.roleDAO = roleDAO;
-    }
+        this.userRoleRelationDAO = userRoleRelationDAO;
+        this.permissionDAO = permissionDAO;
 
-    public AuthRolesInFunctionsDAO getRolesInFunctionsDAO() {
-        return rolesInFunctionsDAO;
-    }
-
-    public void setRolesInFunctionsDAO(AuthRolesInFunctionsDAO rolesInFunctionsDAO) {
-        this.rolesInFunctionsDAO = rolesInFunctionsDAO;
-    }
-
-    public AuthUsersInRolesDAO getUsersInRolesDAO() {
-        return usersInRolesDAO;
-    }
-
-    public void setUsersInRolesDAO(AuthUsersInRolesDAO usersInRolesDAO) {
-        this.usersInRolesDAO = usersInRolesDAO;
     }
 
     // #region IRoleManager methods
@@ -106,7 +90,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         Guard.notNull(user, "the user is required.");
         Guard.notEmpty(user.getUserId(), "the UserInfo.userId can not be null.");
 
-        List<AuthRole> data = usersInRolesDAO.selectByUserId(UUID.fromString(user.getUserId()));
+        List<AuthRole> data = userRoleRelationDAO.selectByUserId(UUID.fromString(user.getUserId()));
         if (data == null || data.isEmpty()) {
             return null;
         }
@@ -123,7 +107,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         }
 
         Set<UUID> functionIdSet = resourceCodes.stream().map(i -> UUID.fromString(i)).collect(Collectors.toSet());
-        Map<UUID, Set<Object>> functionRoleMap = rolesInFunctionsDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
+        Map<UUID, Set<Object>> functionRoleMap = permissionDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
         Map<String, List<RoleInfo>> result = MapUtils.createLinkedHashMap(resourceCodes.size());
 
         if (functionRoleMap != null) {
@@ -157,7 +141,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         List<AuthRole> roles = roleDAO.selectRole(params, page);
         if (!CollectionUtils.isEmpty(roles)) {
             Set<UUID> roleIdSet = roles.stream().map(i -> i.getRoleId()).collect(Collectors.toSet());
-            Map<UUID, Set<Object>> menuMap = rolesInFunctionsDAO.selectByRoles(roleIdSet, null);
+            Map<UUID, Set<Object>> menuMap = permissionDAO.selectByRoles(roleIdSet, null);
             if (!MapUtils.isEmpty(menuMap)) {
                 roles.forEach(role -> {
                     List<Object> idList = new ArrayList<>();
@@ -183,10 +167,10 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         List<Object> menuIdList = role.getMenus();
         if (!CollectionUtils.isEmpty(menuIdList)) {
             for (Object item : menuIdList) {
-                AuthRoleIdAndFunctionId roleIdFunctionId = new AuthRoleIdAndFunctionId();
+                AuthPermission roleIdFunctionId = new AuthPermission();
                 roleIdFunctionId.setRoleId(role.getRoleId());
                 roleIdFunctionId.setFunctionId((UUID) item);
-                effectRows += rolesInFunctionsDAO.insert(roleIdFunctionId);
+                effectRows += permissionDAO.insert(roleIdFunctionId);
             }
         }
 
@@ -206,12 +190,12 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         int effectRows = 0;
         List<Object> menuIdList = role.getMenus();
         if (!CollectionUtils.isEmpty(menuIdList)) {
-            rolesInFunctionsDAO.deleteByRoleId(role.getRoleId());
+            permissionDAO.deleteByRoleId(role.getRoleId());
             for (Object item : menuIdList) {
-                AuthRoleIdAndFunctionId roleIdFunctionId = new AuthRoleIdAndFunctionId();
+                AuthPermission roleIdFunctionId = new AuthPermission();
                 roleIdFunctionId.setRoleId(role.getRoleId());
                 roleIdFunctionId.setFunctionId((UUID) item);
-                effectRows += rolesInFunctionsDAO.insert(roleIdFunctionId);
+                effectRows += permissionDAO.insert(roleIdFunctionId);
             }
         }
 
@@ -230,7 +214,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
 
         List<UUID> roleIdList = new ArrayList<>();
         roleIdList.add(roleGuid);
-        Map<UUID, Set<Object>> menuMap = rolesInFunctionsDAO.selectByRoles(roleIdList, SysMenu.STATUS_ENABLED);
+        Map<UUID, Set<Object>> menuMap = permissionDAO.selectByRoles(roleIdList, SysMenu.STATUS_ENABLED);
         
         List<String> functionIdList = new ArrayList<>();
         if(menuMap != null) {

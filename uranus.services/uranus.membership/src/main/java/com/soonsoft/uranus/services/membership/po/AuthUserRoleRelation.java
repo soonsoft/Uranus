@@ -6,8 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table(name = "auth_users_in_roles")
-public class AuthUserIdAndRoleId {
+@Table(name = "auth_user_role_relation")
+public class AuthUserRoleRelation {
 
     @Id
     @Column(name = "user_id")

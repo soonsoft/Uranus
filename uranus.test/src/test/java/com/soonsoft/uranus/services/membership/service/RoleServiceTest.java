@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
@@ -33,9 +34,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = {MembershipConfig.class})
 public class RoleServiceTest {
 
-    @Qualifier("membershipRoleService")
     @Autowired
+    @Qualifier("membershipRoleService")
     private RoleService roleService;
+
+    @Autowired
+    @Qualifier("membershipAccess")
+    private IDatabaseAccess<?> databaseAccess;
 
     @Test
     public void test_queryRoles() {
@@ -60,7 +65,7 @@ public class RoleServiceTest {
 
     @Test
     public void test_dynamicSelectMapper() {
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         String mappedStatementId = "runtimeSelect";
         String namespace = "membership.auth_role";
         String statementName = namespace + "." + mappedStatementId;

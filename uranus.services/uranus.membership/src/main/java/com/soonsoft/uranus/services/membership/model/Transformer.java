@@ -9,9 +9,11 @@ import java.util.UUID;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
+import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.po.AuthPassword;
+import com.soonsoft.uranus.services.membership.po.AuthPrivilege;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
@@ -24,10 +26,21 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public abstract class Transformer {
 
-    public static UserInfo toUserInfo(AuthUser authUser, AuthPassword password, Collection<AuthRole> roles) {
+    public static UserInfo toUserInfo(
+        AuthUser authUser, 
+        AuthPassword password, 
+        Collection<AuthRole> roles, 
+        Collection<AuthPrivilege> functions) {
+        
         Set<GrantedAuthority> roleInfoSet = new HashSet<>();
         if(roles != null) {
             roles.forEach(r -> roleInfoSet.add(toRoleInfo(r)));
+        }
+
+        Set<PrivilegeInfo> privilegeSet = new HashSet<>();
+        if(functions != null) {
+            functions.forEach(p -> privilegeSet.add(
+                new MembershipPrivilegeInfo(p.getFunctionId().toString(), p.getFunctionName())));
         }
 
         boolean enabled = authUser.getStatus() == AuthUser.ENABLED;

@@ -2,8 +2,9 @@ package com.soonsoft.uranus.services.membership.config;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.services.membership.dao.AuthPasswordDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPrivilegeDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthUserDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthUserRoleRelationDAO;
 import com.soonsoft.uranus.services.membership.service.UserService;
 
 import org.springframework.context.ApplicationContext;
@@ -29,12 +30,10 @@ public class UserServiceFactory extends BaseMembershipServiceFactory<UserService
 
         AuthUserDAO userDAO = new AuthUserDAO(securityAccess);
         AuthPasswordDAO passwordDAO = new AuthPasswordDAO(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO(securityAccess);
+        AuthUserRoleRelationDAO userRoleRelationDAO= new AuthUserRoleRelationDAO(securityAccess);
+        AuthPrivilegeDAO privilegeDAO = new AuthPrivilegeDAO(securityAccess);
 
-        UserService userService = new UserService();
-        userService.setUserDAO(userDAO);
-        userService.setPasswordDAO(passwordDAO);
-        userService.setUsersInRolesDAO(usersInRolesDAO);
+        UserService userService = new UserService(userDAO, passwordDAO, userRoleRelationDAO, privilegeDAO);
         userService.setPasswordEncoder(passwordEncoder);
 
         return userService;

@@ -9,9 +9,9 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.soonsoft.uranus.security.authorization.entity.PermissionInfo;
-import com.soonsoft.uranus.security.authorization.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
+import com.soonsoft.uranus.security.entity.PermissionInfo;
+import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;

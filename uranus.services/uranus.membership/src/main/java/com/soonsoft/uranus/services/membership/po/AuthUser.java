@@ -40,6 +40,9 @@ public class AuthUser {
     /** 关联的角色 */
     private List<Object> roles;
 
+    /** 用户特权 */
+    private List<Object> functions;
+
     /**
      * @return the userId
      */
@@ -131,6 +134,13 @@ public class AuthUser {
     public void setRoles(List<Object> roles) {
         this.roles = roles;
     }
-    
+
+    public List<Object> getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(List<Object> functions) {
+        this.functions = functions;
+    }
     
 }

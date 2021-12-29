@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.services.membership.config;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
 import com.soonsoft.uranus.services.membership.service.FunctionService;
@@ -24,12 +24,9 @@ public class FunctionServiceFactory extends BaseMembershipServiceFactory<Functio
 
         SysFunctionDAO functionDAO = new SysFunctionDAO(securityAccess);
         SysMenuDAO menuDAO = new SysMenuDAO(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO(securityAccess);
+        AuthPermissionDAO permissionDAO = new AuthPermissionDAO(securityAccess);
 
-        FunctionService functionService = new FunctionService();
-        functionService.setFunctionDAO(functionDAO);
-        functionService.setMenuDAO(menuDAO);
-        functionService.setRolesInFunctionsDAO(rolesInFunctionsDAO);
+        FunctionService functionService = new FunctionService(functionDAO, menuDAO, permissionDAO);
         
         return functionService;
     }

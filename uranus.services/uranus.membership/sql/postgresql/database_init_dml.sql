@@ -56,7 +56,7 @@ INSERT INTO sys_function VALUES('767defd2-8b87-11e9-99cb-00163e1c3c68', '模块�
 INSERT INTO sys_menu VALUES('767defd2-8b87-11e9-99cb-00163e1c3c68', null, '/content/icons/sys-setting.png', null, null, null);
 
 --用户和角色绑定
-INSERT INTO auth_users_in_roles VALUES('ac0c12aa-8f42-11e9-adcc-00163e1c3c68', '00da4ab8-8b88-11e9-ac93-00163e1c3c68');
+INSERT INTO auth_user_role_relation VALUES('ac0c12aa-8f42-11e9-adcc-00163e1c3c68', '00da4ab8-8b88-11e9-ac93-00163e1c3c68');
 
 -- 角色和菜单绑定
 INSERT INTO auth_permission VALUES('00da4ab8-8b88-11e9-ac93-00163e1c3c68', '9aea9446-8b83-11e9-87ae-00163e1c3c68');

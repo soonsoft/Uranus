@@ -21,8 +21,12 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BaseSQLMapper implements ISQLMapper {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(BaseSQLMapper.class);
 
     private final String mapperName;
     private MapperBuilderAssistant builderAssistant;
@@ -122,7 +126,7 @@ public abstract class BaseSQLMapper implements ISQLMapper {
         Configuration configuration = builderAssistant.getConfiguration();
         String statementName = builderAssistant.getCurrentNamespace() + DOT + id;
         if (configuration.hasStatement(statementName)) {
-            //logger.warn(LEFT_SQ_BRACKET + statementName + "] Has been loaded by XML or SqlProvider or Mybatis's Annotation, so ignoring this injection for [" + getClass() + RIGHT_SQ_BRACKET);
+            LOGGER.warn("[" + statementName + "] is exists.");
             return null;
         }
         /* 缓存逻辑处理 */

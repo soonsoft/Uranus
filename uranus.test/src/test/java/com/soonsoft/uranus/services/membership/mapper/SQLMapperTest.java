@@ -1,10 +1,11 @@
-package com.soonsoft.uranus.data.entity.service.mybatis.mapper;
+package com.soonsoft.uranus.services.membership.mapper;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.service.meta.TableInfo;
 import com.soonsoft.uranus.data.service.meta.loader.ITableInfoLoader;
 import com.soonsoft.uranus.data.service.meta.loader.jpa.JAPTableInfoLoader;
@@ -17,7 +18,6 @@ import com.soonsoft.uranus.data.service.mybatis.mapper.sql.Update;
 import com.soonsoft.uranus.data.service.mybatis.mapper.sql.UpdateSelective;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
-import com.soonsoft.uranus.services.membership.service.RoleService;
 
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.session.Configuration;
@@ -36,11 +36,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = {MembershipConfig.class})
 public class SQLMapperTest {
 
+    private final static String PREFIX_OF_NAMESPACE = "uranus.test.";
+
     private TableInfo authRoleTable;
-    
-    @Qualifier("membershipRoleService")
+
     @Autowired
-    private RoleService roleService;
+    @Qualifier("membershipAccess")
+    private IDatabaseAccess<?> databaseAccess;
 
     private AuthRole data;
 
@@ -66,10 +68,10 @@ public class SQLMapperTest {
     public void test_insertMapper() {
         Insert insert = new Insert();
 
-        String namespace = "uranus" + "." + authRoleTable.getTableName();
+        String namespace = PREFIX_OF_NAMESPACE + authRoleTable.getTableName();
         String id = insert.getMapperName();
         
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -84,10 +86,10 @@ public class SQLMapperTest {
     public void test_updateMapper() {
         Update update = new Update();
 
-        String namespace = "uranus" + "." + authRoleTable.getTableName();
+        String namespace = PREFIX_OF_NAMESPACE + authRoleTable.getTableName();
         String id = update.getMapperName();
         
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -105,10 +107,10 @@ public class SQLMapperTest {
     public void test_getByPrimaryMapper() {
         GetByPrimary get = new GetByPrimary();
 
-        String namespace = "uranus" + "." + authRoleTable.getTableName();
+        String namespace = PREFIX_OF_NAMESPACE + authRoleTable.getTableName();
         String id = get.getMapperName();
         
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -127,10 +129,10 @@ public class SQLMapperTest {
     public void test_deleteMapper() {
         Delete delete = new Delete();
 
-        String namespace = "uranus" + "." + authRoleTable.getTableName();
+        String namespace = PREFIX_OF_NAMESPACE + authRoleTable.getTableName();
         String id = delete.getMapperName();
         
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -145,10 +147,10 @@ public class SQLMapperTest {
     public void test_insertSelectiveMapper() {
         InsertSelective insertSelective = new InsertSelective();
 
-        String namespace = "uranus" + "." + authRoleTable.getTableName();
+        String namespace = PREFIX_OF_NAMESPACE + authRoleTable.getTableName();
         String id = insertSelective.getMapperName();
         
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);
@@ -166,10 +168,10 @@ public class SQLMapperTest {
     public void test_updateSelectiveMapper() {
         UpdateSelective updateSelective = new UpdateSelective();
 
-        String namespace = "uranus" + "." + authRoleTable.getTableName();
+        String namespace = PREFIX_OF_NAMESPACE + authRoleTable.getTableName();
         String id = updateSelective.getMapperName();
         
-        MybatisDatabaseAccess dba = roleService.getRolesInFunctionsDAO().getDatabaseAccess();
+        MybatisDatabaseAccess dba = (MybatisDatabaseAccess) this.databaseAccess;
         Configuration config = dba.getTemplate().getConfiguration();
         MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(config, "TEST");
         builderAssistant.setCurrentNamespace(namespace);

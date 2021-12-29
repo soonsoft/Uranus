@@ -12,11 +12,11 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
-import com.soonsoft.uranus.services.membership.po.AuthUserIdAndRoleId;
+import com.soonsoft.uranus.services.membership.po.AuthUserRoleRelation;
 
-public class AuthUsersInRolesDAO extends MybatisBaseDAO<AuthUserIdAndRoleId> {
+public class AuthUserRoleRelationDAO extends MybatisBaseDAO<AuthUserRoleRelation> {
 
-    public AuthUsersInRolesDAO(IDatabaseAccess<?> databaseAccess) {
+    public AuthUserRoleRelationDAO(IDatabaseAccess<?> databaseAccess) {
         super(databaseAccess);
     }
 
@@ -37,10 +37,10 @@ public class AuthUsersInRolesDAO extends MybatisBaseDAO<AuthUserIdAndRoleId> {
             params.put("status", status);
         }
 
-        List<AuthUserIdAndRoleId> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByUsers", params);
+        List<AuthUserRoleRelation> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByUsers", params);
         return orderData(
             records, 
-            AuthUsersInRolesDAO::getUserId, 
+            AuthUserRoleRelationDAO::getUserId, 
             roleIdAndName -> roleIdAndName
         );
     }
@@ -52,26 +52,26 @@ public class AuthUsersInRolesDAO extends MybatisBaseDAO<AuthUserIdAndRoleId> {
             params.put("status", status);
         }
 
-        List<AuthUserIdAndRoleId> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByRoles", params);
+        List<AuthUserRoleRelation> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByRoles", params);
         return orderData(
             records, 
-            AuthUsersInRolesDAO::getRoleId, 
+            AuthUserRoleRelationDAO::getRoleId, 
             userIdAndName -> userIdAndName
         );
     }
 
-    private static UUID getUserId(AuthUserIdAndRoleId record) {
+    private static UUID getUserId(AuthUserRoleRelation record) {
         return record.getUserId();
     }
 
-    private static UUID getRoleId(AuthUserIdAndRoleId record) {
+    private static UUID getRoleId(AuthUserRoleRelation record) {
         return record.getRoleId();
     }
 
     private Map<UUID, Set<Object>> orderData(
-        List<AuthUserIdAndRoleId> records, 
-        Function<AuthUserIdAndRoleId, UUID> keyGetter,
-        Function<AuthUserIdAndRoleId, Object> valueGetter) {
+        List<AuthUserRoleRelation> records, 
+        Function<AuthUserRoleRelation, UUID> keyGetter,
+        Function<AuthUserRoleRelation, Object> valueGetter) {
         if(records == null || records.isEmpty()) {
             return null;
         }
