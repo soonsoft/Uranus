@@ -14,20 +14,20 @@ import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUserRoleRelation;
 
-public class AuthUserRoleRelationDAO extends MybatisBaseDAO<AuthUserRoleRelation> {
+public class AuthUserRoleRelationDAO extends MybatisBaseDAO<AuthUserRoleRelation> implements IMapperID {
 
     public AuthUserRoleRelationDAO(IDatabaseAccess<?> databaseAccess) {
         super(databaseAccess);
     }
 
     public int deleteByUserId(UUID userId) {
-        return getDatabaseAccess().insert("uranus.membership.deleteUserRoleByUserId", userId);
+        return getDatabaseAccess().insert(getStatement("deleteUserRoleByUserId"), userId);
     }
     
     public List<AuthRole> selectByUserId(UUID userId) {
         Map<String, Object> params = MapUtils.createHashMap(1);
         params.put("userId", userId);
-        return getDatabaseAccess().select("uranus.membership.selectRolesByUserId", params);
+        return getDatabaseAccess().select(getStatement("selectRolesByUserId"), params);
     }
 
     public Map<UUID, Set<Object>> selectByUsers(Collection<UUID> userIdList, Integer status) {
@@ -37,7 +37,7 @@ public class AuthUserRoleRelationDAO extends MybatisBaseDAO<AuthUserRoleRelation
             params.put("status", status);
         }
 
-        List<AuthUserRoleRelation> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByUsers", params);
+        List<AuthUserRoleRelation> records =  getDatabaseAccess().select(getStatement("selectUserRoleByUsers"), params);
         return orderData(
             records, 
             AuthUserRoleRelationDAO::getUserId, 
@@ -52,7 +52,7 @@ public class AuthUserRoleRelationDAO extends MybatisBaseDAO<AuthUserRoleRelation
             params.put("status", status);
         }
 
-        List<AuthUserRoleRelation> records =  getDatabaseAccess().select("uranus.membership.selectUserRoleByRoles", params);
+        List<AuthUserRoleRelation> records =  getDatabaseAccess().select(getStatement("selectUserRoleByRoles"), params);
         return orderData(
             records, 
             AuthUserRoleRelationDAO::getRoleId, 

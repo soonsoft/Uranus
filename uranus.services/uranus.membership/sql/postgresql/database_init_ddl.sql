@@ -1,3 +1,4 @@
+
 -- 用户表
 CREATE TABLE auth_user
 (
@@ -26,7 +27,7 @@ CREATE TABLE auth_password
     password_type smallint default 1 NOT NULL,
     password_changed_time timestamp NULL,
     status smallint default 1 NOT NULL,
-    expired_time NULL,
+    expired_time timestamp NULL,
     create_time timestamp NULL
 );
 COMMENT ON TABLE auth_password IS '用户密码表';
@@ -58,9 +59,9 @@ CREATE TABLE auth_user_role_relation
     role_id uuid NOT NULL,
     PRIMARY KEY(user_id, role_id)
 );
--- CREATE INDEX idx_user_id ON auth_users_in_roles USING HASH (user_id);
--- CREATE INDEX idx_role_id ON auth_users_in_roles USING HASH (role_id);
-COMMENT ON TABLE user_role_relation IS '角色和用户关系表';
+-- CREATE INDEX idx_user_id ON auth_user_role_relation USING HASH (user_id);
+-- CREATE INDEX idx_role_id ON auth_user_role_relation USING HASH (role_id);
+COMMENT ON TABLE auth_user_role_relation IS '角色和用户关系表';
 
 -- 功能表
 CREATE TABLE sys_function
@@ -107,9 +108,9 @@ CREATE TABLE auth_permission
 COMMENT ON TABLE auth_permission IS '角色授权表';
 
 -- 用户特权
-CREATE TABLE auth_privilege {
+CREATE TABLE auth_privilege (
     user_id uuid NOT NULL,
     function_id uuid NOT NULL,
     PRIMARY KEY(user_id, function_id)
-}
-COMMENT ON TABLE auth_permission IS '用户特权表';
+)
+COMMENT ON TABLE auth_privilege IS '用户特权表';

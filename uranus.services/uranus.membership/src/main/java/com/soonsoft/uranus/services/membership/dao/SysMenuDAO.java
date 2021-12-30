@@ -8,14 +8,14 @@ import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
 
-public class SysMenuDAO extends MybatisBaseDAO<SysMenu> {
+public class SysMenuDAO extends MybatisBaseDAO<SysMenu> implements IMapperID {
 
     public SysMenuDAO(IDatabaseAccess<?> databaseAccess) {
         super(databaseAccess);
     }
 
     public List<SysMenu> selectMenu(Map<String, Object> params) {
-        return getDatabaseAccess().select("uranus.membership.selectMenu", params);
+        return getDatabaseAccess().select(getStatement("selectMenu"), params);
     }
     
 }

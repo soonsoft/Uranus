@@ -29,6 +29,7 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -242,7 +243,7 @@ public class UserService implements IUserManager {
         return users;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean create(AuthUser authUser, AuthPassword authPassword) {
         Guard.notNull("authUser", "the authUser is required.");
         Guard.notNull("authPassword", "the authPassword is required.");
@@ -276,12 +277,29 @@ public class UserService implements IUserManager {
         return effectRows > 0;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean update(AuthUser authUser) {
         Guard.notNull(authUser, "the authUser is required.");
         Guard.notNull(authUser.getUserId(), "the authUser.userId is required.");
 
         int effectRows = userDAO.update(authUser);
+        return effectRows > 0;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
+    public boolean updateUserPrivilege(UUID userId, List<UUID> functionIdList) {
+        Guard.notNull(userId, "the userId is required.");
+        Guard.notEmpty(functionIdList, "the functionIdList is required.");
+
+        privilegeDAO.deletePrivilegeByUserId(userId);
+        int effectRows = 0;
+        for(UUID functionId : functionIdList) {
+            AuthPrivilege privilege = new AuthPrivilege();
+            privilege.setUserId(userId);
+            privilege.setFunctionId(functionId);
+            effectRows += privilegeDAO.insert(privilege);
+        }
+
         return effectRows > 0;
     }
 }

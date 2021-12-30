@@ -15,19 +15,18 @@ import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthPermission;
 import com.soonsoft.uranus.services.membership.po.FunctionRole;
 
-
-public class AuthPermissionDAO extends MybatisBaseDAO<AuthPermission> {
+public class AuthPermissionDAO extends MybatisBaseDAO<AuthPermission> implements IMapperID {
 
     public AuthPermissionDAO(IDatabaseAccess<?> databaseAccess) {
         super(databaseAccess);
     }
 
     public int deleteByRoleId(UUID roleId) {
-        return getDatabaseAccess().delete("uranus.membership.deletePermissionByRoleId", roleId);
+        return getDatabaseAccess().delete(getStatement("deletePermissionByRoleId"), roleId);
     }
 
     public int deleteByFunctionId(UUID functionId) {
-        return getDatabaseAccess().delete("uranus.membership.deletePermissionByFunctionId", functionId);
+        return getDatabaseAccess().delete(getStatement("deletePermissionByFunctionId"), functionId);
     }
 
     public Map<UUID, Set<Object>> selectByFunctions(Collection<UUID> functionIdList, Integer status) {
@@ -36,7 +35,7 @@ public class AuthPermissionDAO extends MybatisBaseDAO<AuthPermission> {
         if(status != null) {
             params.put("status", status);
         }
-        List<FunctionRole> records = getDatabaseAccess().select("uranus.membership.selectPermissionByFunctions", params);
+        List<FunctionRole> records = getDatabaseAccess().select(getStatement("selectPermissionByFunctions"), params);
         return orderData(
             records, 
             e -> ((FunctionRole) e).getFunctionId(), 
@@ -58,7 +57,7 @@ public class AuthPermissionDAO extends MybatisBaseDAO<AuthPermission> {
         if(status != null) {
             params.put("status", status);
         }
-        List<AuthPermission> records =  getDatabaseAccess().select("uranus.membership.selectPermissionByRoles", params);
+        List<AuthPermission> records =  getDatabaseAccess().select(getStatement("selectPermissionByRoles"), params);
         return orderData(
             records, 
             e -> ((AuthPermission) e).getRoleId(),
