@@ -36,7 +36,6 @@
     </resultMap>
 
     <!-- auth_user -->
-
     <delete id="deleteUserByUserName" parameterType="java.lang.String">
         DELETE FROM auth_user WHERE user_name = #{userName, jdbcType=VARCHAR}
     </delete>
@@ -70,7 +69,6 @@
     </select>
 
     <!-- auth_role -->
-
     <delete id="deleteRoleByRoleName" parameterType="java.lang.String">
         DELETE FROM auth_role WHERE role_name = #{roleName, jdbcType=VARCHAR}
     </delete>
@@ -91,7 +89,6 @@
     </select>
 
     <!-- sys_menu -->
-
     <select id="selectMenu" 
         parameterType="java.util.Map" 
         resultMap="sysMenuMap">
@@ -120,7 +117,6 @@
     </select>
 
     <!-- auth_permission -->
-
     <delete id="deletePermissionByRoleId" parameterType="java.util.UUID">
         DELETE FROM auth_permission WHERE role_id = #{roleId}
     </delete>
@@ -173,7 +169,6 @@
     </select>
 
     <!-- auth_privilege -->
-
     <delete id="deletePrivilegeByUserId" parameterType="java.util.UUID">
         DELETE FROM auth_privilege WHERE user_id = #{userId}
     </delete>
@@ -210,7 +205,6 @@
     </select>
 
     <!-- auth_user_role_relation -->
-
     <delete id="deleteUserRoleByUserId" parameterType="java.util.UUID">
         DELETE FROM auth_user_role_relation WHERE user_id = #{userId}
     </delete>
