@@ -13,6 +13,8 @@ import com.soonsoft.uranus.core.error.BusinessException;
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.services.membership.constant.PasswordStatusEnum;
+import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
 import com.soonsoft.uranus.services.membership.dao.AuthPasswordDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthPrivilegeDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthUserDAO;
@@ -75,7 +77,7 @@ public class UserService implements IUserManager {
             throw new NullPointerException("the user is null.");
         }
 
-        AuthPassword password = passwordDAO.getByPrimary(authUser.getUserId());
+        AuthPassword password = passwordDAO.getEnabledPassword(authUser.getUserId());
         if(password == null) {
             throw new NullPointerException("the password is null.");
         }
@@ -87,7 +89,7 @@ public class UserService implements IUserManager {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createUser(UserInfo userInfo) {
         Guard.notNull(userInfo, "the UserInfo is required.");
         
@@ -95,7 +97,7 @@ public class UserService implements IUserManager {
         user.setUserName(userInfo.getUsername());
         user.setNickName(userInfo.getNickName());
         user.setCellPhone(userInfo.getCellPhone());
-        user.setStatus(AuthUser.ENABLED);
+        user.setStatus(UserStatusEnum.ENABLED.Value);
         user.setCreateTime(new Date());
 
         Collection<GrantedAuthority> roles = userInfo.getAuthorities();
@@ -107,11 +109,7 @@ public class UserService implements IUserManager {
             user.setRoles(roleIdList);
         }
 
-        AuthPassword password = new AuthPassword();
-        password.setPasswordValue(userInfo.getPassword());
-        password.setPasswordSalt(userInfo.getPasswordSalt());
-
-        return create(user, password);
+        return create(user, userInfo.getPassword());
     }
 
     @Override
@@ -130,33 +128,36 @@ public class UserService implements IUserManager {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean deleteUser(UserInfo user) {
         Guard.notNull(user, "the user is required.");
         Guard.notEmpty(user.getUserId(), "the user.userId is required.");
 
-        int affectRows = userDAO.delete(UUID.fromString(user.getUserId()));
-        return affectRows > 0;
+        return delete(UUID.fromString(user.getUserId()));
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean deleteUser(String username) {
         Guard.notEmpty(username, "the username is required.");
 
-        int affectRows = userDAO.deleteUser(username);
-        return affectRows > 0;
+        AuthUser user = userDAO.getUser(username);
+        if(user == null) {
+            throw new IllegalStateException("the username [" + username + "] is not exists.");
+        }
+
+        return delete(user.getUserId());
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean disableUser(UserInfo user) {
         Guard.notNull(user, "the user is required.");
         Guard.notEmpty(user.getUserId(), "the user.userId is required.");
 
         AuthUser authUser = new AuthUser();
         authUser.setUserId(UUID.fromString(user.getUserId()));
-        authUser.setStatus(AuthUser.DISABLED);
+        authUser.setStatus(UserStatusEnum.DISABLED.Value);
 
         return update(authUser);
     }
@@ -167,7 +168,7 @@ public class UserService implements IUserManager {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public void changeMyPassword(UserInfo user) {
         Guard.notNull(user, "the user is required.");
 
@@ -244,7 +245,7 @@ public class UserService implements IUserManager {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
-    public boolean create(AuthUser authUser, AuthPassword authPassword) {
+    public boolean create(AuthUser authUser, String originalPassword) {
         Guard.notNull("authUser", "the authUser is required.");
         Guard.notNull("authPassword", "the authPassword is required.");
 
@@ -255,8 +256,15 @@ public class UserService implements IUserManager {
             authUser.setCreateTime(new Date());
         }
 
+        AuthPassword authPassword = new AuthPassword();
         authPassword.setUserId(authUser.getUserId());
+        authPassword.setPasswordSalt(createSalt());
+        authPassword.setPasswordValue(encryptPassword(originalPassword, authPassword.getPasswordSalt()));
+        // 无修改时间
         authPassword.setPasswordChangedTime(null);
+        authPassword.setStatus(PasswordStatusEnum.ENABLED.Value);
+        // 无过期时间
+        authPassword.setExpiredTime(null);
         authPassword.setCreateTime(authUser.getCreateTime());
 
         int effectRows = 0;
@@ -287,6 +295,18 @@ public class UserService implements IUserManager {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
+    public boolean delete(UUID userId) {
+        Guard.notNull(userId, "the userId is required.");
+
+        int effectRows = 0;
+
+        effectRows += passwordDAO.delete(userId);
+        effectRows += userDAO.delete(userId);
+
+        return effectRows > 0;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean updateUserPrivilege(UUID userId, List<UUID> functionIdList) {
         Guard.notNull(userId, "the userId is required.");
         Guard.notEmpty(functionIdList, "the functionIdList is required.");
@@ -301,5 +321,9 @@ public class UserService implements IUserManager {
         }
 
         return effectRows > 0;
+    }
+
+    protected String createSalt() {
+        return UUID.randomUUID().toString();
     }
 }

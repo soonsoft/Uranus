@@ -8,6 +8,7 @@
         <result column="user_name" property="userName" jdbcType="VARCHAR" />
         <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
         <result column="cell_phone" property="cellPhone" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
         <result column="status" property="status" jdbcType="INTEGER" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     </resultMap>
@@ -45,7 +46,7 @@
         parameterType="java.lang.String" 
         resultMap="authUserMap">
         SELECT 
-            user_id, user_name, nick_name, cell_phone, status, create_time 
+            user_id, user_name, nick_name, cell_phone, email, status, create_time 
         FROM auth_user 
         WHERE user_name = #{userName, jdbcType=VARCHAR}
     </select>
@@ -55,7 +56,7 @@
         parameterType="java.util.Map" 
         resultMap="authUserMap">
         SELECT 
-            user_id, user_name, nick_name, cell_phone, status, create_time
+            user_id, user_name, nick_name, cell_phone, email, status, create_time
         FROM auth_user
         <trim prefix="where" suffixOverrides="and">
             <if test="status != null">
@@ -66,6 +67,24 @@
             </if>
         </trim>
         ORDER BY user_name
+    </select>
+
+    <!-- auth_password -->
+    <select 
+        id="getPasswordWithStatus" 
+        parameterType="java.util.Map" 
+        resultType="com.soonsoft.uranus.services.membership.po.AuthPassword">
+        SELECT 
+            user_id AS userId, 
+            password_value AS passwordValue, 
+            password_salt AS passwordSalt, 
+            password_type AS passwordType, 
+            password_changed_time AS passwordChangedTime, 
+            status AS status, 
+            expired_time AS expiredTime, 
+            create_time AS createTime
+        FROM auth_password 
+        WHERE user_id = #{userId} AND status = #{status}
     </select>
 
     <!-- auth_role -->

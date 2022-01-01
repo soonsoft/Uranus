@@ -25,6 +25,7 @@ import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysMenuDAO;
@@ -108,7 +109,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         }
 
         Map<String, Object> params = MapUtils.createHashMap(1);
-        params.put("status", SysMenu.STATUS_ENABLED);
+        params.put("status", FunctionStatusEnum.ENABLED.Value);
         List<SysMenu> menus = getAllMenus(params);
         List<FunctionInfo> records = new ArrayList<>(menus.size());
 
@@ -231,7 +232,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
         // 加载新的菜单数据
         Map<UUID, Set<Object>> functionRoleMap = 
-            permissionDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
+            permissionDAO.selectByFunctions(functionIdSet, FunctionStatusEnum.ENABLED.Value);
         
         synchronized (locker) {
             sequence.forEach(functionId -> {

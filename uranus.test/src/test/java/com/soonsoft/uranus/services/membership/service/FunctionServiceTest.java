@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
+import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
@@ -48,7 +49,7 @@ public class FunctionServiceTest {
         apiFunc.setType(FunctionInfo.ACTION_TYPE);
         apiFunc.setFunctionName("getUserMenus");
         apiFunc.setDescription("查询用户菜单");
-        apiFunc.setStatus(SysMenu.STATUS_ENABLED);
+        apiFunc.setStatus(FunctionStatusEnum.ENABLED.Value);
 
         AuthRole role = new AuthRole();
         role.setRoleId(UUID.fromString("767defd2-8b87-11e9-99cb-00163e1c3c68"));

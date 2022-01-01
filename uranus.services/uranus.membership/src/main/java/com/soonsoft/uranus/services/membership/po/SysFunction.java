@@ -6,16 +6,11 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
+import com.soonsoft.uranus.services.membership.constant.FunctionTypeEnum;
+
 @Table(name = "sys_function")
 public class SysFunction {
-
-    public static final Integer STATUS_ENABLED = 1;
-
-    public static final Integer STATUS_DISABLED = 0;
-
-    public static final String TYPE_MENU = "menu";
-
-    public static final String TYPE_ACTION = "action";
     
     @Id
     @Column(name = "function_id")
@@ -37,13 +32,13 @@ public class SysFunction {
      * 功能类型 menu: 菜单, action: 操作
      */
     @Column(name = "type")
-    private String type = TYPE_MENU;
+    private String type = FunctionTypeEnum.MENU.Value;
 
     /**
-     * 状态 1: 有效, 2: 无效
+     * 状态 1: 有效, 0: 无效
      */
     @Column(name = "status")
-    private Integer status = STATUS_ENABLED;
+    private Integer status = FunctionStatusEnum.ENABLED.Value;
 
     /**
      * 排序

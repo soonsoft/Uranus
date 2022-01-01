@@ -139,7 +139,9 @@ public class SQLMapperTest {
 
         delete.add(builderAssistant, AuthRole.class, authRoleTable);
 
-        int effectRows = dba.delete(namespace + "." + id, data);
+        Map<String, Object> param = new HashMap<>();
+        param.put("p0", data.getRoleId());
+        int effectRows = dba.delete(namespace + "." + id, param);
         Assert.assertTrue(effectRows > 0);
     }
 

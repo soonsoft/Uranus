@@ -28,7 +28,7 @@ public class Delete extends BaseSQLMapper {
         }
 
         String sql = StringUtils.format("DELETE FROM {0} {1}", 
-            tableInfo.getTableName(), getPrimaryWhereClause(primaryKey));
+            tableInfo.getTableName(), getPrimaryWhereClause(columnNames));
         SqlSource sqlSource = createSqlSource(sql, parameterType);
 
         return addDeleteMappedStatement(getMapperName(), sqlSource, parameterType);

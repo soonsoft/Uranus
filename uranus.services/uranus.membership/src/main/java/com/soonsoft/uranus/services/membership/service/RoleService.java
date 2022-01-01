@@ -16,12 +16,12 @@ import com.soonsoft.uranus.security.authorization.event.RoleChangedEvent;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.dao.AuthRoleDAO;
+import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
 import com.soonsoft.uranus.services.membership.dao.AuthUserRoleRelationDAO;
 import com.soonsoft.uranus.services.membership.model.Transformer;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthPermission;
-import com.soonsoft.uranus.services.membership.po.SysMenu;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
@@ -107,7 +107,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         }
 
         Set<UUID> functionIdSet = resourceCodes.stream().map(i -> UUID.fromString(i)).collect(Collectors.toSet());
-        Map<UUID, Set<Object>> functionRoleMap = permissionDAO.selectByFunctions(functionIdSet, SysMenu.STATUS_ENABLED);
+        Map<UUID, Set<Object>> functionRoleMap = permissionDAO.selectByFunctions(functionIdSet, FunctionStatusEnum.ENABLED.Value);
         Map<String, List<RoleInfo>> result = MapUtils.createLinkedHashMap(resourceCodes.size());
 
         if (functionRoleMap != null) {
@@ -214,7 +214,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
 
         List<UUID> roleIdList = new ArrayList<>();
         roleIdList.add(roleGuid);
-        Map<UUID, Set<Object>> menuMap = permissionDAO.selectByRoles(roleIdList, SysMenu.STATUS_ENABLED);
+        Map<UUID, Set<Object>> menuMap = permissionDAO.selectByRoles(roleIdList, FunctionStatusEnum.ENABLED.Value);
         
         List<String> functionIdList = new ArrayList<>();
         if(menuMap != null) {
