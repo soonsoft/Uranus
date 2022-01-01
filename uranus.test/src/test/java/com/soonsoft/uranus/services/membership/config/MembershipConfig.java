@@ -29,18 +29,18 @@ public class MembershipConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
-    public UserServiceFactory userServiceFactory(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {
+    @Bean("membershipUserService")
+    public UserServiceFactory userService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess, PasswordEncoder passwordEncoder) {
         return new UserServiceFactory(securityAccess, passwordEncoder);
     }
 
     @Bean("membershipRoleService")
-    public RoleServiceFactory roleServiceFactory(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
+    public RoleServiceFactory roleService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         return new RoleServiceFactory(securityAccess);
     }
 
-    @Bean
-    public FunctionServiceFactory functionServiceFactory(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
+    @Bean("membershipFunctionService")
+    public FunctionServiceFactory functionService(@Qualifier("membershipAccess") IDatabaseAccess<?> securityAccess) {
         return new FunctionServiceFactory(securityAccess);
     }
 
