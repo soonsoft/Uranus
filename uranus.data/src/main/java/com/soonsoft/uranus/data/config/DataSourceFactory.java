@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.soonsoft.uranus.core.common.lang.TypeUtils;
 import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.data.config.properties.DataSourceProperty;
 import com.soonsoft.uranus.data.config.properties.DruidDataSourceProperty;
 import com.soonsoft.uranus.data.config.properties.HikariDataSourceProperty;
@@ -15,12 +16,19 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public class DataSourceFactory {
 
-    private final static Map<String, Action2<DataSource, DataSourceProperty>> datasourceSettingsMap = new HashMap<>();
+    private final static Map<String, Action2<DataSource, DataSourceProperty>> datasourceSettingsMap = new HashMap<>() {
+        {
+            put("com.alibaba.druid.pool.DruidDataSource", DataSourceFactory::initDruidDataSource);
+            put("com.zaxxer.hikari.HikariDataSource", DataSourceFactory::initHikariDataSource);
+        }
+    };
 
-    static {
-        datasourceSettingsMap.put("com.alibaba.druid.pool.DruidDataSource", DataSourceFactory::initDruidDataSource);
-        datasourceSettingsMap.put("com.zaxxer.hikari.HikariDataSource", DataSourceFactory::initHikariDataSource);
-    }
+    private final static Map<String, Func1<DataSource, String>> datasourceGetterFuncMap = new HashMap<>() {
+        {
+            put("com.alibaba.druid.pool.DruidDataSource", d -> ((DruidDataSource) d).getDriverClassName());
+            put("com.zaxxer.hikari.HikariDataSource", d -> ((HikariDataSource) d).getDriverClassName());
+        }
+    };
 
     public static DataSource create(DataSourceProperty dataSourceProperty) {
         if(dataSourceProperty == null) {
@@ -34,6 +42,16 @@ public class DataSourceFactory {
         }
 
         return dataSource;
+    }
+
+    public static String getDriverClassName(DataSource dataSource) {
+        if(dataSource != null) {
+            Func1<DataSource, String> func = datasourceGetterFuncMap.get(dataSource.getClass().getName());
+            if(func != null) {
+                return func.call(dataSource);
+            }
+        }
+        return null;
     }
 
     private static void initDruidDataSource(DataSource dataSource, DataSourceProperty dataSourceProperty) {

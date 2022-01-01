@@ -2,8 +2,8 @@ package com.soonsoft.uranus.services.membership.config;
 
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.services.membership.dao.AuthRoleDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthRolesInFunctionsDAO;
-import com.soonsoft.uranus.services.membership.dao.AuthUsersInRolesDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
+import com.soonsoft.uranus.services.membership.dao.AuthUserRoleRelationDAO;
 import com.soonsoft.uranus.services.membership.service.RoleService;
 
 import org.springframework.context.ApplicationContext;
@@ -22,17 +22,11 @@ public class RoleServiceFactory extends BaseMembershipServiceFactory<RoleService
     public RoleService getObject() throws Exception {
         IDatabaseAccess<?> securityAccess = getDatabaseAccess();
 
-        AuthRoleDAO roleDAO = new AuthRoleDAO();
-        roleDAO.setMembershipAccess(securityAccess);
-        AuthUsersInRolesDAO usersInRolesDAO = new AuthUsersInRolesDAO();
-        usersInRolesDAO.setMembershipAccess(securityAccess);
-        AuthRolesInFunctionsDAO rolesInFunctionsDAO = new AuthRolesInFunctionsDAO();
-        rolesInFunctionsDAO.setMembershipAccess(securityAccess);
+        AuthRoleDAO roleDAO = new AuthRoleDAO(securityAccess);
+        AuthUserRoleRelationDAO userRoleRelationDAO = new AuthUserRoleRelationDAO(securityAccess);
+        AuthPermissionDAO permissionDAO = new AuthPermissionDAO(securityAccess);
         
-        RoleService roleService = new RoleService();
-        roleService.setRoleDAO(roleDAO);
-        roleService.setUsersInRolesDAO(usersInRolesDAO);
-        roleService.setRolesInFunctionsDAO(rolesInFunctionsDAO);
+        RoleService roleService = new RoleService(roleDAO, userRoleRelationDAO, permissionDAO);
 
         return roleService;
     }

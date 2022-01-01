@@ -3,6 +3,7 @@ package com.soonsoft.uranus.services.membership.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
@@ -48,7 +49,7 @@ public class FunctionServiceTest {
         apiFunc.setStatus(SysMenu.STATUS_ENABLED);
 
         AuthRole role = new AuthRole();
-        role.setRoleId("767defd2-8b87-11e9-99cb-00163e1c3c68");
+        role.setRoleId(UUID.fromString("767defd2-8b87-11e9-99cb-00163e1c3c68"));
         role.setRoleName("系统管理员");
         apiFunc.addRole(role);
 

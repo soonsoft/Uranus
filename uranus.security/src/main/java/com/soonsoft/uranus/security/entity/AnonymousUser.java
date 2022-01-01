@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.security.entity;
 
 /**
- * AnonymousUser
+ * 匿名用户
  */
 public class AnonymousUser extends UserInfo {
 

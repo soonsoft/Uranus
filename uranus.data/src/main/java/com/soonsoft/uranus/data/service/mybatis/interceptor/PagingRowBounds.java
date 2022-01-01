@@ -1,15 +1,12 @@
-package com.soonsoft.uranus.data.service.mybatis;
+package com.soonsoft.uranus.data.service.mybatis.interceptor;
 
 import org.apache.ibatis.session.RowBounds;
 
-/**
- * PageRowBounds
- */
-public class PageRowBounds extends RowBounds {
+public class PagingRowBounds extends RowBounds {
 
     private int total;
 
-    public PageRowBounds(int offset, int limit) {
+    public PagingRowBounds(int offset, int limit) {
         super(offset, limit);
     }
 

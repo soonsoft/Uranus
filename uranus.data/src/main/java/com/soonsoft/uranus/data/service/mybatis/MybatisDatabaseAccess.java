@@ -5,13 +5,28 @@ import java.util.Map;
 
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
+import com.soonsoft.uranus.data.service.mybatis.interceptor.PagingRowBounds;
+import com.soonsoft.uranus.data.service.mybatis.mapper.MappedStatementRegistry;
 import com.soonsoft.uranus.core.Guard;
 
 import org.mybatis.spring.SqlSessionTemplate;
 
 
 public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate> {
+
+    private MappedStatementRegistry mappedStatementRegistry;
     
+    public MappedStatementRegistry getMappedStatementRegistry() {
+        return mappedStatementRegistry;
+    }
+
+    public void setMappedStatementRegistry(MappedStatementRegistry mappedStatementRegistry) {
+        this.mappedStatementRegistry = mappedStatementRegistry;
+    }
+
+
+    //#region IDatabaseAccess implements
+
     @Override
     public int insert(String commandText) {
         return ensureGetTemplate().insert(commandText);
@@ -67,10 +82,12 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
     public <T> List<T> select(String commandText, Map<String, Object> params, Page page) {
         Guard.notNull(page, "the Page is required.");
 
-        PageRowBounds rowBounds = new PageRowBounds(page.offset(), page.limit());
+        PagingRowBounds rowBounds = new PagingRowBounds(page.offset(), page.limit());
         List<Object> result = ensureGetTemplate().selectList(commandText, params, rowBounds);
         page.setTotal(rowBounds.getTotal());
         return (List<T>) result;
     }
+
+    //#endregion
     
 }

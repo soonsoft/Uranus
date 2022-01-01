@@ -22,13 +22,12 @@ public class UserServiceTest {
 
     @Test
     public void test_getUser() {
-        createUser();
-
         UserInfo user = userService.getUser("zhousong");
         Assert.assertNotNull(user);
     }
 
-    private void createUser() {
+    @Test
+    public void createUser() {
         String password = userService.encryptPassword("1", null);
         UserInfo userInfo = new UserInfo("zhousong", password);
         userInfo.setNickName("周松");
@@ -36,7 +35,8 @@ public class UserServiceTest {
         userInfo.setPasswordSalt(null);
         userInfo.setCreateTime(new Date());
 
-        userService.createUser(userInfo);
+        boolean result = userService.createUser(userInfo);
+        Assert.assertTrue(result);
     }
     
 }

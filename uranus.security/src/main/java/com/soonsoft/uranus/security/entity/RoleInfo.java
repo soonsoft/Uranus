@@ -2,13 +2,9 @@ package com.soonsoft.uranus.security.entity;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.GrantedAuthority;
 
-/**
- * RoleInfo
- */
-public class RoleInfo implements GrantedAuthority, ConfigAttribute {
+public class RoleInfo implements GrantedAuthority {
 
     private static final String ROLE_PREFIX = "ROLE_";
 
@@ -98,15 +94,6 @@ public class RoleInfo implements GrantedAuthority, ConfigAttribute {
 
     @Override
     public String getAuthority() {
-        return getRole();
-    }
-
-    //#endregion
-
-    //#region implements ConfigAttribute
-
-    @Override
-    public String getAttribute() {
         return getRole();
     }
 

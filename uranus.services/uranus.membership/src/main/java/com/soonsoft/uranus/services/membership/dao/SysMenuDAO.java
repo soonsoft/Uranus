@@ -3,27 +3,19 @@ package com.soonsoft.uranus.services.membership.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.soonsoft.uranus.data.IDatabaseAccess;
+import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
-/**
- * SysMenuDAO
- */
-public class SysMenuDAO extends BaseDAO {
 
-    public int insert(SysMenu menu) {
-        return getMembershipAccess().insert("membership.sys_menu.insertMenu", menu);
+public class SysMenuDAO extends MybatisBaseDAO<SysMenu> implements IMapperID {
+
+    public SysMenuDAO(IDatabaseAccess<?> databaseAccess) {
+        super(databaseAccess);
     }
 
-    public int update(SysMenu menu) {
-        return getMembershipAccess().update("membership.sys_menu.updateMenu", menu);
-    }
-    
-    public int delete(String functionId) {
-        return getMembershipAccess().delete("membership.sys_menu.deleteMenu", functionId);
-    }
-
-    public List<SysMenu> select(Map<String, Object> params) {
-        return getMembershipAccess().select("membership.sys_menu.select", params);
+    public List<SysMenu> selectMenu(Map<String, Object> params) {
+        return getDatabaseAccess().select(getStatement("selectMenu"), params);
     }
     
 }

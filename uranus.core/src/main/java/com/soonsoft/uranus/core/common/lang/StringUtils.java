@@ -169,4 +169,8 @@ public abstract class StringUtils {
         return String.join(delimiter, elements);
 
     }
+
+    public static String toString(Object o) {
+        return o == null ? null : o.toString();
+    }
 }

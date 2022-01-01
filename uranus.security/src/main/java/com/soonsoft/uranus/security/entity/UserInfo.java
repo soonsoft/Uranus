@@ -11,7 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 /**
- * User
+ * 用户信息
  */
 public class UserInfo extends User {
 
@@ -43,6 +43,11 @@ public class UserInfo extends User {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 用户拥有的特权
+     */
+    private Set<PrivilegeInfo> privileges;
 
     public UserInfo(String username) {
         this(username, EMPTY_PASSWORD);
@@ -132,6 +137,14 @@ public class UserInfo extends User {
      */
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Set<PrivilegeInfo> getPrivileges() {
+        return privileges;
+    }
+
+    public void setPrivileges(Set<PrivilegeInfo> privileges) {
+        this.privileges = privileges;
     }
 
     @Override

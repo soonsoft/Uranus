@@ -29,4 +29,7 @@ public @interface EnableDatabaseAccess {
     /** Mybatis SQL Mapper xml path */
     String[] mybatisMapperLocations() default "classpath*:/sql/**/*Mapper.xml";
 
+    /** Mybatis 扫描数据库实体路径，用于自动注入Mapper */
+    String[] entityClassPackages() default "";
+
 }

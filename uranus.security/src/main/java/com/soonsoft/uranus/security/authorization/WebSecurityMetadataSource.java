@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
+import com.soonsoft.uranus.security.entity.PermissionInfo;
+import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
@@ -21,7 +23,7 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
- * 权限起源加载器
+ * 权限元数据加载器
  */
 public class WebSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
@@ -49,9 +51,18 @@ public class WebSecurityMetadataSource implements FilterInvocationSecurityMetada
                     attributes = new HashSet<>();
                     menuMap.put(url, attributes);
                 }
-                List<RoleInfo> list = function.getAllowRoles();
-                if(list != null) {
-                    attributes.addAll(list);
+
+                final Collection<ConfigAttribute> attributeSet = attributes;
+                // add Privilege
+                List<String> users = function.getAllowUsers();
+                if(users != null && !users.isEmpty()) {
+                    users.forEach(uid -> attributeSet.add(new PrivilegeInfo(uid)));
+                }
+
+                // add Premission
+                List<RoleInfo> roles = function.getAllowRoles();
+                if(roles != null && !roles.isEmpty()) {
+                    roles.forEach(role -> attributeSet.add(new PermissionInfo(role.getRole())));
                 }
             }
         }
