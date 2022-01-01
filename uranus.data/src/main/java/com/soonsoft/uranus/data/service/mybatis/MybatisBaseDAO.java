@@ -52,7 +52,7 @@ public abstract class MybatisBaseDAO<EntityType> {
         return this.databaseAccess.get(getStatementName("getByPrimary"), getPrimaryValue(primaryValues));
     }
 
-    public String getStatementName(String name) {
+    private String getStatementName(String name) {
         MappedStatementRegistry registry = this.databaseAccess.getMappedStatementRegistry();
         TableInfo tableInfo = registry.findTableInfo(entityType.getTypeName());
         if(tableInfo == null) {

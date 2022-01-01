@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.SecurityManager;
-import com.soonsoft.uranus.services.membership.po.AuthPassword;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
@@ -67,14 +66,8 @@ public class SettingsController extends BaseController {
     public View saveUser(@RequestBody AuthUser user) {
         UserService userService = getUserService();
         if(user.getUserId() == null) {
-            String defaultPassword = "1";
-            String salt = "";
-
-            String passwordValue = userService.encryptPassword(defaultPassword, salt);
-            AuthPassword password = new AuthPassword();
-            password.setPasswordValue(passwordValue);
-            password.setPasswordSalt(salt);
-            userService.create(user, password);
+            String passwordValue = "1";
+            userService.create(user, passwordValue);
         } else {
             userService.update(user);
         }

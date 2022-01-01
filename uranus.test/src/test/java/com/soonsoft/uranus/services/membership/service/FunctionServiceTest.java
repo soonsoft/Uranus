@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
+import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
@@ -14,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -25,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class FunctionServiceTest {
 
     @Autowired
+    @Qualifier("membershipFunctionService")
     private FunctionService functionService;
 
     /**
@@ -46,7 +49,7 @@ public class FunctionServiceTest {
         apiFunc.setType(FunctionInfo.ACTION_TYPE);
         apiFunc.setFunctionName("getUserMenus");
         apiFunc.setDescription("查询用户菜单");
-        apiFunc.setStatus(SysMenu.STATUS_ENABLED);
+        apiFunc.setStatus(FunctionStatusEnum.ENABLED.Value);
 
         AuthRole role = new AuthRole();
         role.setRoleId(UUID.fromString("767defd2-8b87-11e9-99cb-00163e1c3c68"));

@@ -12,6 +12,10 @@ import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
+import com.soonsoft.uranus.services.membership.constant.FunctionTypeEnum;
+import com.soonsoft.uranus.services.membership.constant.RoleStatusEnum;
+import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
 import com.soonsoft.uranus.services.membership.po.AuthPassword;
 import com.soonsoft.uranus.services.membership.po.AuthPrivilege;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
@@ -43,7 +47,7 @@ public abstract class Transformer {
                 new MembershipPrivilegeInfo(p.getFunctionId().toString(), p.getFunctionName())));
         }
 
-        boolean enabled = authUser.getStatus() == AuthUser.ENABLED;
+        boolean enabled = authUser.getStatus() == UserStatusEnum.ENABLED.Value;
         UserInfo user = new UserInfo(authUser.getUserName(), password.getPasswordValue(), enabled, true, true, true, roleInfoSet); 
 
         user.setUserId(authUser.getUserId().toString());
@@ -60,7 +64,7 @@ public abstract class Transformer {
         authUser.setUserId(UUID.fromString(userInfo.getUserId()));
         authUser.setUserName(userInfo.getUsername());
         authUser.setNickName(userInfo.getNickName());
-        authUser.setStatus(userInfo.isEnabled() ? AuthUser.ENABLED : AuthUser.DISABLED);
+        authUser.setStatus(userInfo.isEnabled() ? UserStatusEnum.ENABLED.Value : UserStatusEnum.DISABLED.Value);
         authUser.setCellPhone(userInfo.getCellPhone());
         authUser.setCreateTime(userInfo.getCreateTime());
 
@@ -77,25 +81,25 @@ public abstract class Transformer {
         }
         authRole.setRoleName(role.getRoleName());
         authRole.setDescription(role.getDescription());
-        authRole.setStatus(role.isEnable() ? AuthRole.ENABLED : AuthRole.DISABLED);
+        authRole.setStatus(role.isEnable() ? RoleStatusEnum.ENABLED.Value : RoleStatusEnum.DISABLED.Value);
         return authRole;
     }
 
     public static RoleInfo toRoleInfo(AuthRole authRole) {
         MembershipRole role = new MembershipRole(authRole.getRoleId().toString(), authRole.getRoleName());
         role.setDescription(authRole.getDescription());
-        role.setEnable(AuthRole.ENABLED.equals(authRole.getStatus()));
+        role.setEnable(RoleStatusEnum.ENABLED.eq(authRole.getStatus()));
         return role;
     }
 
     public static FunctionInfo toFunctionInfo(SysMenu sysMenu) {
         FunctionInfo functionInfo = null;
 
-        if(StringUtils.equals(SysMenu.TYPE_MENU, sysMenu.getType())) {
+        if(StringUtils.equals(FunctionTypeEnum.MENU.Value, sysMenu.getType())) {
             MenuInfo menu = new MenuInfo(
                 sysMenu.getFunctionId().toString(), sysMenu.getFunctionName(), sysMenu.getUrl());
             menu.setParentResourceCode(sysMenu.getParentId().toString());
-            menu.setEnabled(SysMenu.STATUS_ENABLED.equals(sysMenu.getStatus()));
+            menu.setEnabled(FunctionStatusEnum.ENABLED.eq(sysMenu.getStatus()));
             menu.setIcon(sysMenu.getIcon());
 
             functionInfo = menu;
@@ -118,7 +122,7 @@ public abstract class Transformer {
     }
     
     public static MenuInfo toMenuInfo(SysMenu sysMenu) {
-        if(!StringUtils.equals(SysMenu.TYPE_MENU, sysMenu.getType())) {
+        if(!StringUtils.equals(FunctionTypeEnum.MENU.Value, sysMenu.getType())) {
             throw new IllegalArgumentException("the parameter sysMenu is not a menu object.");
         }
 

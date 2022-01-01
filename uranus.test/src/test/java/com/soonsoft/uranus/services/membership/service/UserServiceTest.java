@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -18,24 +19,31 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class UserServiceTest {
 
     @Autowired
+    @Qualifier("membershipUserService")
     private UserService userService;
 
     @Test
     public void test_getUser() {
-        UserInfo user = userService.getUser("zhousong");
+        UserInfo user = userService.getUser("admin");
         Assert.assertNotNull(user);
     }
 
     @Test
-    public void createUser() {
-        String password = userService.encryptPassword("1", null);
+    public void test_createUser() {
+        String password = "1";
         UserInfo userInfo = new UserInfo("zhousong", password);
-        userInfo.setNickName("周松");
+        userInfo.setNickName("周SOON");
         userInfo.setCellPhone("18666229900");
         userInfo.setPasswordSalt(null);
         userInfo.setCreateTime(new Date());
 
         boolean result = userService.createUser(userInfo);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void test_deleteUser() {
+        boolean result = userService.deleteUser("zhousong");
         Assert.assertTrue(result);
     }
     
