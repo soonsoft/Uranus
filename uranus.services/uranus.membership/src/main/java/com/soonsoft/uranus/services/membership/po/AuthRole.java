@@ -7,12 +7,10 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.soonsoft.uranus.services.membership.constant.RoleStatusEnum;
+
 @Table(name = "auth_role")
 public class AuthRole {
-
-    public static final Integer ENABLED = 1;
-
-    public static final Integer DISABLED = 0;
 
     @Id
     @Column(name = "role_id")
@@ -25,10 +23,10 @@ public class AuthRole {
     private String description;
 
     /**
-     * 状态 1: 有效, 2: 无效
+     * 状态 1: 有效, 0: 无效
      */
     @Column(name = "status")
-    private Integer status = ENABLED;
+    private Integer status = RoleStatusEnum.ENABLED.Value;
 
     /**
      * 关联的菜单信息

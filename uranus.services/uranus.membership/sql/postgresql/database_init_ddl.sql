@@ -112,5 +112,5 @@ CREATE TABLE auth_privilege (
     user_id uuid NOT NULL,
     function_id uuid NOT NULL,
     PRIMARY KEY(user_id, function_id)
-)
+);
 COMMENT ON TABLE auth_privilege IS '用户特权表';

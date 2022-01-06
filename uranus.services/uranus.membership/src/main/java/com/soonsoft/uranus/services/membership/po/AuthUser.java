@@ -8,12 +8,10 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
+
 @Table(name = "auth_user")
 public class AuthUser {
-
-    public static final Integer ENABLED = 1;
-
-    public static final Integer DISABLED = 0;
 
     @Id
     @Column(name = "user_id")
@@ -28,11 +26,14 @@ public class AuthUser {
     @Column(name = "cell_phone")
     private String cellPhone;
 
+    @Column(name = "email")
+    private String email;
+
     /**
-     * 状态 1: 有效, 2: 无效
+     * 状态 1: 有效, 0: 无效
      */
     @Column(name = "status")
-    private Integer status = ENABLED;
+    private Integer status = UserStatusEnum.ENABLED.Value;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -99,11 +100,19 @@ public class AuthUser {
         this.cellPhone = cellPhone;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     /**
      * @return the status
      */
     public int getStatus() {
-        return status == null ? ENABLED : status.intValue();
+        return status == null ? UserStatusEnum.ENABLED.Value : status.intValue();
     }
 
     /**
@@ -142,5 +151,4 @@ public class AuthUser {
     public void setFunctions(List<Object> functions) {
         this.functions = functions;
     }
-    
 }
