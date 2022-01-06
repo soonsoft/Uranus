@@ -22,7 +22,7 @@ public class PostgreSQLPagingDailect implements IPagingDailect {
         Guard.notEmpty(commandText, "the commandText is required.");
         
         String sql = IPagingDailect.removeOrderClause(commandText);
-        return String.format("SELECT COUNT(*) AS Total FROM(%s) AS TEMP", sql);
+        return String.format("SELECT COUNT(*) AS Total FROM(%s) AS PAGING_TEMP_TABLE", sql);
     }
 
     
