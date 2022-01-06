@@ -3,9 +3,6 @@ package com.soonsoft.uranus.data.paging.postgresql;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
 
-/**
- * PostgreSqlPagingDailect
- */
 public class PostgreSQLPagingDailect implements IPagingDailect {
 
     @Override
@@ -22,7 +19,7 @@ public class PostgreSQLPagingDailect implements IPagingDailect {
         Guard.notEmpty(commandText, "the commandText is required.");
         
         String sql = IPagingDailect.removeOrderClause(commandText);
-        return String.format("SELECT COUNT(*) AS Total FROM(%s) AS TEMP", sql);
+        return String.format("SELECT COUNT(*) AS Total FROM(%s) AS PAGING_TEMP_TABLE", sql);
     }
 
     
