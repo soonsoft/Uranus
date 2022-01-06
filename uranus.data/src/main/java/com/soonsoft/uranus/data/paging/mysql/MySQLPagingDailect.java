@@ -4,7 +4,7 @@ import com.soonsoft.uranus.data.paging.IPagingDailect;
 import com.soonsoft.uranus.core.Guard;
 
 /**
- * MySQLPagingDailect
+ * MySQL 数据库符文页语句转换
  */
 public class MySQLPagingDailect implements IPagingDailect {
 

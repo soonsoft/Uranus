@@ -4,7 +4,7 @@ import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
 
 /**
- * PostgreSqlPagingDailect
+ * PostgreSql 分页SQL语句转换
  */
 public class PostgreSQLPagingDailect implements IPagingDailect {
 

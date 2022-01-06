@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.data.service.mybatis;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,9 @@ import com.soonsoft.uranus.data.service.mybatis.interceptor.PagingRowBounds;
 import com.soonsoft.uranus.data.service.mybatis.mapper.MappedStatementRegistry;
 import com.soonsoft.uranus.core.Guard;
 
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 
 
@@ -35,6 +39,25 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
     @Override
     public int insert(String commandText, Object parameter) {
         return ensureGetTemplate().insert(commandText, parameter);
+    }
+
+    public int insertBatch(String commandText, Collection<?> parameters) {
+        return insertBatch(commandText, parameters.toArray(new Object[0]));
+    }
+
+    public int insertBatch(String commandText, Object[] parameters) {
+        SqlSessionFactory sessionFactory = ensureGetTemplate().getSqlSessionFactory();
+        try(SqlSession session = sessionFactory.openSession(ExecutorType.BATCH)) {
+
+            int effectRows = 0;
+            for(Object parameter : parameters) {
+                effectRows += session.insert(commandText, parameter);
+            }
+            
+            session.commit();
+            
+            return effectRows;
+        }
     }
 
     @Override
