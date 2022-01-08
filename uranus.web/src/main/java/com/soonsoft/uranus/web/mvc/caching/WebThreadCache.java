@@ -7,9 +7,7 @@ import java.util.Set;
 import com.soonsoft.uranus.util.caching.ICache;
 import com.soonsoft.uranus.web.HttpContext;
 
-/**
- * WebThreadCache
- */
+
 public class WebThreadCache<TKey, TValue> implements ICache<TKey, TValue> {
 
     private static final String THREAD_CACHE_KEY = "WebThreadCacheKey";

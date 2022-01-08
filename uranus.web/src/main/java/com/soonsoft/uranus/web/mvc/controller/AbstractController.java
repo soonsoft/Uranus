@@ -19,9 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.HtmlUtils;
 
-/**
- * BaseController
- */
 public abstract class AbstractController {
 
     public ModelAndView view(String viewName) {

@@ -6,9 +6,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * FileDataView
- */
 public class FileDataView extends FileView {
 
     private byte[] fileData;

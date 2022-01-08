@@ -4,9 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.core.Guard;
 
-/**
- * RequestParameter
- */
 public class RequestParameter implements IRequestData {
 
     private HttpServletRequest request;

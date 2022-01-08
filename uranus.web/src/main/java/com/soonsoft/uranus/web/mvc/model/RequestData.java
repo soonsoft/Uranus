@@ -4,9 +4,6 @@ import java.util.LinkedHashMap;
 
 import com.soonsoft.uranus.web.util.HtmlUtils;
 
-/**
- * RequestData
- */
 public class RequestData extends LinkedHashMap<String, Object> implements IRequestData {
 
     private static final long serialVersionUID = 1L;

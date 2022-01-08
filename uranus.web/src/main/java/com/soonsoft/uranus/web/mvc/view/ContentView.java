@@ -12,9 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.view.AbstractView;
 
-/**
- * ContentView
- */
 public class ContentView extends AbstractView {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentView.class);

@@ -5,9 +5,6 @@ import java.util.Date;
 
 import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
 
-/**
- * IRequestData
- */
 public interface IRequestData {
 
     default String get(String parameterName) {

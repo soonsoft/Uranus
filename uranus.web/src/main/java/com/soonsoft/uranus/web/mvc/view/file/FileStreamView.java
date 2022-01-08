@@ -7,9 +7,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * FileStreamView
- */
 public class FileStreamView extends FileView {
 
     private InputStream fileStream;

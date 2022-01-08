@@ -11,7 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * HttpContext
+ * Http上下文，可以直接获取Request、Response、Session对象
  */
 public class HttpContext {
     

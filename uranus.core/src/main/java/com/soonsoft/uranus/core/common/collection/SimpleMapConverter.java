@@ -2,162 +2,97 @@ package com.soonsoft.uranus.core.common.collection;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.soonsoft.uranus.core.functional.func.Func1;
+
 public class SimpleMapConverter<TKey> implements IMapConverter<TKey>, Map<TKey, Object> {
 
-    private Map<TKey, Object> mapInstance;
+    private final static Map<Class<?>, Func1<String, ?>> StringValueCaster = new HashMap<>() {
+        {
+            put(Boolean.class, v -> Boolean.valueOf(v));
+            put(Byte.class, v -> Byte.valueOf(v));
+            put(Character.class, v -> v.charAt(0));
+            put(Short.class, v -> Short.valueOf(v));
+            put(Integer.class, v -> Integer.valueOf(v));
+            put(Long.class, v -> Long.valueOf(v));
+            put(Float.class, v -> Float.valueOf(v));
+            put(Double.class, v -> Double.valueOf(v));
+            put(BigDecimal.class, v -> new BigDecimal(v));
+            put(String.class, v -> v);
+        }
+
+        @Override
+        public Func1<String, ?> get(Object key) {
+            Func1<String, ?> func = super.get(key);
+            if(func != null) {
+                return func;
+            }
+            return __ -> null;
+        }
+    };
+
+    private final Map<TKey, Object> mapInstance;
 
     public SimpleMapConverter(Map<TKey, Object> map) {
         if(map == null) {
             throw new IllegalArgumentException("the parameter map is required.");
         }
-        mapInstance = map;
+        this.mapInstance = map;
     }
 
     //#region IMapConverter
 
     @Override
     public Boolean getBoolean(TKey key, Boolean defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Boolean.valueOf((String)value);
-        }
-
-        return (Boolean)value;
+        return getValue(key, Boolean.class, defaultValue);
     }
 
     @Override
     public Byte getByte(TKey key, Byte defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Byte.valueOf((String)value);
-        }
-
-        return (Byte)value;
+        return getValue(key, Byte.class, defaultValue);
     }
 
     @Override
     public Character getChar(TKey key, Character defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        return (Character)value;
+        return getValue(key, Character.class, defaultValue);
     }
 
     @Override
     public String getString(TKey key, String defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        return (String)value;
+        return getValue(key, String.class, defaultValue);
     }
 
     @Override
     public Short getShort(TKey key, Short defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Short.valueOf((String)value);
-        }
-
-        return (Short)value;
+        return getValue(key, Short.class, defaultValue);
     }
 
     @Override
     public Integer getInteger(TKey key, Integer defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Integer.valueOf((String)value);
-        }
-
-        return (Integer)value;
+        return getValue(key, Integer.class, defaultValue);
     }
 
     @Override
     public Long getLong(TKey key, Long defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Long.valueOf((String)value);
-        }
-
-        return (Long)value;
+        return getValue(key, Long.class, defaultValue);
     }
 
     @Override
     public Float getFloat(TKey key, Float defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Float.valueOf((String)value);
-        }
-
-        return (Float)value;
+        return getValue(key, Float.class, defaultValue);
     }
 
     @Override
     public Double getDouble(TKey key, Double defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return Double.valueOf((String)value);
-        }
-
-        return (Double)value;
+        return getValue(key, Double.class, defaultValue);
     }
 
     @Override
     public BigDecimal getDecimal(TKey key, BigDecimal defaultValue) {
-        Object value = getValue(key);
-
-        if(value == null) {
-            return defaultValue;
-        }
-
-        if(value instanceof String) {
-            return new BigDecimal((String)value);
-        }
-
-        return (BigDecimal)value;
+        return getValue(key, BigDecimal.class, defaultValue);
     }
 
     //#endregion
@@ -230,8 +165,19 @@ public class SimpleMapConverter<TKey> implements IMapConverter<TKey>, Map<TKey, 
         return mapInstance;
     }
 
-    protected Object getValue(TKey key) {
-        return mapInstance != null ? mapInstance.get(key) : null;
+    @SuppressWarnings("unchecked")
+    protected <T> T getValue(TKey key, Class<T> resultClass, T defaultValue) {
+        Object value = mapInstance != null ? mapInstance.get(key) : null;
+
+        if(value == null) {
+            return defaultValue;
+        }
+
+        if(value instanceof String) {
+            return (T) StringValueCaster.get(resultClass).call((String)value);
+        }
+
+        return resultClass.cast(value);
     }
     
 }
