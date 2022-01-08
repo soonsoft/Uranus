@@ -21,7 +21,9 @@ import com.soonsoft.uranus.data.config.DataSourceFactory;
 import com.soonsoft.uranus.data.config.exception.UranusMybatisConfigurationException;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
 import com.soonsoft.uranus.data.paging.mysql.MySQLPagingDailect;
+import com.soonsoft.uranus.data.paging.oracle.OraclePagingDailect;
 import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
+import com.soonsoft.uranus.data.paging.sql.SqlServerPagingDailect;
 import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.interceptor.PagingInterceptor;
 import com.soonsoft.uranus.data.service.mybatis.sqltype.UUIDTypeHandler;
@@ -52,6 +54,8 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
         {
             put(DatabaseTypeEnum.MySQL.getDatabaseName(), () -> new MySQLPagingDailect());
             put(DatabaseTypeEnum.PostgreSQL.getDatabaseName(), () -> new PostgreSQLPagingDailect());
+            put(DatabaseTypeEnum.Oracle.getDatabaseName(), () -> new OraclePagingDailect());
+            put(DatabaseTypeEnum.SQLServer.getDatabaseName(), () -> new SqlServerPagingDailect());
         }
     };
     private String[] mapperLocations;

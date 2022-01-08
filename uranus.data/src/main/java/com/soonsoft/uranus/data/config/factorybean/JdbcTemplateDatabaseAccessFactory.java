@@ -5,6 +5,8 @@ import javax.sql.DataSource;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.data.service.jdbc.JdbcTemplateDatabaseAccess;
 
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 public class JdbcTemplateDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
     public JdbcTemplateDatabaseAccessFactory(DataSource dataSource) {
@@ -13,7 +15,12 @@ public class JdbcTemplateDatabaseAccessFactory extends BaseDatabaseAccessFactory
 
     @Override
     public IDatabaseAccess<?> getObject() throws Exception {
-        return null;
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
+
+        JdbcTemplateDatabaseAccess jdbcDatabaseAccess = new JdbcTemplateDatabaseAccess();
+        jdbcDatabaseAccess.setTemplate(jdbcTemplate);
+
+        return jdbcDatabaseAccess;
     }
 
     @Override

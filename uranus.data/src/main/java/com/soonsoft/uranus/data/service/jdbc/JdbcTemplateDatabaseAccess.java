@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.data.service.jdbc;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,61 +11,56 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParameterJdbcTemplate> {
-
-    private final static Map<String, Object> EMPTY_PARAM = new HashMap<>(0);
     
     //#region IDatabaseAccess implements
 
     @Override
     public int insert(String commandText) {
         try {
-            return ensureGetTemplate().update(commandText, EMPTY_PARAM);
+            return ensureGetTemplate().getJdbcTemplate().update(commandText);
         } catch(DataAccessException e) {
             throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.insert and error has occurred.", e);
         }
     }
 
     @Override
-    @SuppressWarnings(value = { "unchecked" })
     public int insert(String commandText, Object parameter) {
-        try {
-            if(parameter == null) {
-                return ensureGetTemplate().update(commandText, EMPTY_PARAM);
-            }
-            if(parameter instanceof Map) {
-                return ensureGetTemplate().update(commandText, (Map<String, Object>) parameter);
-            }
-
-            return 0;
-            
-        } catch(DataAccessException e) {
-            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.insert and error has occurred.", e);
-        }
+        return updateSQL(commandText, parameter);
     }
 
     @Override
     public int update(String commandText) {
-        return 0;
+        try {
+            return ensureGetTemplate().getJdbcTemplate().update(commandText);
+        } catch(DataAccessException e) {
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.update and error has occurred.", e);
+        }
     }
 
     @Override
     public int update(String commandText, Object parameter) {
-        return 0;
+        return updateSQL(commandText, parameter);
     }
 
     @Override
     public int delete(String commandText) {
-        return 0;
+        try {
+            return ensureGetTemplate().getJdbcTemplate().update(commandText);
+        } catch(DataAccessException e) {
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.delete and error has occurred.", e);
+        }
     }
 
     @Override
     public int delete(String commandText, Object parameter) {
-        return 0;
+        return updateSQL(commandText, parameter);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T get(String commandText) {
-        return null;
+        Object result = selectOne(commandText, Map.class);
+        return (T) result;
     }
 
     @Override
@@ -90,5 +84,40 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     }
 
     //#endregion
+
+    
+    @SuppressWarnings("unchecked")
+    protected int updateSQL(String sql, Object parameter) {
+        try {
+            if(parameter == null) {
+                return ensureGetTemplate().getJdbcTemplate().update(sql);
+            }
+            
+            if(parameter instanceof Map) {
+                return ensureGetTemplate().update(sql, (Map<String, Object>) parameter);
+            }
+
+            if(parameter instanceof Object[]) {
+                return ensureGetTemplate().getJdbcTemplate().update(sql, (Object[]) parameter);
+            }
+
+            return 0;
+            
+        } catch(DataAccessException e) {
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.insert and error has occurred.", e);
+        }
+    }
+
+    private <T> T selectOne(String sql, Class<T> resultType) {
+        try {
+            List<T> result = ensureGetTemplate().getJdbcTemplate().queryForList(sql, resultType);
+            if(result != null && !result.isEmpty()) {
+                return (T) result.get(0);
+            }
+            return null;
+        } catch(DataAccessException e) {
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.delete and error has occurred.", e);
+        }
+    }
     
 }
