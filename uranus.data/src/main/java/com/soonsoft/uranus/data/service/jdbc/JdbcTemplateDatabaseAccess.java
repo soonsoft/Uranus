@@ -3,7 +3,9 @@ package com.soonsoft.uranus.data.service.jdbc;
 import java.util.List;
 import java.util.Map;
 
+import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.data.paging.IPagingDailect;
 import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 import com.soonsoft.uranus.data.service.DatabaseAccessException;
 
@@ -11,6 +13,16 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParameterJdbcTemplate> {
+
+    private IPagingDailect pagingDailect;
+
+    public IPagingDailect getPagingDailect() {
+        return pagingDailect;
+    }
+
+    public void setPagingDailect(IPagingDailect pagingDailect) {
+        this.pagingDailect = pagingDailect;
+    }
     
     //#region IDatabaseAccess implements
 
@@ -57,30 +69,42 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T get(String commandText) {
-        Object result = selectOne(commandText, Map.class);
-        return (T) result;
+        return get(commandText, null);
     }
 
     @Override
     public <T> T get(String commandText, Object parameter) {
-        return null;
+        List<T> list;
+        if(parameter == null) {
+            list = select(commandText);
+        } else {
+            Map<String, Object> params = null;
+            list = select(commandText, params);
+        }
+        if(list == null || list.isEmpty()) {
+            return null;
+        }
+        int size = list.size();
+        if(size == 1) {
+            return list.get(0);
+        }
+        throw new DatabaseAccessException("Expected one result (or null) to be returned by get(), but found: " + size);
     }
 
     @Override
     public <T> List<T> select(String commandText) {
-        return null;
+        return querySQL(commandText, null, null);
     }
 
     @Override
     public <T> List<T> select(String commandText, Map<String, Object> params) {
-        return null;
+        return querySQL(commandText, params, null);
     }
 
     @Override
     public <T> List<T> select(String commandText, Map<String, Object> params, Page page) {
-        return null;
+        return querySQL(commandText, params, page);
     }
 
     //#endregion
@@ -104,19 +128,45 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
             return 0;
             
         } catch(DataAccessException e) {
-            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.insert and error has occurred.", e);
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.updateSQL and error has occurred.", e);
         }
     }
 
-    private <T> T selectOne(String sql, Class<T> resultType) {
+    @SuppressWarnings("unchecked")
+    protected <T> List<T> querySQL(String sql, Map<String, Object> params, Page page) {
+        Guard.notEmpty(sql, "the parameter sql is required.");
+
+        Class<?> resultType = null;
+
+        if(params instanceof JdbcSqlParameter p) {
+            resultType = p.getResultType();
+        }
+
+        if(resultType == null) {
+            resultType = Map.class;
+        }
+
         try {
-            List<T> result = ensureGetTemplate().getJdbcTemplate().queryForList(sql, resultType);
-            if(result != null && !result.isEmpty()) {
-                return (T) result.get(0);
+            String querySql = sql;
+            if(page != null) {
+                if(pagingDailect == null) {
+                    throw new DatabaseAccessException("the pagingDailect is null.");
+                }
+
+                String countingSql = pagingDailect.buildCountingSql(sql);
+                sql = pagingDailect.buildPagingSql(sql, page.offset(), page.limit());
+
+                Integer count = ensureGetTemplate().query(countingSql, params, rs -> {
+                    return rs.getInt(0);
+                });
+                page.setTotal(count.intValue());
             }
-            return null;
+
+            List<T> result = (List<T>) ensureGetTemplate().queryForList(querySql, params, resultType);
+            return result;
+
         } catch(DataAccessException e) {
-            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.delete and error has occurred.", e);
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.querySQL and error has occurred.", e);
         }
     }
     

@@ -5,25 +5,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Table;
 import javax.sql.DataSource;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.common.DatabaseTypeEnum;
-import com.soonsoft.uranus.data.config.DataSourceFactory;
 import com.soonsoft.uranus.data.config.exception.UranusMybatisConfigurationException;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
-import com.soonsoft.uranus.data.paging.mysql.MySQLPagingDailect;
-import com.soonsoft.uranus.data.paging.oracle.OraclePagingDailect;
-import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
-import com.soonsoft.uranus.data.paging.sql.SqlServerPagingDailect;
 import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.interceptor.PagingInterceptor;
 import com.soonsoft.uranus.data.service.mybatis.sqltype.UUIDTypeHandler;
@@ -49,15 +40,6 @@ import org.springframework.util.ClassUtils;
 public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
     private final Logger LOGGER = LoggerFactory.getLogger(MybatisDatabaseAccessFactory.class);
-
-    private final static Map<String, Func0<IPagingDailect>> PagingDailectFactoryMap = new HashMap<>() {
-        {
-            put(DatabaseTypeEnum.MySQL.getDatabaseName(), () -> new MySQLPagingDailect());
-            put(DatabaseTypeEnum.PostgreSQL.getDatabaseName(), () -> new PostgreSQLPagingDailect());
-            put(DatabaseTypeEnum.Oracle.getDatabaseName(), () -> new OraclePagingDailect());
-            put(DatabaseTypeEnum.SQLServer.getDatabaseName(), () -> new SqlServerPagingDailect());
-        }
-    };
     private String[] mapperLocations;
     private String[] entityClassPackages;
     private MappedStatementRegistry mappedStatementRegistry;
@@ -121,12 +103,9 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
             return null;
         }
 
-        String dbName = DatabaseTypeEnum.findDatabaseName(DataSourceFactory.getDriverClassName(dataSource));
-        if(dbName != null) {
-            Func0<IPagingDailect> factory = PagingDailectFactoryMap.get(dbName);
-            if(factory != null) {
-                return new PagingInterceptor(factory.call());
-            }
+        IPagingDailect pagingDailect = getPagingDailect(dataSource);
+        if(pagingDailect != null) {
+            return new PagingInterceptor(pagingDailect);
         }
         return null;
     }

@@ -15,10 +15,13 @@ public class JdbcTemplateDatabaseAccessFactory extends BaseDatabaseAccessFactory
 
     @Override
     public IDatabaseAccess<?> getObject() throws Exception {
-        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
+        DataSource dataSource = getDataSource();
+
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 
         JdbcTemplateDatabaseAccess jdbcDatabaseAccess = new JdbcTemplateDatabaseAccess();
         jdbcDatabaseAccess.setTemplate(jdbcTemplate);
+        jdbcDatabaseAccess.setPagingDailect(getPagingDailect(dataSource));
 
         return jdbcDatabaseAccess;
     }
