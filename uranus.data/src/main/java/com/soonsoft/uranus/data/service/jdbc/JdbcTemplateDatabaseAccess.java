@@ -10,7 +10,9 @@ import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 import com.soonsoft.uranus.data.service.DatabaseAccessException;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParameterJdbcTemplate> {
 
@@ -121,6 +123,10 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
                 return ensureGetTemplate().update(sql, (Map<String, Object>) parameter);
             }
 
+            if(parameter instanceof SqlParameterSource paramSource) {
+                return ensureGetTemplate().update(sql, paramSource);
+            }
+
             if(parameter instanceof Object[]) {
                 return ensureGetTemplate().getJdbcTemplate().update(sql, (Object[]) parameter);
             }
@@ -136,33 +142,39 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     protected <T> List<T> querySQL(String sql, Map<String, Object> params, Page page) {
         Guard.notEmpty(sql, "the parameter sql is required.");
 
-        Class<?> resultType = null;
-
-        if(params instanceof JdbcSqlParameter p) {
-            resultType = p.getResultType();
-        }
-
-        if(resultType == null) {
-            resultType = Map.class;
-        }
-
         try {
             String querySql = sql;
+            NamedParameterJdbcTemplate jdbcTemplate = ensureGetTemplate();
             if(page != null) {
                 if(pagingDailect == null) {
                     throw new DatabaseAccessException("the pagingDailect is null.");
                 }
 
                 String countingSql = pagingDailect.buildCountingSql(sql);
-                sql = pagingDailect.buildPagingSql(sql, page.offset(), page.limit());
+                querySql = pagingDailect.buildPagingSql(sql, page.offset(), page.limit());
 
-                Integer count = ensureGetTemplate().query(countingSql, params, rs -> {
-                    return rs.getInt(0);
+                Integer count = jdbcTemplate.queryForObject(countingSql, params, (rs, rowNum) -> {
+                    return rs.getInt(1);
                 });
                 page.setTotal(count.intValue());
             }
 
-            List<T> result = (List<T>) ensureGetTemplate().queryForList(querySql, params, resultType);
+            RowMapper<?> rowMapper = null;
+            if(params instanceof JdbcSqlParameter<?> p) {
+                rowMapper = p.getRowMapper();
+            }
+
+            List<T> result = null;
+            if(rowMapper == null) {
+                // result List<Map<String, Object>>
+                result = (List<T>) jdbcTemplate.queryForList(querySql, params);
+            } else {
+                if(params.isEmpty()) {
+                    result = (List<T>) jdbcTemplate.query(querySql, rowMapper);
+                } else {
+                    result = (List<T>) jdbcTemplate.query(querySql, params, rowMapper);
+                }
+            }
             return result;
 
         } catch(DataAccessException e) {
