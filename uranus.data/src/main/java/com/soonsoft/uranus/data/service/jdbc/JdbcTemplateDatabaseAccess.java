@@ -43,6 +43,11 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     }
 
     @Override
+    public int[] insertBatch(String commandText, Object... parameters) {
+        return updateBatchSQL(commandText, parameters);
+    }
+
+    @Override
     public int update(String commandText) {
         try {
             return ensureGetTemplate().getJdbcTemplate().update(commandText);
@@ -57,6 +62,11 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     }
 
     @Override
+    public int[] updateBatch(String commandText, Object... parameters) {
+        return updateBatchSQL(commandText, parameters);
+    }
+
+    @Override
     public int delete(String commandText) {
         try {
             return ensureGetTemplate().getJdbcTemplate().update(commandText);
@@ -68,6 +78,11 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     @Override
     public int delete(String commandText, Object parameter) {
         return updateSQL(commandText, parameter);
+    }
+
+    @Override
+    public int[] deleteBatch(String commandText, Object... parameters) {
+        return updateBatchSQL(commandText, parameters);
     }
 
     @Override
@@ -114,6 +129,8 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
     
     @SuppressWarnings("unchecked")
     protected int updateSQL(String sql, Object parameter) {
+        Guard.notEmpty(sql, "the parameter sql is required.");
+
         try {
             if(parameter == null) {
                 return ensureGetTemplate().getJdbcTemplate().update(sql);
@@ -135,6 +152,29 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
             
         } catch(DataAccessException e) {
             throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.updateSQL and error has occurred.", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected int[] updateBatchSQL(String sql, Object[] parameters) {
+        Guard.notEmpty(sql, "the parameter sql is required.");
+        Guard.notEmpty(parameters, "the parameter parameters is required.");
+
+        try {
+
+            Object element = parameters[0];
+            
+            if(element instanceof Map) {
+                return ensureGetTemplate().batchUpdate(sql, (Map<String, ?>[]) parameters);
+            }
+
+            if(element instanceof SqlParameterSource paramSource) {
+                return ensureGetTemplate().batchUpdate(sql, (SqlParameterSource[]) parameters);
+            }
+
+            return new int[0];
+        } catch(DataAccessException e) {
+            throw new DatabaseAccessException("JdbcTemplateDatabaseAccess.updateBatchSQL and error has occurred.", e);
         }
     }
 

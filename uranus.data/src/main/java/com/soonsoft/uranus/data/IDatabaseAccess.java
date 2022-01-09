@@ -11,13 +11,19 @@ public interface IDatabaseAccess<TemplateType> {
 
     int insert(String commandText, Object parameter);
 
+    int[] insertBatch(String commandText, Object... parameters);
+
     int update(String commandText);
 
     int update(String commandText, Object parameter);
 
+    int[] updateBatch(String commandText, Object... parameters);
+
     int delete(String commandText);
 
     int delete(String commandText, Object parameter);
+
+    int[] deleteBatch(String commandText, Object... parameters);
 
     <T> T get(String commandText);
 

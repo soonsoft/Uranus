@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.data.service.mybatis;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -41,23 +40,9 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
         return ensureGetTemplate().insert(commandText, parameter);
     }
 
-    public int insertBatch(String commandText, Collection<?> parameters) {
-        return insertBatch(commandText, parameters.toArray(new Object[0]));
-    }
-
-    public int insertBatch(String commandText, Object[] parameters) {
-        SqlSessionFactory sessionFactory = ensureGetTemplate().getSqlSessionFactory();
-        try(SqlSession session = sessionFactory.openSession(ExecutorType.BATCH)) {
-
-            int effectRows = 0;
-            for(Object parameter : parameters) {
-                effectRows += session.insert(commandText, parameter);
-            }
-            
-            session.commit();
-            
-            return effectRows;
-        }
+    @Override
+    public int[] insertBatch(String commandText, Object... parameters) {
+        return updateBatchSQL(commandText, parameters);
     }
 
     @Override
@@ -71,6 +56,11 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
     }
 
     @Override
+    public int[] updateBatch(String commandText, Object... parameters) {
+        return updateBatchSQL(commandText, parameters);
+    }
+
+    @Override
     public int delete(String commandText) {
         return ensureGetTemplate().delete(commandText);
     }
@@ -78,6 +68,11 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
     @Override
     public int delete(String commandText, Object parameter) {
         return ensureGetTemplate().delete(commandText, parameter);
+    }
+
+    @Override
+    public int[] deleteBatch(String commandText, Object... parameters) {
+        return updateBatchSQL(commandText, parameters);
     }
 
     @Override
@@ -101,16 +96,32 @@ public class MybatisDatabaseAccess extends BaseDatabaseAccess<SqlSessionTemplate
     }
 
     @Override
-    @SuppressWarnings(value = "unchecked")
     public <T> List<T> select(String commandText, Map<String, Object> params, Page page) {
         Guard.notNull(page, "the Page is required.");
 
         PagingRowBounds rowBounds = new PagingRowBounds(page.offset(), page.limit());
-        List<Object> result = ensureGetTemplate().selectList(commandText, params, rowBounds);
+        List<T> result = ensureGetTemplate().selectList(commandText, params, rowBounds);
         page.setTotal(rowBounds.getTotal());
-        return (List<T>) result;
+        return result;
     }
 
     //#endregion
+
+    protected int[] updateBatchSQL(String sql, Object[] parameters) {
+        Guard.notEmpty(sql, "the parameter sql is required.");
+        Guard.notEmpty(parameters, "the parameter parameters is required.");
+
+        int[] result = new int[parameters.length];
+
+        SqlSessionFactory sessionFactory = getTemplate().getSqlSessionFactory();
+        try(SqlSession session = sessionFactory.openSession(ExecutorType.BATCH)) {
+            for(int i = 0; i < parameters.length; i++) {
+                result[i] = session.insert(sql, parameters[i]);
+            }
+
+            session.commit();
+        }
+        return result;
+    }
     
 }
