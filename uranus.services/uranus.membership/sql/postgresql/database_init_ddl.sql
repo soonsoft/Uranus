@@ -59,8 +59,8 @@ CREATE TABLE auth_user_role_relation
     role_id uuid NOT NULL,
     PRIMARY KEY(user_id, role_id)
 );
--- CREATE INDEX idx_user_id ON auth_user_role_relation USING HASH (user_id);
--- CREATE INDEX idx_role_id ON auth_user_role_relation USING HASH (role_id);
+CREATE INDEX idx_user_id ON auth_user_role_relation USING HASH (user_id);
+CREATE INDEX idx_role_id ON auth_user_role_relation USING HASH (role_id);
 COMMENT ON TABLE auth_user_role_relation IS '角色和用户关系表';
 
 -- 功能表
