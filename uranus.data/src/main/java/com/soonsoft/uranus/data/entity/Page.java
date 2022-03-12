@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Page
+ * 分页对象
  */
 public class Page {
 
@@ -125,7 +125,8 @@ public class Page {
     }
 
     /**
-     * 获取页码按钮列表
+     * 获取页码按钮列表，从1开始。
+     * 最左边和最右边的分别是“第一页”和“最后一页”的页码，如果当前场景不适用，则用“0”填充。
      * @param page
      * @param size button count, since 5
      * @return size = 5, [0, 1, 2, 3, 4, 5, 0] or [1, 3, 4, 5, 6, 7, 19]

@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.common;
+package com.soonsoft.uranus.data.constant;
 
 public enum DatabaseTypeEnum {
 

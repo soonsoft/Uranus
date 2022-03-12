@@ -7,8 +7,8 @@ import javax.sql.DataSource;
 
 import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.common.DatabaseTypeEnum;
 import com.soonsoft.uranus.data.config.DataSourceFactory;
+import com.soonsoft.uranus.data.constant.DatabaseTypeEnum;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
 import com.soonsoft.uranus.data.paging.mysql.MySQLPagingDailect;
 import com.soonsoft.uranus.data.paging.oracle.OraclePagingDailect;
