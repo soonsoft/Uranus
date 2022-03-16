@@ -7,7 +7,12 @@ import com.soonsoft.uranus.util.identity.IDGenerateException;
 import com.soonsoft.uranus.util.identity.IdentityGenerator;
 
 /**
- * SnowFlakeGenerator
+ * 雪花ID生成器
+ * long类型，8字节，共64位
+ * 1: 符号位
+ * 2 ~ 42: 41位时间戳
+ * 43 ~ 52: 10位节点编号，共1024个
+ * 53 ~ 64: 12位序号
  */
 public class SnowFlakeGenerator implements IdentityGenerator<Long> {
 
