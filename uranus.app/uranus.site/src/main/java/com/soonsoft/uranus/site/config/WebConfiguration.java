@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.Filter;
 import com.soonsoft.uranus.security.authentication.IUserManager;
@@ -82,6 +83,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         List<UserInfo> users = new ArrayList<>();
         String salt = null;
         UserInfo user = new UserInfo("admin", userManager.encryptPassword("1", salt), roles);
+        user.setUserId(UUID.randomUUID().toString());
         user.setNickName("张三");
         user.setPasswordSalt(salt);
         user.setCellPhone("139-0099-8877");

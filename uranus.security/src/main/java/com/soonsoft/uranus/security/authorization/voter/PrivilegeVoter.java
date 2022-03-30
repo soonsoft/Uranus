@@ -15,12 +15,12 @@ public class PrivilegeVoter implements AccessDecisionVoter<Object> {
 
     @Override
     public boolean supports(ConfigAttribute attribute) {
-        return !StringUtils.isEmpty(attribute.getAttribute());
+        return attribute instanceof PrivilegeInfo && !StringUtils.isEmpty(attribute.getAttribute());
     }
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return true;
+        return clazz == PrivilegeInfo.class;
     }
 
     @Override
