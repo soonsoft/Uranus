@@ -3,6 +3,9 @@ package com.soonsoft.uranus.site.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.SecurityManager;
@@ -61,9 +64,27 @@ public class SettingsController extends BaseController {
         return json(JsonResult.create(users, page.getTotal()));
     }
 
-    // TODO update parameter type
     @RequestMapping(value = "/settings/users/save", method = RequestMethod.POST)
-    public View saveUser(@RequestBody AuthUser user) {
+    public View saveUser(@RequestBody RequestData parameter) {
+        AuthUser user = new AuthUser();
+        user.setUserId(parameter.getUUID("userId"));
+        user.setUserName(parameter.get("userName"));
+        user.setNickName(parameter.get("nickName"));
+        user.setNickName(parameter.get("cellPhone"));
+        user.setEmail(parameter.get("email"));
+        user.setStatus(parameter.getInteger("status"));
+        user.setCreateTime(parameter.getJsonDate("createTime"));
+
+        List<Object> roles = parameter.getObject("roles");
+        if(roles != null) {
+            user.setRoles(roles.stream().map(i -> UUID.fromString((String) i)).collect(Collectors.toList()));
+        }
+
+        List<Object> functions = parameter.getObject("functions");
+        if(functions != null) {
+            user.setFunctions(functions.stream().map(i -> UUID.fromString((String) i)).collect(Collectors.toList()));
+        }
+
         UserService userService = getUserService();
         if(user.getUserId() == null) {
             String passwordValue = "1";
@@ -98,9 +119,18 @@ public class SettingsController extends BaseController {
         return json(JsonResult.create(roles, page.getTotal()));
     }
 
-    // TODO update parameter type
     @RequestMapping(value = "/settings/roles/save", method = RequestMethod.POST)
-    public View saveRole(@RequestBody AuthRole role) {
+    public View saveRole(@RequestBody RequestData parameter) {
+        AuthRole role = new AuthRole();
+        role.setRoleId(parameter.getUUID("roleId"));
+        role.setRoleName(parameter.get("roleName"));
+        role.setStatus(parameter.getInteger("status"));
+        role.setDescription(parameter.get("description"));
+        List<Object> menus = parameter.getObject("menus");
+        if(menus != null) {
+            role.setMenus(menus.stream().map(i -> UUID.fromString((String) i)).collect(Collectors.toList()));
+        }
+
         if(role.getRoleId() == null) {
             getRoleService().createRole(role);
         } else {
