@@ -7,17 +7,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.HttpContext;
 import com.soonsoft.uranus.web.mvc.view.ContentView;
 import com.soonsoft.uranus.web.mvc.view.JsonView;
 import com.soonsoft.uranus.web.mvc.view.file.FileDataView;
 import com.soonsoft.uranus.web.mvc.view.file.FileStreamView;
 import com.soonsoft.uranus.web.mvc.view.file.FileView;
+import com.soonsoft.uranus.web.util.HtmlUtils;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.web.util.HtmlUtils;
 
 public abstract class AbstractController {
 
@@ -86,16 +85,10 @@ public abstract class AbstractController {
     }
 
     public String htmlEncode(String input) {
-        if(StringUtils.isEmpty(input)) {
-            return input;
-        }
         return HtmlUtils.htmlEscape(input);
     }
 
     public String htmlDecode(String input) {
-        if(StringUtils.isEmpty(input)) {
-            return input;
-        }
         return HtmlUtils.htmlUnescape(input);
     }
     

@@ -6,11 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.json.HtmlJsonFactory;
 
-/**
- * HtmlUtils
- */
 public abstract class HtmlUtils {
 
     public static String toJSON(Object target) {
@@ -29,6 +27,20 @@ public abstract class HtmlUtils {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("HtilUtils.toJSON process occurred error.", e);
         }
+    }
+
+    public static String htmlEscape(String input) {
+        if(StringUtils.isEmpty(input)) {
+            return input;
+        }
+        return org.springframework.web.util.HtmlUtils.htmlEscape(input);
+    }
+
+    public static String htmlUnescape(String input) {
+        if(StringUtils.isEmpty(input)) {
+            return input;
+        }
+        return org.springframework.web.util.HtmlUtils.htmlUnescape(input);
     }
     
 }
