@@ -3,7 +3,7 @@ package com.soonsoft.uranus.core.common.lang;
 import com.soonsoft.uranus.core.error.format.StringFormatException;
 
 /**
- * StringUtils
+ * 字符串函数工具集
  */
 public abstract class StringUtils {
 
@@ -97,7 +97,7 @@ public abstract class StringUtils {
      * @param params 填充的参数
      * @return 格式化后的字符串
      */
-    public static String format(String input, Object... params) {
+    public static String format(final String input, Object... params) {
         if (StringUtils.isBlank(input)) {
             return input;
         }
