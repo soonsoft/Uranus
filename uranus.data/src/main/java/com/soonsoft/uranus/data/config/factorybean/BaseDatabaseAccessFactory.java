@@ -13,7 +13,7 @@ import com.soonsoft.uranus.data.paging.IPagingDailect;
 import com.soonsoft.uranus.data.paging.mysql.MySQLPagingDailect;
 import com.soonsoft.uranus.data.paging.oracle.OraclePagingDailect;
 import com.soonsoft.uranus.data.paging.postgresql.PostgreSQLPagingDailect;
-import com.soonsoft.uranus.data.paging.sql.SqlServerPagingDailect;
+import com.soonsoft.uranus.data.paging.sqlserver.SqlServerPagingDailect;
 
 import org.springframework.beans.factory.FactoryBean;
 
