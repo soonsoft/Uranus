@@ -19,6 +19,7 @@ public class DateTimeUtilsTest {
         String utc = DateTimeUtils.ISO8601.formatUTC(date);
         Assert.assertTrue("2019-05-18T12:30:00.000Z".equals(utc));
         Assert.assertNotNull(DateTimeUtils.ISO8601.parse(iso8601Text));
+        Assert.assertNotNull(DateTimeUtils.ISO8601.parse("2019-05-18T12:30:00.000Z"));
     }
 
 }
