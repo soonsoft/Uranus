@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * DateTimeUtils
+ * 日期时间工具函数集
  */
 public abstract class DateTimeUtils {
 

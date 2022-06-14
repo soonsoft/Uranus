@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.paging.sql;
+package com.soonsoft.uranus.data.paging.sqlserver;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
