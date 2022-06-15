@@ -9,6 +9,7 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.core.functional.predicate.Predicate1;
 
 public class TreeRoot<TData> extends TreeNode<TData> {
 
@@ -18,9 +19,16 @@ public class TreeRoot<TData> extends TreeNode<TData> {
     
     private Func1<TData, String> treeParentKeyGetter;
 
+    private Predicate1<String> isRootKeyFn;
+
     public TreeRoot(Func1<TData, String> treeKeyGetter, Func1<TData, String> treeParentKeyGetter) {
+        this(treeKeyGetter, treeParentKeyGetter, parentKey -> parentKey == null);
+    }
+
+    public TreeRoot(Func1<TData, String> treeKeyGetter, Func1<TData, String> treeParentKeyGetter, Predicate1<String> isRootKeyFn) {
         this.treeKeyGetter = treeKeyGetter;
         this.treeParentKeyGetter = treeParentKeyGetter;
+        this.isRootKeyFn = isRootKeyFn;
     }
 
     public void load(List<TData> list) {
@@ -33,7 +41,7 @@ public class TreeRoot<TData> extends TreeNode<TData> {
         for(TData element : list) {
             String key = treeKeyGetter.call(element);
             String parentKey = treeParentKeyGetter.call(element);
-            if(parentKey == null) {
+            if(isRootKeyFn.test(parentKey)) {
                 parentKey = ROOT_KEY;
             }
 
