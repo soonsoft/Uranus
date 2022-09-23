@@ -43,6 +43,11 @@
             <artifactId>uranus.membership</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.soonsoft</groupId>
+            <artifactId>uranus.workflow</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.postgresql</groupId>

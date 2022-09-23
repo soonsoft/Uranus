@@ -22,6 +22,10 @@ uranus.services/uranus.membership/.project
 uranus.services/uranus.membership/target
 uranus.services/uranus.membership/.classpath
 
+uranus.services/uranus.workflow/.project
+uranus.services/uranus.workflow/target
+uranus.services/uranus.workflow/.classpath
+
 uranus.utils/.project
 uranus.utils/target
 uranus.utils/.classpath
