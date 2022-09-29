@@ -23,7 +23,7 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     @Override
     public StateMachineFlowDefinition loadDefinition(Object parameter) {
-        return flowRepository.getDefinition(parameter);
+        return getRepository().getDefinition(parameter);
     }
 
     @Override

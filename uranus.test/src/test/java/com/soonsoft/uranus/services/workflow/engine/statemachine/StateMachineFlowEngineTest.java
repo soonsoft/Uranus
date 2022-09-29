@@ -14,9 +14,7 @@ public class StateMachineFlowEngineTest {
 
     @Before
     public void initial() {
-        StateMachineFlowRepository repository = new StateMachineFlowRepository();
-        DataSubQuery query = new DataSubQuery();
-        factory = new StateMachineFlowFactory<StateMachineFlowDataQuery>(repository, query);
+        factory = createFactory();
     }
 
     @Test
@@ -38,6 +36,19 @@ public class StateMachineFlowEngineTest {
         StateMachineFLowEngine<DataSubQuery> engine = factory2.createEngine(factory2.loadDefinition(parameter));
         Object data = engine.query().getData("type", 1);
         assert data.toString() == "{}"; 
+    }
+
+    private StateMachineFlowFactory<StateMachineFlowDataQuery> createFactory() {
+        StateMachineFlowRepository repository = new StateMachineFlowRepository();
+        repository.setDefinitionFn(p -> createDefaultTestDefinition());
+
+        DataSubQuery query = new DataSubQuery();
+        StateMachineFlowFactory<StateMachineFlowDataQuery> factory = new StateMachineFlowFactory<>(repository, query);
+        return factory;
+    }
+
+    private StateMachineFlowDefinition createDefaultTestDefinition() {
+        return null;
     }
     
 }
