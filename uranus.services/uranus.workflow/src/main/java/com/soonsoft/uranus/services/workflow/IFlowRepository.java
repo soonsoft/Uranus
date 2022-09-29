@@ -3,9 +3,9 @@ import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
-public interface IFlowRepository<TFlowState> {
+public interface IFlowRepository<TFlowDefinition extends FlowDefinition<?>, TFlowState> {
     
-    FlowDefinition<?> getDefinition(Object parameter);
+    TFlowDefinition getDefinition(Object parameter);
 
     FlowNode<?> getCurrentNode();
 

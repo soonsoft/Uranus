@@ -1,10 +1,10 @@
 package com.soonsoft.uranus.services.workflow;
 
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
+import com.soonsoft.uranus.services.workflow.model.FlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
-public interface IFlowEngine<TFlowQuery> {
+public interface IFlowEngine<TFlowState extends FlowState, TFlowQuery> {
 
     /**
      * 流程启动
@@ -19,7 +19,7 @@ public interface IFlowEngine<TFlowQuery> {
      * @param parameter 流程操作相关参数
      * @return 操作状态信息
      */
-    StateMachineFlowState action(String nodeCode, String stateCode, FlowActionParameter parameter);
+    TFlowState action(String nodeCode, String stateCode, FlowActionParameter parameter);
 
     /**
      * 取消流程，Pending | Started 状态下都可以取消。
@@ -35,7 +35,7 @@ public interface IFlowEngine<TFlowQuery> {
 
     boolean isFinished();
 
-    StateMachineFlowState currentState();
+    TFlowState currentState();
 
     TFlowQuery query();
 

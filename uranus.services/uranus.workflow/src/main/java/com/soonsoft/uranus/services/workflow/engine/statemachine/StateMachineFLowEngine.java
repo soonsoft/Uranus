@@ -2,11 +2,11 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
 import java.util.List;
 
-import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -17,7 +17,12 @@ import com.soonsoft.uranus.services.workflow.model.FlowStatus;
  * 状态机流程引擎（多路径）
  */
 public class StateMachineFLowEngine<TFlowQuery> 
-                extends BaseFlowEngine<StateMachineFlowDefinition, IFlowRepository<StateMachineFlowState>, TFlowQuery> {
+                extends BaseFlowEngine<
+                    StateMachineFlowDefinition, 
+                    StateMachineFlowState, 
+                    IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState>, 
+                    TFlowQuery
+                > {
 
     public StateMachineFLowEngine(StateMachineFlowDefinition definition, TFlowQuery query) {
         super(definition, query);
@@ -25,16 +30,14 @@ public class StateMachineFLowEngine<TFlowQuery>
 
     @Override
     public void start(FlowActionParameter parameter) {
-        if(getStatus() != FlowStatus.Pending) {
-            throw new FlowException(
-                "start flow process error, cause the status of flow process is incurrect, current status is [%s]", 
-                getStatus().name());
-        }
+        prepareStart(parameter);
+
         final StateMachineFlowDefinition definition = this.getDefinition();
         final FlowNode<StateMachineFlowState> beginNode = definition.finNode(n -> n.isBeginNode());
         if(beginNode == null) {
             throw new FlowException("cannot find begin flow node in nodelist.");
         }
+        definition.setPreviousNodeCode(null);
         definition.setCurrentNodeCode(beginNode.getNodeCode());
         definition.setStatus(FlowStatus.Started);
 
@@ -49,14 +52,7 @@ public class StateMachineFLowEngine<TFlowQuery>
 
     @Override
     public StateMachineFlowState action(String nodeCode, String stateCode, FlowActionParameter parameter) {
-        if(!isStarted()) {
-            throw new FlowException(
-                "the flow process do action error, cause the status is incurrect, current status is [%s]", 
-                getStatus().name());
-        }
-
-        Guard.notEmpty(nodeCode, "the parameter nodeCode is required.");
-        Guard.notEmpty(stateCode, "the parameter stateCode is required.");
+        prepareAction(nodeCode, stateCode, parameter);
 
         final StateMachineFlowDefinition definition = getDefinition();
 
@@ -86,7 +82,7 @@ public class StateMachineFLowEngine<TFlowQuery>
             throw new FlowException("the stateCode[%s] cannot be matched in current flow node[%s]", stateCode, nodeCode);
         }
 
-        FlowNode<StateMachineFlowState> newNode = newState.getToNode();
+        StateMachineFlowNode newNode = newState.getToNode();
         // 变更状态
         definition.setPreviousNodeCode(newState.getNodeCode());
         definition.setPreviousStateCode(newState.getStateCode());
@@ -103,16 +99,9 @@ public class StateMachineFLowEngine<TFlowQuery>
 
     @Override
     public void cancel(FlowActionParameter parameter) {
-        final StateMachineFlowDefinition definition = getDefinition();
-        if(!definition.isCancelable()) {
-            throw new FlowException("the flow definition [%s] is not supported", definition.getFlowName());
-        }
+        prepareCancel(parameter);
 
-        FlowStatus status = getStatus();
-        if(status == FlowStatus.Canceled || status == FlowStatus.Finished) {
-            throw new FlowException("the flow process is done, current status is [%s]", status.name());
-        }
-        
+        final StateMachineFlowDefinition definition = getDefinition();
         definition.setStatus(FlowStatus.Canceled);
 
         StateMachineFlowCancelState cancelState = definition.createCancelState();

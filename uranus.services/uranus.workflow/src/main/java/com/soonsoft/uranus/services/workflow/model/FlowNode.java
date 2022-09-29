@@ -12,8 +12,6 @@ public class FlowNode<TState> {
 
     private String nodeName;
 
-    private FlowNodeType nodeType;
-
     List<TState> stateList;
 
     public Object getId() {
@@ -48,14 +46,6 @@ public class FlowNode<TState> {
         this.nodeName = nodeName;
     }
 
-    public FlowNodeType getNodeType() {
-        return nodeType;
-    }
-
-    public void setNodeType(FlowNodeType nodeType) {
-        this.nodeType = nodeType;
-    }
-
     public List<TState> getStateList() {
         return stateList;
     }
@@ -64,12 +54,8 @@ public class FlowNode<TState> {
         this.stateList = stateList;
     }
 
-    public boolean isBeginNode() {
-        return this.nodeType == FlowNodeType.BeginNode;
-    }
-
-    public boolean isEndNode() {
-        return this.nodeType == FlowNodeType.EndNode;
+    public boolean addState(TState state) {
+        return getStateList().add(state);
     }
     
 }

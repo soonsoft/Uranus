@@ -1,11 +1,11 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
-import com.soonsoft.uranus.services.workflow.model.FlowNode;
+import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class StateMachineFlowCancelState extends StateMachineFlowState {
 
-    public StateMachineFlowCancelState(StateMachineFlowDefinition definition) {
-        super(definition);
+    public StateMachineFlowCancelState(Func1<String, StateMachineFlowNode> findNodeFn) {
+        super(findNodeFn);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
     }
 
     @Override
-    public FlowNode<StateMachineFlowState> getToNode() {
+    public StateMachineFlowNode getToNode() {
         return null;
     }
     

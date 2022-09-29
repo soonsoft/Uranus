@@ -1,12 +1,19 @@
 package com.soonsoft.uranus.services.workflow.engine;
 
+import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.services.workflow.IFlowEngine;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.exception.FlowException;
+import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
+import com.soonsoft.uranus.services.workflow.model.FlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
-public abstract class BaseFlowEngine<TFlowDefinition extends FlowDefinition<?>, TRepository, TFlowQuery> 
-                        implements IFlowEngine<TFlowQuery> {
+public abstract class BaseFlowEngine<
+            TFlowDefinition extends FlowDefinition<?>, 
+            TFlowState extends FlowState, 
+            TRepository, 
+            TFlowQuery
+        > implements IFlowEngine<TFlowState, TFlowQuery> {
 
     private TFlowDefinition definition;
     private TFlowQuery flowQuery;
@@ -62,12 +69,42 @@ public abstract class BaseFlowEngine<TFlowDefinition extends FlowDefinition<?>, 
         start(null);
     }
 
-    public StateMachineFlowState action(String nodeCode, String stateCode) {
+    public TFlowState action(String nodeCode, String stateCode) {
         return action(nodeCode, stateCode, null);
     }
 
     protected TFlowDefinition getDefinition() {
         return this.definition;
+    }
+
+    protected void prepareStart(Object parameter) {
+        if(getStatus() != FlowStatus.Pending) {
+            throw new FlowException(
+                "start flow process error, cause the status of flow process is incurrect, current status is [%s]", 
+                getStatus().name());
+        }
+    }
+
+    protected void prepareAction(String nodeCode, String stateCode, FlowActionParameter parameter) {
+        if(!isStarted()) {
+            throw new FlowException(
+                "the flow process do action error, cause the status is incurrect, current status is [%s]", 
+                getStatus().name());
+        }
+
+        Guard.notEmpty(nodeCode, "the parameter nodeCode is required.");
+        Guard.notEmpty(stateCode, "the parameter stateCode is required.");
+    }
+
+    protected void prepareCancel(FlowActionParameter parameter) {
+        if(!getDefinition().isCancelable()) {
+            throw new FlowException("the flow definition [%s] is not supported", definition.getFlowName());
+        }
+
+        FlowStatus status = getStatus();
+        if(status == FlowStatus.Canceled || status == FlowStatus.Finished) {
+            throw new FlowException("the flow process is done, current status is [%s]", status.name());
+        }
     }
     
 }

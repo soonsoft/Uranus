@@ -1,16 +1,16 @@
-package com.soonsoft.uranus.services.workflow.engine.statemachine;
+package com.soonsoft.uranus.services.workflow.engine.linear;
 
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
-public class StateMachineFlowRepository implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
+public class LinearFlowRepository implements IFlowRepository<LinearFlowDefinition, LinearFlowState> {
 
     @Override
-    public StateMachineFlowDefinition getDefinition(Object parameter) {
+    public LinearFlowDefinition getDefinition(Object parameter) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -22,7 +22,7 @@ public class StateMachineFlowRepository implements IFlowRepository<StateMachineF
     }
 
     @Override
-    public StateMachineFlowState getCurrentState() {
+    public LinearFlowState getCurrentState() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -34,7 +34,7 @@ public class StateMachineFlowRepository implements IFlowRepository<StateMachineF
     }
 
     @Override
-    public void saveState(StateMachineFlowState newState, FlowActionParameter parameter) {
+    public void saveState(LinearFlowState stateParam, FlowActionParameter parameter) {
         // TODO Auto-generated method stub
         
     }

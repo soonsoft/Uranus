@@ -11,18 +11,19 @@ public class StateMachineFlowFactory<TFlowQuery>
                     StateMachineFlowDefinition
                 > {
 
-    private IFlowRepository<StateMachineFlowState> flowRepository;
+    private IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> flowRepository;
     private TFlowQuery flowQuery;
 
-    public StateMachineFlowFactory(IFlowRepository<StateMachineFlowState> repository, TFlowQuery query) {
+    public StateMachineFlowFactory(
+            IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> repository, 
+            TFlowQuery query) {
         this.flowRepository = repository;
         this.flowQuery = query;
     }
 
     @Override
     public StateMachineFlowDefinition loadDefinition(Object parameter) {
-        // TODO Auto-generated method stub
-        return null;
+        return flowRepository.getDefinition(parameter);
     }
 
     @Override
@@ -32,11 +33,11 @@ public class StateMachineFlowFactory<TFlowQuery>
         return engine;
     }
 
-    public IFlowRepository<StateMachineFlowState> getRepository() {
+    public IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> getRepository() {
         return flowRepository;
     }
 
-    protected void setRepository(IFlowRepository<StateMachineFlowState> repository) {
+    protected void setRepository(IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> repository) {
         this.flowRepository = repository;
     }
 
