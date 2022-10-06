@@ -24,6 +24,10 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
         Map<String, Object> annotationAttrs = annotationMetadata.getAnnotationAttributes(EnableDatabaseAccess.class.getName());
+        if(annotationAttrs == null) {
+            throw new IllegalStateException("cannot find the annotation class [EnableDatabaseAccess].");
+        }
+
         String primaryName = (String) annotationAttrs.get("primaryName");
         String[] mybatisMapperLocations = (String[]) annotationAttrs.get("mybatisMapperLocations");
         String[] entityClassPackages = (String[]) annotationAttrs.get("entityClassPackages");

@@ -12,6 +12,7 @@ import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.util.HttpRequestUtils;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -22,8 +23,11 @@ import org.springframework.web.servlet.ModelAndView;
 public class UserInfoInterceptor implements HandlerInterceptor {
 
     @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-            ModelAndView modelAndView) throws Exception {
+    public void postHandle(
+            HttpServletRequest request, 
+            HttpServletResponse response, 
+            Object handler,
+            @Nullable ModelAndView modelAndView) throws Exception {
 
         if(!StringUtils.equals(request.getMethod(), "GET")) {
             return;

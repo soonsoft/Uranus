@@ -196,7 +196,7 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
                 Integer count = jdbcTemplate.queryForObject(countingSql, params, (rs, rowNum) -> {
                     return rs.getInt(1);
                 });
-                page.setTotal(count.intValue());
+                page.setTotal(count == null ? 0 : count.intValue());
             }
 
             RowMapper<?> rowMapper = null;

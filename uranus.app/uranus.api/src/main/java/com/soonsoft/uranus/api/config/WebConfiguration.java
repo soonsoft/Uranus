@@ -43,6 +43,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -197,12 +198,19 @@ public class WebConfiguration implements WebMvcConfigurer {
     private static class GenericJsonHttpMessageConverter extends MappingJackson2HttpMessageConverter {
 
         @Override
-        public boolean canWrite(Type type, Class<?> clazz, MediaType mediaType) {
+        public boolean canWrite(
+                @Nullable Type type, 
+                Class<?> clazz, 
+                @Nullable MediaType mediaType) {
+
             return type instanceof Class && CharSequence.class.isAssignableFrom((Class<?>) type) && CharSequence.class.isAssignableFrom(clazz);
         }
 
         @Override
-        protected void addDefaultHeaders(HttpHeaders headers, Object t, MediaType contentType) throws IOException {
+        protected void addDefaultHeaders(
+                HttpHeaders headers, Object t, 
+                @Nullable MediaType contentType) throws IOException {
+                    
             super.addDefaultHeaders(headers, t, MediaType.APPLICATION_JSON);
         }
     }
