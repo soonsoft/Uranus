@@ -41,9 +41,5 @@ public class LinearFlowFactory<TFlowQuery>
         engine.setFlowRepository(getFlowRepository());
         return engine;
     }
-
-    public AutoLinearFlowEngine createAutoLinearFlowEngine() {
-        return null;
-    }
     
 }

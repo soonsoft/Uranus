@@ -2,12 +2,13 @@ package com.soonsoft.uranus.services.workflow.model;
 
 public class FlowState {
 
+    /** 流程节点状态 ID */
     private Object id;
-
+    /** 所属流程节点编号 */
     private String nodeCode;
-
+    /** 流程节点状态编号 */
     private String stateCode;
-
+    /** 流程节点状态名称 */
     private String stateName;
 
     public Object getId() {

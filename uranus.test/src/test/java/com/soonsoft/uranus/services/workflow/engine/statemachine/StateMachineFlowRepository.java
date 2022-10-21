@@ -5,10 +5,10 @@ import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
-import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
-public class StateMachineFlowRepository implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
+public class StateMachineFlowRepository 
+        implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
 
     private Func1<Object, StateMachineFlowDefinition> definitionFn;
 
@@ -37,7 +37,7 @@ public class StateMachineFlowRepository implements IFlowRepository<StateMachineF
     }
 
     @Override
-    public void create(FlowDefinition<?> definition, FlowActionParameter parameter) {
+    public void create(StateMachineFlowDefinition definition, FlowActionParameter parameter) {
         // TODO Auto-generated method stub
         
     }

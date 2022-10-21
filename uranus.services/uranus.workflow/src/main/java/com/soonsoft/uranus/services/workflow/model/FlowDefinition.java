@@ -8,22 +8,33 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 
 public class FlowDefinition<TFlowNode extends FlowNode<?>> {
 
+    /** 流程 ID */
+    private Object id;
+    /** 流程名称 */
     private String flowName;
-
+    /** 流程类型 */
     private String flowType;
-
+    /** 流程编号（唯一） */
     private String flowCode;
-
+    /** 流程描述 */
     private String description;
-
+    /** 流程状态 */
     private FlowStatus status = FlowStatus.Pending;
-
+    /** 流程是否支持取消 */
     private boolean cancelable = true;
-
+    /** 流程节点列表 */
     List<TFlowNode> nodeList;
 
     public StateMachineFlowState getCurrentState() {
         return null;
+    }
+
+    public Object getId() {
+        return id;
+    }
+
+    public void setId(Object id) {
+        this.id = id;
     }
 
     public String getFlowName() {

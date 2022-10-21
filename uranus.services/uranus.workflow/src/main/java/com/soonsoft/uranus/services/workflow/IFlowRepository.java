@@ -11,7 +11,7 @@ public interface IFlowRepository<TFlowDefinition extends FlowDefinition<?>, TFlo
 
     TFlowState getCurrentState();
 
-    void create(FlowDefinition<?> definition, FlowActionParameter parameter);
+    void create(TFlowDefinition definition, FlowActionParameter parameter);
 
     void saveState(TFlowState stateParam, FlowActionParameter parameter);
 

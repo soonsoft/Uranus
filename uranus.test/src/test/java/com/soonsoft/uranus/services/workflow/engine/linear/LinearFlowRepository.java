@@ -4,7 +4,6 @@ import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
-import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
 public class LinearFlowRepository implements IFlowRepository<LinearFlowDefinition, LinearFlowState> {
@@ -28,7 +27,7 @@ public class LinearFlowRepository implements IFlowRepository<LinearFlowDefinitio
     }
 
     @Override
-    public void create(FlowDefinition<?> definition, FlowActionParameter parameter) {
+    public void create(LinearFlowDefinition definition, FlowActionParameter parameter) {
         // TODO Auto-generated method stub
         
     }

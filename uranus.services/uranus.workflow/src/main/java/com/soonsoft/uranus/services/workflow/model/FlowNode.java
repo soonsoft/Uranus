@@ -4,14 +4,15 @@ import java.util.List;
 
 public class FlowNode<TState> {
 
+    /** 流程节点 ID */
     private Object id;
-
+    /** 所属流程编号 */
     private String flowCode;
-
+    /** 流程节点编号 */
     private String nodeCode;
-
+    /** 流程节点名称 */
     private String nodeName;
-
+    /** 流程节点（可产生）状态列表 */
     List<TState> stateList;
 
     public Object getId() {
