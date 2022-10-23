@@ -1,9 +1,11 @@
 package com.soonsoft.uranus.services.approval;
 
+import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckResult;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
+import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public interface IApprovalManager {
 
@@ -19,6 +21,43 @@ public interface IApprovalManager {
     /** 审核操作 */
     ApprovalCheckResult check(ApprovalCheckParameter parameter);
 
+    default ApprovalCheckResult approve(String approvalRecord, FlowActionParameter parameter) {
+        return approve(approvalRecord, null, parameter);
+    }
+
+    /** 批准 */
+    default ApprovalCheckResult approve(String recordCode, String remark, FlowActionParameter parameter) {
+        Guard.notEmpty(recordCode, "the argument recordCode is required.");
+
+        ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
+        checkParameter.setRecordCode(recordCode);
+        checkParameter.setRemark(remark);
+        checkParameter.setActionCode("Approve");
+        if(parameter != null) {
+            checkParameter.setOperator(parameter.getOperator());
+            checkParameter.setOperatorName(parameter.getOperatorName());
+            checkParameter.setOperateTime(parameter.getOperateTime());
+        }
+        return check(checkParameter);
+    }
+
+    /** 拒绝 */
+    default ApprovalCheckResult deny(String recordCode, String remark, FlowActionParameter parameter) {
+        Guard.notEmpty(recordCode, "the arguments recordCode is required.");
+        Guard.notEmpty(remark, "the arguments remark is required.");
+
+        ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
+        checkParameter.setRecordCode(recordCode);
+        checkParameter.setRemark(remark);
+        checkParameter.setActionCode("Deny");
+        if(parameter != null) {
+            checkParameter.setOperator(parameter.getOperator());
+            checkParameter.setOperatorName(parameter.getOperatorName());
+            checkParameter.setOperateTime(parameter.getOperateTime());
+        }
+        return check(checkParameter);
+    }
+
     /** 取消审核 */
     void cancel();
 
@@ -26,10 +65,6 @@ public interface IApprovalManager {
     /** 编制审核记录 */
     // void prepare();
 
-    // 批准
-    // void approve();
-
-    // 拒绝
-    // void deny();
+    
 
 }

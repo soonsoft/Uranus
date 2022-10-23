@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 
 public class FlowDefinition<TFlowNode extends FlowNode<?>> {
 
@@ -24,10 +23,6 @@ public class FlowDefinition<TFlowNode extends FlowNode<?>> {
     private boolean cancelable = true;
     /** 流程节点列表 */
     List<TFlowNode> nodeList;
-
-    public StateMachineFlowState getCurrentState() {
-        return null;
-    }
 
     public Object getId() {
         return id;

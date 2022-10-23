@@ -2,6 +2,7 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
 import java.util.List;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
@@ -56,7 +57,10 @@ public class StateMachineFLowEngine<TFlowQuery>
 
         final StateMachineFlowDefinition definition = getDefinition();
 
-        if(definition.getCurrentNodeCode() != null && !definition.getCurrentNodeCode().equals(nodeCode)) {
+        if(StringUtils.isEmpty(definition.getCurrentNodeCode())) {
+            throw new FlowException("the current node code of definition is null.");
+        }
+        if(!definition.getCurrentNodeCode().equals(nodeCode)) {
             throw new FlowException(
                 "the current node code of definition is [%s], but the parameter nodeCode is [%s]", 
                 definition.getCurrentNodeCode(), nodeCode);

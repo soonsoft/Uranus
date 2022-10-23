@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
+import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
 import com.soonsoft.uranus.services.workflow.IFlowFactory;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
@@ -22,8 +23,14 @@ public class StateMachineFlowFactory<TFlowQuery>
     }
 
     @Override
+    public StateMachineFlowDefinitionBuilder definitionBuilder() {
+        return new StateMachineFlowDefinitionBuilder();
+    }
+
+    @Override
     public StateMachineFlowDefinition loadDefinition(Object parameter) {
-        return getRepository().getDefinition(parameter);
+        StateMachineFlowState state = getRepository().getCurrentState(parameter);
+        return state.getFlowDefinition();
     }
 
     @Override
@@ -47,6 +54,16 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     protected void setFlowQuery(TFlowQuery flowQuery) {
         this.flowQuery = flowQuery;
+    }
+
+    public static class StateMachineFlowDefinitionBuilder implements IFlowDefinitionBuilder<StateMachineFlowDefinition> {
+
+        @Override
+        public StateMachineFlowDefinition build() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+        
     }
     
 }

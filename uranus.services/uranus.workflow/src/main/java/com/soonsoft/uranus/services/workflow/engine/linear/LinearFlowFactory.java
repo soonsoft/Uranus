@@ -1,7 +1,13 @@
 package com.soonsoft.uranus.services.workflow.engine.linear;
 
+import java.util.List;
+
+import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
 import com.soonsoft.uranus.services.workflow.IFlowFactory;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNode;
+import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
+import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowStatus;
 
 public class LinearFlowFactory<TFlowQuery> 
         implements IFlowFactory<LinearFlowEngine<TFlowQuery>, LinearFlowDefinition> {
@@ -31,8 +37,18 @@ public class LinearFlowFactory<TFlowQuery>
     }
 
     @Override
+    public LinearFlowDefinitionBuilder definitionBuilder() {
+        return new LinearFlowDefinitionBuilder();
+    }
+
+    @Override
     public LinearFlowDefinition loadDefinition(Object parameter) {
-        return getFlowRepository().getDefinition(parameter);
+        LinearFlowState state = getFlowRepository().getCurrentState(parameter);
+        LinearFlowDefinition definition = getFlowRepository().getDefinition(state.getFlowCode());
+        // TODO 未完成
+        List<LinearFlowNode> nodeList = definition.findNode(n -> n.getNodeCode().equals(state.getNodeCode()));
+        nodeList.forEach(n -> n.setNodeStatus(LinearFlowStatus.Activated));
+        return definition;
     }
 
     @Override
@@ -40,6 +56,17 @@ public class LinearFlowFactory<TFlowQuery>
         LinearFlowEngine<TFlowQuery> engine = new LinearFlowEngine<>(definition, getFlowQuery());
         engine.setFlowRepository(getFlowRepository());
         return engine;
+    }
+
+
+    public static class LinearFlowDefinitionBuilder implements IFlowDefinitionBuilder<LinearFlowDefinition> {
+
+        @Override
+        public LinearFlowDefinition build() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
     
 }

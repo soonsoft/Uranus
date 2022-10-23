@@ -5,7 +5,6 @@ import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
-import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
 public class StateMachineFlowRepository 
         implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
@@ -17,21 +16,15 @@ public class StateMachineFlowRepository
     }
 
     @Override
-    public StateMachineFlowDefinition getDefinition(Object parameter) {
+    public StateMachineFlowDefinition getDefinition(String flowCode) {
         if(definitionFn == null) {
             return null;
         }
-        return definitionFn.call(parameter);
+        return definitionFn.call(flowCode);
     }
 
     @Override
-    public FlowNode<?> getCurrentNode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public StateMachineFlowState getCurrentState() {
+    public StateMachineFlowState getCurrentState(Object parameter) {
         // TODO Auto-generated method stub
         return null;
     }

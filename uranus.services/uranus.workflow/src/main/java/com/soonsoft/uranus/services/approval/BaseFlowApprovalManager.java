@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.services.approval;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.approval.exception.ApprovalException;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckResult;
@@ -14,7 +15,6 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlo
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
-import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
 public class BaseFlowApprovalManager implements IApprovalManager {
 
@@ -37,6 +37,7 @@ public class BaseFlowApprovalManager implements IApprovalManager {
         historyRecord.setOperator(parameter.getOperator());
         historyRecord.setOperatorName(parameter.getOperatorName());
         historyRecord.setOperateTime(parameter.getOperateTime());
+        historyRecord.setApprovalRecordCode(record.getRecordCode());
 
         StateMachineFlowDefinition definition = getFlowDefinition(record.getApprovalType());
         if(definition == null) {
@@ -44,7 +45,13 @@ public class BaseFlowApprovalManager implements IApprovalManager {
         }
 
         StateMachineFLowEngine<Object> flowEngine = getFlowFactory().createEngine(definition);
-        flowEngine.start(new ApprovalRecordHolder(record, historyRecord));
+        // 流程开始
+        flowEngine.start();
+        // 流程提交
+        flowEngine.action(
+            definition.getCurrentNodeCode(), 
+            null, 
+            new ApprovalRecordHolder(record, historyRecord));
 
         return record;
     }
@@ -78,7 +85,7 @@ public class BaseFlowApprovalManager implements IApprovalManager {
     }
 
     protected void initFlowFactory() {
-        DefaultApprovalStateMachineFlowRepository repository = new DefaultApprovalStateMachineFlowRepository();
+        DefaultApprovalStateMachineFlowRepository repository = new DefaultApprovalStateMachineFlowRepository(null);
         flowFactory = new StateMachineFlowFactory<Object>(repository, null);
     }
 
@@ -120,43 +127,40 @@ public class BaseFlowApprovalManager implements IApprovalManager {
     public static class DefaultApprovalStateMachineFlowRepository 
             implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
 
+        private Func1<String, StateMachineFlowDefinition> findFlowDefinitionFn;
+
+        public DefaultApprovalStateMachineFlowRepository(Func1<String, StateMachineFlowDefinition> findFlowDefinitionFn) {
+            this.findFlowDefinitionFn = findFlowDefinitionFn;
+        }
+
         @Override
-        public StateMachineFlowDefinition getDefinition(Object parameter) {
-            // TODO Auto-generated method stub
+        public StateMachineFlowDefinition getDefinition(String flowCode) {
             return null;
         }
 
         @Override
-        public FlowNode<?> getCurrentNode() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public StateMachineFlowState getCurrentState() {
+        public StateMachineFlowState getCurrentState(Object parameter) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public void create(StateMachineFlowDefinition definition, FlowActionParameter parameter) {
-            ApprovalRecordHolder recordHolder = (ApprovalRecordHolder) parameter;
-
-            ApprovalRecord record = recordHolder.getRecord();
-            StateMachineFlowState state = definition.getCurrentState();
-            record.setFlowState(state);
-            record.setStatus(ApprovalStatus.Checking);
-            
-            ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
-
-            // TODO： 保存数据
-            
+            // 不做处理
         }
 
         @Override
         public void saveState(StateMachineFlowState stateParam, FlowActionParameter parameter) {
-            // TODO Auto-generated method stub
+            ApprovalRecordHolder recordHolder = (ApprovalRecordHolder) parameter;
+
+            ApprovalRecord record = recordHolder.getRecord();
+            record.setFlowState(stateParam);
+            record.setStatus(ApprovalStatus.Checking);
             
+            ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
+            historyRecord.setFlowState(stateParam);
+
+            // TODO 保存数据
         }
 
     }

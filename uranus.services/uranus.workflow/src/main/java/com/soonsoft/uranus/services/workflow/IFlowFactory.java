@@ -7,6 +7,8 @@ public interface IFlowFactory<
         TFlowEngine extends IFlowEngine<? extends FlowState, ?>, 
         TFlowDefinition extends FlowDefinition<?>
     > {
+
+    IFlowDefinitionBuilder<TFlowDefinition> definitionBuilder();
     
     TFlowDefinition loadDefinition(Object parameter);
 

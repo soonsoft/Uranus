@@ -4,6 +4,8 @@ public class FlowState {
 
     /** 流程节点状态 ID */
     private Object id;
+    /** 所属流程编号 */
+    private String flowCode;
     /** 所属流程节点编号 */
     private String nodeCode;
     /** 流程节点状态编号 */
@@ -14,15 +16,20 @@ public class FlowState {
     public Object getId() {
         return id;
     }
-
     public void setId(Object id) {
         this.id = id;
+    }
+
+    public String getFlowCode() {
+        return flowCode;
+    }
+    public void setFlowCode(String flowCode) {
+        this.flowCode = flowCode;
     }
 
     public String getNodeCode() {
         return nodeCode;
     }
-
     public void setNodeCode(String nodeCode) {
         this.nodeCode = nodeCode;
     }
@@ -30,7 +37,6 @@ public class FlowState {
     public String getStateCode() {
         return stateCode;
     }
-
     public void setStateCode(String stateCode) {
         this.stateCode = stateCode;
     }
@@ -38,7 +44,6 @@ public class FlowState {
     public String getStateName() {
         return stateName;
     }
-
     public void setStateName(String stateName) {
         this.stateName = stateName;
     }

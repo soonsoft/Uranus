@@ -2,7 +2,7 @@ package com.soonsoft.uranus.services.workflow.model;
 
 import java.util.List;
 
-public class FlowNode<TState> {
+public class FlowNode<TState extends FlowState> {
 
     /** 流程节点 ID */
     private Object id;
