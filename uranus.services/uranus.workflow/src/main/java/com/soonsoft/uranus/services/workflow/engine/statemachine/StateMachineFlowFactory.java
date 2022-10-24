@@ -30,7 +30,14 @@ public class StateMachineFlowFactory<TFlowQuery>
     @Override
     public StateMachineFlowDefinition loadDefinition(Object parameter) {
         StateMachineFlowState state = getRepository().getCurrentState(parameter);
-        return state.getFlowDefinition();
+        StateMachineFlowDefinition definition = getRepository().getDefinition(state.getFlowCode());
+
+        state.setFindFlowNodeFn(definition::findNode);
+        definition.setPreviousNodeCode(state.getNodeCode());
+        definition.setPreviousStateCode(state.getStateCode());
+        definition.setCurrentNodeCode(state.getToNodeCode());
+        
+        return definition;
     }
 
     @Override

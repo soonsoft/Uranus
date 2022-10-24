@@ -7,8 +7,6 @@ public class StateMachineFlowState extends FlowState {
 
     private String toNodeCode;
 
-    private StateMachineFlowDefinition flowDefinition;
-
     private Func1<String, StateMachineFlowNode> findFlowNodeFn;
 
     public StateMachineFlowState() {
@@ -27,8 +25,8 @@ public class StateMachineFlowState extends FlowState {
         this.toNodeCode = toNodeCode;
     }
 
-    public void setFindFlowNodeFn(Func1<String, StateMachineFlowNode> findFlowNodeFn) {
-        this.findFlowNodeFn = findFlowNodeFn;
+    public void setFindFlowNodeFn(Func1<String, StateMachineFlowNode> findNodeFn) {
+        this.findFlowNodeFn = findNodeFn;
     }
 
     public StateMachineFlowNode getFromNode() {
@@ -37,10 +35,6 @@ public class StateMachineFlowState extends FlowState {
 
     public StateMachineFlowNode getToNode() {
         return findFlowNodeFn.call(getToNodeCode());
-    }
-
-    public StateMachineFlowDefinition getFlowDefinition() {
-        return flowDefinition;
     }
 
 }

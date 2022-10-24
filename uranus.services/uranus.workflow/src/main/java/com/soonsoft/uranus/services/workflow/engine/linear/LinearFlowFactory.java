@@ -45,6 +45,8 @@ public class LinearFlowFactory<TFlowQuery>
     public LinearFlowDefinition loadDefinition(Object parameter) {
         LinearFlowState state = getFlowRepository().getCurrentState(parameter);
         LinearFlowDefinition definition = getFlowRepository().getDefinition(state.getFlowCode());
+
+        state.setActionFn(null);
         // TODO 未完成
         List<LinearFlowNode> nodeList = definition.findNode(n -> n.getNodeCode().equals(state.getNodeCode()));
         nodeList.forEach(n -> n.setNodeStatus(LinearFlowStatus.Activated));
