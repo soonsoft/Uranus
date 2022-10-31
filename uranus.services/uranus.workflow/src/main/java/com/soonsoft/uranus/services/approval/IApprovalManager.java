@@ -7,7 +7,7 @@ import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
-public interface IApprovalManager {
+public interface IApprovalManager<TApprovalQuery> {
 
     /** 提交审核 */
     ApprovalRecord submit(ApprovalCreateParameter parameter);
@@ -32,7 +32,7 @@ public interface IApprovalManager {
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(recordCode);
         checkParameter.setRemark(remark);
-        checkParameter.setActionCode("Approve");
+        checkParameter.setActionCode(ActionType.Approve);
         if(parameter != null) {
             checkParameter.setOperator(parameter.getOperator());
             checkParameter.setOperatorName(parameter.getOperatorName());
@@ -49,7 +49,7 @@ public interface IApprovalManager {
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(recordCode);
         checkParameter.setRemark(remark);
-        checkParameter.setActionCode("Deny");
+        checkParameter.setActionCode(ActionType.Deny);
         if(parameter != null) {
             checkParameter.setOperator(parameter.getOperator());
             checkParameter.setOperatorName(parameter.getOperatorName());
@@ -61,10 +61,19 @@ public interface IApprovalManager {
     /** 取消审核 */
     void cancel();
 
+    /** 返回查询对象 */
+    TApprovalQuery query();
+
         
     /** 编制审核记录 */
     // void prepare();
 
-    
+    interface ActionType {
+
+        public static final String Submit = "Submit";
+        public static final String Approve = "Approve";
+        public static final String Deny = "Deny";
+
+    }
 
 }

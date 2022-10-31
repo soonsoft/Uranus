@@ -16,12 +16,15 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
-public class BaseFlowApprovalManager implements IApprovalManager {
+public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<TApprovalQuery> {
 
-    private StateMachineFlowFactory<Object> flowFactory;
+    private StateMachineFlowFactory<TApprovalQuery> flowFactory;
+    private TApprovalQuery queryObject;
+    private IApprovalBuilder builder;
 
-    public BaseFlowApprovalManager() {
-        // define constructors
+    public DefaultApprovalManager(TApprovalQuery query) {
+        initFlowFactory();
+        queryObject = query;
     }
 
     @Override
@@ -44,13 +47,13 @@ public class BaseFlowApprovalManager implements IApprovalManager {
             throw new ApprovalException("cannot find definition by type[%s]", record.getApprovalType());
         }
 
-        StateMachineFLowEngine<Object> flowEngine = getFlowFactory().createEngine(definition);
+        StateMachineFLowEngine<TApprovalQuery> flowEngine = getFlowFactory().createEngine(definition);
         // 流程开始
         flowEngine.start();
         // 流程提交
         flowEngine.action(
             definition.getCurrentNodeCode(), 
-            null, 
+            IApprovalManager.ActionType.Submit, 
             new ApprovalRecordHolder(record, historyRecord));
 
         return record;
@@ -80,13 +83,18 @@ public class BaseFlowApprovalManager implements IApprovalManager {
         
     }
 
-    public StateMachineFlowFactory<Object> getFlowFactory() {
+    @Override
+    public TApprovalQuery query() {
+        return queryObject;
+    }
+
+    public StateMachineFlowFactory<TApprovalQuery> getFlowFactory() {
         return flowFactory;
     }
 
     protected void initFlowFactory() {
-        DefaultApprovalStateMachineFlowRepository repository = new DefaultApprovalStateMachineFlowRepository(null);
-        flowFactory = new StateMachineFlowFactory<Object>(repository, null);
+        DefaultApprovalStateMachineFlowRepository repository = new DefaultApprovalStateMachineFlowRepository(this::getFlowDefinition);
+        flowFactory = new StateMachineFlowFactory<TApprovalQuery>(repository, null);
     }
 
     protected ApprovalRecord createApprovalRecord(ApprovalCreateParameter parameter) {
@@ -135,7 +143,7 @@ public class BaseFlowApprovalManager implements IApprovalManager {
 
         @Override
         public StateMachineFlowDefinition getDefinition(String flowCode) {
-            return null;
+            return findFlowDefinitionFn != null ? findFlowDefinitionFn.call(flowCode) : null;
         }
 
         @Override

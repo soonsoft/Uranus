@@ -116,6 +116,7 @@ public class LinearFlowEngine<TFlowQuery>
 
         actionNode.setActionStateCode(actionState.getStateCode());
         if(actionState.getActionFn() != null) {
+            // 将当前操作的 actionState映射到对应的NodeStatus
             actionState.getActionFn().apply(actionState, actionNode);
         } else {
             actionNode.setNodeStatus(LinearFlowStatus.Completed);
