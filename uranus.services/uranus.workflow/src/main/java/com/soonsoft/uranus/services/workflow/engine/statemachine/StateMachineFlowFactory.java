@@ -3,8 +3,13 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
 import com.soonsoft.uranus.services.workflow.IFlowFactory;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.exception.FlowException;
+import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
 public class StateMachineFlowFactory<TFlowQuery> 
                 implements IFlowFactory<
@@ -30,12 +35,27 @@ public class StateMachineFlowFactory<TFlowQuery>
     @Override
     public StateMachineFlowDefinition loadDefinition(Object parameter) {
         StateMachineFlowState state = getRepository().getCurrentState(parameter);
+        if(state == null) {
+            throw new FlowException("cannot find StateMachineFlowState by parameter[%s]", parameter);
+        }
         StateMachineFlowDefinition definition = getRepository().getDefinition(state.getFlowCode());
 
         state.setFindFlowNodeFn(definition::findNode);
+
         definition.setPreviousNodeCode(state.getNodeCode());
         definition.setPreviousStateCode(state.getStateCode());
         definition.setCurrentNodeCode(state.getToNodeCode());
+
+        if(StateMachineFlowCancelState.isCancelState(state.getStateCode())) {
+            definition.setStatus(FlowStatus.Canceled);
+        } else {
+        StateMachineFlowNode currentNode = state.getToNode();
+            if(currentNode.isBeginNode() || currentNode.getNodeType() == StateMachineFlowNodeType.NormalNode) {
+                definition.setStatus(FlowStatus.Started);
+            } else if(currentNode.isEndNode()) {
+                definition.setStatus(FlowStatus.Finished);
+            }
+        }
         
         return definition;
     }

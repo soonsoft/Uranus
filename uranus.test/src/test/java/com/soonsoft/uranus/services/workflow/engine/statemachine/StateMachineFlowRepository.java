@@ -10,9 +10,14 @@ public class StateMachineFlowRepository
         implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
 
     private Func1<Object, StateMachineFlowDefinition> definitionFn;
+    private Func1<Object, StateMachineFlowState> currentStateFn;
 
     public void setDefinitionFn(Func1<Object, StateMachineFlowDefinition> definitionFn) {
         this.definitionFn = definitionFn;
+    }
+
+    public void setCurrentStateFn(Func1<Object, StateMachineFlowState> currentStateFn) {
+        this.currentStateFn = currentStateFn;
     }
 
     @Override
@@ -25,8 +30,10 @@ public class StateMachineFlowRepository
 
     @Override
     public StateMachineFlowState getCurrentState(Object parameter) {
-        // TODO Auto-generated method stub
-        return null;
+        if(currentStateFn == null) {
+            return null;
+        }
+        return currentStateFn.call(parameter);
     }
 
     @Override
