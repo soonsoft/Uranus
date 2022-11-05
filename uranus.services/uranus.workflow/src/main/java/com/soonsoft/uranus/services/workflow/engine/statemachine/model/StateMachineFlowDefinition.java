@@ -38,11 +38,15 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
     }
 
     public StateMachineFlowState createFlowState() {
-        return new StateMachineFlowState(this::findNode);
+        StateMachineFlowState state = new StateMachineFlowState(this::findNode);
+        state.setFlowCode(getFlowCode());
+        return state;
     }
 
     public StateMachineFlowCancelState createCancelState() {
-        return new StateMachineFlowCancelState(this::findNode);
+        StateMachineFlowCancelState state = new StateMachineFlowCancelState(this::findNode);
+        state.setFlowCode(getFlowCode());
+        return state;
     }
 
     public StateMachineFlowNode createFlowNode() {
