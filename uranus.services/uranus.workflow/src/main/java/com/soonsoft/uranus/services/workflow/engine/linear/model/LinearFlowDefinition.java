@@ -25,8 +25,16 @@ public class LinearFlowDefinition extends FlowDefinition<LinearFlowNode> {
         return resultNodeList;
     }
 
-    public LinearFlowNode createFlowNode() {
-        return new LinearFlowNode(this::findNode);
+    public LinearFlowNode createNode() {
+        LinearFlowNode node = new LinearFlowNode(this::findNode);
+        node.setFlowCode(getFlowCode());
+        return node;
+    }
+
+    public LinearFlowState createState() {
+        LinearFlowState state = new LinearFlowState();
+        state.setFlowCode(getFlowCode());
+        return state;
     }
     
 }
