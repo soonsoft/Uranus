@@ -21,7 +21,7 @@ public class ApprovalHistoryRecord {
     /** 审核备注 */
     private String remark;
     /** 前一个历史记录 ID */
-    private String previousHistoryId;
+    private Object previousHistoryId;
     /** 历史状态信息 */
     private FlowState flowState;
 
@@ -37,6 +37,13 @@ public class ApprovalHistoryRecord {
     }
     public void setApprovalRecordCode(String approvalRecordCode) {
         this.approvalRecordCode = approvalRecordCode;
+    }
+    
+    public ApprovalActionType getHistoryRecordType() {
+        return historyRecordType;
+    }
+    public void setHistoryRecordType(ApprovalActionType historyRecordType) {
+        this.historyRecordType = historyRecordType;
     }
 
     public String getOperator() {
@@ -67,10 +74,10 @@ public class ApprovalHistoryRecord {
         this.remark = remark;
     }
 
-    public String getPreviousHistoryId() {
+    public Object getPreviousHistoryId() {
         return previousHistoryId;
     }
-    public void setPreviousHistoryId(String previousHistoryId) {
+    public void setPreviousHistoryId(Object previousHistoryId) {
         this.previousHistoryId = previousHistoryId;
     }
 

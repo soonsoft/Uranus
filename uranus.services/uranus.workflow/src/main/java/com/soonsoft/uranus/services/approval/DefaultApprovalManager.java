@@ -1,10 +1,11 @@
 package com.soonsoft.uranus.services.approval;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.approval.exception.ApprovalException;
+import com.soonsoft.uranus.services.approval.model.ApprovalActionType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
-import com.soonsoft.uranus.services.approval.model.ApprovalCheckResult;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
@@ -21,6 +22,7 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
     private StateMachineFlowFactory<TApprovalQuery> flowFactory;
     private TApprovalQuery queryObject;
     private IApprovalBuilder builder;
+    private IApprovalRepository approvalRepository;
 
     public DefaultApprovalManager(TApprovalQuery query) {
         initFlowFactory();
@@ -29,18 +31,12 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
 
     @Override
     public ApprovalRecord submit(ApprovalCreateParameter parameter) {
-        Guard.notNull(parameter, "the parameter parameter is required.");
+        Guard.notNull(parameter, "the arguments parameter is required.");
 
         ApprovalRecord record = createApprovalRecord(parameter);
         if(record == null) {
             throw new ApprovalException("cannot create approval record.");
         }
-
-        ApprovalHistoryRecord historyRecord = new ApprovalHistoryRecord();
-        historyRecord.setOperator(parameter.getOperator());
-        historyRecord.setOperatorName(parameter.getOperatorName());
-        historyRecord.setOperateTime(parameter.getOperateTime());
-        historyRecord.setApprovalRecordCode(record.getRecordCode());
 
         StateMachineFlowDefinition definition = getFlowDefinition(record.getApprovalType());
         if(definition == null) {
@@ -50,11 +46,18 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
         StateMachineFLowEngine<TApprovalQuery> flowEngine = getFlowFactory().createEngine(definition);
         // 流程开始
         flowEngine.start();
+
+        ApprovalHistoryRecord historyRecord = 
+            createApprovalHistoryRecord(parameter, record, ApprovalActionType.Submit);
         // 流程提交
-        flowEngine.action(
+        StateMachineFlowState actionState = flowEngine.action(
             definition.getCurrentNodeCode(), 
             IApprovalManager.ActionType.Submit, 
             new ApprovalRecordHolder(record, historyRecord));
+
+        record.setFlowState(actionState);
+        record.setStatus(ApprovalStatus.Checking);
+        record.addHistoryRecord(historyRecord);
 
         return record;
     }
@@ -72,9 +75,40 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
     }
 
     @Override
-    public ApprovalCheckResult check(ApprovalCheckParameter parameter) {
-        // TODO Auto-generated method stub
-        return null;
+    public ApprovalRecord check(ApprovalCheckParameter parameter) {
+        Guard.notNull(parameter, "the arguments parameter is required.");
+        Guard.notEmpty(parameter.getRecordCode(), "the parameter.recordCode is required.");
+        Guard.notEmpty(parameter.getActionCode(), "the parameter.actionCode is required.");
+
+        ApprovalRecord record = approvalRepository.getApprovalRecord(parameter.getRecordCode());
+        if(record == null) {
+            throw new ApprovalException("cannot find ApprovalRecord by recordCode[%s]", parameter.getRecordCode());
+        }
+
+        StateMachineFlowDefinition definition = flowFactory.loadDefinition(record);
+        if(definition == null) {
+            throw new ApprovalException("cannot load definition");
+        }
+
+        StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);
+        final String nodeCode = definition.getCurrentNodeCode();
+        final String actionCode = parameter.getActionCode();
+        ApprovalHistoryRecord historyRecord = 
+            createApprovalHistoryRecord(parameter, record, ApprovalActionType.Check, hr -> {
+                hr.setRemark(parameter.getRemark());
+                hr.setPreviousHistoryId(record.getCurrentHistoryId());
+            });
+        StateMachineFlowState actionState = 
+            flowEngine.action(nodeCode, actionCode, new ApprovalRecordHolder(record, historyRecord));
+
+        record.setCurrentHistoryId(historyRecord.getId());
+        record.setFlowState(actionState);
+        
+        if(flowEngine.isFinished()) {
+            record.setStatus(ApprovalStatus.Completed);
+        }
+
+        return record;
     }
 
     @Override
@@ -93,7 +127,8 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
     }
 
     protected void initFlowFactory() {
-        DefaultApprovalStateMachineFlowRepository repository = new DefaultApprovalStateMachineFlowRepository(this::getFlowDefinition);
+        DefaultApprovalStateMachineFlowRepository repository = 
+            new DefaultApprovalStateMachineFlowRepository(approvalRepository, this::getFlowDefinition);
         flowFactory = new StateMachineFlowFactory<TApprovalQuery>(repository, null);
     }
 
@@ -103,6 +138,33 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
         return record;
     }
 
+    protected ApprovalHistoryRecord createApprovalHistoryRecord(
+            FlowActionParameter parameter, 
+            ApprovalRecord record, 
+            ApprovalActionType actionType) {
+        return createApprovalHistoryRecord(parameter, record, actionType, null);
+    }
+
+    protected ApprovalHistoryRecord createApprovalHistoryRecord(
+            FlowActionParameter parameter, 
+            ApprovalRecord record, 
+            ApprovalActionType actionType,
+            Action1<ApprovalHistoryRecord> historyRecordSetterAction) {
+        
+        ApprovalHistoryRecord historyRecord = new ApprovalHistoryRecord();
+        historyRecord.setOperator(parameter.getOperator());
+        historyRecord.setOperatorName(parameter.getOperatorName());
+        historyRecord.setOperateTime(parameter.getOperateTime());
+        historyRecord.setApprovalRecordCode(record.getRecordCode());
+        historyRecord.setHistoryRecordType(actionType);
+
+        if(historyRecordSetterAction != null) {
+            historyRecordSetterAction.apply(historyRecord);
+        }
+
+        return historyRecord;
+    }
+
     protected StateMachineFlowDefinition getFlowDefinition(String approvalType) {
         return null;
     }
@@ -110,7 +172,6 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
     public static class ApprovalRecordHolder extends FlowActionParameter {
 
         private ApprovalRecord record;
-
         private ApprovalHistoryRecord historyRecord;
 
         public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
@@ -129,15 +190,18 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
         public ApprovalHistoryRecord getHistoryRecord() {
             return historyRecord;
         }
-
     }
 
     public static class DefaultApprovalStateMachineFlowRepository 
             implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
 
         private Func1<String, StateMachineFlowDefinition> findFlowDefinitionFn;
+        private IApprovalRepository approvalRepository;
 
-        public DefaultApprovalStateMachineFlowRepository(Func1<String, StateMachineFlowDefinition> findFlowDefinitionFn) {
+        public DefaultApprovalStateMachineFlowRepository(
+                IApprovalRepository approvalRepository, 
+                Func1<String, StateMachineFlowDefinition> findFlowDefinitionFn) {
+            this.approvalRepository = approvalRepository;
             this.findFlowDefinitionFn = findFlowDefinitionFn;
         }
 
@@ -148,8 +212,18 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
 
         @Override
         public StateMachineFlowState getCurrentState(Object parameter) {
-            // TODO Auto-generated method stub
-            return null;
+            String recordCode;
+            if(parameter instanceof ApprovalRecord record) {
+                return record.getFlowState();
+            } else if(parameter instanceof ApprovalCheckParameter p) {
+                recordCode = p.getRecordCode();
+            } else if(parameter instanceof String code) {
+                recordCode = code;
+            } else {
+                throw new ApprovalException("unknown parameter type.");
+            }
+            ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
+            return record.getFlowState();
         }
 
         @Override
@@ -168,11 +242,9 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
             ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
             historyRecord.setFlowState(stateParam);
 
-            // TODO 保存数据
+            approvalRepository.saveChecking(record, historyRecord);
         }
 
     }
 
-    
-    
 }

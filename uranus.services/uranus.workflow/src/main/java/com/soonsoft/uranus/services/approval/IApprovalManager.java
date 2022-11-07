@@ -2,7 +2,6 @@ package com.soonsoft.uranus.services.approval;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
-import com.soonsoft.uranus.services.approval.model.ApprovalCheckResult;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -19,14 +18,14 @@ public interface IApprovalManager<TApprovalQuery> {
     ApprovalRecord revoke();
 
     /** 审核操作 */
-    ApprovalCheckResult check(ApprovalCheckParameter parameter);
+    ApprovalRecord check(ApprovalCheckParameter parameter);
 
-    default ApprovalCheckResult approve(String approvalRecord, FlowActionParameter parameter) {
+    default ApprovalRecord approve(String approvalRecord, FlowActionParameter parameter) {
         return approve(approvalRecord, null, parameter);
     }
 
     /** 批准 */
-    default ApprovalCheckResult approve(String recordCode, String remark, FlowActionParameter parameter) {
+    default ApprovalRecord approve(String recordCode, String remark, FlowActionParameter parameter) {
         Guard.notEmpty(recordCode, "the argument recordCode is required.");
 
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
@@ -42,7 +41,7 @@ public interface IApprovalManager<TApprovalQuery> {
     }
 
     /** 拒绝 */
-    default ApprovalCheckResult deny(String recordCode, String remark, FlowActionParameter parameter) {
+    default ApprovalRecord deny(String recordCode, String remark, FlowActionParameter parameter) {
         Guard.notEmpty(recordCode, "the arguments recordCode is required.");
         Guard.notEmpty(remark, "the arguments remark is required.");
 

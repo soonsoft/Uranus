@@ -1,8 +1,9 @@
 package com.soonsoft.uranus.services.approval.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.soonsoft.uranus.services.workflow.model.FlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 
 /**
  * 审核记录
@@ -26,7 +27,7 @@ public class ApprovalRecord {
     /** 审核目标信息 */
     private ApprovalTargetInfo targetInfo;
     /** 审核流程状态信息 */
-    private FlowState flowState;
+    private StateMachineFlowState flowState;
     /** 审核记录状态 */
     private ApprovalStatus status;
     /** 审核记录提交历史 ID */
@@ -92,10 +93,10 @@ public class ApprovalRecord {
         this.targetInfo = targetInfo;
     }
 
-    public FlowState getFlowState() {
+    public StateMachineFlowState getFlowState() {
         return flowState;
     }
-    public void setFlowState(FlowState flowState) {
+    public void setFlowState(StateMachineFlowState flowState) {
         this.flowState = flowState;
     }
 
@@ -125,6 +126,13 @@ public class ApprovalRecord {
     }
     public void setHistoryRecordList(List<ApprovalHistoryRecord> historyRecordList) {
         this.historyRecordList = historyRecordList;
+    }
+
+    public void addHistoryRecord(ApprovalHistoryRecord historyRecord) {
+        if(this.historyRecordList == null) {
+            this.historyRecordList = new ArrayList<>();
+        }
+        this.historyRecordList.add(historyRecord);
     }
     
 }
