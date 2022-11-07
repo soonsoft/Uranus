@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
@@ -133,58 +132,82 @@ public class StateMachineFlowEngineTest {
     }
 
     private StateMachineFlowDefinition createDefaultTestDefinition() {
-        StateMachineFlowDefinition definition = new StateMachineFlowDefinition();
-        definition.setFlowCode("Test_StateMachine_Def");
-        definition.setFlowName("Test State Machine Definition");
-        definition.setCancelable(true);
-
-        StateMachineFlowNode node = definition.createFlowNode();
-        node.setNodeCode("001");
-        node.setNodeName("BeginNode");
-        node.setNodeType(StateMachineFlowNodeType.BeginNode);
-        addState(definition, node, "Next", "Next", "002");
-        definition.addNode(node);
-
-        node = definition.createFlowNode();
-        node.setNodeCode("002");
-        node.setNodeName("Node002");
-        node.setNodeType(StateMachineFlowNodeType.NormalNode);
-        addState(definition, node, "Next", "Next", "003");
-        addState(definition, node, "Previous", "Previous", "001");
-        definition.addNode(node);
-
-        node = definition.createFlowNode();
-        node.setNodeCode("003");
-        node.setNodeName("Node003");
-        node.setNodeType(StateMachineFlowNodeType.NormalNode);
-        addState(definition, node, "Next", "Next", "004");
-        addState(definition, node, "Previous", "Previous", "002");
-        definition.addNode(node);
-
-        node = definition.createFlowNode();
-        node.setNodeCode("004");
-        node.setNodeName("Node004");
-        node.setNodeType(StateMachineFlowNodeType.NormalNode);
-        addState(definition, node, "Next", "Next", "005");
-        addState(definition, node, "BackToFirst", "BackToFirst", "001");
-        definition.addNode(node);
-
-        node = definition.createFlowNode();
-        node.setNodeCode("005");
-        node.setNodeName("EndNode");
-        node.setNodeType(StateMachineFlowNodeType.EndNode);
-        definition.addNode(node);
-
-        return definition;
-    }
-
-    private void addState(StateMachineFlowDefinition definition, StateMachineFlowNode node, String stateCode, String stateName, String toNodeCode) {
-        StateMachineFlowState state = definition.createFlowState();
-        state.setFlowCode(definition.getFlowCode());
-        state.setStateCode(stateCode);
-        state.setStateName(stateName);
-        state.setToNodeCode(toNodeCode);
-        node.addState(state);
+        final String nextState = "Next";
+        final String nextStateName = "下一个";
+        final String previousState = "Previous";
+        final String previousStateName = "上一个";
+        
+        return factory.definitionBuilder()
+            .setFlowCode("Test_StateMachine_Def")
+            .setFlowName("Test State Machine Definition")
+            .setFlowType("Test")
+            .setCancelable(true)
+            .node()
+                .setNodeCode("001")
+                .setNodeName("BeginNode")
+                .setNodeType(StateMachineFlowNodeType.BeginNode)
+                .state()
+                    .setStateCode(nextState)
+                    .setStateName(nextStateName)
+                    .setToNodeCode("002")
+                    .add()
+                .add()
+            .node()
+                .setNodeCode("002")
+                .setNodeName("Node002")
+                .setNodeType(StateMachineFlowNodeType.NormalNode)
+                .state()
+                    .setStateCode(nextState)
+                    .setStateName(nextStateName)
+                    .setToNodeCode("003")
+                    .add()
+                .state()
+                    .setStateCode(previousState)
+                    .setStateName(previousStateName)
+                    .setToNodeCode("001")
+                    .add()
+                .add()
+            .node()
+                .setNodeCode("003")
+                .setNodeName("Node003")
+                .setNodeType(StateMachineFlowNodeType.NormalNode)
+                .state()
+                    .setStateCode(nextState)
+                    .setStateName(nextStateName)
+                    .setToNodeCode("004")
+                    .add()
+                .state()
+                    .setStateCode(previousState)
+                    .setStateName(previousStateName)
+                    .setToNodeCode("002")
+                    .add()
+                .add()
+            .node()
+                .setNodeCode("004")
+                .setNodeName("Node004")
+                .setNodeType(StateMachineFlowNodeType.NormalNode)
+                .state()
+                    .setStateCode(nextState)
+                    .setStateName(nextStateName)
+                    .setToNodeCode("005")
+                    .add()
+                .state()
+                    .setStateCode(previousState)
+                    .setStateName(previousStateName)
+                    .setToNodeCode("003")
+                    .add()
+                .state()
+                    .setStateCode("BackToFirst")
+                    .setStateName("回到Node001结点")
+                    .setToNodeCode("001")
+                    .add()
+                .add()
+            .node()
+                .setNodeCode("005")
+                .setNodeName("Node005")
+                .setNodeType(StateMachineFlowNodeType.EndNode)
+                .add()
+            .build();
     }
 
     //#endregion

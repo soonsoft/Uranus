@@ -28,8 +28,8 @@ public class StateMachineFlowFactory<TFlowQuery>
     }
 
     @Override
-    public StateMachineFlowDefinitionBuilder definitionBuilder() {
-        return new StateMachineFlowDefinitionBuilder();
+    public StateMachineFlowDefinitionSetter definitionBuilder() {
+        return new StateMachineFlowDefinitionSetter(new StateMachineFlowDefinition());
     }
 
     @Override
@@ -49,7 +49,7 @@ public class StateMachineFlowFactory<TFlowQuery>
         if(StateMachineFlowCancelState.isCancelState(state.getStateCode())) {
             definition.setStatus(FlowStatus.Canceled);
         } else {
-        StateMachineFlowNode currentNode = state.getToNode();
+            StateMachineFlowNode currentNode = state.getToNode();
             if(currentNode.isBeginNode() || currentNode.getNodeType() == StateMachineFlowNodeType.NormalNode) {
                 definition.setStatus(FlowStatus.Started);
             } else if(currentNode.isEndNode()) {
@@ -83,14 +83,127 @@ public class StateMachineFlowFactory<TFlowQuery>
         this.flowQuery = flowQuery;
     }
 
-    public static class StateMachineFlowDefinitionBuilder implements IFlowDefinitionBuilder<StateMachineFlowDefinition> {
+    //#region definition builder
+
+    public static class StateMachineFlowDefinitionSetter implements IFlowDefinitionBuilder<StateMachineFlowDefinition> {
+
+        private StateMachineFlowDefinition definition;
+
+        private StateMachineFlowDefinitionSetter(StateMachineFlowDefinition definition) {
+            this.definition = definition;
+        }
 
         @Override
         public StateMachineFlowDefinition build() {
-            // TODO Auto-generated method stub
-            return null;
+            return get();
         }
-        
+
+        public StateMachineFlowDefinitionSetter setFlowName(String name) {
+            definition.setFlowName(name);
+            return this;
+        }
+
+        public StateMachineFlowDefinitionSetter setFlowType(String flowType) {
+            definition.setFlowType(flowType);
+            return this;
+        }
+
+        public StateMachineFlowDefinitionSetter setFlowCode(String flowCode) {
+            definition.setFlowCode(flowCode);
+            return this;
+        }
+
+        public StateMachineFlowDefinitionSetter setCancelable(boolean cancelable) {
+            definition.setCancelable(cancelable);
+            return this;
+        }
+
+        public StateMachineFlowDefinitionSetter setDescription(String desc) {
+            definition.setDescription(desc);
+            return this;
+        }
+
+        public StateMachineFlowNodeSetter node() {
+            return new StateMachineFlowNodeSetter(this, get().createFlowNode());
+        }
+
+        private StateMachineFlowDefinition get() {
+            return definition;
+        }
     }
+
+    public static class StateMachineFlowNodeSetter {
+
+        private StateMachineFlowDefinitionSetter definitionSetter;
+        private StateMachineFlowNode node;
+
+        private StateMachineFlowNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineFlowNode node) {
+            this.definitionSetter = definitionSetter;
+            this.node = node;
+        }
+
+        public StateMachineFlowNodeSetter setNodeType(StateMachineFlowNodeType nodeType) {
+            node.setNodeType(nodeType);
+            return this;
+        }
+
+        public StateMachineFlowNodeSetter setNodeCode(String nodeCode) {
+            node.setNodeCode(nodeCode);
+            return this;
+        }
+
+        public StateMachineFlowNodeSetter setNodeName(String nodeName) {
+            node.setNodeName(nodeName);
+            return this;
+        }
+
+        public StateMachineFlowStateSetter state() {
+            return new StateMachineFlowStateSetter(this, definitionSetter.get().createFlowState());
+        }
+
+        public StateMachineFlowDefinitionSetter add() {
+            definitionSetter.get().addNode(node);
+            return definitionSetter;
+        }
+
+        private StateMachineFlowNode get() {
+            return node;
+        }
+
+    }
+
+    public static class StateMachineFlowStateSetter {
+
+        private StateMachineFlowNodeSetter nodeSetter;
+        private StateMachineFlowState state;
+
+        private StateMachineFlowStateSetter(StateMachineFlowNodeSetter nodeSetter, StateMachineFlowState state) {
+            this.nodeSetter = nodeSetter;
+            this.state = state;
+        }
+
+        public StateMachineFlowStateSetter setStateCode(String stateCode) {
+            state.setStateCode(stateCode);
+            return this;
+        }
+
+        public StateMachineFlowStateSetter setStateName(String stateName) {
+            state.setStateName(stateName);
+            return this;
+        }
+
+        public StateMachineFlowStateSetter setToNodeCode(String nodeCode) {
+            state.setToNodeCode(nodeCode);
+            return this;
+        }
+
+        public StateMachineFlowNodeSetter add() {
+            nodeSetter.get().addState(state);
+            return nodeSetter;
+        }
+
+    }
+
+    //#endregion
     
 }
