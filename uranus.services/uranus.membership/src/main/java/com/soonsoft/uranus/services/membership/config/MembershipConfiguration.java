@@ -1,13 +1,12 @@
 package com.soonsoft.uranus.services.membership.config;
 
-import javax.annotation.Resource;
-
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.data.IDatabaseAccess;
 import com.soonsoft.uranus.security.config.BaseSecurityConfiguration;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +15,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configurable
 public class MembershipConfiguration extends BaseSecurityConfiguration {
 
-    @Resource
     private MembershipProperties membershipProperties;
+    private ApplicationContext applicationContext;
+
+    @Autowired
+    public MembershipConfiguration(MembershipProperties membershipProperties, ApplicationContext applicationContext) {
+        this.membershipProperties = membershipProperties;
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     public SecurityProperties getSecurityProperties() {
         return membershipProperties;
+    }
+
+    @Override
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 
     @Bean

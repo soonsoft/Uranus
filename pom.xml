@@ -24,9 +24,9 @@
     </modules>
 
     <properties>
-        <spring-boot-version>2.6.5</spring-boot-version>
-        <spring-version>5.3.18</spring-version>
-        <spring-security-version>5.6.4</spring-security-version>
+        <spring-boot-version>2.7.5</spring-boot-version>
+        <spring-version>5.3.23</spring-version>
+        <spring-security-version>5.7.5</spring-security-version>
     </properties>
     
 
@@ -39,6 +39,7 @@
                 <artifactId>spring</artifactId>
                 <version>${spring-version}</version>
                 <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
             <dependency>

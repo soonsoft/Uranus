@@ -4,14 +4,14 @@ import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.ITokenStorage;
-import com.soonsoft.uranus.security.config.api.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
-import com.soonsoft.uranus.security.config.api.WebApiSecurityContextPersistenceFilter;
+import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter;
+import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.api.jwt.token.JWTSimpleTokenStrategy;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
@@ -53,8 +53,8 @@ public class JWTConfigurer implements ICustomConfigurer {
 
         // 添加身份信息处理Filter
         http.addFilterAt(
-                new WebApiSecurityContextPersistenceFilter(securityContextRepository), 
-                SecurityContextPersistenceFilter.class);
+                new WebApiSecurityContextHolderFilter(securityContextRepository), 
+                SecurityContextHolderFilter.class);
         // 添加Login处理Filter
         try {
             http.apply(new WebApiLoginConfigurer<>(tokenProvider, loginUrl, refreshUrl));

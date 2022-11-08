@@ -8,6 +8,7 @@ import com.soonsoft.uranus.services.workflow.IFlowFactory;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNodeState;
+import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowStatus;
 
 

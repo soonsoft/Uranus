@@ -10,19 +10,41 @@ import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
 import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SimpleSecutityConfiguration extends BaseSecurityConfiguration {
 
-    @Autowired
     private SecurityProperties securityProperties;
+    private ApplicationContext applicationContext;
+
+    @Autowired
+    public SimpleSecutityConfiguration(
+            SecurityProperties securityProperties,
+            ApplicationContext applicationContext) {
+        this.securityProperties = securityProperties;
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     public SecurityProperties getSecurityProperties() {
         return securityProperties;
+    }
+
+    @Override
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        configure(http);
+        return http.build();
     }
 
     @Bean(name = "userManager")

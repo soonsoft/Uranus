@@ -15,28 +15,47 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public abstract class BaseSecurityConfiguration {
+    
+    public abstract SecurityProperties getSecurityProperties();
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
+    public abstract ApplicationContext getApplicationContext();
+
+    /**
+     * 自定义身份验证管理器
+     */
+    @Bean
+    public WebUserDetailsService webUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
+        WebUserDetailsService userDetailsService = new WebUserDetailsService();
+        userDetailsService.setUserManager(userManager);
+        return userDetailsService;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
         SecurityProperties securityProperties = getSecurityProperties();
-
-        if(securityProperties != null) {
+        if(securityProperties == null) {
+            return web -> {};
+        }
+        return web -> {
             // 配置静态资源，这些资源不做安全验证
             web.ignoring()
                 .antMatchers(
                     HttpMethod.GET, 
                     securityProperties.getResourcePathArray());
-        }
+        };
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) {
         ApplicationContext context = this.getApplicationContext();
 
         // 初始化SecurityManager
@@ -60,23 +79,6 @@ public abstract class BaseSecurityConfiguration extends WebSecurityConfigurerAda
         config.setWebAccessDecisionManager(accessDecisionManager);
         config.setWebSecurityMetadataSource(securityMetadataSource);
         config.config(http);
-    }
-    
-    public abstract SecurityProperties getSecurityProperties();
-
-    /**
-     * 自定义身份验证管理器
-     */
-    @Bean
-    public WebUserDetailsService webUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
-        WebUserDetailsService userDetailsService = new WebUserDetailsService();
-        userDetailsService.setUserManager(userManager);
-        return userDetailsService;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
     
 }
