@@ -10,22 +10,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.functional.action.Action2;
 
-/**
- * Cache
- */
 public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
 
-    /**
-     * 缓存大小
-     */
+    // 默认缓存大小
     private static final int DEFAULT_CACHE_CAPACITY = 10000;
 
+    // 缓存容量
     private int capacity;
 
     private final Map<TKey, CacheItem<TValue>> cacheBag;
 
     private final ReentrantReadWriteLock locker = new ReentrantReadWriteLock();
+
+    private ICacheOperateListener<TKey, TValue> cacheOperateListener;
 
     public Cache() {
         this(DEFAULT_CACHE_CAPACITY);
@@ -34,7 +33,29 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
     public Cache(int capacity) {
         this.capacity = capacity;
         cacheBag = createCacheBag();
+        cacheOperateListener = new DefaultCacheOperateListener<TKey, TValue>();
     }
+
+
+    //#region Cache Remove Event
+
+    public void addRemoveListener(Action2<TKey, TValue> onCacheRemoveAction) {
+        if(onCacheRemoveAction != null) {
+            cacheOperateListener.addListener(DefaultCacheOperateListener.Remove, onCacheRemoveAction);
+        }
+    }
+
+    public void removeRemoveListener(Action2<TKey, TValue> onCacheRemoveAction) {
+        if(onCacheRemoveAction != null) {
+            cacheOperateListener.removeListener(DefaultCacheOperateListener.Remove, onCacheRemoveAction);
+        }
+    }
+
+    public void onCacheRemove(TKey key, TValue value) {
+        cacheOperateListener.emit(DefaultCacheOperateListener.Remove, key, value);
+    }
+
+    //#endregion
 
     /**
      * 获取缓存
@@ -122,7 +143,7 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
      * @return
      */
     public boolean remove(TKey key) {
-        if(key == null) {
+        if(key == null || !cacheBag.containsKey(key)) {
             return false;
         }
 
@@ -130,9 +151,9 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
         writeLock.lock();
 
         try {
-            cacheBag.remove(key);
+            CacheItem<TValue> removeItem = cacheBag.remove(key);
+            onCacheRemove(key, removeItem.getValue());
             return true;
-
         } finally {
             writeLock.unlock();
         }
@@ -153,10 +174,10 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
 
         try {
             for(TKey key : keys) {
-                cacheBag.remove(key);
+                CacheItem<TValue> removeItem = cacheBag.remove(key);
+                onCacheRemove(key, removeItem.getValue());
             }
             return true;
-
         } finally {
             writeLock.unlock();
         }
@@ -174,6 +195,7 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
             CacheItem<TValue> item = entry.getValue();
             if(item.isExpired() || isExpired(item)) {
                 iterator.remove();
+                onCacheRemove(entry.getKey(), item.getValue());
             }
         }
 
@@ -215,4 +237,5 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
         }
         
     }
+
 }

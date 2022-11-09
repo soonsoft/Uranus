@@ -9,7 +9,6 @@ import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowStatus;
 
-
 public class LinearFlowFactory<TFlowQuery> 
         implements IFlowFactory<LinearFlowEngine<TFlowQuery>, LinearFlowDefinition> {
 
