@@ -98,6 +98,11 @@ public class StateMachineFlowFactory<TFlowQuery>
             return get();
         }
 
+        public StateMachineFlowDefinitionSetter setFlowCode(String flowCode) {
+            definition.setFlowCode(flowCode);
+            return this;
+        }
+
         public StateMachineFlowDefinitionSetter setFlowName(String name) {
             definition.setFlowName(name);
             return this;
@@ -105,11 +110,6 @@ public class StateMachineFlowFactory<TFlowQuery>
 
         public StateMachineFlowDefinitionSetter setFlowType(String flowType) {
             definition.setFlowType(flowType);
-            return this;
-        }
-
-        public StateMachineFlowDefinitionSetter setFlowCode(String flowCode) {
-            definition.setFlowCode(flowCode);
             return this;
         }
 

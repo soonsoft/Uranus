@@ -3,6 +3,7 @@ package com.soonsoft.uranus.services.workflow.engine.linear;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
+import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
 import com.soonsoft.uranus.services.workflow.IFlowFactory;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowDefinition;
@@ -10,6 +11,7 @@ import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNodeState;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowStatus;
+import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
 
 public class LinearFlowFactory<TFlowQuery> 
@@ -87,6 +89,31 @@ public class LinearFlowFactory<TFlowQuery>
             return get();
         }
 
+        public LinearFlowDefinitionSetter setFlowCode(String flowCode) {
+            definition.setFlowCode(flowCode);
+            return this;
+        }
+
+        public LinearFlowDefinitionSetter setFlowName(String name) {
+            definition.setFlowName(name);
+            return this;
+        }
+
+        public LinearFlowDefinitionSetter setFlowType(String flowType) {
+            definition.setFlowType(flowType);
+            return this;
+        }
+
+        public LinearFlowDefinitionSetter setCancelable(boolean cancelable) {
+            definition.setCancelable(cancelable);
+            return this;
+        }
+
+        public LinearFlowDefinitionSetter setDescription(String desc) {
+            definition.setDescription(desc);
+            return this;
+        }
+
         public LinearFlowNodeSetter node() {
             LinearFlowNode node = definition.createNode();
             return new LinearFlowNodeSetter(this, node);
@@ -113,6 +140,21 @@ public class LinearFlowFactory<TFlowQuery>
             return definitionSetter;
         }
 
+        public LinearFlowNodeSetter setNodeCode(String nodeCode) {
+            node.setNodeCode(nodeCode);
+            return this;
+        }
+
+        public LinearFlowNodeSetter setNodeName(String nodeName) {
+            node.setNodeName(nodeName);
+            return this;
+        }
+
+        public LinearFlowNodeSetter setStepValue(int stepValue) {
+            node.setStepValue(stepValue);
+            return this;
+        }
+
         public LinearFlowStateSetter state() {
             LinearFlowState state = definitionSetter.get().createState();
             return new LinearFlowStateSetter(this, state);
@@ -132,6 +174,21 @@ public class LinearFlowFactory<TFlowQuery>
         private LinearFlowStateSetter(LinearFlowNodeSetter nodeSetter, LinearFlowState state) {
             this.nodeSetter = nodeSetter;
             this.state = state;
+        }
+
+        public LinearFlowStateSetter setStateCode(String stateCode) {
+            state.setStateCode(stateCode);
+            return this;
+        }
+
+        public LinearFlowStateSetter setStateName(String stateName) {
+            state.setStateName(stateName);
+            return this;
+        }
+
+        public LinearFlowStateSetter setActionFn(Action2<LinearFlowState, FlowNode<LinearFlowState>> actionFn) {
+            state.setActionFn(actionFn);
+            return this;
         }
 
         public LinearFlowNodeSetter add() {

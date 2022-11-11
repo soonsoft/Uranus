@@ -8,6 +8,7 @@ import com.soonsoft.uranus.services.approval.model.ApprovalActionType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
+import com.soonsoft.uranus.services.approval.model.ApprovalPrepareParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
@@ -63,14 +64,16 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
     }
 
     @Override
-    public ApprovalRecord resubmit() {
-        // TODO Auto-generated method stub
+    public ApprovalRecord resubmit(ApprovalPrepareParameter parameter) {
+        Guard.notNull(parameter, "the arguments parameter is required.");
+        Guard.notNull(parameter.getRecordCode(), "the parameter.recordCode is required.");
         return null;
     }
 
     @Override
-    public ApprovalRecord revoke() {
-        // TODO Auto-generated method stub
+    public ApprovalRecord revoke(ApprovalPrepareParameter parameter) {
+        Guard.notNull(parameter, "the arguments parameter is required.");
+        Guard.notNull(parameter.getRecordCode(), "the parameter.recordCode is required.");
         return null;
     }
 

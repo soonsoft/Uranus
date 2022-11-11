@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
+/**
+ * 提交审批流程参数
+ */
 public class ApprovalCreateParameter extends FlowActionParameter {
     
     /** 审核类型 */

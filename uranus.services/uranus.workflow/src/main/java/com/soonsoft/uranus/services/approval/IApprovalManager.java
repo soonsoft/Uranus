@@ -3,6 +3,7 @@ package com.soonsoft.uranus.services.approval;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
+import com.soonsoft.uranus.services.approval.model.ApprovalPrepareParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
@@ -12,10 +13,10 @@ public interface IApprovalManager<TApprovalQuery> {
     ApprovalRecord submit(ApprovalCreateParameter parameter);
 
     /** 修改后再次提交审核 */
-    ApprovalRecord resubmit();
+    ApprovalRecord resubmit(ApprovalPrepareParameter parameter);
 
     /** 撤回（撤回后对应的审核单作废） */
-    ApprovalRecord revoke();
+    ApprovalRecord revoke(ApprovalPrepareParameter parameter);
 
     /** 审核操作 */
     ApprovalRecord check(ApprovalCheckParameter parameter);
