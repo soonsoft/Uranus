@@ -70,6 +70,8 @@ public class StateMachineFLowEngine<TFlowQuery>
         if(currentNode == null) {
             throw new FlowException("can not find FlowNode by nodeCode [%s]", nodeCode);
         }
+        // TODO：currentNode需要处理会签与或签，具体为 (stateCode, parameter) -> 返回真正的 stateCode
+        // TODO： currentNode处理子流程节点
 
         StateMachineFlowState newState = null;
         StateMachineFlowState state = findState(currentNode, stateCode);
@@ -87,6 +89,8 @@ public class StateMachineFLowEngine<TFlowQuery>
         }
 
         StateMachineFlowNode newNode = newState.getToNode();
+        // TODO：newNode is GatewayNode 需要自动处理，网关节点分为分支节点和并行节点
+
         // 变更状态
         definition.setPreviousNodeCode(newState.getNodeCode());
         definition.setPreviousStateCode(newState.getStateCode());
@@ -96,6 +100,7 @@ public class StateMachineFLowEngine<TFlowQuery>
         }
 
         // 保存状态
+        // TODO: 保存 SerializedLambda 对象，通过 lambda class中的writeReplace方法得到SerializedLambda对象，通过SerializedLambda对象中的readResolve方法得到原始lambda。
         getFlowRepository().saveState(newState, parameter);
 
         return newState;
