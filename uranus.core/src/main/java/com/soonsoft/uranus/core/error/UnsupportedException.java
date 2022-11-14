@@ -9,8 +9,8 @@ public class UnsupportedException extends ApplicationRuntimeException {
         super();
     }
 
-    public UnsupportedException(String message) {
-        super(message);
+    public UnsupportedException(String message, Object... args) {
+        super(String.format(message, args));
     }
 
     public UnsupportedException(String message, Throwable e) {

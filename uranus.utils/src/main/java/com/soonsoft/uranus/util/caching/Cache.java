@@ -8,9 +8,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.function.Consumer;
 
 import com.soonsoft.uranus.core.Guard;
-import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.util.caching.DefaultCacheOperateListener.CacheEvent;
 
 public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
 
@@ -24,7 +25,7 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
 
     private final ReentrantReadWriteLock locker = new ReentrantReadWriteLock();
 
-    private ICacheOperateListener<TKey, TValue> cacheOperateListener;
+    private DefaultCacheOperateListener<TKey, TValue> cacheOperateListener;
 
     public Cache() {
         this(DEFAULT_CACHE_CAPACITY);
@@ -39,15 +40,15 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
 
     //#region Cache Remove Event
 
-    public void addRemoveListener(Action2<TKey, TValue> onCacheRemoveAction) {
-        if(onCacheRemoveAction != null) {
-            cacheOperateListener.addListener(DefaultCacheOperateListener.Remove, onCacheRemoveAction);
+    public void addRemoveListener(Consumer<CacheEvent<TKey, TValue>> onRemoveHandler) {
+        if(onRemoveHandler != null) {
+            cacheOperateListener.addListener(DefaultCacheOperateListener.Remove, onRemoveHandler);
         }
     }
 
-    public void removeRemoveListener(Action2<TKey, TValue> onCacheRemoveAction) {
-        if(onCacheRemoveAction != null) {
-            cacheOperateListener.removeListener(DefaultCacheOperateListener.Remove, onCacheRemoveAction);
+    public void removeRemoveListener(Consumer<CacheEvent<TKey, TValue>> onRemoveHandler) {
+        if(onRemoveHandler != null) {
+            cacheOperateListener.removeListener(DefaultCacheOperateListener.Remove, onRemoveHandler);
         }
     }
 

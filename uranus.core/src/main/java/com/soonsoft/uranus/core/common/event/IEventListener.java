@@ -3,13 +3,13 @@ package com.soonsoft.uranus.core.common.event;
 import java.util.function.Consumer;
 
 /**
- * IEvent
+ * 事件处理器
  */
 public interface IEventListener<E> {
 
-    void on(Consumer<E> eventHandler);
+    boolean on(Consumer<E> eventHandler);
 
-    void off(Consumer<E> eventHandler);
+    boolean off(Consumer<E> eventHandler);
 
     void trigger(E event);
 

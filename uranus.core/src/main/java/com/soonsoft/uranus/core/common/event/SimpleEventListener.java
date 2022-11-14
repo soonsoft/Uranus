@@ -3,15 +3,10 @@ package com.soonsoft.uranus.core.common.event;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * SimpleEvent
+ * 常规的事件处理器
  */
 public class SimpleEventListener<E> implements IEventListener<E> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEventListener.class);
 
     private LinkedList<Consumer<E>> handlerList = new LinkedList<>();
 
@@ -26,22 +21,22 @@ public class SimpleEventListener<E> implements IEventListener<E> {
     }
 
     @Override
-    public void on(Consumer<E> eventHandler) {
+    public boolean on(Consumer<E> eventHandler) {
         if(eventHandler == null) {
             throw new IllegalArgumentException("the eventHandler is required.");
         }
-        handlerList.add(eventHandler);
+        if(handlerList.contains(eventHandler)) {
+            return false;
+        }
+        return handlerList.add(eventHandler);
     }
 
     @Override
-    public void off(Consumer<E> eventHandler) {
+    public boolean off(Consumer<E> eventHandler) {
         if(eventHandler == null) {
             throw new IllegalArgumentException("the eventHandler is required.");
         }
-        boolean result = handlerList.remove(eventHandler);
-        if(!result) {
-            LOGGER.warn("remove eventHandler from handlerList failed.");
-        }
+        return handlerList.remove(eventHandler);
     }
 
     @Override

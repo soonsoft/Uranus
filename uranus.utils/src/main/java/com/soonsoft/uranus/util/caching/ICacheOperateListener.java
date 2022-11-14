@@ -1,13 +1,13 @@
 package com.soonsoft.uranus.util.caching;
 
-import com.soonsoft.uranus.core.functional.action.Action2;
+import java.util.function.Consumer;
 
-public interface ICacheOperateListener<TKey, TValue> {
+public interface ICacheOperateListener<TEvent> {
 
-    void addListener(String type, Action2<TKey, TValue> onCacheRemoveAction);
+    void addListener(String type, Consumer<TEvent> eventHandler);
 
-    void removeListener(String type, Action2<TKey, TValue> onCacheRemoveAction);
+    void removeListener(String type, Consumer<TEvent> eventHandler);
 
-    void emit(String type, TKey key, TValue value);
+    void emit(String type, TEvent event);
     
 }

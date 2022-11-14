@@ -6,7 +6,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 
 /**
- * AsyncSimpleEventListener
+ * 异步事件处理器
  */
 public class AsyncSimpleEventListener<E> extends SimpleEventListener<E> {
 
