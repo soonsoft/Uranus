@@ -9,9 +9,10 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.strategy.IFlowActionStrategy;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
-import com.soonsoft.uranus.services.workflow.model.FlowNode;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
 /**
@@ -34,7 +35,7 @@ public class StateMachineFLowEngine<TFlowQuery>
         prepareStart(parameter);
 
         final StateMachineFlowDefinition definition = this.getDefinition();
-        final FlowNode<StateMachineFlowState> beginNode = definition.finNode(n -> n.isBeginNode());
+        final StateMachineFlowNode beginNode = definition.finNode(n -> n.isBeginNode());
         if(beginNode == null) {
             throw new FlowException("cannot find begin flow node in nodelist.");
         }
@@ -46,11 +47,6 @@ public class StateMachineFLowEngine<TFlowQuery>
         getFlowRepository().create(definition, parameter);
     }
 
-    public StateMachineFlowState action(String stateCode) {
-        final StateMachineFlowDefinition definition = getDefinition();
-        return action(definition.getCurrentNodeCode(), stateCode);
-    }
-
     @Override
     public StateMachineFlowState action(String nodeCode, String stateCode, FlowActionParameter parameter) {
         prepareAction(nodeCode, stateCode, parameter);
@@ -60,15 +56,25 @@ public class StateMachineFLowEngine<TFlowQuery>
         if(StringUtils.isEmpty(definition.getCurrentNodeCode())) {
             throw new FlowException("the current node code of definition is null.");
         }
-        if(!definition.getCurrentNodeCode().equals(nodeCode)) {
-            throw new FlowException(
-                "the current node code of definition is [%s], but the parameter nodeCode is [%s]", 
-                definition.getCurrentNodeCode(), nodeCode);
+
+        StateMachineFlowNode currentNode = definition.findNode(definition.getCurrentNodeCode());
+        if(currentNode == null) {
+            throw new FlowException("can not find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
         }
 
-        FlowNode<StateMachineFlowState> currentNode = definition.findNode(nodeCode);
-        if(currentNode == null) {
-            throw new FlowException("can not find FlowNode by nodeCode [%s]", nodeCode);
+        StateMachineFlowNode actionNode;
+        if(currentNode instanceof StateMachineGatewayNode gatewayNode) {
+            actionNode = getActionNode(definition, gatewayNode, nodeCode);
+        } else {
+            if(!currentNode.getNodeCode().equals(nodeCode)) {
+                throw new FlowException(
+                    "the current node code of definition is [%s], but the parameter nodeCode is [%s]", 
+                    definition.getCurrentNodeCode(), nodeCode);
+            }
+            actionNode = currentNode;
+        }
+        if(actionNode == null) {
+            throw new FlowException("can not find action FlowNode by nodeCode [%s]", nodeCode);
         }
         // TODO：currentNode需要处理会签与或签，具体为 (stateCode, parameter) -> 返回真正的 stateCode
         // TODO： currentNode处理子流程节点
@@ -123,7 +129,7 @@ public class StateMachineFLowEngine<TFlowQuery>
     @Override
     public StateMachineFlowState currentState() {
         final StateMachineFlowDefinition definition = getDefinition();
-        FlowNode<StateMachineFlowState> previousFlowNode = definition.findNode(definition.getPreviousNodeCode());
+        StateMachineFlowNode previousFlowNode = definition.findNode(definition.getPreviousNodeCode());
         if(previousFlowNode == null) {
             return null;
         }
@@ -132,7 +138,13 @@ public class StateMachineFLowEngine<TFlowQuery>
         return currentState;
     }
 
-    private StateMachineFlowState findState(FlowNode<StateMachineFlowState> node, String stateCode) {
+    protected StateMachineFlowNode getActionNode(
+            StateMachineFlowDefinition definition, StateMachineGatewayNode currentNode, String nodeCode) {
+        // TODO 获取多个并行节点中当前操作的节点
+        return null;
+    }
+
+    private StateMachineFlowState findState(StateMachineFlowNode node, String stateCode) {
         List<StateMachineFlowState> stateList = node.getStateList();
         for(StateMachineFlowState state : stateList) {
             if(state.getStateCode().equals(stateCode)) {

@@ -7,6 +7,9 @@ import org.springframework.util.CollectionUtils;
 
 import com.soonsoft.uranus.services.workflow.model.FlowNode;
 
+/**
+ * 普通流程节点
+ */
 public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> {
 
     private StateMachineFlowNodeType nodeType;
