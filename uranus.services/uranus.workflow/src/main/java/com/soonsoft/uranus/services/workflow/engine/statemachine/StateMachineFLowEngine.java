@@ -10,7 +10,6 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.strategy.IFlowActionStrategy;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
@@ -62,40 +61,23 @@ public class StateMachineFLowEngine<TFlowQuery>
             throw new FlowException("can not find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
         }
 
-        StateMachineFlowNode actionNode;
-        if(currentNode instanceof StateMachineGatewayNode gatewayNode) {
-            actionNode = getActionNode(definition, gatewayNode, nodeCode);
-        } else {
-            if(!currentNode.getNodeCode().equals(nodeCode)) {
-                throw new FlowException(
-                    "the current node code of definition is [%s], but the parameter nodeCode is [%s]", 
-                    definition.getCurrentNodeCode(), nodeCode);
-            }
-            actionNode = currentNode;
-        }
+        StateMachineFlowNode actionNode = matchActionNode(definition, currentNode, nodeCode);
         if(actionNode == null) {
             throw new FlowException("can not find action FlowNode by nodeCode [%s]", nodeCode);
         }
         // TODO：currentNode需要处理会签与或签，具体为 (stateCode, parameter) -> 返回真正的 stateCode
         // TODO： currentNode处理子流程节点
 
-        StateMachineFlowState newState = null;
-        StateMachineFlowState state = findState(currentNode, stateCode);
-        if(state != null) {
-            newState = definition.createFlowState();
-            newState.setId(state.getId());
-            newState.setNodeCode(currentNode.getNodeCode());
-            newState.setStateCode(state.getStateCode());
-            newState.setStateName(state.getStateName());
-            newState.setToNodeCode(state.getToNodeCode());
-        }
-
+        StateMachineFlowState newState = matchNewState(definition, actionNode, stateCode);
         if(newState == null) {
             throw new FlowException("the stateCode[%s] cannot be matched in current flow node[%s]", stateCode, nodeCode);
         }
 
         StateMachineFlowNode newNode = newState.getToNode();
-        // TODO：newNode is GatewayNode 需要自动处理，网关节点分为分支节点和并行节点
+        if(newNode instanceof StateMachineGatewayNode gatewayNode) {
+            // TODO：newNode is GatewayNode 需要自动处理，网关节点分为分支节点和并行节点
+            // 分支节点 or 并行节点回流
+        }
 
         // 变更状态
         definition.setPreviousNodeCode(newState.getNodeCode());
@@ -138,9 +120,35 @@ public class StateMachineFLowEngine<TFlowQuery>
         return currentState;
     }
 
-    protected StateMachineFlowNode getActionNode(
-            StateMachineFlowDefinition definition, StateMachineGatewayNode currentNode, String nodeCode) {
-        // TODO 获取多个并行节点中当前操作的节点
+    protected StateMachineFlowNode matchActionNode(
+            StateMachineFlowDefinition definition, StateMachineFlowNode currentNode, String nodeCode) {
+        if(currentNode instanceof StateMachineGatewayNode gatewayNode) {
+            // TODO 获取多个并行节点中当前操作的节点
+            return null;
+            //return getActionNode(definition, gatewayNode, nodeCode);
+        } else {
+            if(!currentNode.getNodeCode().equals(nodeCode)) {
+                throw new FlowException(
+                    "the current node code of definition is [%s], but the parameter nodeCode is [%s]", 
+                    definition.getCurrentNodeCode(), nodeCode);
+            }
+            return currentNode;
+        }
+    }
+
+    protected StateMachineFlowState matchNewState(
+        StateMachineFlowDefinition definition, StateMachineFlowNode actionNode, String stateCode) {
+        
+        StateMachineFlowState state = findState(actionNode, stateCode);
+        if(state != null) {
+            StateMachineFlowState newState = definition.createFlowState();
+            newState.setId(state.getId());
+            newState.setNodeCode(actionNode.getNodeCode());
+            newState.setStateCode(state.getStateCode());
+            newState.setStateName(state.getStateName());
+            newState.setToNodeCode(state.getToNodeCode());
+            return newState;
+        }
         return null;
     }
 

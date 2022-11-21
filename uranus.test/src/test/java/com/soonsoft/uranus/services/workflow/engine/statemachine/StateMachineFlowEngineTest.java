@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
+import java.lang.invoke.SerializedLambda;
 import java.util.List;
 
 import org.junit.Assert;
@@ -125,6 +126,9 @@ public class StateMachineFlowEngineTest {
     private StateMachineFlowFactory<StateMachineFlowDataQuery> createFactory() {
         StateMachineFlowRepository repository = new StateMachineFlowRepository();
         repository.setDefinitionFn(p -> createDefaultTestDefinition());
+
+        // SerializedLambda sl = new SerializedLambda(getClass(), null, null, null, 0, null, null, null, null, null);
+        // LambdaMetafactory.
 
         DataSubQuery query = new DataSubQuery();
         StateMachineFlowFactory<StateMachineFlowDataQuery> factory = new StateMachineFlowFactory<>(repository, query);
