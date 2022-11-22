@@ -32,4 +32,6 @@ public interface IFlowRepository<TFlowDefinition extends FlowDefinition<?>, TFlo
      */
     void saveState(TFlowState stateParam, FlowActionParameter parameter);
 
+    //void saveCancelState(TFlowState stateParam, FlowActionParameter parameter);
+
 }

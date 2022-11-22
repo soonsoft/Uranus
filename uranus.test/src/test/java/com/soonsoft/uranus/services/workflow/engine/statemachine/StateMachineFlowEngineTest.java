@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
-import java.lang.invoke.SerializedLambda;
 import java.util.List;
 
 import org.junit.Assert;

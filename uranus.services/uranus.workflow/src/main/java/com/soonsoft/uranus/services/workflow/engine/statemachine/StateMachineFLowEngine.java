@@ -3,13 +3,17 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
@@ -65,10 +69,8 @@ public class StateMachineFLowEngine<TFlowQuery>
         if(actionNode == null) {
             throw new FlowException("can not find action FlowNode by nodeCode [%s]", nodeCode);
         }
-        // TODO：currentNode需要处理会签与或签，具体为 (stateCode, parameter) -> 返回真正的 stateCode
-        // TODO： currentNode处理子流程节点
 
-        StateMachineFlowState newState = matchNewState(definition, actionNode, stateCode);
+        StateMachineFlowState newState = matchNewState(definition, actionNode, stateCode, parameter);
         if(newState == null) {
             throw new FlowException("the stateCode[%s] cannot be matched in current flow node[%s]", stateCode, nodeCode);
         }
@@ -76,7 +78,22 @@ public class StateMachineFLowEngine<TFlowQuery>
         StateMachineFlowNode newNode = newState.getToNode();
         if(newNode instanceof StateMachineGatewayNode gatewayNode) {
             // TODO：newNode is GatewayNode 需要自动处理，网关节点分为分支节点和并行节点
+            boolean isCompleted = true;
             // 分支节点 or 并行节点回流
+            if(gatewayNode instanceof StateMachineParallelNode parallelNode) {
+                // 并行节点回流
+                isCompleted = parallelNode.isCompleted();
+            }
+
+            if(isCompleted) {
+                // 分支节点 or 并行节点回流自动处理下一个
+                StateMachineFlowState nextState = gatewayNode.matchState(
+                    (parameter instanceof IFlowDataGetter dataGetter) 
+                        ? dataGetter.getData(parameter) 
+                        : parameter);
+                nextState.setPreviousFlowState(newState);
+                newState = nextState;
+            }
         }
 
         // 变更状态
@@ -122,10 +139,8 @@ public class StateMachineFLowEngine<TFlowQuery>
 
     protected StateMachineFlowNode matchActionNode(
             StateMachineFlowDefinition definition, StateMachineFlowNode currentNode, String nodeCode) {
-        if(currentNode instanceof StateMachineGatewayNode gatewayNode) {
-            // TODO 获取多个并行节点中当前操作的节点
-            return null;
-            //return getActionNode(definition, gatewayNode, nodeCode);
+        if(currentNode instanceof StateMachineParallelNode parallelNode) {
+            return parallelNode.getActionNode(nodeCode);
         } else {
             if(!currentNode.getNodeCode().equals(nodeCode)) {
                 throw new FlowException(
@@ -137,9 +152,26 @@ public class StateMachineFLowEngine<TFlowQuery>
     }
 
     protected StateMachineFlowState matchNewState(
-        StateMachineFlowDefinition definition, StateMachineFlowNode actionNode, String stateCode) {
+            StateMachineFlowDefinition definition, 
+            StateMachineFlowNode actionNode, 
+            String stateCode, 
+            FlowActionParameter parameter) {
         
-        StateMachineFlowState state = findState(actionNode, stateCode);
+        String nextStateCode = stateCode;
+        if(actionNode instanceof StateMachineCompositeNode compositeNode) {
+            String partialItemCode = 
+                (parameter instanceof IPartialItemCode getter) 
+                    ? getter.getItemCode() 
+                    : parameter.getOperator();
+            nextStateCode = compositeNode.resolveStateCode(stateCode, partialItemCode);
+            if(nextStateCode == null) {
+                // TODO：currentNode需要处理会签与或签，具体为 (stateCode, parameter) -> 返回真正的 stateCode
+                // TODO： currentNode处理子流程节点
+                // TODO return 中间状态
+            }
+        }
+        
+        StateMachineFlowState state = findState(actionNode, nextStateCode);
         if(state != null) {
             StateMachineFlowState newState = definition.createFlowState();
             newState.setId(state.getId());
