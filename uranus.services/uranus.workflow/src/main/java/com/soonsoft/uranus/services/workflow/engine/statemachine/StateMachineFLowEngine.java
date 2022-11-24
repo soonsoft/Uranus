@@ -13,6 +13,8 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -38,7 +40,7 @@ public class StateMachineFLowEngine<TFlowQuery>
         prepareStart(parameter);
 
         final StateMachineFlowDefinition definition = this.getDefinition();
-        final StateMachineFlowNode beginNode = definition.finNode(n -> n.isBeginNode());
+        final StateMachineFlowNode beginNode = definition.findNode(n -> n.isBeginNode());
         if(beginNode == null) {
             throw new FlowException("cannot find begin flow node in nodelist.");
         }
@@ -75,9 +77,9 @@ public class StateMachineFLowEngine<TFlowQuery>
             throw new FlowException("the stateCode[%s] cannot be matched in current flow node[%s]", stateCode, nodeCode);
         }
 
+        // 自动处理所有的 GatewayNode（GatewayNode 分为分支节点和并行节点，不能作为结束节点）
         StateMachineFlowNode newNode = newState.getToNode();
-        if(newNode instanceof StateMachineGatewayNode gatewayNode) {
-            // TODO：newNode is GatewayNode 需要自动处理，网关节点分为分支节点和并行节点
+        while(newNode instanceof StateMachineGatewayNode gatewayNode) {
             boolean isCompleted = true;
             // 分支节点 or 并行节点回流
             if(gatewayNode instanceof StateMachineParallelNode parallelNode) {
@@ -91,21 +93,26 @@ public class StateMachineFLowEngine<TFlowQuery>
                     (parameter instanceof IFlowDataGetter dataGetter) 
                         ? dataGetter.getData(parameter) 
                         : parameter);
+                newNode = newState.getToNode();
                 nextState.setPreviousFlowState(newState);
                 newState = nextState;
+            } else {
+                // 并行回流节点，未回流完成时跳出
+                break;
             }
         }
 
-        // 变更状态
-        definition.setPreviousNodeCode(newState.getNodeCode());
-        definition.setPreviousStateCode(newState.getStateCode());
-        definition.setCurrentNodeCode(newNode.getNodeCode());
-        if(newNode.isEndNode()) {
-            definition.setStatus(FlowStatus.Finished);
+        // 当复合节点未到达出发条件时，或者并行节点还没有完成回流时，不继续流转
+        if(!(newState instanceof StateMachinePartialState) && newNode != currentNode) {
+            definition.setPreviousNodeCode(newState.getNodeCode());
+            definition.setPreviousStateCode(newState.getStateCode());
+            definition.setCurrentNodeCode(newNode.getNodeCode());
+            if(newNode.isEndNode()) {
+                definition.setStatus(FlowStatus.Finished);
+            }
         }
 
         // 保存状态
-        // TODO: 保存 SerializedLambda 对象，通过 lambda class中的writeReplace方法得到SerializedLambda对象，通过SerializedLambda对象中的readResolve方法得到原始lambda。
         getFlowRepository().saveState(newState, parameter);
 
         return newState;
@@ -163,11 +170,12 @@ public class StateMachineFLowEngine<TFlowQuery>
                 (parameter instanceof IPartialItemCode getter) 
                     ? getter.getItemCode() 
                     : parameter.getOperator();
-            nextStateCode = compositeNode.resolveStateCode(stateCode, partialItemCode);
+            StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, stateCode);
+            nextStateCode = compositeNode.resolveStateCode(stateCode);
             if(nextStateCode == null) {
-                // TODO：currentNode需要处理会签与或签，具体为 (stateCode, parameter) -> 返回真正的 stateCode
-                // TODO： currentNode处理子流程节点
-                // TODO return 中间状态
+                StateMachinePartialState partialState = new StateMachinePartialState(partialItem, compositeNode);
+                partialState.setFlowCode(definition.getFlowCode());
+                return partialState;
             }
         }
         

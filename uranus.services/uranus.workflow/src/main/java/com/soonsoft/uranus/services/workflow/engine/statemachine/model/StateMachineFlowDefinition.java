@@ -2,7 +2,13 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
 import java.util.List;
 
+import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.core.functional.predicate.Predicate1;
+import com.soonsoft.uranus.core.functional.predicate.Predicate2;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineForkNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineForkState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelState;
 import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 
 public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowNode> {
@@ -37,6 +43,8 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
         this.previousStateCode = previousStateCode;
     }
 
+    //#region state creator
+
     public StateMachineFlowState createFlowState() {
         StateMachineFlowState state = new StateMachineFlowState(this::findNode);
         state.setFlowCode(getFlowCode());
@@ -49,11 +57,47 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
         return state;
     }
 
+    public StateMachineForkState createForkState(Predicate2<Object, StateMachineForkNode> predicate) {
+        StateMachineForkState state = new StateMachineForkState(predicate);
+        state.setFindFlowNodeFn(this::findNode);
+        return state;
+    }
+
+    public StateMachineParallelState createParallelState(Predicate2<Object, StateMachineParallelNode> predicate) {
+        StateMachineParallelState state = new StateMachineParallelState(predicate);
+        state.setFindFlowNodeFn(this::findNode);
+        return state;
+    }
+
+    //#endregion
+
+    //#region node creator
+
     public StateMachineFlowNode createFlowNode() {
         StateMachineFlowNode node = new StateMachineFlowNode();
         node.setFlowCode(getFlowCode());
         return node;
     }
+
+    public StateMachineCompositeNode createCompositeNode(Func1<StateMachineCompositeNode, String> resolveStateCodeFn) {
+        StateMachineCompositeNode node = new StateMachineCompositeNode(resolveStateCodeFn);
+        node.setFlowCode(getFlowCode());
+        return node;
+    }
+
+    public StateMachineForkNode createForkNode() {
+        StateMachineForkNode node = new StateMachineForkNode();
+        node.setFlowCode(getFlowCode());
+        return node;
+    }
+
+    public StateMachineParallelNode createParallelNode() {
+        StateMachineParallelNode node = new StateMachineParallelNode(this::findNode);
+        node.setFlowCode(getFlowCode());
+        return node;
+    }
+
+    //#endregion
 
     public StateMachineFlowNode findNode(String nodeCode) {
         List<StateMachineFlowNode> nodeList = getNodeList();
@@ -65,7 +109,7 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
         return null;
     }
 
-    public StateMachineFlowNode finNode(Predicate1<StateMachineFlowNode> predicate) {
+    public StateMachineFlowNode findNode(Predicate1<StateMachineFlowNode> predicate) {
         List<StateMachineFlowNode> nodeList = getNodeList();
         for(StateMachineFlowNode node : nodeList) {
             if(predicate.test(node)) {

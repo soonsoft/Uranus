@@ -3,7 +3,9 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.soonsoft.uranus.core.functional.func.Func3;
+import org.springframework.util.CollectionUtils;
+
+import com.soonsoft.uranus.core.functional.func.Func1;
 
 /**
  * 复合流程节点
@@ -13,7 +15,11 @@ public class StateMachineCompositeNode extends StateMachineFlowNode {
 
     private List<StateMachinePartialItem> partialItemList;
 
-    private Func3<String, String, StateMachineCompositeNode, String> resolveStateCodeFn;
+    private final Func1<StateMachineCompositeNode, String> resolveStateCodeFn;
+
+    public StateMachineCompositeNode(Func1<StateMachineCompositeNode, String> resolveStateCodeFn) {
+        this.resolveStateCodeFn = resolveStateCodeFn;
+    }
 
     public List<StateMachinePartialItem> getPartialItemList() {
         return partialItemList;
@@ -31,16 +37,25 @@ public class StateMachineCompositeNode extends StateMachineFlowNode {
         return false;
     }
 
-    public Func3<String, String, StateMachineCompositeNode, String> getResolveStateCodeFn() {
+    public Func1<StateMachineCompositeNode, String> getResolveStateCodeFn() {
         return resolveStateCodeFn;
     }
-    public void setResolveStateCodeFn(Func3<String, String, StateMachineCompositeNode, String> resolveStateCodeFn) {
-        this.resolveStateCodeFn = resolveStateCodeFn;
+
+    public StateMachinePartialItem updatePartialItemState(String partialItemCode, String stateCode) {
+        if(!CollectionUtils.isEmpty(partialItemList)) {
+            for(StateMachinePartialItem item : partialItemList) {
+                if(item.getItemCode().equals(partialItemCode)) {
+                    item.setStateCode(stateCode);
+                    return item;
+                }
+            }
+        }
+        return null;
     }
 
-    public String resolveStateCode(String stateCode, String partialItemCode) {
+    public String resolveStateCode(String stateCode) {
         if(getResolveStateCodeFn() != null) {
-            return getResolveStateCodeFn().call(stateCode, partialItemCode, this);
+            return getResolveStateCodeFn().call(this);
         }
         return stateCode;
     }

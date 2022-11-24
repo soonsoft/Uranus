@@ -1,13 +1,21 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
+import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.core.functional.predicate.Predicate2;
 import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
 import com.soonsoft.uranus.services.workflow.IFlowFactory;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineForkNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
@@ -127,38 +135,47 @@ public class StateMachineFlowFactory<TFlowQuery>
             return new StateMachineFlowNodeSetter(this, get().createFlowNode());
         }
 
+        public StateMachineCompositeNodeSetter compositeNode(Func1<StateMachineCompositeNode, String> resolveStateCodeFn) {
+            return new StateMachineCompositeNodeSetter(this, get().createCompositeNode(resolveStateCodeFn));
+        }
+
+        public StateMachineForkNodeSetter forkNode() {
+            return new StateMachineForkNodeSetter(this, get().createForkNode());
+        }
+
+        public StateMachineParallelNodeSetter parallelNode() {
+            return new StateMachineParallelNodeSetter(this, get().createParallelNode());
+        }
+
         private StateMachineFlowDefinition get() {
             return definition;
         }
     }
 
-    public static class StateMachineFlowNodeSetter {
+    //#region node
 
-        private StateMachineFlowDefinitionSetter definitionSetter;
-        private StateMachineFlowNode node;
+    public static abstract class BaseFlowNodeSetter<T extends BaseFlowNodeSetter<T, TNode>, TNode extends StateMachineFlowNode> {
+        protected final StateMachineFlowDefinitionSetter definitionSetter;
+        protected final TNode node;
 
-        private StateMachineFlowNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineFlowNode node) {
+        private BaseFlowNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, TNode node) {
             this.definitionSetter = definitionSetter;
             this.node = node;
         }
 
-        public StateMachineFlowNodeSetter setNodeType(StateMachineFlowNodeType nodeType) {
+        public T setNodeType(StateMachineFlowNodeType nodeType) {
             node.setNodeType(nodeType);
-            return this;
+            return self();
         }
 
-        public StateMachineFlowNodeSetter setNodeCode(String nodeCode) {
+        public T setNodeCode(String nodeCode) {
             node.setNodeCode(nodeCode);
-            return this;
+            return self();
         }
 
-        public StateMachineFlowNodeSetter setNodeName(String nodeName) {
+        public T setNodeName(String nodeName) {
             node.setNodeName(nodeName);
-            return this;
-        }
-
-        public StateMachineFlowStateSetter state() {
-            return new StateMachineFlowStateSetter(this, definitionSetter.get().createFlowState());
+            return self();
         }
 
         public StateMachineFlowDefinitionSetter add() {
@@ -166,43 +183,181 @@ public class StateMachineFlowFactory<TFlowQuery>
             return definitionSetter;
         }
 
-        private StateMachineFlowNode get() {
+        public TNode get() {
             return node;
+        }
+
+        @SuppressWarnings("unchecked")
+        private T self() {
+            return (T) this;
+        }
+    }
+
+    public static class StateMachineFlowNodeSetter extends BaseFlowNodeSetter<StateMachineFlowNodeSetter, StateMachineFlowNode> {
+
+        private StateMachineFlowNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineFlowNode node) {
+            super(definitionSetter, node);
+        }
+
+        public StateMachineFlowStateSetter<StateMachineFlowNodeSetter> state() {
+            return new StateMachineFlowStateSetter<StateMachineFlowNodeSetter>(
+                this, 
+                definitionSetter.get().createFlowState(), 
+                (nodeSetter, state) -> nodeSetter.get().addState(state)
+            );
+        }
+    }
+
+    public static class StateMachineCompositeNodeSetter 
+            extends BaseFlowNodeSetter<StateMachineCompositeNodeSetter, StateMachineCompositeNode> {
+
+        public StateMachineCompositeNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineCompositeNode node) {
+            super(definitionSetter, node);
+        }
+
+        public StateMachineFlowStateSetter<StateMachineCompositeNodeSetter> state() {
+            return new StateMachineFlowStateSetter<StateMachineCompositeNodeSetter>(
+                this, 
+                definitionSetter.get().createFlowState(),
+                (nodeSetter, state) -> nodeSetter.get().addState(state)
+            );
+        }
+
+        public StateMachinePartialItemSetter<StateMachineCompositeNodeSetter> partialItem() {
+            return new StateMachinePartialItemSetter<StateMachineCompositeNodeSetter>(
+                this, 
+                new StateMachinePartialItem(),
+                (nodeSetter, partialItem) -> nodeSetter.get().addPartialItem(partialItem)
+            );
+        }
+    }
+
+    public static class StateMachineForkNodeSetter extends BaseFlowNodeSetter<StateMachineForkNodeSetter, StateMachineForkNode> {
+        public StateMachineForkNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineForkNode node) {
+            super(definitionSetter, node);
+        }
+
+        public StateMachineGatewayStateSetter<StateMachineForkNodeSetter> state(Predicate2<Object, StateMachineForkNode> predicate) {
+            return new StateMachineGatewayStateSetter<StateMachineForkNodeSetter>(
+                this, 
+                definitionSetter.get().createForkState(predicate),
+                (nodeSetter, state) -> nodeSetter.get().addState(state)
+            );
+        }
+    }
+
+    public static class StateMachineParallelNodeSetter extends BaseFlowNodeSetter<StateMachineParallelNodeSetter, StateMachineParallelNode> {
+        public StateMachineParallelNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineParallelNode node) {
+            super(definitionSetter, node);
+        }
+
+        public StateMachineGatewayStateSetter<StateMachineParallelNodeSetter> state(Predicate2<Object, StateMachineParallelNode> predicate) {
+            return new StateMachineGatewayStateSetter<StateMachineParallelNodeSetter>(
+                this, 
+                definitionSetter.get().createParallelState(predicate),
+                (nodeSetter, state) -> nodeSetter.get().addState(state)
+            );
+        }
+
+        public StateMachinePartialItemSetter<StateMachineParallelNodeSetter> partialItem() {
+            return new StateMachinePartialItemSetter<StateMachineParallelNodeSetter>(
+                this, 
+                new StateMachinePartialItem(),
+                (nodeSetter, partialItem) -> nodeSetter.get().addPartialItem(partialItem)
+            );
+        }
+    }
+
+    //#endregion
+
+    //#region state
+
+    public static abstract class BaseStateSetter<T extends BaseStateSetter<T, TNodeSetter>, TNodeSetter> {
+        protected final TNodeSetter nodeSetter;
+        protected final StateMachineFlowState state;
+        protected final Action2<TNodeSetter, StateMachineFlowState> addFn;
+
+        private BaseStateSetter(TNodeSetter nodeSetter, StateMachineFlowState state, Action2<TNodeSetter, StateMachineFlowState> addFn) {
+            this.nodeSetter = nodeSetter;
+            this.state = state;
+            this.addFn = addFn;
+        }
+
+        public T setStateCode(String stateCode) {
+            state.setStateCode(stateCode);
+            return self();
+        }
+
+        public T setStateName(String stateName) {
+            state.setStateName(stateName);
+            return self();
+        }
+
+        public T setToNodeCode(String nodeCode) {
+            state.setToNodeCode(nodeCode);
+            return self();
+        }
+
+        public TNodeSetter add() {
+            addFn.apply(nodeSetter, state);
+            return nodeSetter;
+        }
+
+        @SuppressWarnings("unchecked")
+        private T self() {
+            return (T) this;
+        }
+    }
+
+    public static class StateMachineFlowStateSetter<TNodeSetter> 
+            extends BaseStateSetter<StateMachineFlowStateSetter<TNodeSetter>, TNodeSetter> {
+
+        private StateMachineFlowStateSetter(TNodeSetter nodeSetter, StateMachineFlowState state, Action2<TNodeSetter, StateMachineFlowState> addFn) {
+            super(nodeSetter, state, addFn);
         }
 
     }
 
-    public static class StateMachineFlowStateSetter {
+    public static class StateMachineGatewayStateSetter<TNodeSetter> 
+            extends BaseStateSetter<StateMachineGatewayStateSetter<TNodeSetter>, TNodeSetter> {
 
-        private StateMachineFlowNodeSetter nodeSetter;
-        private StateMachineFlowState state;
+        public StateMachineGatewayStateSetter(TNodeSetter nodeSetter, StateMachineFlowState state, Action2<TNodeSetter, StateMachineFlowState> addFn) {
+            super(nodeSetter, state, addFn);
+        }
+    }
 
-        private StateMachineFlowStateSetter(StateMachineFlowNodeSetter nodeSetter, StateMachineFlowState state) {
+    public static class StateMachinePartialItemSetter<TNodeSetter> {
+
+        private StateMachinePartialItem partialItem;
+        private TNodeSetter nodeSetter;
+        private Action2<TNodeSetter, StateMachinePartialItem> addFn;
+
+        public StateMachinePartialItemSetter(TNodeSetter nodeSetter, StateMachinePartialItem partialItem, Action2<TNodeSetter, StateMachinePartialItem> addFn) {
+            this.partialItem = partialItem;
             this.nodeSetter = nodeSetter;
-            this.state = state;
+            this.addFn = addFn;
+
+            this.partialItem.setStatus(StateMachinePartialItemStatus.Pending);
         }
 
-        public StateMachineFlowStateSetter setStateCode(String stateCode) {
-            state.setStateCode(stateCode);
+        public StateMachinePartialItemSetter<TNodeSetter> setItemCode(String itemCode) {
+            partialItem.setItemCode(itemCode);
             return this;
         }
 
-        public StateMachineFlowStateSetter setStateName(String stateName) {
-            state.setStateName(stateName);
+        public StateMachinePartialItemSetter<TNodeSetter> setItemName(String itemName) {
+            partialItem.setItemName(itemName);
             return this;
         }
 
-        public StateMachineFlowStateSetter setToNodeCode(String nodeCode) {
-            state.setToNodeCode(nodeCode);
-            return this;
-        }
-
-        public StateMachineFlowNodeSetter add() {
-            nodeSetter.get().addState(state);
+        public TNodeSetter add() {
+            addFn.apply(nodeSetter, partialItem);
             return nodeSetter;
         }
 
     }
+
+    //#endregion
 
     //#endregion
     
