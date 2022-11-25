@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.util.CollectionUtils;
@@ -42,9 +41,6 @@ public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> {
     @Override
     public boolean addState(StateMachineFlowState state) {
         if(state != null) {
-            if(getStateList() == null) {
-                setStateList(new ArrayList<>());
-            }
             state.setNodeCode(getNodeCode());
             return super.addState(state);
         }

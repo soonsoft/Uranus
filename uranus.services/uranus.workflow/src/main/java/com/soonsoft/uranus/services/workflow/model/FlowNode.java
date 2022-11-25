@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.workflow.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FlowNode<TState extends FlowState> {
@@ -56,7 +57,13 @@ public class FlowNode<TState extends FlowState> {
     }
 
     public boolean addState(TState state) {
-        return getStateList().add(state);
+        if(state != null) {
+            if(stateList == null) {
+                stateList = new ArrayList<>();
+            }
+            return stateList.add(state);
+        }
+        return false;
     }
     
 }

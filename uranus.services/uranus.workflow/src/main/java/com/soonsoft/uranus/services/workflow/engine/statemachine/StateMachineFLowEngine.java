@@ -172,7 +172,8 @@ public class StateMachineFLowEngine<TFlowQuery>
                     : parameter.getOperator();
             StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, stateCode);
             nextStateCode = compositeNode.resolveStateCode(stateCode);
-            if(nextStateCode == null) {
+            if(StringUtils.isEmpty(nextStateCode)) {
+                // 多个部分未全部完成
                 StateMachinePartialState partialState = new StateMachinePartialState(partialItem, compositeNode);
                 partialState.setFlowCode(definition.getFlowCode());
                 return partialState;

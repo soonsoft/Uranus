@@ -37,15 +37,12 @@ public class StateMachineCompositeNode extends StateMachineFlowNode {
         return false;
     }
 
-    public Func1<StateMachineCompositeNode, String> getResolveStateCodeFn() {
-        return resolveStateCodeFn;
-    }
-
     public StateMachinePartialItem updatePartialItemState(String partialItemCode, String stateCode) {
         if(!CollectionUtils.isEmpty(partialItemList)) {
             for(StateMachinePartialItem item : partialItemList) {
                 if(item.getItemCode().equals(partialItemCode)) {
                     item.setStateCode(stateCode);
+                    item.setStatus(StateMachinePartialItemStatus.Completed);
                     return item;
                 }
             }
@@ -53,9 +50,42 @@ public class StateMachineCompositeNode extends StateMachineFlowNode {
         return null;
     }
 
+    public String resolveState(String allCode, String anyCode) {
+        if(!CollectionUtils.isEmpty(partialItemList)) {
+            boolean allFlag = true;
+            for(StateMachinePartialItem item : partialItemList) {
+                if(item.getStatus() == StateMachinePartialItemStatus.Pending) {
+                    allFlag = false;
+                    continue;
+                }
+                if(anyCode.equals(item.getStateCode())) {
+                    return anyCode;
+                }
+
+                if(!allCode.equals(item.getStateCode())) {
+                    allFlag = false;
+                    break;
+                }
+            }
+            if(allFlag) {
+                return allCode;
+            }
+        }
+        return null;
+    }
+
     public String resolveStateCode(String stateCode) {
-        if(getResolveStateCodeFn() != null) {
-            return getResolveStateCodeFn().call(this);
+        if(resolveStateCodeFn != null) {
+            String resolveStateCode = resolveStateCodeFn.call(this);
+            // 一旦返回确定的StateCode，就将剩余没有处理的节点全部取消掉
+            if(resolveStateCode != null && !CollectionUtils.isEmpty(partialItemList)) {
+                for(StateMachinePartialItem item : partialItemList) {
+                    if(item.getStatus() == StateMachinePartialItemStatus.Pending) {
+                        item.setStatus(StateMachinePartialItemStatus.Terminated);
+                    }
+                }
+            }
+            return resolveStateCode;
         }
         return stateCode;
     }

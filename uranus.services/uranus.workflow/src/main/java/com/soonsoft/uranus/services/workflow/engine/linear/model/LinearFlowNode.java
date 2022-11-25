@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.services.workflow.engine.linear.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
@@ -71,9 +70,6 @@ public class LinearFlowNode extends FlowNode<LinearFlowState> {
     @Override
     public boolean addState(LinearFlowState state) {
         if(state != null) {
-            if(getStateList() == null) {
-                setStateList(new ArrayList<>());
-            }
             state.setNodeCode(getNodeCode());
             return super.addState(state);
         }

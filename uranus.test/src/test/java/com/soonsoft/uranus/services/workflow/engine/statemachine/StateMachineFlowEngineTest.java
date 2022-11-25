@@ -1,14 +1,19 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
+import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
 public class StateMachineFlowEngineTest {
@@ -120,6 +125,89 @@ public class StateMachineFlowEngineTest {
         assert engine.isCanceled();
     }
 
+    @Test
+    public void test_composition() {
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+                .setFlowCode("compositionFlow")
+                .setFlowName("包含复杂节点的流程")
+                .setFlowType("TestComposition")
+                .setCancelable(false)
+                .beginNode().setNodeCode("begin")
+                    .state().setStateCode("Next").setToNodeCode("会签").add()
+                    .add()
+                .compositeNode(node -> node.resolveState("approved", "denied"))
+                    .setNodeCode("会签")
+                        .partial().setItemCode("业务领导审批").add()
+                        .partial().setItemCode("人事领导审批").add()
+                        .partial().setItemCode("分管副总审批").add()
+                        .state().setStateCode("approved").setToNodeCode("或签").add()
+                        .state().setStateCode("denied").setToNodeCode("begin").add()
+                    .add()
+                .compositeNode(node -> node.resolveState("denied", "approved"))
+                    .setNodeCode("或签")
+                        .partial().setItemCode("CEO审批").add()
+                        .partial().setItemCode("董事长审批").add()
+                        .state().setStateCode("approved").setToNodeCode("end").add()
+                        .state().setStateCode("denied").setToNodeCode("begin").add()
+                    .add()
+                .endNode().setNodeCode("end")
+                    .add()
+                .build();
+        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+
+        assert engine.getStatus() == FlowStatus.Pending;
+        engine.start();
+        assert engine.isStarted();
+
+        CompositeActionParameter parameter = new CompositeActionParameter();
+        parameter.setOperateTime(new Date());
+
+        parameter.setOperator("制单人");
+        engine.action(definition.getCurrentNodeCode(), "Next", parameter);
+        assert definition.getCurrentNodeCode().equals("会签");
+
+        // 会签驳回
+        resetPartialItems(definition, "会签");
+        parameter.setOperator("业务领导");
+        parameter.setItemCode("业务领导审批");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("会签");
+
+        parameter.setOperator("人事领导");
+        parameter.setItemCode("人事领导审批");
+        engine.action(definition.getCurrentNodeCode(), "denied", parameter);
+        assert definition.getCurrentNodeCode().equals("begin");
+
+        // 制单人再次提交
+        parameter.setOperator("制单人");
+        engine.action(definition.getCurrentNodeCode(), "Next", parameter);
+        assert definition.getCurrentNodeCode().equals("会签");
+
+        // 会签通过
+        resetPartialItems(definition, "会签");
+        parameter.setOperator("业务领导");
+        parameter.setItemCode("业务领导审批");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        parameter.setOperator("人事领导");
+        parameter.setItemCode("人事领导审批");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        parameter.setOperator("分管副总");
+        parameter.setItemCode("分管副总审批");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("或签");
+
+        // 或签通过
+        resetPartialItems(definition, "会签");
+        parameter.setOperator("CEO");
+        parameter.setItemCode("CEO审批");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("end");
+
+        assert engine.isFinished();
+
+    }
+
     //#region helper methonds
 
     private StateMachineFlowFactory<StateMachineFlowDataQuery> createFactory() {
@@ -211,6 +299,34 @@ public class StateMachineFlowEngineTest {
                 .setNodeType(StateMachineFlowNodeType.EndNode)
                 .add()
             .build();
+    }
+
+    private void resetPartialItems(StateMachineFlowDefinition definition, String nodeCode) {
+        StateMachineCompositeNode node = 
+            (StateMachineCompositeNode) definition.getNodeList()
+                .stream()
+                .filter(i -> i.getNodeCode().equals(nodeCode))
+                .findFirst().get();
+        if(node.getPartialItemList() != null) {
+            node.getPartialItemList().forEach(i -> {
+                i.setStateCode(null);
+                i.setStatus(StateMachinePartialItemStatus.Pending);
+            });
+        }
+    }
+
+    public static class CompositeActionParameter extends FlowActionParameter implements IPartialItemCode {
+
+        private String itemCode;
+
+        public void setItemCode(String itemCode) {
+            this.itemCode = itemCode;
+        }
+
+        @Override
+        public String getItemCode() {
+            return itemCode;
+        }
     }
 
     //#endregion

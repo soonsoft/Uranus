@@ -6,6 +6,6 @@ public enum StateMachinePartialItemStatus {
     /** 已处理 */
     Completed,
     /** 已取消 */
-    terminated,
+    Terminated,
     ;
 }

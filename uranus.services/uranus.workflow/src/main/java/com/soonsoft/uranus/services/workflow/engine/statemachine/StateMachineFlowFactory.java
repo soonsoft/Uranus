@@ -135,6 +135,14 @@ public class StateMachineFlowFactory<TFlowQuery>
             return new StateMachineFlowNodeSetter(this, get().createFlowNode());
         }
 
+        public StateMachineFlowNodeSetter beginNode() {
+            return node().setNodeType(StateMachineFlowNodeType.BeginNode);
+        }
+
+        public StateMachineFlowNodeSetter endNode() {
+            return node().setNodeType(StateMachineFlowNodeType.EndNode);
+        }
+
         public StateMachineCompositeNodeSetter compositeNode(Func1<StateMachineCompositeNode, String> resolveStateCodeFn) {
             return new StateMachineCompositeNodeSetter(this, get().createCompositeNode(resolveStateCodeFn));
         }
@@ -223,7 +231,7 @@ public class StateMachineFlowFactory<TFlowQuery>
             );
         }
 
-        public StateMachinePartialItemSetter<StateMachineCompositeNodeSetter> partialItem() {
+        public StateMachinePartialItemSetter<StateMachineCompositeNodeSetter> partial() {
             return new StateMachinePartialItemSetter<StateMachineCompositeNodeSetter>(
                 this, 
                 new StateMachinePartialItem(),
@@ -273,9 +281,9 @@ public class StateMachineFlowFactory<TFlowQuery>
     //#region state
 
     public static abstract class BaseStateSetter<T extends BaseStateSetter<T, TNodeSetter>, TNodeSetter> {
-        protected final TNodeSetter nodeSetter;
-        protected final StateMachineFlowState state;
-        protected final Action2<TNodeSetter, StateMachineFlowState> addFn;
+        private final TNodeSetter nodeSetter;
+        private final StateMachineFlowState state;
+        private final Action2<TNodeSetter, StateMachineFlowState> addFn;
 
         private BaseStateSetter(TNodeSetter nodeSetter, StateMachineFlowState state, Action2<TNodeSetter, StateMachineFlowState> addFn) {
             this.nodeSetter = nodeSetter;
@@ -328,9 +336,9 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     public static class StateMachinePartialItemSetter<TNodeSetter> {
 
-        private StateMachinePartialItem partialItem;
-        private TNodeSetter nodeSetter;
-        private Action2<TNodeSetter, StateMachinePartialItem> addFn;
+        private final StateMachinePartialItem partialItem;
+        private final TNodeSetter nodeSetter;
+        private final Action2<TNodeSetter, StateMachinePartialItem> addFn;
 
         public StateMachinePartialItemSetter(TNodeSetter nodeSetter, StateMachinePartialItem partialItem, Action2<TNodeSetter, StateMachinePartialItem> addFn) {
             this.partialItem = partialItem;
