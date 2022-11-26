@@ -26,6 +26,10 @@ uranus.services/uranus.workflow/.project
 uranus.services/uranus.workflow/target
 uranus.services/uranus.workflow/.classpath
 
+uranus.services/uranus.dictionary/.project
+uranus.services/uranus.dictionary/target
+uranus.services/uranus.dictionary/.classpath
+
 uranus.utils/.project
 uranus.utils/target
 uranus.utils/.classpath
