@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.services.approval;
 
+import java.util.List;
+
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func1;
@@ -12,10 +14,13 @@ import com.soonsoft.uranus.services.approval.model.ApprovalPrepareParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.IStateMachineFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFLowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<TApprovalQuery> {
@@ -196,7 +201,7 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
     }
 
     public static class DefaultApprovalStateMachineFlowRepository 
-            implements IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
+            implements IStateMachineFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> {
 
         private Func1<String, StateMachineFlowDefinition> findFlowDefinitionFn;
         private IApprovalRepository approvalRepository;
@@ -246,6 +251,12 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
             historyRecord.setFlowState(stateParam);
 
             approvalRepository.saveChecking(record, historyRecord);
+        }
+
+        @Override
+        public List<StateMachinePartialItem> getPratialItems(StateMachineCompositeNode compositeNode) {
+            // TODO Auto-generated method stub
+            return null;
         }
 
     }

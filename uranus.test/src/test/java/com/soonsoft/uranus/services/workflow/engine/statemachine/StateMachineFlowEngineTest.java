@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
@@ -129,9 +130,7 @@ public class StateMachineFlowEngineTest {
     public void test_composition() {
         StateMachineFlowDefinition definition = 
             factory.definitionBuilder()
-                .setFlowCode("compositionFlow")
-                .setFlowName("包含复杂节点的流程")
-                .setFlowType("TestComposition")
+                .setFlowCode("复杂节点流程")
                 .setCancelable(false)
                 .beginNode().setNodeCode("begin")
                     .state().setStateCode("Next").setToNodeCode("会签").add()
@@ -206,6 +205,66 @@ public class StateMachineFlowEngineTest {
 
         assert engine.isFinished();
 
+    }
+
+    @Test
+    public void test_fork() {
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+                .setFlowCode("分支节点流程")
+                .setCancelable(false)
+                .beginNode().setNodeCode("begin")
+                    .state().setStateCode("submit").setToNodeCode("分支节点").add()
+                    .add()
+                .node().setNodeCode("总经理审批")
+                    .state().setStateCode("approved").setToNodeCode("end").add()
+                    .state().setStateCode("deiend").setToNodeCode("begin").add()
+                    .add()
+                .node().setNodeCode("采购经理审批")
+                    .state().setStateCode("approved").setToNodeCode("总经理审批").add()
+                    .state().setStateCode("deiend").setToNodeCode("begin").add()
+                    .add()
+                .forkNode().setNodeCode("分支节点")
+                    .state((data, forkNode) -> ((Integer)data).intValue() >= 1000).setToNodeCode("总经理审批").add()
+                    .state((data, forkNode) -> ((Integer)data).intValue() < 1000).setToNodeCode("采购经理审批").add()
+                    .add()
+                .endNode().setNodeCode("end").add()
+                .build();
+
+        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+
+        engine.start();
+        assert engine.isStarted();
+
+        CompositeActionParameter parameter = new CompositeActionParameter();
+        parameter.setOperateTime(new Date());
+
+        parameter.setData(Integer.valueOf(500));
+        engine.action("begin", "submit", parameter);
+        assert definition.getCurrentNodeCode().equals("采购经理审批");
+
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("总经理审批");
+
+        engine.action(definition.getCurrentNodeCode(), "deiend", parameter);
+        assert definition.getCurrentNodeCode().equals("begin");
+
+        parameter.setData(Integer.valueOf(1000));
+        engine.action("begin", "submit", parameter);
+        assert definition.getCurrentNodeCode().equals("总经理审批");
+
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("end");
+        assert engine.isFinished();
+
+    }
+
+    @Test
+    public void test_parallel() {
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+                .setFlowCode("并行节点流程")
+                .build();
     }
 
     //#region helper methonds
@@ -315,9 +374,12 @@ public class StateMachineFlowEngineTest {
         }
     }
 
-    public static class CompositeActionParameter extends FlowActionParameter implements IPartialItemCode {
-
+    public static class CompositeActionParameter 
+            extends FlowActionParameter 
+            implements IPartialItemCode, IFlowDataGetter {
+        
         private String itemCode;
+        private Object data;
 
         public void setItemCode(String itemCode) {
             this.itemCode = itemCode;
@@ -326,6 +388,15 @@ public class StateMachineFlowEngineTest {
         @Override
         public String getItemCode() {
             return itemCode;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+
+        @Override
+        public Object getData() {
+            return data;
         }
     }
 

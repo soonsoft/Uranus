@@ -1,11 +1,12 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
+import java.util.List;
+
 import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.core.functional.predicate.Predicate2;
 import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
 import com.soonsoft.uranus.services.workflow.IFlowFactory;
-import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
@@ -25,11 +26,11 @@ public class StateMachineFlowFactory<TFlowQuery>
                     StateMachineFlowDefinition
                 > {
 
-    private IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> flowRepository;
+    private IStateMachineFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> flowRepository;
     private TFlowQuery flowQuery;
 
     public StateMachineFlowFactory(
-            IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> repository, 
+            IStateMachineFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> repository, 
             TFlowQuery query) {
         this.flowRepository = repository;
         this.flowQuery = query;
@@ -54,10 +55,19 @@ public class StateMachineFlowFactory<TFlowQuery>
         definition.setPreviousStateCode(state.getStateCode());
         definition.setCurrentNodeCode(state.getToNodeCode());
 
+        StateMachineFlowNode previousNode = state.getFromNode();
+        previousNode.setId(state.getFromNodeId());
+        StateMachineFlowNode currentNode = state.getToNode();
+        currentNode.setId(state.getToNodeId());
+
         if(StateMachineFlowCancelState.isCancelState(state.getStateCode())) {
             definition.setStatus(FlowStatus.Canceled);
         } else {
-            StateMachineFlowNode currentNode = state.getToNode();
+            if(currentNode instanceof StateMachineCompositeNode compositeNode) {
+                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPratialItems(compositeNode);
+                updatePartialItems(partialItemListWithState, compositeNode.getPartialItemList());
+            }
+
             if(currentNode.isBeginNode() || currentNode.getNodeType() == StateMachineFlowNodeType.NormalNode) {
                 definition.setStatus(FlowStatus.Started);
             } else if(currentNode.isEndNode()) {
@@ -75,11 +85,11 @@ public class StateMachineFlowFactory<TFlowQuery>
         return engine;
     }
 
-    public IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> getRepository() {
+    public IStateMachineFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> getRepository() {
         return flowRepository;
     }
 
-    protected void setRepository(IFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> repository) {
+    protected void setRepository(IStateMachineFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> repository) {
         this.flowRepository = repository;
     }
 
@@ -89,6 +99,21 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     protected void setFlowQuery(TFlowQuery flowQuery) {
         this.flowQuery = flowQuery;
+    }
+
+    private void updatePartialItems(List<StateMachinePartialItem> source, List<StateMachinePartialItem> dist) {
+        if(source != null && dist != null) {
+            source.forEach(i -> {
+                for(StateMachinePartialItem partialItem : dist) {
+                    if(i.getItemCode().equals(partialItem.getItemCode())) {
+                        partialItem.setId(i.getId());
+                        partialItem.setStateCode(i.getStateCode());
+                        partialItem.setStatus(i.getStatus());
+                        break;
+                    }
+                }
+            });
+        }
     }
 
     //#region definition builder
@@ -163,8 +188,8 @@ public class StateMachineFlowFactory<TFlowQuery>
     //#region node
 
     public static abstract class BaseFlowNodeSetter<T extends BaseFlowNodeSetter<T, TNode>, TNode extends StateMachineFlowNode> {
-        protected final StateMachineFlowDefinitionSetter definitionSetter;
-        protected final TNode node;
+        private final StateMachineFlowDefinitionSetter definitionSetter;
+        private final TNode node;
 
         private BaseFlowNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, TNode node) {
             this.definitionSetter = definitionSetter;
@@ -202,9 +227,10 @@ public class StateMachineFlowFactory<TFlowQuery>
     }
 
     public static class StateMachineFlowNodeSetter extends BaseFlowNodeSetter<StateMachineFlowNodeSetter, StateMachineFlowNode> {
-
+        private final StateMachineFlowDefinitionSetter definitionSetter;
         private StateMachineFlowNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineFlowNode node) {
             super(definitionSetter, node);
+            this.definitionSetter = definitionSetter;
         }
 
         public StateMachineFlowStateSetter<StateMachineFlowNodeSetter> state() {
@@ -218,9 +244,10 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     public static class StateMachineCompositeNodeSetter 
             extends BaseFlowNodeSetter<StateMachineCompositeNodeSetter, StateMachineCompositeNode> {
-
+        private final StateMachineFlowDefinitionSetter definitionSetter;
         public StateMachineCompositeNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineCompositeNode node) {
             super(definitionSetter, node);
+            this.definitionSetter = definitionSetter;
         }
 
         public StateMachineFlowStateSetter<StateMachineCompositeNodeSetter> state() {
@@ -241,8 +268,10 @@ public class StateMachineFlowFactory<TFlowQuery>
     }
 
     public static class StateMachineForkNodeSetter extends BaseFlowNodeSetter<StateMachineForkNodeSetter, StateMachineForkNode> {
+        private final StateMachineFlowDefinitionSetter definitionSetter;
         public StateMachineForkNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineForkNode node) {
             super(definitionSetter, node);
+            this.definitionSetter = definitionSetter;
         }
 
         public StateMachineGatewayStateSetter<StateMachineForkNodeSetter> state(Predicate2<Object, StateMachineForkNode> predicate) {
@@ -255,8 +284,10 @@ public class StateMachineFlowFactory<TFlowQuery>
     }
 
     public static class StateMachineParallelNodeSetter extends BaseFlowNodeSetter<StateMachineParallelNodeSetter, StateMachineParallelNode> {
+        private final StateMachineFlowDefinitionSetter definitionSetter;
         public StateMachineParallelNodeSetter(StateMachineFlowDefinitionSetter definitionSetter, StateMachineParallelNode node) {
             super(definitionSetter, node);
+            this.definitionSetter = definitionSetter;
         }
 
         public StateMachineGatewayStateSetter<StateMachineParallelNodeSetter> state(Predicate2<Object, StateMachineParallelNode> predicate) {

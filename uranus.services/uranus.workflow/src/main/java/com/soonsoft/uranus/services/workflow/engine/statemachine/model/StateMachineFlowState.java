@@ -5,6 +5,8 @@ import com.soonsoft.uranus.services.workflow.model.FlowState;
 
 public class StateMachineFlowState extends FlowState {
 
+    private Object fromNodeId;
+    private Object toNodeId;
     private String toNodeCode;
 
     private Func1<String, StateMachineFlowNode> findFlowNodeFn;
@@ -18,13 +20,28 @@ public class StateMachineFlowState extends FlowState {
     public StateMachineFlowState(Func1<String, StateMachineFlowNode> findNodeFn) {
         this.findFlowNodeFn = findNodeFn;
     }
+    
+    public Object getFromNodeId() {
+        return fromNodeId;
+    }
+    public void setFromNodeId(Object fromNodeId) {
+        this.fromNodeId = fromNodeId;
+    }
+
+    public Object getToNodeId() {
+        return toNodeId;
+    }
+    public void setToNodeId(Object toNodeId) {
+        this.toNodeId = toNodeId;
+    }
+
     public String getToNodeCode() {
         return toNodeCode;
     }
-
     public void setToNodeCode(String toNodeCode) {
         this.toNodeCode = toNodeCode;
     }
+
     public void setFindFlowNodeFn(Func1<String, StateMachineFlowNode> findNodeFn) {
         this.findFlowNodeFn = findNodeFn;
     }

@@ -91,7 +91,7 @@ public class StateMachineFLowEngine<TFlowQuery>
                 // 分支节点 or 并行节点回流自动处理下一个
                 StateMachineFlowState nextState = gatewayNode.matchState(
                     (parameter instanceof IFlowDataGetter dataGetter) 
-                        ? dataGetter.getData(parameter) 
+                        ? dataGetter.getData() 
                         : parameter);
                 newNode = newState.getToNode();
                 nextState.setPreviousFlowState(newState);
