@@ -10,7 +10,7 @@ public class StateMachinePartialItem {
 
     private String stateCode;
 
-    private StateMachinePartialItemStatus status;
+    private StateMachinePartialItemStatus status = StateMachinePartialItemStatus.Pending;
 
     public Object getId() {
         return id;

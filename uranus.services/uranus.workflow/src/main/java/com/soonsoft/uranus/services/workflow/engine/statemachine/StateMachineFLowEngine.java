@@ -83,7 +83,8 @@ public class StateMachineFLowEngine<TFlowQuery>
             boolean isCompleted = true;
             // 分支节点 or 并行节点回流
             if(gatewayNode instanceof StateMachineParallelNode parallelNode) {
-                // 并行节点回流
+                // 并行节点状态回流
+                parallelNode.updatePartialItemState(newState.getNodeCode(), newState.getStateCode());
                 isCompleted = parallelNode.isCompleted();
             }
 
@@ -93,6 +94,7 @@ public class StateMachineFLowEngine<TFlowQuery>
                     (parameter instanceof IFlowDataGetter dataGetter) 
                         ? dataGetter.getData() 
                         : parameter);
+                nextState = copyState(nextState, definition);
                 newNode = newState.getToNode();
                 nextState.setPreviousFlowState(newState);
                 newState = nextState;
@@ -182,13 +184,7 @@ public class StateMachineFLowEngine<TFlowQuery>
         
         StateMachineFlowState state = findState(actionNode, nextStateCode);
         if(state != null) {
-            StateMachineFlowState newState = definition.createFlowState();
-            newState.setId(state.getId());
-            newState.setNodeCode(actionNode.getNodeCode());
-            newState.setStateCode(state.getStateCode());
-            newState.setStateName(state.getStateName());
-            newState.setToNodeCode(state.getToNodeCode());
-            return newState;
+            return copyState(state, definition);
         }
         return null;
     }
@@ -201,6 +197,16 @@ public class StateMachineFLowEngine<TFlowQuery>
             }
         }
         return null;
+    }
+
+    private StateMachineFlowState copyState(StateMachineFlowState source, StateMachineFlowDefinition definition) {
+        StateMachineFlowState copyState = definition.createFlowState();
+        copyState.setId(source.getId());
+        copyState.setNodeCode(source.getNodeCode());
+        copyState.setStateCode(source.getStateCode());
+        copyState.setStateName(source.getStateName());
+        copyState.setToNodeCode(source.getToNodeCode());
+        return copyState;
     }
     
 }

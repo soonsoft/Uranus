@@ -11,9 +11,12 @@ import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 
@@ -97,7 +100,8 @@ public class StateMachineFlowEngineTest {
         repository.setDefinitionFn(p -> createDefaultTestDefinition());
         repository.setCurrentStateFn(p -> {
             StateMachineFlowState currentState = new StateMachineFlowState();
-            currentState.setFlowCode("002");
+            currentState.setFlowCode("Test_StateMachine_Def");
+            currentState.setNodeCode("002");
             currentState.setStateCode("Next");
             currentState.setStateName("Next");
             currentState.setToNodeCode("003");
@@ -159,7 +163,7 @@ public class StateMachineFlowEngineTest {
         engine.start();
         assert engine.isStarted();
 
-        CompositeActionParameter parameter = new CompositeActionParameter();
+        TestActionParameter parameter = new TestActionParameter();
         parameter.setOperateTime(new Date());
 
         parameter.setOperator("制单人");
@@ -236,7 +240,7 @@ public class StateMachineFlowEngineTest {
         engine.start();
         assert engine.isStarted();
 
-        CompositeActionParameter parameter = new CompositeActionParameter();
+        TestActionParameter parameter = new TestActionParameter();
         parameter.setOperateTime(new Date());
 
         parameter.setData(Integer.valueOf(500));
@@ -264,7 +268,102 @@ public class StateMachineFlowEngineTest {
         StateMachineFlowDefinition definition = 
             factory.definitionBuilder()
                 .setFlowCode("并行节点流程")
+                .setFlowName("软件需求评审")
+                .beginNode().setNodeCode("begin")
+                    .state().setStateCode("提交").setToNodeCode("评审").add()
+                    .add()
+                .parallelNode().setNodeCode("评审")
+                    .partialNode()
+                        .setItemCode("架构师评审")
+                        .addState("approved", "同意")
+                        .addState("deined", "拒绝")
+                        .add()
+                    .partialNode()
+                        .setItemCode("开发经理评审")
+                        .addState("approved", "同意")
+                        .addState("deined", "拒绝")
+                        .add()
+                    .partialNode()
+                        .setItemCode("测试经理评审")
+                        .addState("approved", "同意")
+                        .addState("deined", "拒绝")
+                        .add()
+                    .state((data, parallelNode) -> parallelNode.allMatch(i -> "approved".equals(i.getStateCode())) && ((Integer)data).intValue() < 200)
+                        .setToNodeCode("常规审批").add()
+                    .state((data, parallelNode) -> parallelNode.allMatch(i -> "approved".equals(i.getStateCode())) && ((Integer)data).intValue() > 200)
+                        .setToNodeCode("CTO审批").add()
+                    .add()
+                .compositeNode(node -> node.resolveState("approved", "denied"))
+                    .setNodeCode("常规审批")
+                    .partial().setItemCode("部门经理审批").add()
+                    .partial().setItemCode("项目管理部审批").add()
+                    .state().setStateCode("approved").setToNodeCode("end").add()
+                    .state().setStateCode("denied").setToNodeCode("begin").add()
+                    .add()
+                .node().setNodeCode("CTO审批")
+                    .state().setStateCode("approved").setToNodeCode("end").add()
+                    .state().setStateCode("deined").setToNodeCode("begin").add()
+                    .add()
+                .endNode().setNodeCode("end")
+                    .add()
                 .build();
+
+        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+
+        engine.start();
+        assert engine.isStarted();
+
+        TestActionParameter parameter = new TestActionParameter();
+        parameter.setOperateTime(new Date());
+
+        parameter.setOperator("产品经理");
+        parameter.setData(Integer.valueOf(100)); // 估时，100 人/月
+        engine.action(definition.getCurrentNodeCode(), "提交", parameter);
+        assert definition.getCurrentNodeCode().equals("评审");
+
+        parameter.setOperator("架构师");
+        parameter.setItemCode("架构师评审");
+        engine.action("架构师评审", "approved", parameter);
+        parameter.setOperator("开发经理");
+        parameter.setItemCode("开发经理评审");
+        engine.action("开发经理评审", "approved", parameter);
+        parameter.setOperator("测试经理");
+        parameter.setItemCode("测试经理评审");
+        engine.action("测试经理评审", "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("常规审批");
+
+        parameter.setOperator("部门经理");
+        parameter.setItemCode("部门经理审批");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        parameter.setOperator("项目管理人员");
+        parameter.setItemCode("项目管理部审批");
+        engine.action(definition.getCurrentNodeCode(), "denied", parameter);
+        assert definition.getCurrentNodeCode().equals("begin");
+
+        resetPartialItems(definition, "评审");
+        resetPartialItems(definition, "常规审批");
+
+        parameter.setOperator("产品经理");
+        parameter.setData(Integer.valueOf(300)); // 修改估时，300 人/月
+        engine.action(definition.getCurrentNodeCode(), "提交", parameter);
+        assert definition.getCurrentNodeCode().equals("评审");
+
+        parameter.setOperator("架构师");
+        parameter.setItemCode("架构师评审");
+        engine.action("架构师评审", "approved", parameter);
+        parameter.setOperator("开发经理");
+        parameter.setItemCode("开发经理评审");
+        engine.action("开发经理评审", "approved", parameter);
+        parameter.setOperator("测试经理");
+        parameter.setItemCode("测试经理评审");
+        engine.action("测试经理评审", "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("CTO审批");
+
+        parameter.setOperator("CTO");
+        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        assert definition.getCurrentNodeCode().equals("end");
+
+        assert engine.isFinished();
     }
 
     //#region helper methonds
@@ -361,20 +460,24 @@ public class StateMachineFlowEngineTest {
     }
 
     private void resetPartialItems(StateMachineFlowDefinition definition, String nodeCode) {
-        StateMachineCompositeNode node = 
-            (StateMachineCompositeNode) definition.getNodeList()
-                .stream()
-                .filter(i -> i.getNodeCode().equals(nodeCode))
-                .findFirst().get();
-        if(node.getPartialItemList() != null) {
-            node.getPartialItemList().forEach(i -> {
+        StateMachineFlowNode node = definition.findNode(nodeCode);
+        List<StateMachinePartialItem> itemList;
+        if(node instanceof StateMachineCompositeNode compositeNode) {
+            itemList = compositeNode.getPartialItemList();
+        } else if(node instanceof StateMachineParallelNode parallelNode) {
+            itemList = parallelNode.getPartialItemList();
+        } else {
+            return;
+        }
+        if(itemList != null) {
+            itemList.forEach(i -> {
                 i.setStateCode(null);
                 i.setStatus(StateMachinePartialItemStatus.Pending);
             });
         }
     }
 
-    public static class CompositeActionParameter 
+    public static class TestActionParameter 
             extends FlowActionParameter 
             implements IPartialItemCode, IFlowDataGetter {
         

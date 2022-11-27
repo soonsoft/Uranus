@@ -9,9 +9,9 @@ import com.soonsoft.uranus.core.functional.func.Func1;
 
 /**
  * 复合流程节点
- * 用于描述：会签节点、或签节点、子流程节点
+ * 用于描述：会签节点、或签节点、(子流程节点)
  */
-public class StateMachineCompositeNode extends StateMachineFlowNode {
+public class StateMachineCompositeNode extends StateMachineFlowNode implements IPartialItemBehavior {
 
     private List<StateMachinePartialItem> partialItemList;
 
@@ -35,19 +35,6 @@ public class StateMachineCompositeNode extends StateMachineFlowNode {
             return partialItemList.add(partialItem);
         }
         return false;
-    }
-
-    public StateMachinePartialItem updatePartialItemState(String partialItemCode, String stateCode) {
-        if(!CollectionUtils.isEmpty(partialItemList)) {
-            for(StateMachinePartialItem item : partialItemList) {
-                if(item.getItemCode().equals(partialItemCode)) {
-                    item.setStateCode(stateCode);
-                    item.setStatus(StateMachinePartialItemStatus.Completed);
-                    return item;
-                }
-            }
-        }
-        return null;
     }
 
     public String resolveState(String allCode, String anyCode) {
@@ -78,12 +65,12 @@ public class StateMachineCompositeNode extends StateMachineFlowNode {
         if(resolveStateCodeFn != null) {
             String resolveStateCode = resolveStateCodeFn.call(this);
             // 一旦返回确定的StateCode，就将剩余没有处理的节点全部取消掉
-            if(resolveStateCode != null && !CollectionUtils.isEmpty(partialItemList)) {
-                for(StateMachinePartialItem item : partialItemList) {
+            if(resolveStateCode != null) {
+                forEach((item, index, behavior) -> {
                     if(item.getStatus() == StateMachinePartialItemStatus.Pending) {
                         item.setStatus(StateMachinePartialItemStatus.Terminated);
                     }
-                }
+                });
             }
             return resolveStateCode;
         }

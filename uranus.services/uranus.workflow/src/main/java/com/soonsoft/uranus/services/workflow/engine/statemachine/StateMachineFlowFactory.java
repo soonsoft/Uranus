@@ -2,7 +2,10 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
 import java.util.List;
 
+import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.core.functional.predicate.Predicate2;
 import com.soonsoft.uranus.services.workflow.IFlowDefinitionBuilder;
@@ -65,7 +68,7 @@ public class StateMachineFlowFactory<TFlowQuery>
         } else {
             if(currentNode instanceof StateMachineCompositeNode compositeNode) {
                 List<StateMachinePartialItem> partialItemListWithState = getRepository().getPratialItems(compositeNode);
-                updatePartialItems(partialItemListWithState, compositeNode.getPartialItemList());
+                compositeNode.setAllState(partialItemListWithState);
             }
 
             if(currentNode.isBeginNode() || currentNode.getNodeType() == StateMachineFlowNodeType.NormalNode) {
@@ -99,21 +102,6 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     protected void setFlowQuery(TFlowQuery flowQuery) {
         this.flowQuery = flowQuery;
-    }
-
-    private void updatePartialItems(List<StateMachinePartialItem> source, List<StateMachinePartialItem> dist) {
-        if(source != null && dist != null) {
-            source.forEach(i -> {
-                for(StateMachinePartialItem partialItem : dist) {
-                    if(i.getItemCode().equals(partialItem.getItemCode())) {
-                        partialItem.setId(i.getId());
-                        partialItem.setStateCode(i.getStateCode());
-                        partialItem.setStatus(i.getStatus());
-                        break;
-                    }
-                }
-            });
-        }
     }
 
     //#region definition builder
@@ -298,11 +286,35 @@ public class StateMachineFlowFactory<TFlowQuery>
             );
         }
 
-        public StateMachinePartialItemSetter<StateMachineParallelNodeSetter> partialItem() {
+        public StateMachinePartialItemSetter<StateMachineParallelNodeSetter> partial() {
             return new StateMachinePartialItemSetter<StateMachineParallelNodeSetter>(
                 this, 
                 new StateMachinePartialItem(),
-                (nodeSetter, partialItem) -> nodeSetter.get().addPartialItem(partialItem)
+                (nodeSetter, partialItem) -> this.get().addPartialItem(partialItem)
+            );
+        }
+
+        public ParallelPartialItemSetter partialNode() {
+            return partialNode(
+                definition -> definition.createFlowNode(),
+                definition -> definition.createFlowState()
+            );
+        }
+
+        public ParallelPartialItemSetter partialNode(
+                Func1<StateMachineFlowDefinition, StateMachineFlowNode> nodeFactory,
+                Func1<StateMachineFlowDefinition, StateMachineFlowState> stateFactory) {
+
+            Guard.notNull(nodeFactory, "the parameter nodeFactory is required.");
+            Guard.notNull(stateFactory, "the parameter stateFactory is required.");
+
+            return new ParallelPartialItemSetter(
+                this, 
+                new StateMachinePartialItem(),
+                nodeFactory.call(definitionSetter.get()),
+                node -> definitionSetter.get().addNode(node),
+                () -> stateFactory.call(definitionSetter.get()),
+                partialItem -> this.get().addPartialItem(partialItem)
             );
         }
     }
@@ -365,6 +377,10 @@ public class StateMachineFlowFactory<TFlowQuery>
         }
     }
 
+    //#endregion
+
+    //#region partial item
+
     public static class StateMachinePartialItemSetter<TNodeSetter> {
 
         private final StateMachinePartialItem partialItem;
@@ -375,8 +391,6 @@ public class StateMachineFlowFactory<TFlowQuery>
             this.partialItem = partialItem;
             this.nodeSetter = nodeSetter;
             this.addFn = addFn;
-
-            this.partialItem.setStatus(StateMachinePartialItemStatus.Pending);
         }
 
         public StateMachinePartialItemSetter<TNodeSetter> setItemCode(String itemCode) {
@@ -394,6 +408,58 @@ public class StateMachineFlowFactory<TFlowQuery>
             return nodeSetter;
         }
 
+    }
+
+    public static class ParallelPartialItemSetter {
+        private final StateMachinePartialItem partialItem;
+        private final StateMachineParallelNodeSetter nodeSetter;
+        private final StateMachineFlowNode partialNode;
+        private final Action1<StateMachineFlowNode> addNodeFn;
+        private final Func0<StateMachineFlowState> createStateFn;
+        private final Action1<StateMachinePartialItem> addItemFn;
+
+        public ParallelPartialItemSetter(
+                StateMachineParallelNodeSetter nodeSetter,
+                StateMachinePartialItem partialItem,
+                StateMachineFlowNode partialNode,
+                Action1<StateMachineFlowNode> addNodeFn,
+                Func0<StateMachineFlowState> createStateFn,
+                Action1<StateMachinePartialItem> addItemFn) {
+            this.partialItem = partialItem;
+            this.nodeSetter = nodeSetter;
+            this.partialNode = partialNode;
+            this.addNodeFn = addNodeFn;
+            this.createStateFn = createStateFn;
+            this.addItemFn = addItemFn;
+        }
+
+        public ParallelPartialItemSetter setItemCode(String itemCode) {
+            partialItem.setItemCode(itemCode);
+            partialNode.setNodeCode(itemCode);
+            return this;
+        }
+
+        public ParallelPartialItemSetter setItemName(String itemName) {
+            partialItem.setItemName(itemName);
+            partialNode.setNodeCode(itemName);
+            return this;
+        }
+
+        public ParallelPartialItemSetter addState(String stateCode, String stateName) {
+            StateMachineFlowState state = createStateFn.call();
+            state.setStateCode(stateCode);
+            state.setStateName(stateName);
+            state.setToNodeCode(nodeSetter.get().getNodeCode());
+            partialNode.addState(state);
+            return this;
+        }
+
+        public StateMachineParallelNodeSetter add() {
+            addItemFn.apply(partialItem);
+            addNodeFn.apply(partialNode);
+            return nodeSetter;
+        }
+        
     }
 
     //#endregion

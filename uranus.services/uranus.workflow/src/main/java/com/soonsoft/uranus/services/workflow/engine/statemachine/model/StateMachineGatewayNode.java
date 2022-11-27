@@ -1,7 +1,6 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
@@ -50,7 +49,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         }
     }
 
-    public static class StateMachineParallelNode extends StateMachineGatewayNode {
+    public static class StateMachineParallelNode extends StateMachineGatewayNode implements IPartialItemBehavior {
         private List<StateMachinePartialItem> parallelNodeItems;
         private Func1<String, StateMachineFlowNode> findFlowNodeFn;
 
@@ -58,7 +57,8 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
             this.findFlowNodeFn = findNodeFn;
         }
 
-        public List<StateMachinePartialItem> getParallelNodeItems() {
+        @Override
+        public List<StateMachinePartialItem> getPartialItemList() {
             return parallelNodeItems;
         }
 
@@ -80,26 +80,6 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
             return super.addState(state);
         }
 
-        public void updateItemStatus(String parallelNodeCode, StateMachinePartialItemStatus status) {
-            if(!CollectionUtils.isEmpty(parallelNodeItems)) {
-                parallelNodeItems.forEach(i -> {
-                    if(i.getItemCode().equals(parallelNodeCode)) {
-                        i.setStatus(status);
-                    }
-                });
-            }
-        }
-
-        public void updateItemStatus(Collection<String> parallelNodeCodes, StateMachinePartialItemStatus status) {
-            if(!CollectionUtils.isEmpty(parallelNodeItems) && !CollectionUtils.isEmpty(parallelNodeCodes)) {
-                parallelNodeItems.forEach(i -> {
-                    if(parallelNodeCodes.contains(i.getItemCode())) {
-                        i.setStatus(status);
-                    }
-                });
-            }
-        }
-
         public StateMachineFlowNode getActionNode(String nodeCode) {
             if(CollectionUtils.isEmpty(parallelNodeItems)) {
                 throw new FlowException("there are not parallel node items.");
@@ -112,7 +92,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         }
 
         public boolean isCompleted() {
-            return !CollectionUtils.isEmpty(parallelNodeItems)
+            return parallelNodeItems != null
                 && parallelNodeItems.stream().allMatch(i -> i.getStatus() == StateMachinePartialItemStatus.Completed);
         }
 
