@@ -13,12 +13,11 @@ import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalPrepareParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
-import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.IStateMachineFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFLowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -254,7 +253,7 @@ public class DefaultApprovalManager<TApprovalQuery> implements IApprovalManager<
         }
 
         @Override
-        public List<StateMachinePartialItem> getPratialItems(StateMachineCompositeNode compositeNode) {
+        public List<StateMachinePartialItem> getPratialItems(StateMachineFlowNode compositeNode) {
             // TODO Auto-generated method stub
             return null;
         }

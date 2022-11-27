@@ -3,8 +3,8 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 import java.util.List;
 
 import com.soonsoft.uranus.core.functional.func.Func1;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -52,7 +52,7 @@ public class StateMachineFlowRepository
     }
 
     @Override
-    public List<StateMachinePartialItem> getPratialItems(StateMachineCompositeNode compositeNode) {
+    public List<StateMachinePartialItem> getPratialItems(StateMachineFlowNode compositeNode) {
         // TODO Auto-generated method stub
         return null;
     }

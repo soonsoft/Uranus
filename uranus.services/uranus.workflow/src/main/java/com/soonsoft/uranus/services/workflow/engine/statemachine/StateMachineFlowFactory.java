@@ -17,7 +17,6 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineForkNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
@@ -69,6 +68,9 @@ public class StateMachineFlowFactory<TFlowQuery>
             if(currentNode instanceof StateMachineCompositeNode compositeNode) {
                 List<StateMachinePartialItem> partialItemListWithState = getRepository().getPratialItems(compositeNode);
                 compositeNode.setAllState(partialItemListWithState);
+            } else if (currentNode instanceof StateMachineParallelNode parallelNode) {
+                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPratialItems(parallelNode);
+                parallelNode.setAllState(partialItemListWithState);
             }
 
             if(currentNode.isBeginNode() || currentNode.getNodeType() == StateMachineFlowNodeType.NormalNode) {
