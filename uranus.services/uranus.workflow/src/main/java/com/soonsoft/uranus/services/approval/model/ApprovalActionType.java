@@ -8,6 +8,8 @@ public enum ApprovalActionType {
     Resubmit,
     /** 审核 */
     Check,
+    /** 系统自动流转 */
+    AutoFlow,
     /** 撤回 */
     Revoke,
     /** 取消 */

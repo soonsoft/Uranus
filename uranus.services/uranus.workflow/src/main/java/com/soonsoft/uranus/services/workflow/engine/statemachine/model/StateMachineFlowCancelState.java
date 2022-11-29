@@ -4,7 +4,7 @@ import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class StateMachineFlowCancelState extends StateMachineFlowState {
 
-    private static final String CANCEL_STATE_CODE = "Cancel";
+    private static final String CANCEL_STATE_CODE = "@Cancel";
 
     public StateMachineFlowCancelState(Func1<String, StateMachineFlowNode> findNodeFn) {
         super(findNodeFn);

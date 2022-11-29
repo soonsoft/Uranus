@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.approval.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -21,8 +22,6 @@ public class ApprovalCreateParameter extends FlowActionParameter {
     private Object entityId;
     /** 业务实体对应的数据列表（一个实体可能由多条数据构成） */
     private List<ApprovalData> dataList;
-    /** 审核目标信息 */
-    private ApprovalTargetInfo targetInfo;
     /** 子审核单列表 */
     private List<ApprovalCreateParameter> subList;
 
@@ -40,13 +39,57 @@ public class ApprovalCreateParameter extends FlowActionParameter {
         this.source = source;
     }
 
-    public ApprovalTargetInfo getTargetInfo() {
-        return targetInfo;
+    public String getBusinessCode() {
+        return businessCode;
     }
-    public void setTargetInfo(ApprovalTargetInfo targetInfo) {
-        this.targetInfo = targetInfo;
+    public void setBusinessCode(String businessCode) {
+        this.businessCode = businessCode;
     }
-    
-    //public void addSubItem(Appr String source)
+
+    public String getEntityCode() {
+        return entityCode;
+    }
+    public void setEntityCode(String entityCode) {
+        this.entityCode = entityCode;
+    }
+
+    public Object getEntityId() {
+        return entityId;
+    }
+    public void setEntityId(Object entityId) {
+        this.entityId = entityId;
+    }
+
+    public List<ApprovalCreateParameter> getSubList() {
+        return subList;
+    }
+    public void setSubList(List<ApprovalCreateParameter> subList) {
+        this.subList = subList;
+    }
+    public boolean addSubItem(ApprovalCreateParameter subItem) {
+        if(subItem != null) {
+            if(subList == null) {
+                subList = new ArrayList<>();
+            }
+            return subList.add(subItem);
+        }
+        return false;
+    }
+
+    public List<ApprovalData> getDataList() {
+        return dataList;
+    }
+    public void setDataList(List<ApprovalData> dataList) {
+        this.dataList = dataList;
+    }
+    public boolean addApprovalData(ApprovalData data) {
+        if(data != null) {
+            if(dataList == null) {
+                dataList = new ArrayList<>();
+            }
+            dataList.add(data);
+        }
+        return false;
+    }
     
 }

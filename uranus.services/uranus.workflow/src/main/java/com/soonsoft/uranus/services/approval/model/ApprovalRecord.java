@@ -71,6 +71,15 @@ public class ApprovalRecord {
     public void setSubApprovalRecordList(List<ApprovalRecord> subApprovalRecordList) {
         this.subApprovalRecordList = subApprovalRecordList;
     }
+    public boolean addSubRecord(ApprovalRecord subRecord) {
+        if(subRecord != null) {
+            if(subApprovalRecordList == null) {
+                subApprovalRecordList = new ArrayList<>();
+            }
+            subApprovalRecordList.add(subRecord);
+        }
+        return false;
+    }
 
     public String getApprovalType() {
         return approvalType;
@@ -127,12 +136,14 @@ public class ApprovalRecord {
     public void setHistoryRecordList(List<ApprovalHistoryRecord> historyRecordList) {
         this.historyRecordList = historyRecordList;
     }
-
-    public void addHistoryRecord(ApprovalHistoryRecord historyRecord) {
-        if(this.historyRecordList == null) {
-            this.historyRecordList = new ArrayList<>();
+    public boolean addHistoryRecord(ApprovalHistoryRecord historyRecord) {
+        if(historyRecord != null) {
+            if(this.historyRecordList == null) {
+                this.historyRecordList = new ArrayList<>();
+            }
+            return this.historyRecordList.add(historyRecord);
         }
-        this.historyRecordList.add(historyRecord);
+        return false;
     }
     
 }

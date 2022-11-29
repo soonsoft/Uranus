@@ -1,25 +1,16 @@
 package com.soonsoft.uranus.services.approval.model;
 
-import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
 
 /**
  * 审核参数
  */
-public class ApprovalCheckParameter extends FlowActionParameter {
+public class ApprovalCheckParameter extends ApprovalParameter implements IPartialItemCode {
 
-    /** 审批记录编号 */
-    private String recordCode;
     /** 审批动作编号 */
     private String actionCode;
-    /** 审批备注 */
-    private String remark;
-
-    public String getRecordCode() {
-        return recordCode;
-    }
-    public void setRecordCode(String recordCode) {
-        this.recordCode = recordCode;
-    }
+    /** 会签、或签的项目编号 */
+    private String itemCode;
 
     public String getActionCode() {
         return actionCode;
@@ -28,11 +19,12 @@ public class ApprovalCheckParameter extends FlowActionParameter {
         this.actionCode = actionCode;
     }
 
-    public String getRemark() {
-        return remark;
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
     }
-    public void setRemark(String remark) {
-        this.remark = remark;
+    @Override
+    public String getItemCode() {
+        return itemCode;
     }
     
 }

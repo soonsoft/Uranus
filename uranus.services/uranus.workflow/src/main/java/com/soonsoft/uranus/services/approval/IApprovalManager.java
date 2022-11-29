@@ -3,9 +3,8 @@ package com.soonsoft.uranus.services.approval;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
-import com.soonsoft.uranus.services.approval.model.ApprovalPrepareParameter;
+import com.soonsoft.uranus.services.approval.model.ApprovalParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
-import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public interface IApprovalManager<TApprovalQuery> {
 
@@ -13,54 +12,50 @@ public interface IApprovalManager<TApprovalQuery> {
     ApprovalRecord submit(ApprovalCreateParameter parameter);
 
     /** 修改后再次提交审核 */
-    ApprovalRecord resubmit(ApprovalPrepareParameter parameter);
+    ApprovalRecord resubmit(ApprovalParameter parameter);
 
     /** 撤回（撤回后对应的审核单作废） */
-    ApprovalRecord revoke(ApprovalPrepareParameter parameter);
+    ApprovalRecord revoke(ApprovalParameter parameter);
 
     /** 审核操作 */
     ApprovalRecord check(ApprovalCheckParameter parameter);
 
-    default ApprovalRecord approve(String approvalRecord, FlowActionParameter parameter) {
-        return approve(approvalRecord, null, parameter);
+    /**
+     * 审核操作 - 批准
+     * @param recordCode 审核单编码
+     * @param parameter 审核参数
+     * @return 审核单信息
+     */
+    default ApprovalRecord approve(String recordCode, ApprovalCheckParameter parameter) {
+        Guard.notNull(parameter, "the argument parameter is required.");
+        parameter.setActionCode(ApprovalStateCode.Approve);
+        return check(parameter);
     }
 
-    /** 批准 */
-    default ApprovalRecord approve(String recordCode, String remark, FlowActionParameter parameter) {
-        Guard.notEmpty(recordCode, "the argument recordCode is required.");
-
-        ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
-        checkParameter.setRecordCode(recordCode);
-        checkParameter.setRemark(remark);
-        checkParameter.setActionCode(ActionType.Approve);
-        if(parameter != null) {
-            checkParameter.setOperator(parameter.getOperator());
-            checkParameter.setOperatorName(parameter.getOperatorName());
-            checkParameter.setOperateTime(parameter.getOperateTime());
-        }
-        return check(checkParameter);
+    /**
+     * 审核操作 - 拒绝
+     * @param recordCode 审核单编码
+     * @param parameter 审核参数
+     * @return 审核单信息
+     */
+    default ApprovalRecord deny(String recordCode, ApprovalCheckParameter parameter) {
+        Guard.notNull(parameter, "the argument parameter is required.");
+        parameter.setActionCode(ApprovalStateCode.Deny);
+        return check(parameter);
     }
 
-    /** 拒绝 */
-    default ApprovalRecord deny(String recordCode, String remark, FlowActionParameter parameter) {
-        Guard.notEmpty(recordCode, "the arguments recordCode is required.");
-        Guard.notEmpty(remark, "the arguments remark is required.");
+    /**
+     * 取消审核
+     * @param parameter 审核参数信息
+     */
+    void cancel(ApprovalParameter parameter);
 
-        ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
-        checkParameter.setRecordCode(recordCode);
-        checkParameter.setRemark(remark);
-        checkParameter.setActionCode(ActionType.Deny);
-        if(parameter != null) {
-            checkParameter.setOperator(parameter.getOperator());
-            checkParameter.setOperatorName(parameter.getOperatorName());
-            checkParameter.setOperateTime(parameter.getOperateTime());
-        }
-        return check(checkParameter);
-    }
-
-    /** 取消审核 */
-    void cancel();
-
+    /**
+     * 获取审批记录
+     * @param recordCode 审批记录编码
+     * @return 审批记录信息
+     */
+    ApprovalRecord getApprovalRecord(String recordCode);
     /** 返回查询对象 */
     TApprovalQuery query();
 
@@ -68,9 +63,8 @@ public interface IApprovalManager<TApprovalQuery> {
     /** 编制审核记录 */
     // void prepare();
 
-    interface ActionType {
+    interface ApprovalStateCode {
 
-        public static final String Submit = "Submit";
         public static final String Approve = "Approve";
         public static final String Deny = "Deny";
 

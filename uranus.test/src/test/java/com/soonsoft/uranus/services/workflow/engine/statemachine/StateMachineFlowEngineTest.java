@@ -322,13 +322,10 @@ public class StateMachineFlowEngineTest {
         assert definition.getCurrentNodeCode().equals("评审");
 
         parameter.setOperator("架构师");
-        parameter.setItemCode("架构师评审");
         engine.action("架构师评审", "approved", parameter);
         parameter.setOperator("开发经理");
-        parameter.setItemCode("开发经理评审");
         engine.action("开发经理评审", "approved", parameter);
         parameter.setOperator("测试经理");
-        parameter.setItemCode("测试经理评审");
         engine.action("测试经理评审", "approved", parameter);
         assert definition.getCurrentNodeCode().equals("常规审批");
 
@@ -349,13 +346,10 @@ public class StateMachineFlowEngineTest {
         assert definition.getCurrentNodeCode().equals("评审");
 
         parameter.setOperator("架构师");
-        parameter.setItemCode("架构师评审");
         engine.action("架构师评审", "approved", parameter);
         parameter.setOperator("开发经理");
-        parameter.setItemCode("开发经理评审");
         engine.action("开发经理评审", "approved", parameter);
         parameter.setOperator("测试经理");
-        parameter.setItemCode("测试经理评审");
         engine.action("测试经理评审", "approved", parameter);
         assert definition.getCurrentNodeCode().equals("CTO审批");
 

@@ -106,9 +106,7 @@ public class StateMachineFLowEngine<TFlowQuery>
 
         // 当复合节点未到达出发条件时，或者并行节点还没有完成回流时，不继续流转
         if(!(newState instanceof StateMachinePartialState) && newNode != currentNode) {
-            definition.setPreviousNodeCode(newState.getNodeCode());
-            definition.setPreviousStateCode(newState.getStateCode());
-            definition.setCurrentNodeCode(newNode.getNodeCode());
+            updateDefinitionState(definition, newState);
             if(newNode.isEndNode()) {
                 definition.setStatus(FlowStatus.Finished);
             }
@@ -129,6 +127,8 @@ public class StateMachineFLowEngine<TFlowQuery>
 
         StateMachineFlowCancelState cancelState = definition.createCancelState();
         cancelState.setNodeCode(definition.getCurrentNodeCode());
+
+        updateDefinitionState(definition, cancelState);
 
         // 保存取消状态
         getFlowRepository().saveState(cancelState, parameter);
@@ -187,6 +187,12 @@ public class StateMachineFLowEngine<TFlowQuery>
             return copyState(state, definition);
         }
         return null;
+    }
+
+    private void updateDefinitionState(StateMachineFlowDefinition definition, StateMachineFlowState state) {
+        definition.setPreviousNodeCode(state.getNodeCode());
+        definition.setPreviousStateCode(state.getStateCode());
+        definition.setCurrentNodeCode(state.getToNodeCode());
     }
 
     private StateMachineFlowState findState(StateMachineFlowNode node, String stateCode) {
