@@ -70,6 +70,10 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         private T self() {
             return (T) this;
         }
+
+        private void put(String approvalType, StateMachineFlowDefinition definition) {
+            map.put(approvalType, definition);
+        }
     }
 
     public static class ApprovalDefinitionContainer extends BaseDefinitionContainer<ApprovalDefinitionContainer> {
@@ -83,6 +87,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     .setFlowType(approvalType);
             ApprovalDefinitionBuilder<ApprovalDefinitionContainer> definitionBuilder = 
                 new ApprovalDefinitionBuilder<>(this, flowDefinitionSetter);
+            super.put(approvalType, flowDefinitionSetter.get());
             return definitionBuilder;
         }
 
@@ -109,6 +114,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     .setNodeName(beginNodeName);
             
             StateMachineFlowNode beginNode = nodeSetter.get();
+            nodeSetter.add();
             return new ApprovalNodeSetter<TContainer>(parent, beginNode, beginNode, () -> flowDefinitionSetter);
         }
 
@@ -150,7 +156,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                 linkState(
                     definitionSetter.get().createFlowState(), 
                     previousNode, 
-                    ApprovalStateCode.Approved, 
+                    previousNode.isBeginNode() ? ApprovalStateCode.Checking : ApprovalStateCode.Approved, 
                     node.getNodeCode());
             }
 
@@ -175,7 +181,6 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     ApprovalStateCode.Approved, 
                     endNodeCode);
             }
-            
             return container;
         }
 
