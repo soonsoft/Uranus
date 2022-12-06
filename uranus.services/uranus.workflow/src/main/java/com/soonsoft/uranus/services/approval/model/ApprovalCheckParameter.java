@@ -8,15 +8,15 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IParti
 public class ApprovalCheckParameter extends ApprovalParameter implements IPartialItemCode {
 
     /** 审批动作编号 */
-    private String actionCode;
+    private String stateCode;
     /** 会签、或签的项目编号 */
     private String itemCode;
 
-    public String getActionCode() {
-        return actionCode;
+    public String getStateCode() {
+        return stateCode;
     }
-    public void setActionCode(String actionCode) {
-        this.actionCode = actionCode;
+    public void setStateCode(String stateCode) {
+        this.stateCode = stateCode;
     }
 
     public void setItemCode(String itemCode) {

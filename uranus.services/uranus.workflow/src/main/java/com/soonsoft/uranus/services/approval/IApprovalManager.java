@@ -5,19 +5,37 @@ import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
+import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
 
 public interface IApprovalManager<TApprovalQuery> {
 
-    /** 提交审核 */
+    /**
+     * 提交审核
+     * @param parameter 提交参数
+     * @return 审核记录
+     */
     ApprovalRecord submit(ApprovalCreateParameter parameter);
 
-    /** 修改后再次提交审核 */
+    /**
+     * 修改后再次提交审核
+     * @param parameter 提交参数
+     * @return 审核记录
+     */
     ApprovalRecord resubmit(ApprovalParameter parameter);
 
-    /** 撤回（撤回后对应的审核单作废） */
-    ApprovalRecord revoke(ApprovalParameter parameter);
+    /**
+     * 撤回（当前节点未审批之前，前一个节点可以将流程倒回）
+     * @param previousNodeCode 发起撤回操作的节点
+     * @param parameter 撤回参数
+     * @return 审核记录
+     */
+    ApprovalRecord revoke(String previousNodeCode, ApprovalParameter parameter);
 
-    /** 审核操作 */
+    /**
+     * 审核操作 - 批准 or 拒绝
+     * @param parameter 审核参数
+     * @return 审核记录
+     */
     ApprovalRecord check(ApprovalCheckParameter parameter);
 
     /**
@@ -26,9 +44,9 @@ public interface IApprovalManager<TApprovalQuery> {
      * @param parameter 审核参数
      * @return 审核单信息
      */
-    default ApprovalRecord approve(String recordCode, ApprovalCheckParameter parameter) {
+    default ApprovalRecord approve(ApprovalCheckParameter parameter) {
         Guard.notNull(parameter, "the argument parameter is required.");
-        parameter.setActionCode(ApprovalStateCode.Approve);
+        parameter.setStateCode(ApprovalStateCode.Approved);
         return check(parameter);
     }
 
@@ -38,9 +56,9 @@ public interface IApprovalManager<TApprovalQuery> {
      * @param parameter 审核参数
      * @return 审核单信息
      */
-    default ApprovalRecord deny(String recordCode, ApprovalCheckParameter parameter) {
+    default ApprovalRecord deny(ApprovalCheckParameter parameter) {
         Guard.notNull(parameter, "the argument parameter is required.");
-        parameter.setActionCode(ApprovalStateCode.Deny);
+        parameter.setStateCode(ApprovalStateCode.Denied);
         return check(parameter);
     }
 
@@ -56,18 +74,11 @@ public interface IApprovalManager<TApprovalQuery> {
      * @return 审批记录信息
      */
     ApprovalRecord getApprovalRecord(String recordCode);
-    /** 返回查询对象 */
+
+    /**
+     * 返回查询对象
+     * @return
+     */
     TApprovalQuery query();
-
-        
-    /** 编制审核记录 */
-    // void prepare();
-
-    interface ApprovalStateCode {
-
-        public static final String Approve = "Approve";
-        public static final String Deny = "Deny";
-
-    }
 
 }

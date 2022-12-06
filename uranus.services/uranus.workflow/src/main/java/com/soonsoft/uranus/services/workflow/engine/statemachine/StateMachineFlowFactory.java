@@ -28,6 +28,10 @@ public class StateMachineFlowFactory<TFlowQuery>
                     StateMachineFlowDefinition
                 > {
 
+    public static StateMachineFlowDefinitionSetter builder() {
+        return new StateMachineFlowDefinitionSetter(new StateMachineFlowDefinition());
+    }
+
     private IStateMachineFlowRepository<StateMachineFlowDefinition, StateMachineFlowState> flowRepository;
     private TFlowQuery flowQuery;
 
@@ -40,7 +44,7 @@ public class StateMachineFlowFactory<TFlowQuery>
 
     @Override
     public StateMachineFlowDefinitionSetter definitionBuilder() {
-        return new StateMachineFlowDefinitionSetter(new StateMachineFlowDefinition());
+        return StateMachineFlowFactory.builder();
     }
 
     @Override
@@ -170,7 +174,7 @@ public class StateMachineFlowFactory<TFlowQuery>
             return new StateMachineParallelNodeSetter(this, get().createParallelNode());
         }
 
-        private StateMachineFlowDefinition get() {
+        public StateMachineFlowDefinition get() {
             return definition;
         }
     }
