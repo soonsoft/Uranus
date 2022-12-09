@@ -2,7 +2,6 @@ package com.soonsoft.uranus.site.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
@@ -43,7 +42,6 @@ public class WebErrorController extends AbstractErrorController {
     private final ErrorAttributes errorAttributes;
     private final ErrorPageProperties errorPageProperties;
 
-    @Autowired
     public WebErrorController(
         WebErrorConfiguration errorConfiguration,
         ErrorPageProperties errorPageProperties,

@@ -34,7 +34,6 @@ import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBean;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -55,7 +54,6 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     private final SecurityProperties securityProperties;
 
-    @Autowired
     public WebConfiguration(SecurityProperties securityProperties) {
         this.securityProperties = securityProperties;
     }

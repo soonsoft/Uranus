@@ -1,7 +1,6 @@
 package com.soonsoft.uranus.site.config;
 
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.ErrorPageRegistrar;
@@ -20,7 +19,6 @@ public class WebErrorConfiguration {
     private final List<ErrorViewResolver> errorViewResolvers;
     private final ErrorPageProperties errorPageProperties;
 
-    @Autowired
     public WebErrorConfiguration(
         ObjectProvider<List<ErrorViewResolver>> errorViewResolversProvider,
         ErrorPageProperties errorPageProperties) {

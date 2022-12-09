@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -73,18 +72,12 @@ public class WebSecurityMetadataSource implements FilterInvocationSecurityMetada
     }
 
     /**
-     * 初始化时加载权限资源
+     * 获取该SecurityMetadataSource对象中保存的针对所有安全对象的权限信息的集合。
+     * 该方法的主要目的是被AbstractSecurityInterceptor用于启动时校验每个ConfigAttribute对象。
      */
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
-        Set<ConfigAttribute> allAttributes = new HashSet<>();
-        
-        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry 
-                : requestMap.entrySet()) {
-			allAttributes.addAll(entry.getValue());
-		}
-
-		return allAttributes;
+        return null;
     }
 
     /**

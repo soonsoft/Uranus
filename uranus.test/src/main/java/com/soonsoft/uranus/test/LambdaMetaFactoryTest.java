@@ -95,8 +95,8 @@ public class LambdaMetaFactoryTest {
             return (R) func.call(instance);
         }
 
+        @SuppressWarnings("unchecked")
         public R apply(T instance) throws Throwable {
-            //return (R) delegate.invokeExact(instance);
             FlowActionParameter p = (FlowActionParameter) instance;
             String result = (String) delegate.invokeExact(p);
             return (R) result;
