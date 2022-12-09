@@ -26,11 +26,11 @@ public class SimpleApprovalManagerTest {
                         .begin()
                         .next("KYC审核", "KYC审核")
                         .next("合规审核", "合规审核")
-                        .next("RO复合", "RO复合")
+                        .next("RO复核", "RO复核")
                         .end()
                     .definition("信息变更", "EditAccountInfo", "KYC信息更新", false)
                         .begin()
-                        .next("KYC复合", "KYC复合")
+                        .next("KYC复核", "KYC复核")
                         .end()
             );
 
@@ -47,6 +47,7 @@ public class SimpleApprovalManagerTest {
         ApprovalRecord record = manager.submit(submitParam);
 
         Assert.assertNotNull(record);
+        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
     }
     
 }
