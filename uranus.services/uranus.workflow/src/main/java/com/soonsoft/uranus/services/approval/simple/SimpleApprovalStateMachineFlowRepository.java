@@ -80,7 +80,6 @@ public class SimpleApprovalStateMachineFlowRepository
             if(lastState instanceof StateMachinePartialState) {
                 historyRecord = new ApprovalHistoryRecord();
                 historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
-                historyRecord.setRemark("系统自动流转");
             } else {
                 historyRecord = recordHolder.getHistoryRecord();
             }

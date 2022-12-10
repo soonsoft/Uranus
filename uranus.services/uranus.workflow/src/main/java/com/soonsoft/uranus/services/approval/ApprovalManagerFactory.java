@@ -166,12 +166,15 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         public TContainer end() {
+            return end("ApprovalEndNode", "End");
+        }
+
+        public TContainer end(String nodeCode, String nodeName) {
             StateMachineFlowDefinitionSetter definitionSetter = definitionSetterFactory.call();
-            String endNodeCode = "ApprovalEndNode";
             definitionSetter
                 .endNode()
-                    .setNodeCode(endNodeCode)
-                    .setNodeName("End")
+                    .setNodeCode(nodeCode)
+                    .setNodeName(nodeName)
                     .add();
                 
             if(previousNode != null) {
@@ -179,7 +182,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     definitionSetter.get().createFlowState(), 
                     previousNode, 
                     ApprovalStateCode.Approved, 
-                    endNodeCode);
+                    nodeCode);
             }
             return container;
         }
