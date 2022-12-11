@@ -7,14 +7,18 @@ import java.util.UUID;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.services.approval.exception.ApprovalException;
 import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
 import com.soonsoft.uranus.services.approval.simple.SimpleApprovalManager;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory.StateMachineCompositeNodeSetter;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory.StateMachineFlowDefinitionSetter;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory.StateMachineFlowNodeSetter;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 
 public class ApprovalManagerFactory<TApprovalQuery> {
@@ -40,11 +44,23 @@ public class ApprovalManagerFactory<TApprovalQuery> {
     }
 
     public ApprovalDefinitionContainer definitionContainer() {
-        return new ApprovalDefinitionContainer();
+        return definitionContainer(stateCode -> stateCode);
+    }
+
+    public ApprovalDefinitionContainer definitionContainer(Func1<String, String> stateNameGetter) {
+        ApprovalDefinitionContainer contianer = new ApprovalDefinitionContainer();
+        contianer.setStateNameGetter(stateNameGetter);
+        return contianer;
     }
 
     public static abstract class BaseDefinitionContainer<T extends BaseDefinitionContainer<T>> {
-        private Map<String, StateMachineFlowDefinition> map = new HashMap<>();
+        private final Map<String, StateMachineFlowDefinition> map;
+        private final ApprovalDefinitionBuildingContext<T> context;
+
+        public BaseDefinitionContainer() {
+            this.map = new HashMap<>();
+            this.context = new ApprovalDefinitionBuildingContext<>(self());
+        }
 
         public T define(String approvalType, Func1<StateMachineFlowDefinitionSetter, StateMachineFlowDefinition> factory) {
             return define(approvalType, factory.call(StateMachineFlowFactory.builder()));
@@ -74,6 +90,59 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         private void put(String approvalType, StateMachineFlowDefinition definition) {
             map.put(approvalType, definition);
         }
+
+        private ApprovalDefinitionBuildingContext<T> getContext() {
+            return context;
+        }
+    }
+
+    public static class ApprovalDefinitionBuildingContext<TContainer> {
+        private final TContainer container;
+        private StateMachineFlowDefinitionSetter currentDefinitionSetter;
+        private ApprovalNodeSetter<TContainer> currentNodeSetter;
+        private Func1<String, String> stateNameGetter;
+
+        public ApprovalDefinitionBuildingContext(TContainer container) {
+            this.container = container;
+        }
+
+        public TContainer getContainer() {
+            return container;
+        }
+
+        public StateMachineFlowDefinitionSetter getCurrentDefinitionSetter() {
+            return currentDefinitionSetter;
+        }
+
+        public void setCurrentDefinitionSetter(StateMachineFlowDefinitionSetter currentDefinitionSetter) {
+            this.currentDefinitionSetter = currentDefinitionSetter;
+        }
+
+        public ApprovalNodeSetter<TContainer> getCurrentNodeSetter() {
+            return currentNodeSetter;
+        }
+
+        public void setCurrentNodeSetter(ApprovalNodeSetter<TContainer> currentNodeSetter) {
+            this.currentNodeSetter = currentNodeSetter;
+        }
+
+        public Func1<String, String> getStateNameGetter() {
+            return stateNameGetter;
+        }
+
+        public void setStateNameGetter(Func1<String, String> stateNameGetter) {
+            this.stateNameGetter = stateNameGetter;
+        }
+    }
+
+    public static enum ApprovalNodeType {
+        /** 普通节点 */
+        Normal,
+        /** 会签 */
+        All,
+        /** 或签 */
+        Any,
+        ;
     }
 
     public static class ApprovalDefinitionContainer extends BaseDefinitionContainer<ApprovalDefinitionContainer> {
@@ -85,22 +154,26 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     .setFlowName(flowName)
                     .setCancelable(cancelable)
                     .setFlowType(approvalType);
-            ApprovalDefinitionBuilder<ApprovalDefinitionContainer> definitionBuilder = 
-                new ApprovalDefinitionBuilder<>(this, flowDefinitionSetter);
+            
+            super.getContext().setCurrentDefinitionSetter(flowDefinitionSetter);
             super.put(approvalType, flowDefinitionSetter.get());
+
+            ApprovalDefinitionBuilder<ApprovalDefinitionContainer> definitionBuilder = new ApprovalDefinitionBuilder<>(super.getContext());
             return definitionBuilder;
+        }
+
+        public void setStateNameGetter(Func1<String, String> stateNameGetter) {
+            super.getContext().setStateNameGetter(stateNameGetter);
         }
 
     }
 
     public static class ApprovalDefinitionBuilder<TContainer> {
 
-        private final TContainer parent;
-        private final StateMachineFlowDefinitionSetter flowDefinitionSetter;
+        private final ApprovalDefinitionBuildingContext<TContainer> buildingContext;
 
-        public ApprovalDefinitionBuilder(TContainer parent, StateMachineFlowDefinitionSetter flowDefinitionSetter) {
-            this.parent = parent;
-            this.flowDefinitionSetter = flowDefinitionSetter;
+        public ApprovalDefinitionBuilder(ApprovalDefinitionBuildingContext<TContainer> buildingContext) {
+            this.buildingContext = buildingContext;
         }
 
         public ApprovalNodeSetter<TContainer> begin() {
@@ -108,6 +181,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         public ApprovalNodeSetter<TContainer> begin(String beginNodeCode, String beginNodeName) {
+            StateMachineFlowDefinitionSetter flowDefinitionSetter = buildingContext.getCurrentDefinitionSetter();
             StateMachineFlowNodeSetter nodeSetter = 
                 flowDefinitionSetter.beginNode()
                     .setNodeCode(beginNodeCode)
@@ -115,54 +189,72 @@ public class ApprovalManagerFactory<TApprovalQuery> {
             
             StateMachineFlowNode beginNode = nodeSetter.get();
             nodeSetter.add();
-            return new ApprovalNodeSetter<TContainer>(parent, beginNode, beginNode, () -> flowDefinitionSetter);
+            return new ApprovalNodeSetter<TContainer>(buildingContext, beginNode, beginNode);
         }
 
     }
 
     public static class ApprovalNodeSetter<TContainer> {
 
-        private final TContainer container;
+        private final ApprovalDefinitionBuildingContext<TContainer> buildingContext;
         private final StateMachineFlowNode beginNode;
         private final StateMachineFlowNode previousNode;
-        private final Func0<StateMachineFlowDefinitionSetter> definitionSetterFactory;
 
         public ApprovalNodeSetter(
-                TContainer container, 
+                ApprovalDefinitionBuildingContext<TContainer> buildingContext, 
                 StateMachineFlowNode beginNode,
-                StateMachineFlowNode previousNode, 
-                Func0<StateMachineFlowDefinitionSetter> definitionSetterFactory) {
-            this.container = container;
+                StateMachineFlowNode previousNode) {
+            this.buildingContext = buildingContext;
             this.beginNode = beginNode;
             this.previousNode = previousNode;
-            this.definitionSetterFactory = definitionSetterFactory;
         }
 
         public ApprovalNodeSetter<TContainer> next(String nodeCode, String nodeName) {
-            StateMachineFlowDefinitionSetter definitionSetter = definitionSetterFactory.call();
-            StateMachineFlowNodeSetter nodeSetter = 
-                definitionSetter.node()
+            StateMachineFlowDefinitionSetter definitionSetter = buildingContext.getCurrentDefinitionSetter();
+            StateMachineFlowNodeSetter nodeSetter = definitionSetter.node();
+            StateMachineFlowNode node = nodeSetter
                     .setNodeCode(nodeCode)
                     .setNodeName(nodeName)
                     .state()
                         .setStateCode(ApprovalStateCode.Denied)
-                        .setStateName(ApprovalStateCode.Denied)
+                        .setStateName(buildingContext.getStateNameGetter().call(ApprovalStateCode.Denied))
                         .setToNodeCode(beginNode.getNodeCode())
-                        .add();
-            StateMachineFlowNode node = nodeSetter.get();
+                        .add()
+                    .get();
             nodeSetter.add();
 
-            if(previousNode != null) {
-                linkState(
-                    definitionSetter.get().createFlowState(), 
-                    previousNode, 
-                    previousNode.isBeginNode() ? ApprovalStateCode.Checking : ApprovalStateCode.Approved, 
-                    node.getNodeCode());
-            }
+            return createNextSetter(node);
+        }
 
-            ApprovalNodeSetter<TContainer> next = 
-                new ApprovalNodeSetter<>(container, beginNode, node, definitionSetterFactory);
-            return next;
+        public ApprovalNodeSetter<TContainer> next(
+                String nodeCode, String nodeName, ApprovalNodeType nodeType, Action1<StateMachineCompositeNodeSetter> addPartial) {
+
+            StateMachineFlowDefinitionSetter definitionSetter = buildingContext.getCurrentDefinitionSetter();
+            StateMachineCompositeNodeSetter nodeSetter;
+            if(nodeType == ApprovalNodeType.All) {
+                nodeSetter = definitionSetter.compositeNode(node -> node.resolveState(ApprovalStateCode.Approved, ApprovalStateCode.Denied));
+            } else if(nodeType == ApprovalNodeType.Any) {
+                nodeSetter = definitionSetter.compositeNode(node -> node.resolveState(ApprovalStateCode.Denied, ApprovalStateCode.Approved));
+            } else {
+                return next(nodeCode, nodeName);
+            }
+            
+            StateMachineCompositeNode node = nodeSetter
+                .setNodeCode(nodeCode)
+                .setNodeName(nodeName)
+                .setNodeType(StateMachineFlowNodeType.NormalNode)
+                    .state()
+                        .setStateCode(ApprovalStateCode.Denied)
+                        .setStateName(buildingContext.getStateNameGetter().call(ApprovalStateCode.Denied))
+                        .setToNodeCode(beginNode.getNodeCode())
+                        .add()
+                .get();
+            if(addPartial != null) {
+                addPartial.apply(nodeSetter);
+            }
+            nodeSetter.add();
+
+            return createNextSetter(node);
         }
 
         public TContainer end() {
@@ -170,11 +262,11 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         public TContainer end(String nodeCode, String nodeName) {
-            StateMachineFlowDefinitionSetter definitionSetter = definitionSetterFactory.call();
+            StateMachineFlowDefinitionSetter definitionSetter = buildingContext.getCurrentDefinitionSetter();
             definitionSetter
                 .endNode()
                     .setNodeCode(nodeCode)
-                    .setNodeName(nodeName)
+                    .setNodeName(buildingContext.getStateNameGetter().call(nodeCode))
                     .add();
                 
             if(previousNode != null) {
@@ -184,15 +276,28 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     ApprovalStateCode.Approved, 
                     nodeCode);
             }
-            return container;
+            return buildingContext.getContainer();
+        }
+
+        private ApprovalNodeSetter<TContainer> createNextSetter(StateMachineFlowNode node) {
+            if(previousNode != null) {
+                StateMachineFlowDefinitionSetter definitionSetter = buildingContext.getCurrentDefinitionSetter();
+                linkState(
+                    definitionSetter.get().createFlowState(), 
+                    previousNode, 
+                    previousNode.isBeginNode() ? ApprovalStateCode.Checking : ApprovalStateCode.Approved, 
+                    node.getNodeCode());
+            }
+
+            ApprovalNodeSetter<TContainer> next = 
+                new ApprovalNodeSetter<>(buildingContext, beginNode, node);
+            return next;
         }
 
         private void linkState(StateMachineFlowState state, StateMachineFlowNode node, String stateCode, String toNodeCode) {
             if(previousNode != null) {
                 state.setStateCode(stateCode);
-                if(state.getStateName() != null) {
-                    state.setStateName(stateCode);
-                }
+                state.setStateName(buildingContext.getStateNameGetter().call(stateCode));
                 state.setToNodeCode(toNodeCode);
                 previousNode.addState(state);
             }

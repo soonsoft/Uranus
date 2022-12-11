@@ -6,6 +6,7 @@ import org.junit.Test;
 import com.soonsoft.uranus.services.approval.ApprovalManagerFactory;
 import com.soonsoft.uranus.services.approval.IApprovalManager;
 import com.soonsoft.uranus.services.approval.IApprovalRepository;
+import com.soonsoft.uranus.services.approval.ApprovalManagerFactory.ApprovalNodeType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalData;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
@@ -31,6 +32,20 @@ public class SimpleApprovalManagerTest {
                     .definition("信息变更", "EditAccountInfo", "KYC信息更新", false)
                         .begin()
                         .next("KYC复核", "KYC复核")
+                        .next(
+                            "香港合规审核", 
+                            "香港合规审核", 
+                            ApprovalNodeType.All, 
+                            node -> 
+                                node.partial()
+                                        .setItemCode("法务审核")
+                                        .setItemName("法务审核")
+                                        .add()
+                                    .partial()
+                                        .setItemCode("RO审核")
+                                        .setItemName("RO审核")
+                                        .add()
+                        )
                         .end()
             );
 

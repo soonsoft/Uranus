@@ -11,7 +11,7 @@ import com.soonsoft.uranus.services.workflow.model.FlowNode;
  */
 public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> {
 
-    private StateMachineFlowNodeType nodeType;
+    private StateMachineFlowNodeType nodeType = StateMachineFlowNodeType.NormalNode;
 
     public StateMachineFlowNodeType getNodeType() {
         return nodeType;
