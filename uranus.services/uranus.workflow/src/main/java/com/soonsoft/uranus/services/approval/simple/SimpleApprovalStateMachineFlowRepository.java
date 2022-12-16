@@ -10,6 +10,7 @@ import com.soonsoft.uranus.services.approval.model.ApprovalActionType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
+import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
 import com.soonsoft.uranus.services.approval.simple.SimpleApprovalManager.ApprovalRecordHolder;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.IStateMachineFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
@@ -56,7 +57,7 @@ public class SimpleApprovalStateMachineFlowRepository
 
     @Override
     public void create(StateMachineFlowDefinition definition, FlowActionParameter parameter) {
-        // 不做处理
+        // 因为submit时会将Flow Engine的start与第一步action合并，所以针对start对应的create接口不做处理
     }
 
     @Override
@@ -65,18 +66,23 @@ public class SimpleApprovalStateMachineFlowRepository
 
         ApprovalRecord record = recordHolder.getRecord();
         record.setFlowState(stateParam);
-        
-        ApprovalHistoryRecord historyRecord = null;
+
+        if(ApprovalStateCode.Checking.equals(stateParam.getStateCode())) {
+            approvalRepository.create(record, recordHolder.getHistoryRecord());
+            return;
+        }
 
         if(stateParam instanceof StateMachineFlowCancelState) {
-            approvalRepository.saveCancelState(record, historyRecord);
+            approvalRepository.saveCancelState(record, recordHolder.getHistoryRecord());
             return;
         }
         
+        ApprovalHistoryRecord historyRecord = null;
         LinkedList<ApprovalHistoryRecord> historyRecordList = new LinkedList<>();
 
         StateMachineFlowState lastState = stateParam;
         while(lastState != null) {
+            // 复杂节点由于存在PartialItem所以State存在嵌套结构，需要在此展开
             if(lastState instanceof StateMachinePartialState) {
                 historyRecord = new ApprovalHistoryRecord();
                 historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
@@ -95,7 +101,7 @@ public class SimpleApprovalStateMachineFlowRepository
 
     @Override
     public List<StateMachinePartialItem> getPratialItems(StateMachineFlowNode compositeNode) {
-        // TODO Auto-generated method stub
+        // 如果有复杂节点的，需要实现该接口
         return null;
     }
 

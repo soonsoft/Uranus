@@ -9,7 +9,7 @@ public interface IApprovalRepository {
 
     ApprovalRecord getApprovalRecord(String recordCode);
 
-    void create(ApprovalRecord record);
+    void create(ApprovalRecord record, ApprovalHistoryRecord historyRecord);
 
     void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords);
 

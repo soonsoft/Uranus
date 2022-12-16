@@ -15,7 +15,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
     }
 
     @Override
-    public void create(ApprovalRecord record) {
+    public void create(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
         // TODO Auto-generated method stub
         
     }
