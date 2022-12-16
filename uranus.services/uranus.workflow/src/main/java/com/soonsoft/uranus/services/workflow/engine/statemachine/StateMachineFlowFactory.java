@@ -70,10 +70,10 @@ public class StateMachineFlowFactory<TFlowQuery>
             definition.setStatus(FlowStatus.Canceled);
         } else {
             if(currentNode instanceof StateMachineCompositeNode compositeNode) {
-                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPratialItems(compositeNode);
+                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPartialItems(compositeNode);
                 compositeNode.setAllState(partialItemListWithState);
             } else if (currentNode instanceof StateMachineParallelNode parallelNode) {
-                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPratialItems(parallelNode);
+                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPartialItems(parallelNode);
                 parallelNode.setAllState(partialItemListWithState);
             }
 

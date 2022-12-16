@@ -52,7 +52,7 @@ public class StateMachineFlowRepository
     }
 
     @Override
-    public List<StateMachinePartialItem> getPratialItems(StateMachineFlowNode compositeNode) {
+    public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
         // TODO Auto-generated method stub
         return null;
     }
