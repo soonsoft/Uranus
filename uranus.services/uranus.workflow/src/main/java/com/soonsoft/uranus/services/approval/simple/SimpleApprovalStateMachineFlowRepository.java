@@ -10,7 +10,6 @@ import com.soonsoft.uranus.services.approval.model.ApprovalActionType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
-import com.soonsoft.uranus.services.approval.simple.SimpleApprovalManager.ApprovalRecordHolder;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.IStateMachineFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;

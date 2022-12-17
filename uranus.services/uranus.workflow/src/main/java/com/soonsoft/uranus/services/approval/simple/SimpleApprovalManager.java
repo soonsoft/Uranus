@@ -279,42 +279,4 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         Guard.notEmpty(parameter.getRecordCode(), "the parameter.recordCode is required.");
     }
 
-    //#region model
-
-    public static class ApprovalRecordHolder extends FlowActionParameter implements IPartialItemCode {
-
-        private String itemCode;
-        private ApprovalRecord record;
-        private ApprovalHistoryRecord historyRecord;
-
-        public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
-            this(record, historyRecord, null);
-        }
-
-        public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord, String itemCode) {
-            this.record = record;
-            this.historyRecord = historyRecord;
-            this.itemCode = itemCode;
-
-            this.setOperator(historyRecord.getOperator());
-            this.setOperatorName(historyRecord.getOperatorName());
-            this.setOperateTime(historyRecord.getOperateTime());
-        }
-
-        public ApprovalRecord getRecord() {
-            return record;
-        }
-
-        public ApprovalHistoryRecord getHistoryRecord() {
-            return historyRecord;
-        }
-
-        @Override
-        public String getItemCode() {
-            return itemCode;
-        }
-    }
-
-    //#endregion
-
 }

@@ -8,16 +8,16 @@ import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 
 public class ApprovalRepositoryImpl implements IApprovalRepository {
 
+    private ApprovalRecord currentRecord;
+
     @Override
     public ApprovalRecord getApprovalRecord(String recordCode) {
-        // TODO Auto-generated method stub
-        return null;
+        return currentRecord;
     }
 
     @Override
     public void create(ApprovalRecord record) {
-        // TODO Auto-generated method stub
-        
+        this.currentRecord = record;
     }
 
     @Override

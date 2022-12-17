@@ -63,6 +63,8 @@ public class SimpleApprovalManagerTest {
 
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
+
+        
     }
     
 }
