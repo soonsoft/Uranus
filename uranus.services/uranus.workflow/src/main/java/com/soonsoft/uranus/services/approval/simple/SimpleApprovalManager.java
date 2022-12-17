@@ -142,7 +142,8 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         if(definition == null) {
             throw new ApprovalException("cannot load definition");
         }
-
+        
+        record.setStatus(ApprovalStatus.Canceled);
         StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);
         ApprovalHistoryRecord historyRecord = 
             createApprovalHistoryRecord(parameter, record, ApprovalActionType.Cancel, hr -> {
@@ -157,6 +158,15 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
     public ApprovalRecord getApprovalRecord(String recordCode) {
         Guard.notEmpty(recordCode, "the parameter recordCode is required.");
         return approvalRepository.getApprovalRecord(recordCode);
+    }
+
+    @Override
+    public StateMachineFlowDefinition getFlowDefinition(String approvalType) {
+        StateMachineFlowDefinition definition = definitionGetter.call(approvalType);
+        if(definition == null) {
+            throw new ApprovalException("cannot find definition by type[%s]", approvalType);
+        }
+        return definition;
     }
 
     @Override
@@ -246,14 +256,6 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         }
 
         return record;
-    }
-
-    private StateMachineFlowDefinition getFlowDefinition(String approvalType) {
-        StateMachineFlowDefinition definition = definitionGetter.call(approvalType);
-        if(definition == null) {
-            throw new ApprovalException("cannot find definition by type[%s]", approvalType);
-        }
-        return definition;
     }
 
     private ApprovalRecord fillApprovalRecord(ApprovalRecord record, ApprovalCreateParameter parameter) {

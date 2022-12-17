@@ -1,24 +1,27 @@
 package com.soonsoft.uranus.util.identity;
 
 import com.soonsoft.uranus.util.identity.flake.SnowFlakeGenerator;
+import com.soonsoft.uranus.util.identity.guid.GuidGenerator;
 
-/**
- * ID
- */
 public class ID {
 
-    private static SnowFlakeGenerator generator = new SnowFlakeGenerator();
+    private static SnowFlakeGenerator snowFlakeGenerator = new SnowFlakeGenerator();
+    private static GuidGenerator guidGenerator = new GuidGenerator();
 
     static {
-        generator.initialize(1);
+        snowFlakeGenerator.initialize(1);
+    }
+
+    public static String newGuid() {
+        return guidGenerator.newID();
     }
 
     public static long newID() {
-        return generator.newID();
+        return snowFlakeGenerator.newID();
     }
 
     public static SnowFlakeGenerator getGenerator() {
-        return generator;
+        return snowFlakeGenerator;
     }
     
 }

@@ -2,6 +2,7 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
 import java.util.List;
 
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.core.functional.predicate.Predicate1;
 import com.soonsoft.uranus.core.functional.predicate.Predicate2;
@@ -99,11 +100,21 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
 
     //#endregion
 
+    public StateMachineFlowNode getBeginNode() {
+        return findNode(n -> n.getNodeType() == StateMachineFlowNodeType.BeginNode);
+    }
+
+    public StateMachineFlowNode getEndNode() {
+        return findNode(n -> n.getNodeType() == StateMachineFlowNodeType.EndNode);
+    }
+
     public StateMachineFlowNode findNode(String nodeCode) {
         List<StateMachineFlowNode> nodeList = getNodeList();
-        for(StateMachineFlowNode node : nodeList) {
-            if(node.getNodeCode().equals(nodeCode)) {
-                return node;
+        if(!CollectionUtils.isEmpty(nodeList)) {
+            for(StateMachineFlowNode node : nodeList) {
+                if(node.getNodeCode().equals(nodeCode)) {
+                    return node;
+                }
             }
         }
         return null;
@@ -111,9 +122,11 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
 
     public StateMachineFlowNode findNode(Predicate1<StateMachineFlowNode> predicate) {
         List<StateMachineFlowNode> nodeList = getNodeList();
-        for(StateMachineFlowNode node : nodeList) {
-            if(predicate.test(node)) {
-                return node;
+        if(!CollectionUtils.isEmpty(nodeList)) {
+            for(StateMachineFlowNode node : nodeList) {
+                if(predicate.test(node)) {
+                    return node;
+                }
             }
         }
         return null;

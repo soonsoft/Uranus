@@ -2,7 +2,6 @@ package com.soonsoft.uranus.services.approval;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.functional.func.Func0;
@@ -20,6 +19,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNodeType;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.util.identity.ID;
 
 public class ApprovalManagerFactory<TApprovalQuery> {
 
@@ -28,7 +28,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
             IApprovalRepository approvalRepository,
             ApprovalDefinitionContainer definitionContainer) {
 
-        return createManager(query, approvalRepository, () ->  UUID.randomUUID().toString(), definitionContainer);
+        return createManager(query, approvalRepository, () -> ID.newGuid(), definitionContainer);
 
     }
 
@@ -52,6 +52,8 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         contianer.setStateNameGetter(stateNameGetter);
         return contianer;
     }
+
+    //#region DefinitionContainer 构建器
 
     public static abstract class BaseDefinitionContainer<T extends BaseDefinitionContainer<T>> {
         private final Map<String, StateMachineFlowDefinition> map;
@@ -147,10 +149,10 @@ public class ApprovalManagerFactory<TApprovalQuery> {
 
     public static class ApprovalDefinitionContainer extends BaseDefinitionContainer<ApprovalDefinitionContainer> {
         
-        public ApprovalDefinitionBuilder<ApprovalDefinitionContainer> definition(String approvalType, String flowCode, String flowName, boolean cancelable) {
+        public ApprovalDefinitionBuilder<ApprovalDefinitionContainer> definition(String approvalType, String flowName, boolean cancelable) {
             StateMachineFlowDefinitionSetter flowDefinitionSetter = 
                 StateMachineFlowFactory.builder()
-                    .setFlowCode(flowCode)
+                    .setFlowCode(approvalType) // FlowCode 就是 approvalType
                     .setFlowName(flowName)
                     .setCancelable(cancelable)
                     .setFlowType(approvalType);
@@ -287,6 +289,11 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     previousNode, 
                     previousNode.isBeginNode() ? ApprovalStateCode.Checking : ApprovalStateCode.Approved, 
                     node.getNodeCode());
+                linkState(
+                    definitionSetter.get().createFlowState(), 
+                    node, 
+                    ApprovalStateCode.Revoked, 
+                    previousNode.getNodeCode());
             }
 
             ApprovalNodeSetter<TContainer> next = 
@@ -295,14 +302,14 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         private void linkState(StateMachineFlowState state, StateMachineFlowNode node, String stateCode, String toNodeCode) {
-            if(previousNode != null) {
-                state.setStateCode(stateCode);
-                state.setStateName(buildingContext.getStateNameGetter().call(stateCode));
-                state.setToNodeCode(toNodeCode);
-                previousNode.addState(state);
-            }
+            state.setStateCode(stateCode);
+            state.setStateName(buildingContext.getStateNameGetter().call(stateCode));
+            state.setToNodeCode(toNodeCode);
+            node.addState(state);
         }
 
     }
+
+    //#endregion
     
 }

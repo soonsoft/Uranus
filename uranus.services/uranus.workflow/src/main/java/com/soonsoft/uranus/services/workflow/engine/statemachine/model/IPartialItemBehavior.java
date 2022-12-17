@@ -61,6 +61,7 @@ public interface IPartialItemBehavior extends IForEach<StateMachinePartialItem> 
      * 循环处理
      * @param action 循环处理函数，可以通过 ForEachBehavior 实现break操作
      */
+    @Override
     default void forEach(Action3<StateMachinePartialItem, Integer, ForEachBehavior> action) {
         Guard.notNull(action, "the parameter action is required.");
 

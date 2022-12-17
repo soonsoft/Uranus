@@ -4,9 +4,6 @@ import java.util.UUID;
 
 import com.soonsoft.uranus.util.identity.IdentityGenerator;
 
-/**
- * GuidGenerator
- */
 public class GuidGenerator implements IdentityGenerator<String> {
 
     @Override

@@ -6,6 +6,7 @@ import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 
 public interface IApprovalManager<TApprovalQuery> {
 
@@ -40,7 +41,6 @@ public interface IApprovalManager<TApprovalQuery> {
 
     /**
      * 审核操作 - 批准
-     * @param recordCode 审核单编码
      * @param parameter 审核参数
      * @return 审核单信息
      */
@@ -52,7 +52,6 @@ public interface IApprovalManager<TApprovalQuery> {
 
     /**
      * 审核操作 - 拒绝
-     * @param recordCode 审核单编码
      * @param parameter 审核参数
      * @return 审核单信息
      */
@@ -74,6 +73,13 @@ public interface IApprovalManager<TApprovalQuery> {
      * @return 审批记录信息
      */
     ApprovalRecord getApprovalRecord(String recordCode);
+
+    /**
+     * 获取审核流程定义
+     * @param approvalType 审核类型
+     * @return 流程定义信息
+     */
+    StateMachineFlowDefinition getFlowDefinition(String approvalType);
 
     /**
      * 返回查询对象

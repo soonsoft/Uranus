@@ -10,6 +10,7 @@ import com.soonsoft.uranus.services.approval.model.ApprovalActionType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
+import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.IStateMachineFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
@@ -98,7 +99,7 @@ public class SimpleApprovalStateMachineFlowRepository
     }
 
     @Override
-    public List<StateMachinePartialItem> getPratialItems(StateMachineFlowNode compositeNode) {
+    public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
         // 如果有复杂节点的，需要实现该接口
         return null;
     }
