@@ -100,7 +100,7 @@ public class SimpleApprovalStateMachineFlowRepository
 
     @Override
     public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
-        // 如果有复杂节点的，需要实现该接口
+        //TODO 复杂节点的，需要实现该接口
         return null;
     }
 
