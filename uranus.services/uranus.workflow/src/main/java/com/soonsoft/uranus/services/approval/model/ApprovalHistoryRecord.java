@@ -24,6 +24,8 @@ public class ApprovalHistoryRecord {
     private Object previousHistoryId;
     /** 历史状态信息 */
     private FlowState flowState;
+    /** 复合节点特有数据，用于标识PartialItem数据 */
+    private String compositionActionCode;
 
     public Object getId() {
         return id;
@@ -88,4 +90,10 @@ public class ApprovalHistoryRecord {
         this.flowState = flowState;
     }
 
+    public String getCompositionActionCode() {
+        return compositionActionCode;
+    }
+    public void setCompositionActionCode(String compositionActionCode) {
+        this.compositionActionCode = compositionActionCode;
+    }
 }

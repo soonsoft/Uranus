@@ -81,7 +81,8 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         public StateMachineFlowDefinition get(String approvalType) {
-            return map.get(approvalType);
+            StateMachineFlowDefinition prototypeDefinition = map.get(approvalType);
+            return prototypeDefinition.copy();
         }
 
         @SuppressWarnings("unchecked")
@@ -289,11 +290,14 @@ public class ApprovalManagerFactory<TApprovalQuery> {
                     previousNode, 
                     previousNode.isBeginNode() ? ApprovalStateCode.Checking : ApprovalStateCode.Approved, 
                     node.getNodeCode());
-                linkState(
-                    definitionSetter.get().createFlowState(), 
-                    node, 
-                    ApprovalStateCode.Revoked, 
-                    previousNode.getNodeCode());
+                // 只有发起节点可以撤回操作
+                if(previousNode.isBeginNode()) {
+                    linkState(
+                        definitionSetter.get().createFlowState(), 
+                        node, 
+                        ApprovalStateCode.Revoked, 
+                        previousNode.getNodeCode());
+                }
             }
 
             ApprovalNodeSetter<TContainer> next = 

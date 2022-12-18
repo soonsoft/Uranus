@@ -4,6 +4,8 @@ public class ApprovalData {
 
     /** 审核数据 ID */
     private Object id;
+    /** 提交历史纪录标识，区分多次提交的不同数据 */
+    private Object submitHistoryId;
     /** 审核目标类型（标识 targetID 与 originalID */
     private String targetType;
     /** 审核目标数据 ID */
@@ -16,6 +18,13 @@ public class ApprovalData {
     }
     public void setId(Object id) {
         this.id = id;
+    }
+
+    public Object getSubmitHistoryId() {
+        return submitHistoryId;
+    }
+    public void setSubmitHistoryId(Object submitHistoryId) {
+        this.submitHistoryId = submitHistoryId;
     }
 
     public String getTargetType() {

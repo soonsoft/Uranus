@@ -6,6 +6,8 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.services.approval.IApprovalRepository;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 
 public class ApprovalRepositoryImpl implements IApprovalRepository {
 
@@ -14,6 +16,12 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
     @Override
     public ApprovalRecord getApprovalRecord(String recordCode) {
         return currentRecord;
+    }
+
+    @Override
+    public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

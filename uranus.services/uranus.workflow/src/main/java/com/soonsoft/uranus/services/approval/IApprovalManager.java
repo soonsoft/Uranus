@@ -25,12 +25,11 @@ public interface IApprovalManager<TApprovalQuery> {
     ApprovalRecord resubmit(ApprovalParameter parameter);
 
     /**
-     * 撤回（当前节点未审批之前，前一个节点可以将流程倒回）
-     * @param previousNodeCode 发起撤回操作的节点
+     * 撤回（未审批之前，制单人可以将流程倒回）
      * @param parameter 撤回参数
      * @return 审核记录
      */
-    ApprovalRecord revoke(String previousNodeCode, ApprovalParameter parameter);
+    ApprovalRecord revoke(ApprovalParameter parameter);
 
     /**
      * 审核操作 - 批准 or 拒绝
@@ -66,6 +65,8 @@ public interface IApprovalManager<TApprovalQuery> {
      * @param parameter 审核参数信息
      */
     void cancel(ApprovalParameter parameter);
+
+    // TODO： 支持加签、减签（动态调整 partial item）
 
     /**
      * 获取审批记录

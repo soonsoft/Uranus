@@ -76,5 +76,25 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
         }
         return stateCode;
     }
+
+    @Override
+    public StateMachineCompositeNode copy() {
+        StateMachineCompositeNode copyCompositeNode = new StateMachineCompositeNode(this.getResolveStateCodeFn());
+        copy(this, copyCompositeNode);
+        return copyCompositeNode;
+    }
+
+    public static void copy(StateMachineCompositeNode source, StateMachineCompositeNode dist) {
+        StateMachineFlowNode.copy(source, dist);
+        if(source.getPartialItemList() != null) {
+            for(StateMachinePartialItem partialItem : source.getPartialItemList()) {
+                dist.addPartialItem(partialItem.copy());
+            }
+        }
+    }
+
+    protected Func1<StateMachineCompositeNode, String> getResolveStateCodeFn() {
+        return resolveStateCodeFn;
+    }
     
 }

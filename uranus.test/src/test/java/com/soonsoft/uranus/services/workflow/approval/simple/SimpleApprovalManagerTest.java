@@ -124,7 +124,7 @@ public class SimpleApprovalManagerTest {
         ApprovalParameter resubmitParam = new ApprovalParameter();
         resubmitParam.setRecordCode(record.getRecordCode());
         setOperator(resubmitParam, "制单人");
-        record = manager.revoke(beginNodeCode, resubmitParam);
+        record = manager.revoke(resubmitParam);
 
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals(beginNodeCode));
 

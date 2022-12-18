@@ -50,6 +50,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineParallelNode extends StateMachineGatewayNode implements IPartialItemBehavior {
+
         private List<StateMachinePartialItem> parallelNodeItems;
         private Func1<String, StateMachineFlowNode> findFlowNodeFn;
 
@@ -97,11 +98,31 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         }
 
         @Override
+        public StateMachineParallelNode copy() {
+            StateMachineParallelNode copyNode = new StateMachineParallelNode(this.getFindFlowNodeFn());
+            copy(this, copyNode);
+            return copyNode;
+        }
+
+        @Override
         protected boolean predicate(StateMachineFlowState state, Object data) {
             if(state instanceof StateMachineParallelState parallelState) {
                 return parallelState.predicate(data, this);
             }
             return false;
+        }
+
+        protected Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
+            return findFlowNodeFn;
+        }
+
+        public static void copy(StateMachineParallelNode source, StateMachineParallelNode dist) {
+            StateMachineFlowNode.copy(source, dist);
+            if(source.getPartialItemList() != null) {
+                for(StateMachinePartialItem partialItem : source.getPartialItemList()) {
+                    dist.addPartialItem(partialItem.copy());
+                }
+            }
         }
     }
 
@@ -119,6 +140,11 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         public boolean predicate(Object data, TNode node) {
             return conditionFn != null ? conditionFn.test(data, node) : false;
         }
+
+        protected Predicate2<Object, TNode> getConditionFn() {
+            return conditionFn;
+        }
+
     }
 
     public static class StateMachineForkState extends StateMachineGatewayState<StateMachineForkNode> {
@@ -126,6 +152,18 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         public StateMachineForkState(Predicate2<Object, StateMachineForkNode> conditionFn) {
             super(conditionFn);
         }
+
+        @Override
+        public StateMachineForkState copy() {
+            StateMachineForkState copyState = new StateMachineForkState(this.getConditionFn());
+            copy(this, copyState);
+            return copyState;
+        }
+
+        public static void copy(StateMachineForkState source, StateMachineForkState dist) {
+            StateMachineFlowState.copy(source, dist);
+        }
+
     }
 
     public static class StateMachineParallelState extends StateMachineGatewayState<StateMachineParallelNode> {
@@ -133,6 +171,18 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         public StateMachineParallelState(Predicate2<Object, StateMachineParallelNode> conditionFn) {
             super(conditionFn);
         }
+
+        @Override
+        public StateMachineParallelState copy() {
+            StateMachineParallelState copyState = new StateMachineParallelState(this.getConditionFn());
+            copy(this, copyState);
+            return copyState;
+        }
+
+        public static void copy(StateMachineParallelState source, StateMachineParallelState dist) {
+            StateMachineFlowState.copy(source, dist);
+        }
+
     }
 
     //#endregion

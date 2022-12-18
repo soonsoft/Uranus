@@ -20,8 +20,9 @@ import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.approval.model.ApprovalTargetInfo;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFLowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
@@ -81,7 +82,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
     }
 
     @Override
-    public ApprovalRecord revoke(String previousNodeCode, ApprovalParameter parameter) {
+    public ApprovalRecord revoke(ApprovalParameter parameter) {
         checkParameter(parameter);
         Guard.notEmpty("nodeCode", "the parameter nodeCode is required.");
 
@@ -92,16 +93,16 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
             throw new ApprovalException("cannot find ApprovalRecord by recordCode[%s]", recordCode);
         }
 
-        StateMachineFlowState currentState = record.getFlowState();
-        if(!previousNodeCode.equals(currentState.getNodeCode())) {
-            throw new ApprovalException(
-                "the previousNodeCode[%s] was not matched, current previous node code is [%s]", 
-                previousNodeCode, currentState.getNodeCode());
-        }
-
         StateMachineFlowDefinition definition = flowFactory.loadDefinition(record);
         if(definition == null) {
             throw new ApprovalException("cannot load definition");
+        }
+
+        StateMachineFlowState currentState = record.getFlowState();
+        String previousNodeCode = currentState.getNodeCode();
+        StateMachineFlowNode previousNode = definition.findNode(currentState.getNodeCode());
+        if(!previousNode.isBeginNode()) {
+            throw new ApprovalException("the previousNodeCode[%s] can not support revoke.", previousNodeCode);
         }
 
         StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);
@@ -142,6 +143,8 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         if(definition == null) {
             throw new ApprovalException("cannot load definition");
         }
+
+        // TODO: 复合节点如何处理取消？
         
         record.setStatus(ApprovalStatus.Canceled);
         StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);

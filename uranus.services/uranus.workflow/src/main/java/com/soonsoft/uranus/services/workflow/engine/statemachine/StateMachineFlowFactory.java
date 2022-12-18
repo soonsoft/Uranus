@@ -53,6 +53,7 @@ public class StateMachineFlowFactory<TFlowQuery>
         if(state == null) {
             throw new FlowException("cannot find StateMachineFlowState by parameter[%s]", parameter);
         }
+        // 这里必须是一个副本，definition每次需要承载状态，所以每个Flow Engine应该是单独一份
         StateMachineFlowDefinition definition = getRepository().getDefinition(state.getFlowCode());
 
         state.setFindFlowNodeFn(definition::findNode);

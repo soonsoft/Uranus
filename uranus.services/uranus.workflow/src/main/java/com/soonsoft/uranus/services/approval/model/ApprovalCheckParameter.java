@@ -1,6 +1,6 @@
 package com.soonsoft.uranus.services.approval.model;
 
-import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 
 /**
  * 审核参数

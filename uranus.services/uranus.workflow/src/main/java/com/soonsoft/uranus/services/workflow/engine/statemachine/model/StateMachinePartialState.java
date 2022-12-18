@@ -44,4 +44,16 @@ public class StateMachinePartialState extends StateMachineFlowState {
         return null;
     }
 
+    @Override
+    public StateMachinePartialState copy() {
+        StateMachinePartialState copyPartialState = new StateMachinePartialState(
+            this.getActionPartialItem().copy(), (StateMachineCompositeNode) this.getFromNode().copy());
+        copy(this, copyPartialState);
+        return copyPartialState;
+    }
+
+    public static void copy(StateMachinePartialState source, StateMachinePartialState dist) {
+        StateMachineFlowState.copy(source, dist);
+    }
+
 }

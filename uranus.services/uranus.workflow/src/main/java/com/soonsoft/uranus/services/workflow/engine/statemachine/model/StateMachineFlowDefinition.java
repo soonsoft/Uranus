@@ -12,7 +12,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelState;
 import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 
-public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowNode> {
+public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowNode> implements ICopy<StateMachineFlowDefinition> {
 
     private String currentNodeCode;
 
@@ -130,5 +130,41 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
             }
         }
         return null;
+    }
+
+    @Override
+    public StateMachineFlowDefinition copy() {
+        StateMachineFlowDefinition copyDefinition = new StateMachineFlowDefinition();
+        copy(this, copyDefinition);
+        return copyDefinition;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return copy();
+    }
+
+    public static void copy(StateMachineFlowDefinition source, StateMachineFlowDefinition dist) {
+        dist.setId(source.getId());
+        dist.setFlowCode(source.getFlowCode());
+        dist.setFlowName(source.getFlowName());
+        dist.setFlowType(source.getFlowType());
+        dist.setStatus(source.getStatus());
+        dist.setDescription(source.getDescription());
+        dist.setPreviousNodeCode(source.getPreviousNodeCode());
+        dist.setPreviousStateCode(source.getPreviousStateCode());
+        dist.setCurrentNodeCode(source.getCurrentNodeCode());
+
+        if(source.getNodeList() != null) {
+            for(StateMachineFlowNode node : source.getNodeList()) {
+                StateMachineFlowNode copyNode = node.copy();
+                if(copyNode.getStateList() != null) {
+                    for(StateMachineFlowState state : copyNode.getStateList()) {
+                        state.setFindFlowNodeFn(dist::findNode);
+                    }
+                }
+                dist.addNode(copyNode);
+            }
+        }
     }
 }

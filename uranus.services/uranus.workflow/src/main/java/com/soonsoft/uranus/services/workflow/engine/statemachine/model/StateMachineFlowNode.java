@@ -9,7 +9,7 @@ import com.soonsoft.uranus.services.workflow.model.FlowNode;
 /**
  * 普通流程节点
  */
-public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> {
+public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> implements ICopy<StateMachineFlowNode> {
 
     private StateMachineFlowNodeType nodeType = StateMachineFlowNodeType.NormalNode;
 
@@ -45,5 +45,31 @@ public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> {
             return super.addState(state);
         }
         return false;
+    }
+
+    @Override
+    public StateMachineFlowNode copy() {
+        StateMachineFlowNode copyNode = new StateMachineFlowNode();
+        copy(this, copyNode);
+        return copyNode;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return copy();
+    }
+
+    public static void copy(StateMachineFlowNode source, StateMachineFlowNode dist) {
+        dist.setId(source.getId());
+        dist.setFlowCode(source.getFlowCode());
+        dist.setNodeCode(source.getNodeCode());
+        dist.setNodeName(source.getNodeName());
+        dist.setNodeType(source.getNodeType());
+
+        if(source.getStateList() != null) {
+            for(StateMachineFlowState state : source.getStateList()) {
+                dist.addState(state.copy());
+            }
+        }
     }
 }

@@ -38,5 +38,16 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
     public static boolean isCancelState(String stateCode) {
         return CANCEL_STATE_CODE.equals(stateCode);
     }
+
+    @Override
+    public StateMachineFlowState copy() {
+        StateMachineFlowCancelState copyCancelState = new StateMachineFlowCancelState(null);
+        copy(this, copyCancelState);
+        return copyCancelState;
+    }
+
+    public static void copy(StateMachineFlowCancelState source, StateMachineFlowCancelState dist) {
+        dist.setNodeCode(source.getNodeCode());
+    }
     
 }

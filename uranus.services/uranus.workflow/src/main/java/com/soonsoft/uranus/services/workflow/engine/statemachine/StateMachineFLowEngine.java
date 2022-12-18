@@ -6,7 +6,7 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;

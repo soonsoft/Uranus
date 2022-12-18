@@ -34,6 +34,8 @@ public class ApprovalRecord {
     private Object beginHistoryId;
     /** 审核记录当前操作历史 ID */
     private Object currentHistoryId;
+    /** 复合节点特有数据，用于标识PartialItem数据 */
+    private String compositionActionCode;
     /** 审核历史列表 */
     private List<ApprovalHistoryRecord> historyRecordList;
 
@@ -128,6 +130,13 @@ public class ApprovalRecord {
     }
     public void setCurrentHistoryId(Object currentHistoryId) {
         this.currentHistoryId = currentHistoryId;
+    }
+
+    public String getCompositionActionCode() {
+        return compositionActionCode;
+    }
+    public void setCompositionActionCode(String compositionActionCode) {
+        this.compositionActionCode = compositionActionCode;
     }
 
     public List<ApprovalHistoryRecord> getHistoryRecordList() {

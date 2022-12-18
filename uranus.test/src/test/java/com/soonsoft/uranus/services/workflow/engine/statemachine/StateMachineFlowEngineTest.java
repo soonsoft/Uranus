@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.behavior.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
