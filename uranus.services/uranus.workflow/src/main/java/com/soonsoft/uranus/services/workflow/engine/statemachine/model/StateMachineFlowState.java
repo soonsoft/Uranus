@@ -79,6 +79,7 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
         dict.setFromNodeId(source.getFromNodeId());
         dict.setNodeCode(source.getNodeCode());
         dict.setStateCode(source.getStateCode());
+        dict.setStateName(source.getStateName());
         dict.setToNodeCode(source.getToNodeCode());
         dict.setToNodeId(source.getToNodeId());
     }

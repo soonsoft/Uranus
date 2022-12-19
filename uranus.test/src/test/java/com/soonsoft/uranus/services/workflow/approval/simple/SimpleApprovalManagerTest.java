@@ -5,9 +5,11 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.common.struct.tuple.Tuple2;
 import com.soonsoft.uranus.services.approval.ApprovalManagerFactory;
 import com.soonsoft.uranus.services.approval.IApprovalManager;
 import com.soonsoft.uranus.services.approval.IApprovalRepository;
+import com.soonsoft.uranus.services.approval.ApprovalManagerFactory.ApprovalDefinitionContainer;
 import com.soonsoft.uranus.services.approval.ApprovalManagerFactory.ApprovalNodeType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalCreateParameter;
@@ -23,7 +25,9 @@ public class SimpleApprovalManagerTest {
     // 正向流程
     @Test
     public void test_normalApprove() {
-        IApprovalManager<SimpleApprovalQuery> manager = createApprovalManager();
+        Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer>  tuple2 = createApprovalManager();
+        IApprovalManager<SimpleApprovalQuery> manager = tuple2.getItem1();
+        ApprovalDefinitionContainer container = tuple2.getItem2();
         String approvalType = "开户审核";
 
         // 【提交审核】
@@ -39,8 +43,8 @@ public class SimpleApprovalManagerTest {
         submitParam.addApprovalData(approvalData);
         ApprovalRecord record = manager.submit(submitParam);
 
-        String beginNodeCode = manager.getFlowDefinition(record.getApprovalType()).getBeginNode().getNodeCode();
-        String endNodeCode = manager.getFlowDefinition(record.getApprovalType()).getEndNode().getNodeCode();
+        String beginNodeCode = container.get(record.getApprovalType()).getBeginNode().getNodeCode();
+        String endNodeCode = container.get(record.getApprovalType()).getEndNode().getNodeCode();
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
@@ -99,7 +103,9 @@ public class SimpleApprovalManagerTest {
     // 撤回与取消测试
     @Test
     public void test_revokeAndCancel() {
-        IApprovalManager<SimpleApprovalQuery> manager = createApprovalManager();
+        Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer>  tuple2 = createApprovalManager();
+        IApprovalManager<SimpleApprovalQuery> manager = tuple2.getItem1();
+        ApprovalDefinitionContainer container = tuple2.getItem2();
         String approvalType = "开户审核";
 
         // 【提交审核】
@@ -115,7 +121,7 @@ public class SimpleApprovalManagerTest {
         submitParam.addApprovalData(approvalData);
         ApprovalRecord record = manager.submit(submitParam);
 
-        String beginNodeCode = manager.getFlowDefinition(record.getApprovalType()).getBeginNode().getNodeCode();
+        String beginNodeCode = container.get(record.getApprovalType()).getBeginNode().getNodeCode();
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
@@ -136,10 +142,10 @@ public class SimpleApprovalManagerTest {
 
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
 
-        // 【复核 通过】
+        // 【合规审核 通过】
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
-        setOperator(checkParameter, "复核人");
+        setOperator(checkParameter, "香港合规");
         record = manager.deny(checkParameter);
 
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals(beginNodeCode));
@@ -156,43 +162,89 @@ public class SimpleApprovalManagerTest {
     // 测试会签
     @Test
     public void test_countersign() {
+        Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer>  tuple2 = createApprovalManager();
+        IApprovalManager<SimpleApprovalQuery> manager = tuple2.getItem1();
+        ApprovalDefinitionContainer container = tuple2.getItem2();
+        String approvalType = "信息变更";
+        String endNodeCode = container.get(approvalType).getEndNode().getNodeCode();
 
+        // 【提交审核】
+        ApprovalCreateParameter submitParam = new ApprovalCreateParameter();
+        submitParam.setSource("GP");
+        submitParam.setApprovalType(approvalType);
+        submitParam.setBusinessCode("Account");
+        submitParam.setEntityCode("LP0032");
+        setOperator(submitParam, "信息变更提交人");
+        ApprovalData approvalData = new ApprovalData();
+        approvalData.setTargetId(1);
+        approvalData.setTargetType("AccountIdentity");
+        submitParam.addApprovalData(approvalData);
+        ApprovalRecord record = manager.submit(submitParam);
+
+        Assert.assertNotNull(record);
+        Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
+        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("复核"));
+
+         // 【复核 通过】
+         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
+         checkParameter.setRecordCode(record.getRecordCode());
+         setOperator(checkParameter, "复核人");
+         record = manager.approve(checkParameter);
+ 
+         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("合规"));
+
+         // 【合规 Part1 法务 通过】
+         checkParameter = new ApprovalCheckParameter();
+         checkParameter.setRecordCode(record.getRecordCode());
+         checkParameter.setItemCode("法务审核");
+         setOperator(checkParameter, "法务合规人");
+         record = manager.approve(checkParameter);
+ 
+         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("合规"));
+         
+         // 【合规 Part2 RO审核 通过】
+         checkParameter = new ApprovalCheckParameter();
+         checkParameter.setRecordCode(record.getRecordCode());
+         checkParameter.setItemCode("RO审核");
+         setOperator(checkParameter, "新加坡RO");
+         record = manager.approve(checkParameter);
+ 
+         Assert.assertTrue(record.getFlowState().getToNodeCode().equals(endNodeCode));
+         Assert.assertTrue(record.getStatus() == ApprovalStatus.Completed);
     }
 
-    private IApprovalManager<SimpleApprovalQuery> createApprovalManager() {
+    private Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer> createApprovalManager() {
         ApprovalManagerFactory<SimpleApprovalQuery> factory = new ApprovalManagerFactory<>();
         SimpleApprovalQuery query = new SimpleApprovalQuery();
         IApprovalRepository repository = new ApprovalRepositoryImpl();
-        IApprovalManager<SimpleApprovalQuery> manager = 
-            factory.createManager(
-                query, repository, 
-                factory.definitionContainer()
-                    .definition("开户审核", "开户", true)
-                        .begin()
-                        .next("KYC审核", "KYC审核")
-                        .next("合规审核", "合规审核")
-                        .next("RO复核", "RO复核")
-                        .end()
-                    .definition("信息变更", "KYC信息更新", false)
-                        .begin()
-                        .next("复核", "信息变更复核")
-                        .next(
-                            "合规", 
-                            "香港合规审核", 
-                            ApprovalNodeType.All, 
-                            node -> 
-                                node.partial()
-                                        .setItemCode("法务审核")
-                                        .setItemName("法务审核")
-                                        .add()
-                                    .partial()
-                                        .setItemCode("RO审核")
-                                        .setItemName("RO审核")
-                                        .add()
-                        )
-                        .end()
-            );
-        return manager;
+        ApprovalDefinitionContainer container = 
+            factory.definitionContainer()
+                .definition("开户审核", "开户", true)
+                    .begin()
+                    .next("KYC审核", "KYC审核")
+                    .next("合规审核", "合规审核")
+                    .next("RO复核", "RO复核")
+                    .end()
+                .definition("信息变更", "KYC信息更新", false)
+                    .begin()
+                    .next("复核", "信息变更复核")
+                    .next(
+                        "合规", 
+                        "香港合规审核", 
+                        ApprovalNodeType.All, 
+                        node -> 
+                            node.partial()
+                                    .setItemCode("法务审核")
+                                    .setItemName("法务审核")
+                                    .add()
+                                .partial()
+                                    .setItemCode("RO审核")
+                                    .setItemName("RO审核")
+                                    .add()
+                    )
+                    .end();
+        IApprovalManager<SimpleApprovalQuery> manager = factory.createManager( query, repository, container);
+        return new Tuple2<>(manager, container);
     }
 
     private void setOperator(FlowActionParameter p, String name) {

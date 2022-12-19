@@ -24,6 +24,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialI
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<TApprovalQuery> {
@@ -164,21 +165,20 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
     }
 
     @Override
-    public StateMachineFlowDefinition getFlowDefinition(String approvalType) {
-        StateMachineFlowDefinition definition = definitionGetter.call(approvalType);
-        if(definition == null) {
-            throw new ApprovalException("cannot find definition by type[%s]", approvalType);
-        }
-        return definition;
-    }
-
-    @Override
     public TApprovalQuery query() {
         return queryObject;
     }
 
     public StateMachineFlowFactory<TApprovalQuery> getFlowFactory() {
         return flowFactory;
+    }
+
+    protected StateMachineFlowDefinition getFlowDefinition(String approvalType) {
+        StateMachineFlowDefinition definition = definitionGetter.call(approvalType);
+        if(definition == null) {
+            throw new ApprovalException("cannot find definition by type[%s]", approvalType);
+        }
+        return definition;
     }
 
     protected StateMachineFlowFactory<TApprovalQuery> createFlowFactory() {
@@ -252,6 +252,12 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
         StateMachineFlowState actionState = 
             flowEngine.action(nodeCode, stateCode, new ApprovalRecordHolder(record, historyRecord, itemCode));
+        if(actionState instanceof StateMachinePartialState partialState) {
+            actionState = definition.createFlowState();
+            actionState.setNodeCode(definition.getPreviousNodeCode());
+            actionState.setStateCode(definition.getPreviousStateCode());
+            actionState.setToNodeCode(definition.getCurrentNodeCode());
+        }
         record.setFlowState(actionState);
         
         if(flowEngine.isFinished()) {

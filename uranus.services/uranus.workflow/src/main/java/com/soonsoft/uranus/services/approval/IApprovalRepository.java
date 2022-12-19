@@ -3,6 +3,7 @@ package com.soonsoft.uranus.services.approval;
 import java.util.List;
 
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
+import com.soonsoft.uranus.services.approval.model.ApprovalPartialItem;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
@@ -42,8 +43,9 @@ public interface IApprovalRepository {
      * 保存审核数据
      * @param record 审核纪录
      * @param historyRecords 审核历史纪录（如遇到并行节点或分支节点时，审核纪录可能是多条）
+     * @param partialItems 会签、或签时会有的部分结果
      */
-    void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords);
+    void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords, List<ApprovalPartialItem> partialItems);
 
     /**
      * 保存取消审核纪录

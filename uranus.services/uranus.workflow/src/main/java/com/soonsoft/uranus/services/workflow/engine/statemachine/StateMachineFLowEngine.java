@@ -94,6 +94,7 @@ public class StateMachineFLowEngine<TFlowQuery>
                     (parameter instanceof IFlowDataGetter dataGetter) 
                         ? dataGetter.getData() 
                         : parameter);
+                // 创建副本，避免影响原定义
                 nextState = copyState(nextState, definition);
                 newNode = newState.getToNode();
                 nextState.setPreviousFlowState(newState);
@@ -207,11 +208,7 @@ public class StateMachineFLowEngine<TFlowQuery>
 
     private StateMachineFlowState copyState(StateMachineFlowState source, StateMachineFlowDefinition definition) {
         StateMachineFlowState copyState = definition.createFlowState();
-        copyState.setId(source.getId());
-        copyState.setNodeCode(source.getNodeCode());
-        copyState.setStateCode(source.getStateCode());
-        copyState.setStateName(source.getStateName());
-        copyState.setToNodeCode(source.getToNodeCode());
+        StateMachineFlowState.copy(source, copyState);
         return copyState;
     }
     

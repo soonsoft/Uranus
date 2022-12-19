@@ -90,7 +90,7 @@ public class SimpleApprovalStateMachineFlowRepository
         List<ApprovalPartialItem> partialItems = new ArrayList<>();
         processHistoryRecord(historyRecordList, partialItems, recordHolder, stateParam);
 
-        approvalRepository.saveActionState(record, historyRecordList);
+        approvalRepository.saveActionState(record, historyRecordList, partialItems);
     }
 
     @Override

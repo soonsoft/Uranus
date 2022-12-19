@@ -80,9 +80,13 @@ public class ApprovalManagerFactory<TApprovalQuery> {
             return self();
         }
 
-        public StateMachineFlowDefinition get(String approvalType) {
-            StateMachineFlowDefinition prototypeDefinition = map.get(approvalType);
+        public StateMachineFlowDefinition getCopy(String approvalType) {
+            StateMachineFlowDefinition prototypeDefinition = get(approvalType);
             return prototypeDefinition.copy();
+        }
+
+        public StateMachineFlowDefinition get(String approvalType) {
+            return map.get(approvalType);
         }
 
         @SuppressWarnings("unchecked")
