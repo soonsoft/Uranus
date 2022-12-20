@@ -7,6 +7,7 @@ import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.ParallelActionNodeState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
@@ -14,7 +15,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
@@ -78,37 +79,54 @@ public class StateMachineFLowEngine<TFlowQuery>
         }
 
         // 自动处理所有的 GatewayNode（GatewayNode 分为分支节点和并行节点，不能作为结束节点）
-        StateMachineFlowNode newNode = newState.getToNode();
-        while(newNode instanceof StateMachineGatewayNode gatewayNode) {
-            boolean isCompleted = true;
+        StateMachineFlowNode nextNode = newState.getToNode();
+        while(nextNode instanceof StateMachineGatewayNode gatewayNode) {
             // 分支节点 or 并行节点回流
-            if(gatewayNode instanceof StateMachineParallelNode parallelNode) {
-                // 并行节点状态回流
-                parallelNode.updatePartialItemState(newState.getNodeCode(), newState.getStateCode());
-                isCompleted = parallelNode.isCompleted();
+
+            boolean isCompleted = true;
+            if(nextNode instanceof StateMachineParallelNode parallelNode) {
+                if(currentNode instanceof StateMachineParallelNode) {
+                    // 当前是并行节点是才是回流
+                    ParallelActionNodeState parallelActionNodeState = new ParallelActionNodeState(definition::findNode);
+                    StateMachineFlowState.copy(newState, parallelActionNodeState);
+                    parallelActionNodeState.setNodeCode(currentNode.getNodeCode());
+                    parallelActionNodeState.setActionNodeCode(actionNode.getNodeCode());
+                    newState = parallelActionNodeState;
+                    
+                    // 并行节点状态回流
+                    parallelNode.updatePartialItemState(
+                        parallelActionNodeState.getActionNodeCode(), parallelActionNodeState.getStateCode());
+                    isCompleted = parallelNode.isCompleted();
+                } else {
+                    isCompleted = false;
+                }
             }
 
             if(isCompleted) {
-                // 分支节点 or 并行节点回流自动处理下一个
+                // 分支节点 or 并行节点回流自动流转到下一个节点
                 StateMachineFlowState nextState = gatewayNode.matchState(
                     (parameter instanceof IFlowDataGetter dataGetter) 
                         ? dataGetter.getData() 
                         : parameter);
+                if(nextState == null) {
+                    throw new FlowException("the gatewayNode cannot matched nextState.");
+                }
                 // 创建副本，避免影响原定义
                 nextState = copyState(nextState, definition);
-                newNode = newState.getToNode();
                 nextState.setPreviousFlowState(newState);
                 newState = nextState;
+                
+                nextNode = newState.getToNode();
             } else {
-                // 并行回流节点，未回流完成时跳出
+                // 并行节点，未全部回流完成时（此时不会更新 definition 上的状态）
                 break;
             }
         }
 
         // 当复合节点未到达出发条件时，或者并行节点还没有完成回流时，不继续流转
-        if(!(newState instanceof StateMachinePartialState) && newNode != currentNode) {
+        if(!(newState instanceof CompositionPartialState) && !(newState instanceof ParallelActionNodeState)) {
             updateDefinitionState(definition, newState);
-            if(newNode.isEndNode()) {
+            if(nextNode.isEndNode()) {
                 definition.setStatus(FlowStatus.Finished);
             }
         }
@@ -177,7 +195,7 @@ public class StateMachineFLowEngine<TFlowQuery>
             nextStateCode = compositeNode.resolveStateCode(stateCode);
             if(StringUtils.isEmpty(nextStateCode)) {
                 // 多个部分未全部完成
-                StateMachinePartialState partialState = new StateMachinePartialState(partialItem, compositeNode);
+                CompositionPartialState partialState = new CompositionPartialState(partialItem, compositeNode);
                 partialState.setFlowCode(definition.getFlowCode());
                 return partialState;
             }

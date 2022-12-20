@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.util.CollectionUtils;
 
 import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.services.workflow.exception.FlowException;
 
 /**
  * 复合流程节点
@@ -19,6 +20,14 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
 
     public StateMachineCompositeNode(Func1<StateMachineCompositeNode, String> resolveStateCodeFn) {
         this.resolveStateCodeFn = resolveStateCodeFn;
+    }
+
+    @Override
+    public void setNodeType(StateMachineFlowNodeType nodeType) {
+        if(nodeType == StateMachineFlowNodeType.BeginNode || nodeType == StateMachineFlowNodeType.EndNode) {
+            throw new FlowException("the StateMachineCompositeNode cannot be begin node or end node.");
+        }
+        super.setNodeType(nodeType);
     }
 
     public List<StateMachinePartialItem> getPartialItemList() {
@@ -85,6 +94,9 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
     }
 
     public static void copy(StateMachineCompositeNode source, StateMachineCompositeNode dist) {
+        if(source == null || dist == null) {
+            return;
+        }
         StateMachineFlowNode.copy(source, dist);
         if(source.getPartialItemList() != null) {
             for(StateMachinePartialItem partialItem : source.getPartialItemList()) {

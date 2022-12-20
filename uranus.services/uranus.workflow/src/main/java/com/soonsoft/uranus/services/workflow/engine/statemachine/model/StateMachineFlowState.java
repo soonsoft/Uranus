@@ -5,12 +5,15 @@ import com.soonsoft.uranus.services.workflow.model.FlowState;
 
 public class StateMachineFlowState extends FlowState implements ICopy<StateMachineFlowState> {
 
+    /** 所属节点ID（扩展字段） */
     private Object fromNodeId;
+    /** 流转到达节点ID（扩展字段） */
     private Object toNodeId;
+    /** 流转到达节点编码 */
     private String toNodeCode;
-
+    /** 获取节点信息函数 */
     private Func1<String, StateMachineFlowNode> findFlowNodeFn;
-    
+    /** 上一个操作节点（自动流转时填充，如GatewayNode） */
     private StateMachineFlowState previousFlowState;
 
     public StateMachineFlowState() {
@@ -45,6 +48,9 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
     public void setFindFlowNodeFn(Func1<String, StateMachineFlowNode> findNodeFn) {
         this.findFlowNodeFn = findNodeFn;
     }
+    protected Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
+        return findFlowNodeFn;
+    }
 
     public StateMachineFlowState getPreviousFlowState() {
         return previousFlowState;
@@ -73,15 +79,18 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
         return copy();
     }
 
-    public static void copy(StateMachineFlowState source, StateMachineFlowState dict) {
-        dict.setId(source.getId());
-        dict.setFlowCode(source.getFlowCode());
-        dict.setFromNodeId(source.getFromNodeId());
-        dict.setNodeCode(source.getNodeCode());
-        dict.setStateCode(source.getStateCode());
-        dict.setStateName(source.getStateName());
-        dict.setToNodeCode(source.getToNodeCode());
-        dict.setToNodeId(source.getToNodeId());
+    public static void copy(StateMachineFlowState source, StateMachineFlowState dist) {
+        if(source == null || dist == null) {
+            return;
+        }
+        dist.setId(source.getId());
+        dist.setFlowCode(source.getFlowCode());
+        dist.setFromNodeId(source.getFromNodeId());
+        dist.setNodeCode(source.getNodeCode());
+        dist.setStateCode(source.getStateCode());
+        dist.setStateName(source.getStateName());
+        dist.setToNodeCode(source.getToNodeCode());
+        dist.setToNodeId(source.getToNodeId());
     }
 
 }

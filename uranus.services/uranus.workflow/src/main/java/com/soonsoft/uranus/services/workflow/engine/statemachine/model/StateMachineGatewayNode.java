@@ -16,8 +16,8 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
 
     @Override
     public void setNodeType(StateMachineFlowNodeType nodeType) {
-        if(nodeType == StateMachineFlowNodeType.EndNode) {
-            throw new FlowException("the StateMachineGatewayNode can not be end node.");
+        if(nodeType == StateMachineFlowNodeType.BeginNode || nodeType == StateMachineFlowNodeType.EndNode) {
+            throw new FlowException("the StateMachineGatewayNode cannot be begin node or end node.");
         }
         super.setNodeType(nodeType);
     }
@@ -148,9 +148,11 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineForkState extends StateMachineGatewayState<StateMachineForkNode> {
+        public final String DEFAULT_STATE_CODE = "ForkNodeAutoFlow";
 
         public StateMachineForkState(Predicate2<Object, StateMachineForkNode> conditionFn) {
             super(conditionFn);
+            setStateCode(DEFAULT_STATE_CODE);
         }
 
         @Override
@@ -180,6 +182,9 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
         }
 
         public static void copy(StateMachineParallelState source, StateMachineParallelState dist) {
+            if(source == null || dist == null) {
+                return;
+            }
             StateMachineFlowState.copy(source, dist);
         }
 

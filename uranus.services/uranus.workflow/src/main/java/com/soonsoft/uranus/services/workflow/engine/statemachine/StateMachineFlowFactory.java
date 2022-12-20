@@ -293,14 +293,6 @@ public class StateMachineFlowFactory<TFlowQuery>
             );
         }
 
-        public StateMachinePartialItemSetter<StateMachineParallelNodeSetter> partial() {
-            return new StateMachinePartialItemSetter<StateMachineParallelNodeSetter>(
-                this, 
-                new StateMachinePartialItem(),
-                (nodeSetter, partialItem) -> this.get().addPartialItem(partialItem)
-            );
-        }
-
         public ParallelPartialItemSetter partialNode() {
             return partialNode(
                 definition -> definition.createFlowNode(),

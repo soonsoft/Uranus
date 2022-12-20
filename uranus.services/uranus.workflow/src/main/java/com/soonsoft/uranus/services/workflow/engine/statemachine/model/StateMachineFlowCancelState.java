@@ -47,6 +47,9 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
     }
 
     public static void copy(StateMachineFlowCancelState source, StateMachineFlowCancelState dist) {
+        if(source == null || dist == null) {
+            return;
+        }
         dist.setNodeCode(source.getNodeCode());
     }
     

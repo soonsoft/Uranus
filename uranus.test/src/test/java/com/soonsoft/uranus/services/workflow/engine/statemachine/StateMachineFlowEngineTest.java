@@ -130,6 +130,7 @@ public class StateMachineFlowEngineTest {
         assert engine.isCanceled();
     }
 
+    // 复核节点流程
     @Test
     public void test_composition() {
         StateMachineFlowDefinition definition = 
@@ -357,6 +358,65 @@ public class StateMachineFlowEngineTest {
         engine.action(definition.getCurrentNodeCode(), "approved", parameter);
         assert definition.getCurrentNodeCode().equals("end");
 
+        assert engine.isFinished();
+    }
+
+    // 测试多重路由节点
+    @Test
+    public void test_gatewayNode() {
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+                .setFlowCode("多重路由节点流程")
+                .setCancelable(false)
+                .beginNode().setNodeCode("begin")
+                    .state().setStateCode("submit").setToNodeCode("分支节点").add()
+                    .add()
+                .forkNode().setNodeCode("分支节点")
+                    .state((data, forkNode) -> data != null).setToNodeCode("并行节点").add()
+                    .state((data, forkNode) -> data == null).setToNodeCode("begin").setStateCode("error").add()
+                    .add()
+                .parallelNode().setNodeCode("并行节点")
+                    .partialNode()
+                        .setItemCode("复核").addState("通过", "复合通过").add()
+                    .partialNode()
+                        .setItemCode("预算").addState("完成", "完成预算").add()
+                    .state((data, parallelNode) -> parallelNode.allMatch(i -> i.getStateCode().equals("完成") || i.getStateCode().equals("通过")))
+                        .setToNodeCode("自动完成").add()
+                    .add()
+                .forkNode().setNodeCode("自动完成")
+                    .state((data, forkNode) -> ((Integer)data).intValue() >= 1000).setToNodeCode("总经理审批").add()
+                    .state((data, forkNode) -> ((Integer)data).intValue() < 1000).setToNodeCode("end").add()
+                    .add()
+                .node().setNodeCode("总经理审批")
+                    .state().setStateCode("通过").setToNodeCode("end").add()
+                    .state().setStateCode("拒绝").setToNodeCode("begin").add()
+                    .add()
+                .endNode().setNodeCode("end").add()
+                .build();
+
+        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+
+        // 【启动引擎】
+        engine.start();
+        assert engine.isStarted();
+
+        // 【提交】
+        TestActionParameter parameter = new TestActionParameter();
+        parameter.setOperateTime(new Date());
+
+        parameter.setData(Integer.valueOf(500));
+        engine.action("begin", "submit", parameter);
+        assert definition.getCurrentNodeCode().equals("并行节点");
+
+        // 【并行节点 - 复核】
+        parameter.setOperator("复核人");
+        engine.action("复核", "通过", parameter);
+        assert definition.getCurrentNodeCode().equals("并行节点");
+
+        // 【并行节点 - 复核】
+        parameter.setOperator("预算计划人");
+        engine.action("预算", "完成", parameter);
+        assert definition.getCurrentNodeCode().equals("end");
         assert engine.isFinished();
     }
 

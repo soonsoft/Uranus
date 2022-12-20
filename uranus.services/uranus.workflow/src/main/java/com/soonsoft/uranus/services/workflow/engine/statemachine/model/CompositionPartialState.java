@@ -1,11 +1,11 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
-public class StateMachinePartialState extends StateMachineFlowState {
+public class CompositionPartialState extends StateMachineFlowState {
     
     private final StateMachinePartialItem actionPartialItem;
     private final StateMachineCompositeNode fromNode;
 
-    public StateMachinePartialState(StateMachinePartialItem partialItem, StateMachineCompositeNode fromNode) {
+    public CompositionPartialState(StateMachinePartialItem partialItem, StateMachineCompositeNode fromNode) {
         this.actionPartialItem = partialItem;
         this.fromNode = fromNode;
     }
@@ -45,14 +45,17 @@ public class StateMachinePartialState extends StateMachineFlowState {
     }
 
     @Override
-    public StateMachinePartialState copy() {
-        StateMachinePartialState copyPartialState = new StateMachinePartialState(
+    public CompositionPartialState copy() {
+        CompositionPartialState copyPartialState = new CompositionPartialState(
             this.getActionPartialItem().copy(), (StateMachineCompositeNode) this.getFromNode().copy());
         copy(this, copyPartialState);
         return copyPartialState;
     }
 
-    public static void copy(StateMachinePartialState source, StateMachinePartialState dist) {
+    public static void copy(CompositionPartialState source, CompositionPartialState dist) {
+        if(source == null || dist == null) {
+            return;
+        }
         StateMachineFlowState.copy(source, dist);
     }
 

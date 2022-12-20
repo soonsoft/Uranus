@@ -2,7 +2,10 @@ package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
 import java.util.List;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.ParallelActionNodeState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
@@ -41,20 +44,54 @@ public class StateMachineFlowRepository
 
     @Override
     public void create(StateMachineFlowDefinition definition, FlowActionParameter parameter) {
-        // TODO Auto-generated method stub
-        
+        System.out.println("\n");
+        System.out.println(
+            StringUtils.format(
+                "[Create - {0}]", definition.getFlowCode())
+        );
     }
 
     @Override
     public void saveState(StateMachineFlowState newState, FlowActionParameter parameter) {
-        // TODO Auto-generated method stub
-        
+        if(newState instanceof ParallelActionNodeState actionState) {
+            showState(actionState);
+        } else if(newState instanceof CompositionPartialState partialState) {
+            showState(partialState);
+        } else {
+            showState(newState);
+        }
     }
 
     @Override
     public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    private void showState(StateMachineFlowState newState) {
+        System.out.println(
+            StringUtils.format(
+                "[Action - {0}]: {1}.{2} > {3}", 
+                newState.getFlowCode(),
+                newState.getNodeCode(), newState.getStateCode(), newState.getToNodeCode())
+        );
+    }
+
+    private void showState(CompositionPartialState newState) {
+        System.out.println(
+            StringUtils.format(
+                "[Action- {0}]: {1}.{2} (Continue)", 
+                newState.getFlowCode(), newState.getNodeCode(), newState.getStateCode())
+        );
+    }
+
+    private void showState(ParallelActionNodeState newState) {
+        System.out.println(
+            StringUtils.format(
+                "[Action - {0}]: {1} ~ {2}.{3} > (Continue)", 
+                newState.getFlowCode(), newState.getNodeCode(), 
+                newState.getActionNodeCode(), newState.getStateCode())
+        );
     }
     
 }

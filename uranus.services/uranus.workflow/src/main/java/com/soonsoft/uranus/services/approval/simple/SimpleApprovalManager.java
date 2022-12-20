@@ -24,7 +24,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialI
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<TApprovalQuery> {
@@ -252,7 +252,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
         StateMachineFlowState actionState = 
             flowEngine.action(nodeCode, stateCode, new ApprovalRecordHolder(record, historyRecord, itemCode));
-        if(actionState instanceof StateMachinePartialState partialState) {
+        if(actionState instanceof CompositionPartialState partialState) {
             actionState = definition.createFlowState();
             actionState.setNodeCode(definition.getPreviousNodeCode());
             actionState.setStateCode(definition.getPreviousStateCode());

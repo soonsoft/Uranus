@@ -61,6 +61,9 @@ public class StateMachinePartialItem implements ICopy<StateMachinePartialItem> {
     }
 
     public static void copy(StateMachinePartialItem source, StateMachinePartialItem dist) {
+        if(source == null || dist == null) {
+            return;
+        }
         dist.setId(source.getId());
         dist.setItemCode(source.getItemCode());
         dist.setItemName(source.getItemName());

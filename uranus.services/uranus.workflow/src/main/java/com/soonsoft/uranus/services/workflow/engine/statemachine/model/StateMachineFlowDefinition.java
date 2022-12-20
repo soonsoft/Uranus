@@ -60,12 +60,14 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
 
     public StateMachineForkState createForkState(Predicate2<Object, StateMachineForkNode> predicate) {
         StateMachineForkState state = new StateMachineForkState(predicate);
+        state.setFlowCode(getFlowCode());
         state.setFindFlowNodeFn(this::findNode);
         return state;
     }
 
     public StateMachineParallelState createParallelState(Predicate2<Object, StateMachineParallelNode> predicate) {
         StateMachineParallelState state = new StateMachineParallelState(predicate);
+        state.setFlowCode(getFlowCode());
         state.setFindFlowNodeFn(this::findNode);
         return state;
     }
@@ -145,6 +147,9 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
     }
 
     public static void copy(StateMachineFlowDefinition source, StateMachineFlowDefinition dist) {
+        if(source == null || dist == null) {
+            return;
+        }
         dist.setId(source.getId());
         dist.setFlowCode(source.getFlowCode());
         dist.setFlowName(source.getFlowName());

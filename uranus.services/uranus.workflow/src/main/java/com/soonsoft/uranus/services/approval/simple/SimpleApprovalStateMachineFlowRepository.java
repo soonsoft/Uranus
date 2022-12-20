@@ -23,7 +23,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.util.identity.ID;
 
@@ -109,7 +109,7 @@ public class SimpleApprovalStateMachineFlowRepository
 
         StateMachineFlowNode node = state.getFromNode();
         if(node instanceof StateMachineCompositeNode compositeNode) {
-            if(state instanceof StateMachinePartialState partialState) {
+            if(state instanceof CompositionPartialState partialState) {
                 partialItems.add(creataApprovalPartialItem(partialState.getActionPartialItem(), record.getApprovalFlowCode()));
             } else {
                 compositeNode.forEach((item, i, b) -> {
@@ -136,7 +136,7 @@ public class SimpleApprovalStateMachineFlowRepository
         if(node instanceof StateMachineGatewayNode gatewayNode) {
             StateMachineFlowState lastState = state;
             while(lastState != null) {
-                if(lastState instanceof StateMachinePartialState partialState) {
+                if(lastState instanceof CompositionPartialState partialState) {
                     historyRecord = new ApprovalHistoryRecord();
                     historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
                     historyRecord.setApprovalRecordCode(record.getRecordCode());

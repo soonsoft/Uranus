@@ -60,6 +60,9 @@ public class StateMachineFlowNode extends FlowNode<StateMachineFlowState> implem
     }
 
     public static void copy(StateMachineFlowNode source, StateMachineFlowNode dist) {
+        if(source == null || dist == null) {
+            return;
+        }
         dist.setId(source.getId());
         dist.setFlowCode(source.getFlowCode());
         dist.setNodeCode(source.getNodeCode());
