@@ -119,10 +119,10 @@ public class SimpleApprovalStateMachineFlowRepository
         StateMachineFlowNode node = state.getFromNode();
         if(node instanceof StateMachineCompositeNode compositeNode) {
             if(state instanceof CompositionPartialState partialState) {
-                partialItems.add(creataApprovalPartialItem(partialState.getActionPartialItem(), record.getApprovalFlowCode()));
+                partialItems.add(createApprovalPartialItem(partialState.getActionPartialItem(), record.getApprovalFlowCode()));
             } else {
                 compositeNode.forEach((item, i, b) -> {
-                    partialItems.add(creataApprovalPartialItem(item, record.getApprovalFlowCode()));
+                    partialItems.add(createApprovalPartialItem(item, record.getApprovalFlowCode()));
                 });
             }
             return;
@@ -136,7 +136,7 @@ public class SimpleApprovalStateMachineFlowRepository
             historyRecordList.add(historyRecord);
 
             compositeNode.forEach((item, i, b) -> {
-                partialItems.add(creataApprovalPartialItem(item, compositionActionCode));
+                partialItems.add(createApprovalPartialItem(item, compositionActionCode));
             });
             return;
         }
@@ -164,7 +164,7 @@ public class SimpleApprovalStateMachineFlowRepository
         historyRecordList.add(historyRecord);
     }
 
-    private ApprovalPartialItem creataApprovalPartialItem(StateMachinePartialItem item, String compositionActionCode) {
+    private ApprovalPartialItem createApprovalPartialItem(StateMachinePartialItem item, String compositionActionCode) {
         ApprovalPartialItem partialItem = new ApprovalPartialItem();
         StateMachinePartialItem.copy(item, partialItem);
         partialItem.setCompositionActionCode(compositionActionCode);
