@@ -7,6 +7,7 @@ import com.soonsoft.uranus.services.approval.IApprovalRepository;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalPartialItem;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
+import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
@@ -29,22 +30,31 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
     @Override
     public void create(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
         this.currentRecord = record;
+        System.out.println("\n");
         showRecordState(record);
+        if(record.getStatus() == ApprovalStatus.Checking) {
+            System.out.println("\t |-> [Start Checking]");
+        }
     }
 
     @Override
     public void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords, List<ApprovalPartialItem> partialItems) {
-        
         if(record.getFlowState().getFromNode() instanceof StateMachineCompositeNode) {
             showPartialItems(record, partialItems);
         } else {
             showRecordState(record);
+        }
+        if(record.getStatus() == ApprovalStatus.Completed) {
+            System.out.println("\t |-> [Completed]");
         }
     }
 
     @Override
     public void saveCancelState(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
         showRecordState(record);
+        if(record.getStatus() == ApprovalStatus.Canceled) {
+            System.out.println("\t |-> [Canceled]");
+        }
     }
 
     private void showRecordState(ApprovalRecord record) {

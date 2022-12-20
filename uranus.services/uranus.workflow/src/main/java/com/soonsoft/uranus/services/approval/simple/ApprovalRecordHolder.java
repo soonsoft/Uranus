@@ -1,41 +1,54 @@
 package com.soonsoft.uranus.services.approval.simple;
 
+import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 final class ApprovalRecordHolder extends FlowActionParameter implements IPartialItemCode  {
 
-    private String itemCode;
-        private ApprovalRecord record;
-        private ApprovalHistoryRecord historyRecord;
+    private final String itemCode;
+    private final ApprovalRecord record;
+    private final ApprovalHistoryRecord historyRecord;
+    private final Func0<StateMachineFlowDefinition> currentDefinitionGetter;
 
-        public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
-            this(record, historyRecord, null);
-        }
+    public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
+        this(record, historyRecord, null, null);
+    }
 
-        public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord, String itemCode) {
-            this.record = record;
-            this.historyRecord = historyRecord;
-            this.itemCode = itemCode;
+    public ApprovalRecordHolder(
+            ApprovalRecord record, 
+            ApprovalHistoryRecord historyRecord, 
+            Func0<StateMachineFlowDefinition> currentDefinitionGetter, 
+            String itemCode) {
 
-            this.setOperator(historyRecord.getOperator());
-            this.setOperatorName(historyRecord.getOperatorName());
-            this.setOperateTime(historyRecord.getOperateTime());
-        }
+        this.record = record;
+        this.historyRecord = historyRecord;
+        this.currentDefinitionGetter = currentDefinitionGetter;
+        this.itemCode = itemCode;
 
-        public ApprovalRecord getRecord() {
-            return record;
-        }
+        this.setOperator(historyRecord.getOperator());
+        this.setOperatorName(historyRecord.getOperatorName());
+        this.setOperateTime(historyRecord.getOperateTime());
+    }
 
-        public ApprovalHistoryRecord getHistoryRecord() {
-            return historyRecord;
-        }
+    public ApprovalRecord getRecord() {
+        return record;
+    }
 
-        @Override
-        public String getItemCode() {
-            return itemCode;
-        }
+    public ApprovalHistoryRecord getHistoryRecord() {
+        return historyRecord;
+    }
+
+    public StateMachineFlowDefinition getCurrentDefinition() {
+        return currentDefinitionGetter != null ? currentDefinitionGetter.call() : null;
+    }
+
+    @Override
+    public String getItemCode() {
+        return itemCode;
+    }
     
 }

@@ -14,6 +14,7 @@ import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalPartialItem;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
+import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.IStateMachineFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
@@ -25,6 +26,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
+import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 import com.soonsoft.uranus.util.identity.ID;
 
 public class SimpleApprovalStateMachineFlowRepository
@@ -77,13 +79,20 @@ public class SimpleApprovalStateMachineFlowRepository
         record.setFlowState(stateParam);
 
         if(ApprovalStateCode.Checking.equals(stateParam.getStateCode())) {
+            record.setStatus(ApprovalStatus.Checking);
             approvalRepository.create(record, recordHolder.getHistoryRecord());
             return;
         }
 
         if(stateParam instanceof StateMachineFlowCancelState) {
+            record.setStatus(ApprovalStatus.Canceled);
             approvalRepository.saveCancelState(record, recordHolder.getHistoryRecord());
             return;
+        }
+
+        StateMachineFlowDefinition currentDefinition = recordHolder.getCurrentDefinition();
+        if(currentDefinition.getStatus() == FlowStatus.Finished) {
+            record.setStatus(ApprovalStatus.Completed);
         }
         
         LinkedList<ApprovalHistoryRecord> historyRecordList = new LinkedList<>();

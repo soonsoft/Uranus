@@ -16,7 +16,6 @@ import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
-import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.approval.model.ApprovalTargetInfo;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFLowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlowFactory;
@@ -60,7 +59,6 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         // 流程开始
         flowEngine.start();
         
-        record.setStatus(ApprovalStatus.Checking);
         ApprovalHistoryRecord historyRecord = 
             createApprovalHistoryRecord(parameter, record, ApprovalActionType.Submit);
         // 流程提交
@@ -117,7 +115,8 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         final String currentNodeCode = definition.getCurrentNodeCode();
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
         StateMachineFlowState actionState = 
-            flowEngine.action(currentNodeCode, ApprovalStateCode.Revoked, new ApprovalRecordHolder(record, historyRecord, itemCode));
+            flowEngine.action(currentNodeCode, ApprovalStateCode.Revoked, 
+                new ApprovalRecordHolder(record, historyRecord, () -> definition, itemCode));
         record.setFlowState(actionState);
 
         return record;
@@ -147,7 +146,6 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
 
         // TODO: 复合节点如何处理取消？
         
-        record.setStatus(ApprovalStatus.Canceled);
         StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);
         ApprovalHistoryRecord historyRecord = 
             createApprovalHistoryRecord(parameter, record, ApprovalActionType.Cancel, hr -> {
@@ -251,7 +249,8 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
 
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
         StateMachineFlowState actionState = 
-            flowEngine.action(nodeCode, stateCode, new ApprovalRecordHolder(record, historyRecord, itemCode));
+            flowEngine.action(nodeCode, stateCode, 
+                new ApprovalRecordHolder(record, historyRecord, () -> definition, itemCode));
         if(actionState instanceof CompositionPartialState partialState) {
             actionState = definition.createFlowState();
             actionState.setNodeCode(definition.getPreviousNodeCode());
@@ -259,10 +258,6 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
             actionState.setToNodeCode(definition.getCurrentNodeCode());
         }
         record.setFlowState(actionState);
-        
-        if(flowEngine.isFinished()) {
-            record.setStatus(ApprovalStatus.Completed);
-        }
 
         return record;
     }
