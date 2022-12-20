@@ -1,6 +1,9 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import org.springframework.util.CollectionUtils;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
@@ -53,13 +56,7 @@ public class StateMachineFlowRepository
 
     @Override
     public void saveState(StateMachineFlowState newState, FlowActionParameter parameter) {
-        if(newState instanceof ParallelActionNodeState actionState) {
-            showState(actionState);
-        } else if(newState instanceof CompositionPartialState partialState) {
-            showState(partialState);
-        } else {
-            showState(newState);
-        }
+        showState(newState);
     }
 
     @Override
@@ -69,18 +66,25 @@ public class StateMachineFlowRepository
     }
 
     private void showState(StateMachineFlowState newState) {
-        System.out.println(
-            StringUtils.format(
-                "[Action - {0}]: {1}.{2} > {3}", 
-                newState.getFlowCode(),
-                newState.getNodeCode(), newState.getStateCode(), newState.getToNodeCode())
-        );
+        showPreviousState(newState);
+        if(newState instanceof ParallelActionNodeState actionState) {
+            showState(actionState);
+        } else if(newState instanceof CompositionPartialState partialState) {
+            showState(partialState);
+        } else {
+            System.out.println(
+                StringUtils.format(
+                    "[Action - {0}]: {1}.{2} > {3}", 
+                    newState.getFlowCode(),
+                    newState.getNodeCode(), newState.getStateCode(), newState.getToNodeCode())
+            );
+        }
     }
 
     private void showState(CompositionPartialState newState) {
         System.out.println(
             StringUtils.format(
-                "[Action- {0}]: {1}.{2} (Continue)", 
+                "[Action - {0}]: {1}.{2} (Continue)", 
                 newState.getFlowCode(), newState.getNodeCode(), newState.getStateCode())
         );
     }
@@ -92,6 +96,22 @@ public class StateMachineFlowRepository
                 newState.getFlowCode(), newState.getNodeCode(), 
                 newState.getActionNodeCode(), newState.getStateCode())
         );
+    }
+
+    private void showPreviousState(StateMachineFlowState state) {
+        LinkedList<StateMachineFlowState> previousStateList = new LinkedList<>();
+        StateMachineFlowState previousState = state.getPreviousFlowState();
+        while(previousState != null) {
+            previousStateList.addFirst(previousState);
+            previousState = previousState.getPreviousFlowState();
+        }
+
+        if(!CollectionUtils.isEmpty(previousStateList)) {
+            for(StateMachineFlowState s : previousStateList) {
+                showState(s);
+            }
+            System.out.print("\t |->");
+        }
     }
     
 }

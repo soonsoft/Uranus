@@ -169,9 +169,11 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineParallelState extends StateMachineGatewayState<StateMachineParallelNode> {
+        public final String DEFAULT_STATE_CODE = "ParallelNodeAutoNext";
 
         public StateMachineParallelState(Predicate2<Object, StateMachineParallelNode> conditionFn) {
             super(conditionFn);
+            setStateCode(DEFAULT_STATE_CODE);
         }
 
         @Override
