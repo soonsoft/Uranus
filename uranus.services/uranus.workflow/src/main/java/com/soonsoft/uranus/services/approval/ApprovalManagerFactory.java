@@ -89,6 +89,26 @@ public class ApprovalManagerFactory<TApprovalQuery> {
             return map.get(approvalType);
         }
 
+        public String getBeginNodeCode(String approvalType) {
+            if(!map.containsKey(approvalType)) {
+                throw new IllegalArgumentException("the approvalType not exists.");
+            }
+
+            StateMachineFlowDefinition definition = map.get(approvalType);
+            StateMachineFlowNode beginNode = definition.getBeginNode();
+            return beginNode != null ? beginNode.getNodeCode() : null;
+        }
+
+        public String getEndNodeCode(String approvalType) {
+            if(!map.containsKey(approvalType)) {
+                throw new IllegalArgumentException("the approvalType not exists.");
+            }
+
+            StateMachineFlowDefinition definition = map.get(approvalType);
+            StateMachineFlowNode endNode = definition.getEndNode();
+            return endNode != null ? endNode.getNodeCode() : null;
+        }
+
         @SuppressWarnings("unchecked")
         private T self() {
             return (T) this;
@@ -184,7 +204,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         public ApprovalNodeSetter<TContainer> begin() {
-            return begin("ApprovalBeginNode", "Begin");
+            return begin("#ApprovalBeginNode", "Begin");
         }
 
         public ApprovalNodeSetter<TContainer> begin(String beginNodeCode, String beginNodeName) {
@@ -265,7 +285,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
         }
 
         public TContainer end() {
-            return end("ApprovalEndNode", "End");
+            return end("#ApprovalEndNode", "End");
         }
 
         public TContainer end(String nodeCode, String nodeName) {

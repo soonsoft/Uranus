@@ -15,6 +15,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
@@ -138,15 +139,39 @@ public class StateMachineFLowEngine<TFlowQuery>
     }
 
     @Override
-    public void cancel(FlowActionParameter parameter) {
+    public void cancel(String nodeCode, FlowActionParameter parameter) {
         prepareCancel(parameter);
 
         final StateMachineFlowDefinition definition = getDefinition();
-        definition.setStatus(FlowStatus.Canceled);
+
+        StateMachineFlowNode currentNode = definition.findNode(definition.getCurrentNodeCode());
+        if(currentNode == null) {
+            throw new FlowException("can not find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
+        }
+        StateMachineFlowNode actionNode = matchActionNode(definition, currentNode, nodeCode);
+        if(actionNode == null) {
+            throw new FlowException("can not find action FlowNode by nodeCode [%s]", nodeCode);
+        }
 
         StateMachineFlowCancelState cancelState = definition.createCancelState();
         cancelState.setNodeCode(definition.getCurrentNodeCode());
+        if(currentNode instanceof StateMachineCompositeNode compositeNode) {
+            String partialItemCode = 
+                (parameter instanceof IPartialItemCode getter) ? getter.getItemCode() : parameter.getOperator();
+            StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, cancelState.getStateCode());
+            partialItem.setStatus(StateMachinePartialItemStatus.Terminated);
+            CompositionPartialState partialItemStatus = new CompositionPartialState(partialItem, compositeNode);
+            partialItemStatus.setFlowCode(definition.getFlowCode());
+            cancelState.setPreviousFlowState(partialItemStatus);
+        }
 
+        if(currentNode instanceof StateMachineParallelNode) {
+            StateMachineFlowCancelState actionNodeCancelState = definition.createCancelState();
+            actionNodeCancelState.setNodeCode(actionNode.getNodeCode());
+            cancelState.setPreviousFlowState(actionNodeCancelState);
+        }
+
+        definition.setStatus(FlowStatus.Canceled);
         updateDefinitionState(definition, cancelState);
 
         // 保存取消状态

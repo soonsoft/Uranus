@@ -126,7 +126,12 @@ public class StateMachineFlowEngineTest {
         engine.start();
         assert engine.isStarted();
 
-        engine.cancel(null);
+        engine.action("001", "Next");
+        assert definition.getCurrentNodeCode().equals("002");
+
+        FlowActionParameter parameter = new FlowActionParameter();
+        parameter.setOperator("002 operator");
+        engine.cancel("002", parameter);
         assert engine.isCanceled();
     }
 

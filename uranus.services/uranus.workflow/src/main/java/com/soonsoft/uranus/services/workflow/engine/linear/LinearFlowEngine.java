@@ -89,20 +89,7 @@ public class LinearFlowEngine<TFlowQuery>
 
         final LinearFlowDefinition definition = getDefinition();
 
-        LinearFlowNode actionNode = null;
-        for(LinearFlowNode node : definition.getNodeList()) {
-            if(node.getNodeCode().equals(nodeCode)) {
-                actionNode = node;
-                break;
-            }
-        }
-        if(actionNode == null) {
-            throw new FlowException("cannot find activated node by nodeCode[%s]", nodeCode);
-        }
-        if(actionNode.getNodeStatus() != LinearFlowStatus.Activated) {
-            throw new FlowException("the status of node[%s] is not activated.", nodeCode);
-        }
-
+        LinearFlowNode actionNode = getActionNode(definition, nodeCode);
         LinearFlowState actionState = null;
         for(LinearFlowState state : actionNode.getStateList()) {
             if(state.getStateCode().equals(stateCode)) {
@@ -154,20 +141,24 @@ public class LinearFlowEngine<TFlowQuery>
     }
 
     @Override
-    public void cancel(FlowActionParameter parameter) {
+    public void cancel(String nodeCode, FlowActionParameter parameter) {
         prepareCancel(parameter);
 
         final LinearFlowDefinition definition = getDefinition();
-        definition.setStatus(FlowStatus.Canceled);
+        LinearFlowNode actionNode = getActionNode(definition, nodeCode);
 
-        List<LinearFlowNode> activatedNodeList = definition.findNode(n -> n.getNodeStatus() == LinearFlowStatus.Activated);
-        if(!CollectionUtils.isEmpty(activatedNodeList)) {
-            activatedNodeList.forEach(n -> n.setNodeStatus(LinearFlowStatus.Rejected));
+        List<LinearFlowNode> otherSameStepNodeList = actionNode.getSameStepNodeList();
+        if(!CollectionUtils.isEmpty(otherSameStepNodeList)) {
+            otherSameStepNodeList.forEach(n -> n.setNodeStatus(LinearFlowStatus.Rejected));
         }
-
+        
+        definition.setStatus(FlowStatus.Canceled);
+        
         LinearFlowResult result = new LinearFlowResult();
         result.setDefinition(definition);
-
+        result.setNodeCode(actionNode.getNodeCode());
+        result.setStateCode("@Cancel");
+        
         // 保存取消状态
         getFlowRepository().saveState(result, parameter);
     }
@@ -198,6 +189,24 @@ public class LinearFlowEngine<TFlowQuery>
             }
         }
         return -1;
+    }
+
+    private LinearFlowNode getActionNode(LinearFlowDefinition definition, String nodeCode) {
+        LinearFlowNode actionNode = null;
+        for(LinearFlowNode node : definition.getNodeList()) {
+            if(node.getNodeCode().equals(nodeCode)) {
+                actionNode = node;
+                break;
+            }
+        }
+        if(actionNode == null) {
+            throw new FlowException("cannot find activated node by nodeCode[%s]", nodeCode);
+        }
+        if(actionNode.getNodeStatus() != LinearFlowStatus.Activated) {
+            throw new FlowException("the status of node[%s] is not activated.", nodeCode);
+        }
+
+        return actionNode;
     }
     
 }

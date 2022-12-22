@@ -43,8 +43,8 @@ public class SimpleApprovalManagerTest {
         submitParam.addApprovalData(approvalData);
         ApprovalRecord record = manager.submit(submitParam);
 
-        String beginNodeCode = container.get(record.getApprovalType()).getBeginNode().getNodeCode();
-        String endNodeCode = container.get(record.getApprovalType()).getEndNode().getNodeCode();
+        String beginNodeCode = container.getBeginNodeCode(approvalType);
+        String endNodeCode = container.getEndNodeCode(approvalType);
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
@@ -52,6 +52,7 @@ public class SimpleApprovalManagerTest {
         // 【KYC 审核通过】
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode("KYC审核");
         setOperator(checkParameter, "香港KYC审核人");
         record = manager.approve(checkParameter);
 
@@ -60,6 +61,7 @@ public class SimpleApprovalManagerTest {
         // 【合规 审核驳回】
         checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode("合规审核");
         setOperator(checkParameter, "新加坡合规审核人");
         record = manager.deny(checkParameter);
 
@@ -68,6 +70,7 @@ public class SimpleApprovalManagerTest {
         // 【制单人 再次提交】
         ApprovalParameter resubmitParam = new ApprovalParameter();
         resubmitParam.setRecordCode(record.getRecordCode());
+        resubmitParam.setActionNodeCode(beginNodeCode);
         setOperator(resubmitParam, "制单人");
         record = manager.resubmit(resubmitParam);
 
@@ -76,6 +79,7 @@ public class SimpleApprovalManagerTest {
         // 【KYC 审核通过】
         checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode("KYC审核");
         setOperator(checkParameter, "新加坡KYC审核人");
         record = manager.approve(checkParameter);
 
@@ -84,6 +88,7 @@ public class SimpleApprovalManagerTest {
         // 【合规 审核通过】
         checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode("合规审核");
         setOperator(checkParameter, "香港合规审核人");
         record = manager.approve(checkParameter);
 
@@ -92,6 +97,7 @@ public class SimpleApprovalManagerTest {
         // 【RO 复核通过】
         checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode("RO复核");
         setOperator(checkParameter, "国际RO负责人");
         record = manager.approve(checkParameter);
 
@@ -121,7 +127,7 @@ public class SimpleApprovalManagerTest {
         submitParam.addApprovalData(approvalData);
         ApprovalRecord record = manager.submit(submitParam);
 
-        String beginNodeCode = container.get(record.getApprovalType()).getBeginNode().getNodeCode();
+        String beginNodeCode = container.getBeginNodeCode(approvalType);
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
@@ -129,6 +135,7 @@ public class SimpleApprovalManagerTest {
         //【制单人 撤回】
         ApprovalParameter resubmitParam = new ApprovalParameter();
         resubmitParam.setRecordCode(record.getRecordCode());
+        resubmitParam.setActionNodeCode("KYC审核");
         setOperator(resubmitParam, "制单人");
         record = manager.revoke(resubmitParam);
 
@@ -137,6 +144,7 @@ public class SimpleApprovalManagerTest {
         // 【制单人 再次提交】
         resubmitParam = new ApprovalParameter();
         resubmitParam.setRecordCode(record.getRecordCode());
+        resubmitParam.setActionNodeCode(beginNodeCode);
         setOperator(resubmitParam, "制单人");
         record = manager.resubmit(resubmitParam);
 
@@ -145,16 +153,18 @@ public class SimpleApprovalManagerTest {
         // 【合规审核 通过】
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
         checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode("KYC审核");
         setOperator(checkParameter, "香港合规");
         record = manager.deny(checkParameter);
 
         Assert.assertTrue(record.getFlowState().getToNodeCode().equals(beginNodeCode));
 
         // 【制单人 取消 】
-        resubmitParam = new ApprovalParameter();
-        resubmitParam.setRecordCode(record.getRecordCode());
-        setOperator(resubmitParam, "制单人");
-        manager.cancel(resubmitParam);
+        checkParameter = new ApprovalCheckParameter();
+        checkParameter.setRecordCode(record.getRecordCode());
+        checkParameter.setActionNodeCode(beginNodeCode);
+        setOperator(checkParameter, "制单人");
+        manager.cancel(checkParameter);
 
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Canceled);
     }
@@ -166,7 +176,7 @@ public class SimpleApprovalManagerTest {
         IApprovalManager<SimpleApprovalQuery> manager = tuple2.getItem1();
         ApprovalDefinitionContainer container = tuple2.getItem2();
         String approvalType = "信息变更";
-        String endNodeCode = container.get(approvalType).getEndNode().getNodeCode();
+        String endNodeCode = container.getEndNodeCode(approvalType);
 
         // 【提交审核】
         ApprovalCreateParameter submitParam = new ApprovalCreateParameter();
@@ -188,6 +198,7 @@ public class SimpleApprovalManagerTest {
          // 【复核 通过】
          ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
          checkParameter.setRecordCode(record.getRecordCode());
+         checkParameter.setActionNodeCode("复核");
          setOperator(checkParameter, "复核人");
          record = manager.approve(checkParameter);
  
@@ -196,6 +207,7 @@ public class SimpleApprovalManagerTest {
          // 【合规 Part1 法务 通过】
          checkParameter = new ApprovalCheckParameter();
          checkParameter.setRecordCode(record.getRecordCode());
+         checkParameter.setActionNodeCode("合规");
          checkParameter.setItemCode("法务审核");
          setOperator(checkParameter, "法务合规人");
          record = manager.approve(checkParameter);
@@ -205,6 +217,7 @@ public class SimpleApprovalManagerTest {
          // 【合规 Part2 RO审核 通过】
          checkParameter = new ApprovalCheckParameter();
          checkParameter.setRecordCode(record.getRecordCode());
+         checkParameter.setActionNodeCode("合规");
          checkParameter.setItemCode("RO审核");
          setOperator(checkParameter, "新加坡RO");
          record = manager.approve(checkParameter);

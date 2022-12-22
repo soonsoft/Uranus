@@ -148,7 +148,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineForkState extends StateMachineGatewayState<StateMachineForkNode> {
-        public final String DEFAULT_STATE_CODE = "ForkNodeAutoFlow";
+        public final String DEFAULT_STATE_CODE = "@ForkNodeAutoFlow";
 
         public StateMachineForkState(Predicate2<Object, StateMachineForkNode> conditionFn) {
             super(conditionFn);
@@ -169,7 +169,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineParallelState extends StateMachineGatewayState<StateMachineParallelNode> {
-        public final String DEFAULT_STATE_CODE = "ParallelNodeAutoNext";
+        public final String DEFAULT_STATE_CODE = "@ParallelNodeToNext";
 
         public StateMachineParallelState(Predicate2<Object, StateMachineParallelNode> conditionFn) {
             super(conditionFn);

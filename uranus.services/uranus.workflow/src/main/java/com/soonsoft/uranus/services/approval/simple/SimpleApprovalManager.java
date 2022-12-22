@@ -3,6 +3,7 @@ package com.soonsoft.uranus.services.approval.simple;
 import org.springframework.util.CollectionUtils;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.struct.tuple.Tuple2;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
@@ -85,17 +86,9 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         checkParameter(parameter);
         Guard.notEmpty("nodeCode", "the parameter nodeCode is required.");
 
-        final String recordCode = parameter.getRecordCode();
-
-        ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
-        if(record == null) {
-            throw new ApprovalException("cannot find ApprovalRecord by recordCode[%s]", recordCode);
-        }
-
-        StateMachineFlowDefinition definition = flowFactory.loadDefinition(record);
-        if(definition == null) {
-            throw new ApprovalException("cannot load definition");
-        }
+        Tuple2<ApprovalRecord, StateMachineFlowDefinition> tuple = loadRecordAndDefinition(parameter.getRecordCode());
+        ApprovalRecord record = tuple.getItem1();
+        StateMachineFlowDefinition definition = tuple.getItem2();
 
         StateMachineFlowState currentState = record.getFlowState();
         String previousNodeCode = currentState.getNodeCode();
@@ -131,20 +124,12 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
     }
 
     @Override
-    public void cancel(ApprovalParameter parameter) {
+    public void cancel(ApprovalCheckParameter parameter) {
         checkParameter(parameter);
 
-        ApprovalRecord record = approvalRepository.getApprovalRecord(parameter.getRecordCode());
-        if(record == null) {
-            throw new ApprovalException("cannot find ApprovalRecord by recordCode[%s]", parameter.getRecordCode());
-        }
-
-        StateMachineFlowDefinition definition = flowFactory.loadDefinition(record);
-        if(definition == null) {
-            throw new ApprovalException("cannot load definition");
-        }
-
-        // TODO: 复合节点如何处理取消？
+        Tuple2<ApprovalRecord, StateMachineFlowDefinition> tuple = loadRecordAndDefinition(parameter.getRecordCode());
+        ApprovalRecord record = tuple.getItem1();
+        StateMachineFlowDefinition definition = tuple.getItem2();
         
         StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);
         ApprovalHistoryRecord historyRecord = 
@@ -153,7 +138,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
                 hr.setPreviousHistoryId(record.getCurrentHistoryId());
             });
         record.setCurrentHistoryId(historyRecord.getId());
-        flowEngine.cancel(new ApprovalRecordHolder(record, historyRecord));
+        flowEngine.cancel(parameter.getActionNodeCode(), new ApprovalRecordHolder(record, historyRecord));
     }
 
     @Override
@@ -228,18 +213,11 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
     protected ApprovalRecord doAction(ApprovalActionType actionType, String stateCode, ApprovalParameter parameter) {
         final String recordCode = parameter.getRecordCode();
 
-        ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
-        if(record == null) {
-            throw new ApprovalException("cannot find ApprovalRecord by recordCode[%s]", recordCode);
-        }
-
-        StateMachineFlowDefinition definition = flowFactory.loadDefinition(record);
-        if(definition == null) {
-            throw new ApprovalException("cannot load definition");
-        }
+        Tuple2<ApprovalRecord, StateMachineFlowDefinition> tuple = loadRecordAndDefinition(recordCode);
+        ApprovalRecord record = tuple.getItem1();
+        StateMachineFlowDefinition definition = tuple.getItem2();
 
         StateMachineFLowEngine<TApprovalQuery> flowEngine = flowFactory.createEngine(definition);
-        final String nodeCode = definition.getCurrentNodeCode();
         ApprovalHistoryRecord historyRecord = 
             createApprovalHistoryRecord(parameter, record, actionType, hr -> {
                 hr.setRemark(parameter.getRemark());
@@ -248,8 +226,9 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         record.setCurrentHistoryId(historyRecord.getId());
 
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
+        final String actionNodeCode = parameter.getActionNodeCode();
         StateMachineFlowState actionState = 
-            flowEngine.action(nodeCode, stateCode, 
+            flowEngine.action(actionNodeCode, stateCode, 
                 new ApprovalRecordHolder(record, historyRecord, () -> definition, itemCode));
         if(actionState instanceof CompositionPartialState partialState) {
             actionState = definition.createFlowState();
@@ -260,6 +239,20 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         record.setFlowState(actionState);
 
         return record;
+    }
+
+    private Tuple2<ApprovalRecord, StateMachineFlowDefinition> loadRecordAndDefinition(String recordCode) {
+        ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
+        if(record == null) {
+            throw new ApprovalException("cannot find ApprovalRecord by recordCode[%s]", recordCode);
+        }
+
+        StateMachineFlowDefinition definition = flowFactory.loadDefinition(record);
+        if(definition == null) {
+            throw new ApprovalException("cannot load definition");
+        }
+
+        return new Tuple2<>(record, definition);
     }
 
     private ApprovalRecord fillApprovalRecord(ApprovalRecord record, ApprovalCreateParameter parameter) {
@@ -283,6 +276,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
     private void checkParameter(ApprovalParameter parameter) {
         Guard.notNull(parameter, "the arguments parameter is required.");
         Guard.notEmpty(parameter.getRecordCode(), "the parameter.recordCode is required.");
+        Guard.notEmpty(parameter.getActionNodeCode(), "the parameter actionNodeCode is required.");
     }
 
 }

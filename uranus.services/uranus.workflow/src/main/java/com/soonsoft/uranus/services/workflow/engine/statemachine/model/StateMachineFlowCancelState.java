@@ -14,7 +14,6 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
     public void setStateCode(String stateCode) {
         // StateCode always be Cancel
     }
-
     @Override
     public String getStateCode() {
         return CANCEL_STATE_CODE;
@@ -24,12 +23,10 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
     public void setToNodeCode(String nodeCode) {
         // No toNodeCode
     }
-
     @Override
     public String getToNodeCode() {
         return null;
     }
-
     @Override
     public StateMachineFlowNode getToNode() {
         return null;

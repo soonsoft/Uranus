@@ -20,7 +20,7 @@ public class ParallelActionNodeState extends StateMachineFlowState {
 
     public StateMachineFlowNode getActionNode() {
         return getFindFlowNodeFn().call(actionNodeCode);
-    } 
+    }
 
     @Override
     public StateMachineFlowState copy() {

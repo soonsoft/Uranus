@@ -25,7 +25,7 @@ public interface IFlowEngine<TFlowState extends FlowState, TFlowQuery> {
      * 取消流程，Pending | Started 状态下都可以取消。
      * @param parameter 流程取消相关参数
      */
-    void cancel(FlowActionParameter parameter);
+    void cancel(String nodeCode, FlowActionParameter parameter);
 
     FlowStatus getStatus();
 

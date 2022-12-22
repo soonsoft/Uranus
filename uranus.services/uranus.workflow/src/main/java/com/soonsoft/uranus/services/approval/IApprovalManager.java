@@ -63,7 +63,7 @@ public interface IApprovalManager<TApprovalQuery> {
      * 取消审核
      * @param parameter 审核参数信息
      */
-    void cancel(ApprovalParameter parameter);
+    void cancel(ApprovalCheckParameter parameter);
 
     // TODO： 支持加签、减签（动态调整 partial item）
 
