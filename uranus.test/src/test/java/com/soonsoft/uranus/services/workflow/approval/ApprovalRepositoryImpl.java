@@ -39,7 +39,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
 
     @Override
     public void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords, List<ApprovalPartialItem> partialItems) {
-        if(record.getFlowState().getFromNode() instanceof StateMachineCompositeNode) {
+        if(record.currentFlowState().findFromNode() instanceof StateMachineCompositeNode) {
             showPartialItems(record, partialItems);
         } else {
             showRecordState(record);
@@ -62,8 +62,8 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
             StringUtils.format(
                 "[{0} - {1}]: {2}.{3} > {4}", 
                 record.getApprovalType(), record.getRecordCode(),
-                record.getFlowState().getNodeCode(), record.getFlowState().getStateCode(),
-                record.getFlowState().getToNodeCode()
+                record.getPreviousNodeCode(), record.getPreviousStateCode(),
+                record.getCurrentNodeCode()
             )
         );
     }
@@ -72,7 +72,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
         System.out.print(
             StringUtils.format("[{0} - {1}]: {2} > ", 
                 record.getApprovalType(), record.getRecordCode(),
-                record.getFlowState().getNodeCode())
+                record.getPreviousNodeCode())
         );
         for(ApprovalPartialItem item : partialItems) {
             System.out.print(

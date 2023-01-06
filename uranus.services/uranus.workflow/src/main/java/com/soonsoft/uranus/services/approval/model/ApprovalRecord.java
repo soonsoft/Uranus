@@ -26,8 +26,6 @@ public class ApprovalRecord {
     private String source;
     /** 审核目标信息 */
     private ApprovalTargetInfo targetInfo;
-    /** 审核流程状态信息 */
-    private StateMachineFlowState flowState;
     /** 审核记录状态 */
     private ApprovalStatus status;
     /** 审核记录提交历史 ID */
@@ -38,6 +36,9 @@ public class ApprovalRecord {
     private String compositionActionCode;
     /** 审核历史列表 */
     private List<ApprovalHistoryRecord> historyRecordList;
+
+    /** 审核流程状态信息(不被序列化) */
+    private transient StateMachineFlowState flowState;
 
     public Object getId() {
         return id;
@@ -104,11 +105,21 @@ public class ApprovalRecord {
         this.targetInfo = targetInfo;
     }
 
-    public StateMachineFlowState getFlowState() {
+    public StateMachineFlowState currentFlowState() {
         return flowState;
     }
     public void setFlowState(StateMachineFlowState flowState) {
         this.flowState = flowState;
+    }
+
+    public String getCurrentNodeCode() {
+        return flowState != null ? flowState.getToNodeCode() : null;
+    }
+    public String getPreviousNodeCode() {
+        return flowState != null ? flowState.getNodeCode() : null;
+    }
+    public String getPreviousStateCode() {
+        return flowState != null ? flowState.getStateCode() : null;
     }
 
     public ApprovalStatus getStatus() {

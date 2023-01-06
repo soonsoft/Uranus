@@ -59,11 +59,11 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
         this.previousFlowState = previousFlowState;
     }
 
-    public StateMachineFlowNode getFromNode() {
+    public StateMachineFlowNode findFromNode() {
         return findFlowNodeFn.call(getNodeCode());
     }
 
-    public StateMachineFlowNode getToNode() {
+    public StateMachineFlowNode findToNode() {
         return findFlowNodeFn.call(getToNodeCode());
     }
 

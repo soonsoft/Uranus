@@ -54,7 +54,7 @@ public class SimpleApprovalStateMachineFlowRepository
     public StateMachineFlowState getCurrentState(Object parameter) {
         String recordCode;
         if(parameter instanceof ApprovalRecord record) {
-            return record.getFlowState();
+            return record.currentFlowState();
         } else if(parameter instanceof ApprovalCheckParameter p) {
             recordCode = p.getRecordCode();
         } else if(parameter instanceof String code) {
@@ -63,7 +63,7 @@ public class SimpleApprovalStateMachineFlowRepository
             throw new ApprovalException("unknown parameter type.");
         }
         ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
-        return record.getFlowState();
+        return record.currentFlowState();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class SimpleApprovalStateMachineFlowRepository
         ApprovalRecord record = recordHolder.getRecord(); 
         ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
 
-        StateMachineFlowNode node = state.getFromNode();
+        StateMachineFlowNode node = state.findFromNode();
         if(node instanceof StateMachineCompositeNode compositeNode) {
             if(state instanceof CompositionPartialState partialState) {
                 partialItems.add(createApprovalPartialItem(partialState.getActionPartialItem(), record.getApprovalFlowCode()));
@@ -128,7 +128,7 @@ public class SimpleApprovalStateMachineFlowRepository
             return;
         }
 
-        StateMachineFlowNode nextNode = state.getToNode();
+        StateMachineFlowNode nextNode = state.findToNode();
         if(nextNode instanceof StateMachineCompositeNode compositeNode) {
             String compositionActionCode = compositionActionCodeGenerator.call();
             record.setCompositionActionCode(compositionActionCode);

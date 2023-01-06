@@ -80,7 +80,7 @@ public class StateMachineFLowEngine<TFlowQuery>
         }
 
         // 自动处理所有的 GatewayNode（GatewayNode 分为分支节点和并行节点，不能作为结束节点）
-        StateMachineFlowNode nextNode = newState.getToNode();
+        StateMachineFlowNode nextNode = newState.findToNode();
         while(nextNode instanceof StateMachineGatewayNode gatewayNode) {
             // 分支节点 or 并行节点回流
 
@@ -117,7 +117,7 @@ public class StateMachineFLowEngine<TFlowQuery>
                 nextState.setPreviousFlowState(newState);
                 newState = nextState;
                 
-                nextNode = newState.getToNode();
+                nextNode = newState.findToNode();
             } else {
                 // 并行节点，未全部回流完成时（此时不会更新 definition 上的状态）
                 break;

@@ -47,7 +47,7 @@ public class SimpleApprovalManagerTest {
         String endNodeCode = container.getEndNodeCode(approvalType);
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("KYC审核"));
 
         // 【KYC 审核通过】
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
@@ -56,7 +56,7 @@ public class SimpleApprovalManagerTest {
         setOperator(checkParameter, "香港KYC审核人");
         record = manager.approve(checkParameter);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("合规审核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("合规审核"));
 
         // 【合规 审核驳回】
         checkParameter = new ApprovalCheckParameter();
@@ -65,7 +65,7 @@ public class SimpleApprovalManagerTest {
         setOperator(checkParameter, "新加坡合规审核人");
         record = manager.deny(checkParameter);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals(beginNodeCode));
+        Assert.assertTrue(record.getCurrentNodeCode().equals(beginNodeCode));
 
         // 【制单人 再次提交】
         ApprovalParameter resubmitParam = new ApprovalParameter();
@@ -74,7 +74,7 @@ public class SimpleApprovalManagerTest {
         setOperator(resubmitParam, "制单人");
         record = manager.resubmit(resubmitParam);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("KYC审核"));
 
         // 【KYC 审核通过】
         checkParameter = new ApprovalCheckParameter();
@@ -83,7 +83,7 @@ public class SimpleApprovalManagerTest {
         setOperator(checkParameter, "新加坡KYC审核人");
         record = manager.approve(checkParameter);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("合规审核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("合规审核"));
 
         // 【合规 审核通过】
         checkParameter = new ApprovalCheckParameter();
@@ -92,7 +92,7 @@ public class SimpleApprovalManagerTest {
         setOperator(checkParameter, "香港合规审核人");
         record = manager.approve(checkParameter);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("RO复核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("RO复核"));
 
         // 【RO 复核通过】
         checkParameter = new ApprovalCheckParameter();
@@ -101,7 +101,7 @@ public class SimpleApprovalManagerTest {
         setOperator(checkParameter, "国际RO负责人");
         record = manager.approve(checkParameter);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals(endNodeCode));
+        Assert.assertTrue(record.getCurrentNodeCode().equals(endNodeCode));
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Completed);
 
     }
@@ -130,7 +130,7 @@ public class SimpleApprovalManagerTest {
         String beginNodeCode = container.getBeginNodeCode(approvalType);
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("KYC审核"));
 
         //【制单人 撤回】
         ApprovalParameter resubmitParam = new ApprovalParameter();
@@ -139,7 +139,7 @@ public class SimpleApprovalManagerTest {
         setOperator(resubmitParam, "制单人");
         record = manager.revoke(resubmitParam);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals(beginNodeCode));
+        Assert.assertTrue(record.getCurrentNodeCode().equals(beginNodeCode));
 
         // 【制单人 再次提交】
         resubmitParam = new ApprovalParameter();
@@ -148,7 +148,7 @@ public class SimpleApprovalManagerTest {
         setOperator(resubmitParam, "制单人");
         record = manager.resubmit(resubmitParam);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("KYC审核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("KYC审核"));
 
         // 【合规审核 通过】
         ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
@@ -157,7 +157,7 @@ public class SimpleApprovalManagerTest {
         setOperator(checkParameter, "香港合规");
         record = manager.deny(checkParameter);
 
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals(beginNodeCode));
+        Assert.assertTrue(record.getCurrentNodeCode().equals(beginNodeCode));
 
         // 【制单人 取消 】
         checkParameter = new ApprovalCheckParameter();
@@ -193,7 +193,7 @@ public class SimpleApprovalManagerTest {
 
         Assert.assertNotNull(record);
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Checking);
-        Assert.assertTrue(record.getFlowState().getToNodeCode().equals("复核"));
+        Assert.assertTrue(record.getCurrentNodeCode().equals("复核"));
 
          // 【复核 通过】
          ApprovalCheckParameter checkParameter = new ApprovalCheckParameter();
@@ -202,7 +202,7 @@ public class SimpleApprovalManagerTest {
          setOperator(checkParameter, "复核人");
          record = manager.approve(checkParameter);
  
-         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("合规"));
+         Assert.assertTrue(record.getCurrentNodeCode().equals("合规"));
 
          // 【合规 Part1 法务 通过】
          checkParameter = new ApprovalCheckParameter();
@@ -212,7 +212,7 @@ public class SimpleApprovalManagerTest {
          setOperator(checkParameter, "法务合规人");
          record = manager.approve(checkParameter);
  
-         Assert.assertTrue(record.getFlowState().getToNodeCode().equals("合规"));
+         Assert.assertTrue(record.getCurrentNodeCode().equals("合规"));
          
          // 【合规 Part2 RO审核 通过】
          checkParameter = new ApprovalCheckParameter();
@@ -222,7 +222,7 @@ public class SimpleApprovalManagerTest {
          setOperator(checkParameter, "新加坡RO");
          record = manager.approve(checkParameter);
  
-         Assert.assertTrue(record.getFlowState().getToNodeCode().equals(endNodeCode));
+         Assert.assertTrue(record.getCurrentNodeCode().equals(endNodeCode));
          Assert.assertTrue(record.getStatus() == ApprovalStatus.Completed);
     }
 

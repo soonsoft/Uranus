@@ -35,19 +35,19 @@ public class CompositionPartialState extends StateMachineFlowState {
     }
 
     @Override
-    public StateMachineFlowNode getFromNode() {
+    public StateMachineFlowNode findFromNode() {
         return fromNode;
     }
 
     @Override
-    public StateMachineFlowNode getToNode() {
+    public StateMachineFlowNode findToNode() {
         return null;
     }
 
     @Override
     public CompositionPartialState copy() {
         CompositionPartialState copyPartialState = new CompositionPartialState(
-            this.getActionPartialItem().copy(), (StateMachineCompositeNode) this.getFromNode().copy());
+            this.getActionPartialItem().copy(), (StateMachineCompositeNode) this.findFromNode().copy());
         copy(this, copyPartialState);
         return copyPartialState;
     }
