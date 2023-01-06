@@ -52,7 +52,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     public static class StateMachineParallelNode extends StateMachineGatewayNode implements IPartialItemBehavior {
 
         private List<StateMachinePartialItem> parallelNodeItems;
-        private Func1<String, StateMachineFlowNode> findFlowNodeFn;
+        private final transient Func1<String, StateMachineFlowNode> findFlowNodeFn;
 
         public StateMachineParallelNode(Func1<String, StateMachineFlowNode> findNodeFn) {
             this.findFlowNodeFn = findNodeFn;
@@ -131,7 +131,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     //#region define state
 
     public static abstract class StateMachineGatewayState<TNode> extends StateMachineFlowState {
-        private final Predicate2<Object, TNode> conditionFn;
+        private final transient Predicate2<Object, TNode> conditionFn;
 
         public StateMachineGatewayState(Predicate2<Object, TNode> conditionFn) {
             this.conditionFn = conditionFn;
@@ -148,7 +148,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineForkState extends StateMachineGatewayState<StateMachineForkNode> {
-        public final String DEFAULT_STATE_CODE = "@ForkNodeAutoFlow";
+        public final transient String DEFAULT_STATE_CODE = "@ForkNodeAutoFlow";
 
         public StateMachineForkState(Predicate2<Object, StateMachineForkNode> conditionFn) {
             super(conditionFn);
@@ -169,7 +169,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
     }
 
     public static class StateMachineParallelState extends StateMachineGatewayState<StateMachineParallelNode> {
-        public final String DEFAULT_STATE_CODE = "@ParallelNodeToNext";
+        public final transient String DEFAULT_STATE_CODE = "@ParallelNodeToNext";
 
         public StateMachineParallelState(Predicate2<Object, StateMachineParallelNode> conditionFn) {
             super(conditionFn);

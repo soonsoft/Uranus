@@ -16,7 +16,7 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
 
     private List<StateMachinePartialItem> partialItemList;
 
-    private final Func1<StateMachineCompositeNode, String> resolveStateCodeFn;
+    private final transient Func1<StateMachineCompositeNode, String> resolveStateCodeFn;
 
     public StateMachineCompositeNode(Func1<StateMachineCompositeNode, String> resolveStateCodeFn) {
         this.resolveStateCodeFn = resolveStateCodeFn;

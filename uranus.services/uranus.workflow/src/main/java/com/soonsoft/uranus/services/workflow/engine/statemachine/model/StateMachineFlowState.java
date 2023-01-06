@@ -12,9 +12,9 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
     /** 流转到达节点编码 */
     private String toNodeCode;
     /** 获取节点信息函数 */
-    private Func1<String, StateMachineFlowNode> findFlowNodeFn;
+    private transient Func1<String, StateMachineFlowNode> findFlowNodeFn;
     /** 上一个操作节点（自动流转时填充，如GatewayNode） */
-    private StateMachineFlowState previousFlowState;
+    private transient StateMachineFlowState previousFlowState;
 
     public StateMachineFlowState() {
 
