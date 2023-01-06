@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,6 +113,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
             return false;
         }
 
+        @Transient
         protected Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
             return findFlowNodeFn;
         }
@@ -141,6 +143,7 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
             return conditionFn != null ? conditionFn.test(data, node) : false;
         }
 
+        @Transient
         protected Predicate2<Object, TNode> getConditionFn() {
             return conditionFn;
         }

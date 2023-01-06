@@ -12,7 +12,7 @@ public class LinearFlowNode extends FlowNode<LinearFlowState> {
     private int stepValue;
     private String actionStateCode;
     private LinearFlowStatus nodeStatus = LinearFlowStatus.Pending;
-    private Func1<Predicate1<LinearFlowNode>, List<LinearFlowNode>> findNodeListFn;
+    private transient Func1<Predicate1<LinearFlowNode>, List<LinearFlowNode>> findNodeListFn;
 
     public LinearFlowNode() {
 

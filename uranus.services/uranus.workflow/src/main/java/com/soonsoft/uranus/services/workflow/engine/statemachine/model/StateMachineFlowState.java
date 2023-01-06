@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
+import java.beans.Transient;
+
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.workflow.model.FlowState;
 
@@ -48,10 +50,12 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
     public void setFindFlowNodeFn(Func1<String, StateMachineFlowNode> findNodeFn) {
         this.findFlowNodeFn = findNodeFn;
     }
+    @Transient
     protected Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
         return findFlowNodeFn;
     }
 
+    @Transient
     public StateMachineFlowState getPreviousFlowState() {
         return previousFlowState;
     }
