@@ -54,7 +54,7 @@ public class SimpleApprovalStateMachineFlowRepository
     public StateMachineFlowState getCurrentState(Object parameter) {
         String recordCode;
         if(parameter instanceof ApprovalRecord record) {
-            return record.currentFlowState();
+            return record.getFlowState();
         } else if(parameter instanceof ApprovalCheckParameter p) {
             recordCode = p.getRecordCode();
         } else if(parameter instanceof String code) {
@@ -63,7 +63,7 @@ public class SimpleApprovalStateMachineFlowRepository
             throw new ApprovalException("unknown parameter type.");
         }
         ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
-        return record.currentFlowState();
+        return record.getFlowState();
     }
 
     @Override

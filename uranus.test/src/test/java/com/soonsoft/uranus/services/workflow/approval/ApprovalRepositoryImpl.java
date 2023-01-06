@@ -39,7 +39,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
 
     @Override
     public void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords, List<ApprovalPartialItem> partialItems) {
-        if(record.currentFlowState().findFromNode() instanceof StateMachineCompositeNode) {
+        if(record.getFlowState().findFromNode() instanceof StateMachineCompositeNode) {
             showPartialItems(record, partialItems);
         } else {
             showRecordState(record);

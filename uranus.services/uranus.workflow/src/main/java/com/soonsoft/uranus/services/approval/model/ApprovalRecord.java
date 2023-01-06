@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.approval.model;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +106,8 @@ public class ApprovalRecord {
         this.targetInfo = targetInfo;
     }
 
-    public StateMachineFlowState currentFlowState() {
+    @Transient
+    public StateMachineFlowState getFlowState() {
         return flowState;
     }
     public void setFlowState(StateMachineFlowState flowState) {
