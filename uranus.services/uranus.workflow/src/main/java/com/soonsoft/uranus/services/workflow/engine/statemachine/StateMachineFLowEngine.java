@@ -9,6 +9,7 @@ import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.ParallelActionNodeState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowBackState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowCancelState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
@@ -139,6 +140,38 @@ public class StateMachineFLowEngine<TFlowQuery>
     }
 
     @Override
+    public StateMachineFlowState back(String nodeCode, FlowActionParameter parameter) {
+        prepareAction(nodeCode, parameter);
+
+        final StateMachineFlowDefinition definition = getDefinition();
+
+        if(StringUtils.isEmpty(definition.getCurrentNodeCode())) {
+            throw new FlowException("the current node code of definition is null.");
+        }
+
+        StateMachineFlowNode currentNode = definition.findNode(definition.getCurrentNodeCode());
+        if(currentNode == null) {
+            throw new FlowException("can not find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
+        }
+        if(currentNode instanceof StateMachineCompositeNode || currentNode instanceof StateMachineGatewayNode) {
+            // TODO:这个地方有待探讨
+            throw new FlowException("StateMachineCompositeNode or StateMachineGatewayNode unsupported back.");
+        }
+        StateMachineFlowNode actionNode = matchActionNode(definition, currentNode, nodeCode);
+
+        StateMachineFlowBackState backState = definition.createBackState();
+        backState.setToNodeCode(definition.getPreviousNodeCode());
+        backState.setNodeCode(actionNode.getNodeCode());
+
+        updateDefinitionState(definition, backState);
+
+        // 保存状态
+        getFlowRepository().saveState(backState, parameter);
+
+        return backState;
+    }
+
+    @Override
     public void cancel(String nodeCode, FlowActionParameter parameter) {
         prepareCancel(parameter);
 
@@ -160,15 +193,15 @@ public class StateMachineFLowEngine<TFlowQuery>
                 (parameter instanceof IPartialItemCode getter) ? getter.getItemCode() : parameter.getOperator();
             StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, cancelState.getStateCode());
             partialItem.setStatus(StateMachinePartialItemStatus.Terminated);
-            CompositionPartialState partialItemStatus = new CompositionPartialState(partialItem, compositeNode);
-            partialItemStatus.setFlowCode(definition.getFlowCode());
-            cancelState.setPreviousFlowState(partialItemStatus);
+            CompositionPartialState partialItemState = new CompositionPartialState(partialItem, compositeNode);
+            partialItemState.setFlowCode(definition.getFlowCode());
+            // 将复合节点操作信息保留在 previousState 中，回溯是需要查阅复合节点对应的partialItems
+            cancelState.setPreviousFlowState(partialItemState);
         }
 
         if(currentNode instanceof StateMachineParallelNode) {
-            StateMachineFlowCancelState actionNodeCancelState = definition.createCancelState();
-            actionNodeCancelState.setNodeCode(actionNode.getNodeCode());
-            cancelState.setPreviousFlowState(actionNodeCancelState);
+            // 并行节点，将操作节点修改为实际发起【取消】操作的节点Code
+            cancelState.setNodeCode(actionNode.getNodeCode());
         }
 
         definition.setStatus(FlowStatus.Canceled);
@@ -234,9 +267,17 @@ public class StateMachineFLowEngine<TFlowQuery>
     }
 
     private void updateDefinitionState(StateMachineFlowDefinition definition, StateMachineFlowState state) {
-        definition.setPreviousNodeCode(state.getNodeCode());
-        definition.setPreviousStateCode(state.getStateCode());
         definition.setCurrentNodeCode(state.getToNodeCode());
+
+        StateMachineFlowState previousState = state;
+        while(previousState.getPreviousFlowState() != null) {
+            if(previousState.getPreviousFlowState() instanceof CompositionPartialState) {
+                break;
+            }
+            previousState = previousState.getPreviousFlowState();
+        }
+        definition.setPreviousNodeCode(previousState.getNodeCode());
+        definition.setPreviousStateCode(previousState.getStateCode());
     }
 
     private StateMachineFlowState findState(StateMachineFlowNode node, String stateCode) {

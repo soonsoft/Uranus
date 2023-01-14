@@ -52,6 +52,12 @@ public class StateMachineFlowDefinition extends FlowDefinition<StateMachineFlowN
         return state;
     }
 
+    public StateMachineFlowBackState createBackState() {
+        StateMachineFlowBackState state = new StateMachineFlowBackState(this::findNode);
+        state.setFlowCode(getFlowCode());
+        return state;
+    }
+
     public StateMachineFlowCancelState createCancelState() {
         StateMachineFlowCancelState state = new StateMachineFlowCancelState(this::findNode);
         state.setFlowCode(getFlowCode());

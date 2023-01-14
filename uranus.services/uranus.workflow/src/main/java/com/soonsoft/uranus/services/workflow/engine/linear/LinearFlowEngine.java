@@ -141,6 +141,12 @@ public class LinearFlowEngine<TFlowQuery>
     }
 
     @Override
+    public LinearFlowState back(String nodeCode, FlowActionParameter parameter) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public void cancel(String nodeCode, FlowActionParameter parameter) {
         prepareCancel(parameter);
 

@@ -12,11 +12,20 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
 
     @Override
     public void setStateCode(String stateCode) {
-        // StateCode always be Cancel
+        // StateCode be always @Cancel
     }
     @Override
     public String getStateCode() {
         return CANCEL_STATE_CODE;
+    }
+
+    @Override
+    public void setToNodeId(Object toNodeId) {
+        // no toNodeId
+    }
+    @Override
+    public Object getToNodeId() {
+        return null;
     }
 
     @Override
@@ -37,8 +46,8 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
     }
 
     @Override
-    public StateMachineFlowState copy() {
-        StateMachineFlowCancelState copyCancelState = new StateMachineFlowCancelState(null);
+    public StateMachineFlowCancelState copy() {
+        StateMachineFlowCancelState copyCancelState = new StateMachineFlowCancelState(this.getFindFlowNodeFn());
         copy(this, copyCancelState);
         return copyCancelState;
     }
@@ -47,7 +56,11 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
         if(source == null || dist == null) {
             return;
         }
+        dist.setId(source.getId());
+        dist.setFlowCode(source.getFlowCode());
+        dist.setFromNodeId(source.getFromNodeId());
         dist.setNodeCode(source.getNodeCode());
+        dist.setStateName(source.getStateName());
     }
     
 }

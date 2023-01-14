@@ -85,7 +85,7 @@ public abstract class BaseFlowEngine<
         }
     }
 
-    protected void prepareAction(String nodeCode, String stateCode, FlowActionParameter parameter) {
+    protected void prepareAction(String nodeCode, FlowActionParameter parameter) {
         if(!isStarted()) {
             throw new FlowException(
                 "the flow process do action error, cause the status is incurrect, current status is [%s]", 
@@ -93,6 +93,10 @@ public abstract class BaseFlowEngine<
         }
 
         Guard.notEmpty(nodeCode, "the parameter nodeCode is required.");
+    }
+
+    protected void prepareAction(String nodeCode, String stateCode, FlowActionParameter parameter) {
+        prepareAction(nodeCode, parameter);
         Guard.notEmpty(stateCode, "the parameter stateCode is required.");
     }
 

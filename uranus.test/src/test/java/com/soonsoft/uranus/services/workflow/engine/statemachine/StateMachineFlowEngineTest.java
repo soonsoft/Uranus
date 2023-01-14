@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
@@ -242,9 +244,22 @@ public class StateMachineFlowEngineTest {
                 .build();
 
         StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+        StringBuilder traceText = new StringBuilder("\n\n[Trace]:\n");
+        Action1<StateMachineFlowDefinition> trace = 
+            d -> {
+                traceText.append(
+                    StringUtils.format(
+                        "{0}.{1} > {2}\n", 
+                        d.getPreviousNodeCode() != null ? d.getPreviousNodeCode() : "~",
+                        d.getPreviousStateCode() != null ? d.getPreviousStateCode() : "~",
+                        d.getCurrentNodeCode()
+                    )
+                );
+            };
 
         engine.start();
         assert engine.isStarted();
+        trace.apply(definition);
 
         TestActionParameter parameter = new TestActionParameter();
         parameter.setOperateTime(new Date());
@@ -252,21 +267,27 @@ public class StateMachineFlowEngineTest {
         parameter.setData(Integer.valueOf(500));
         engine.action("begin", "submit", parameter);
         assert definition.getCurrentNodeCode().equals("采购经理审批");
+        trace.apply(definition);
 
         engine.action(definition.getCurrentNodeCode(), "approved", parameter);
         assert definition.getCurrentNodeCode().equals("总经理审批");
+        trace.apply(definition);
 
         engine.action(definition.getCurrentNodeCode(), "deiend", parameter);
         assert definition.getCurrentNodeCode().equals("begin");
+        trace.apply(definition);
 
         parameter.setData(Integer.valueOf(1000));
         engine.action("begin", "submit", parameter);
         assert definition.getCurrentNodeCode().equals("总经理审批");
+        trace.apply(definition);
 
         engine.action(definition.getCurrentNodeCode(), "approved", parameter);
         assert definition.getCurrentNodeCode().equals("end");
         assert engine.isFinished();
+        trace.apply(definition);
 
+        System.out.println(traceText);
     }
 
     @Test
