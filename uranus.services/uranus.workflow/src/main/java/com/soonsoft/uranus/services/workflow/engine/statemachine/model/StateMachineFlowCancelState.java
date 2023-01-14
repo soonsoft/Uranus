@@ -37,7 +37,7 @@ public class StateMachineFlowCancelState extends StateMachineFlowState {
         return null;
     }
     @Override
-    public StateMachineFlowNode getToNode() {
+    public StateMachineFlowNode findToNode() {
         return null;
     }
 

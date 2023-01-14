@@ -62,9 +62,9 @@ public class StateMachineFlowFactory<TFlowQuery>
         definition.setPreviousStateCode(state.getStateCode());
         definition.setCurrentNodeCode(state.getToNodeCode());
 
-        StateMachineFlowNode previousNode = state.getFromNode();
+        StateMachineFlowNode previousNode = state.findFromNode();
         previousNode.setId(state.getFromNodeId());
-        StateMachineFlowNode currentNode = state.getToNode();
+        StateMachineFlowNode currentNode = state.findToNode();
         currentNode.setId(state.getToNodeId());
 
         if(StateMachineFlowCancelState.isCancelState(state.getStateCode())) {

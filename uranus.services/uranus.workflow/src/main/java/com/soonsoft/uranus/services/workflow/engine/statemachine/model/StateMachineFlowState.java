@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
+import java.beans.Transient;
+
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.workflow.model.FlowState;
 
@@ -12,9 +14,9 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
     /** 流转到达节点编码 */
     private String toNodeCode;
     /** 获取节点信息函数 */
-    private Func1<String, StateMachineFlowNode> findFlowNodeFn;
+    private transient Func1<String, StateMachineFlowNode> findFlowNodeFn;
     /** 上一个操作节点（自动流转时填充，如GatewayNode） */
-    private StateMachineFlowState previousFlowState;
+    private transient StateMachineFlowState previousFlowState;
 
     public StateMachineFlowState() {
 
@@ -48,10 +50,12 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
     public void setFindFlowNodeFn(Func1<String, StateMachineFlowNode> findNodeFn) {
         this.findFlowNodeFn = findNodeFn;
     }
+    @Transient
     protected Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
         return findFlowNodeFn;
     }
 
+    @Transient
     public StateMachineFlowState getPreviousFlowState() {
         return previousFlowState;
     }
@@ -59,11 +63,11 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
         this.previousFlowState = previousFlowState;
     }
 
-    public StateMachineFlowNode getFromNode() {
+    public StateMachineFlowNode findFromNode() {
         return findFlowNodeFn.call(getNodeCode());
     }
 
-    public StateMachineFlowNode getToNode() {
+    public StateMachineFlowNode findToNode() {
         return findFlowNodeFn.call(getToNodeCode());
     }
 
