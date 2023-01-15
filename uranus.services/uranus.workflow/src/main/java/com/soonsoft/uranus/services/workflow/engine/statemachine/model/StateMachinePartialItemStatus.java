@@ -5,7 +5,7 @@ public enum StateMachinePartialItemStatus {
     Pending,
     /** 已处理 */
     Completed,
-    /** 已取消 */
+    /** 已终止 */
     Terminated,
     ;
 }

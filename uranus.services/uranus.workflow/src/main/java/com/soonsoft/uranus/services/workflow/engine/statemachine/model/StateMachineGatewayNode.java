@@ -86,8 +86,8 @@ public abstract class StateMachineGatewayNode extends StateMachineFlowNode {
             if(CollectionUtils.isEmpty(parallelNodeItems)) {
                 throw new FlowException("there are not parallel node items.");
             }
-            if(!parallelNodeItems.stream().anyMatch(i -> i.getItemCode().equals(nodeCode))) {
-                throw new FlowException("the nodeCode[%s] not exists.", nodeCode);
+            if(!parallelNodeItems.stream().anyMatch(i -> i.getItemCode().equals(nodeCode) && i.getStatus() == StateMachinePartialItemStatus.Pending)) {
+                throw new FlowException("the nodeCode[%s] is not exists or not Pending status.", nodeCode);
             }
 
             return findFlowNodeFn.call(nodeCode);

@@ -1,25 +1,37 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
+import java.util.List;
+
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class ParallelActionNodeState extends StateMachineFlowState {
+
+    private StateMachinePartialItem actionPartialItem;
+    private List<StateMachinePartialItem> relationPartialItems;
 
     public ParallelActionNodeState(Func1<String, StateMachineFlowNode> findNodeFn) {
         super(findNodeFn);
     }
 
-    private String actionNodeCode;
-
     public String getActionNodeCode() {
-        return actionNodeCode;
+        return actionPartialItem.getItemCode();
     }
-
-    public void setActionNodeCode(String actionNodeCode) {
-        this.actionNodeCode = actionNodeCode;
-    }
-
     public StateMachineFlowNode getActionNode() {
-        return getFindFlowNodeFn().call(actionNodeCode);
+        return getFindFlowNodeFn().call(getActionNodeCode());
+    }
+
+    public StateMachinePartialItem getActionPartialItem() {
+        return actionPartialItem;
+    }
+    public void setActionPartialItem(StateMachinePartialItem actionPartialItem) {
+        this.actionPartialItem = actionPartialItem;
+    }
+
+    public List<StateMachinePartialItem> getRelationPartialItems() {
+        return relationPartialItems;
+    }
+    public void setRelationPartialItems(List<StateMachinePartialItem> relationPartialItems) {
+        this.relationPartialItems = relationPartialItems;
     }
 
     @Override

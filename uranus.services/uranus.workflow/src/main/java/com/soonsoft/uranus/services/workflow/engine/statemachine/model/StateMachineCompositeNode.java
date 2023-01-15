@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.util.CollectionUtils;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 
@@ -46,6 +47,14 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
         return false;
     }
 
+    public String resolveAllState(String allCode) {
+        return resolveState(allCode, null);
+    }
+
+    public String resolveAnyState(String anyCode) {
+        return resolveState(null, anyCode);
+    }
+
     public String resolveState(String allCode, String anyCode) {
         if(!CollectionUtils.isEmpty(partialItemList)) {
             boolean allFlag = true;
@@ -54,11 +63,10 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
                     allFlag = false;
                     continue;
                 }
-                if(anyCode.equals(item.getStateCode())) {
+                if(!StringUtils.isEmpty(anyCode) && anyCode.equals(item.getStateCode())) {
                     return anyCode;
                 }
-
-                if(!allCode.equals(item.getStateCode())) {
+                if(!StringUtils.isEmpty(allCode) && !allCode.equals(item.getStateCode())) {
                     allFlag = false;
                     break;
                 }
@@ -72,17 +80,9 @@ public class StateMachineCompositeNode extends StateMachineFlowNode implements I
 
     public String resolveStateCode(String stateCode) {
         if(resolveStateCodeFn != null) {
-            String resolveStateCode = resolveStateCodeFn.call(this);
-            // 一旦返回确定的StateCode，就将剩余没有处理的节点全部取消掉
-            if(resolveStateCode != null) {
-                forEach((item, index, behavior) -> {
-                    if(item.getStatus() == StateMachinePartialItemStatus.Pending) {
-                        item.setStatus(StateMachinePartialItemStatus.Terminated);
-                    }
-                });
-            }
-            return resolveStateCode;
+            return resolveStateCodeFn.call(this);
         }
+        // 如果没有设置 resolveStateCodeFn，则参数就是确定的stateCode
         return stateCode;
     }
 

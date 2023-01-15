@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.services.workflow.engine.statemachine.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.soonsoft.uranus.core.Guard;
@@ -8,6 +9,7 @@ import com.soonsoft.uranus.core.functional.action.Action3;
 import com.soonsoft.uranus.core.functional.behavior.ForEachBehavior;
 import com.soonsoft.uranus.core.functional.behavior.IForEach;
 import com.soonsoft.uranus.core.functional.predicate.Predicate1;
+import com.soonsoft.uranus.services.workflow.exception.FlowException;
 
 public interface IPartialItemBehavior extends IForEach<StateMachinePartialItem> {
 
@@ -25,16 +27,31 @@ public interface IPartialItemBehavior extends IForEach<StateMachinePartialItem> 
      */
     default StateMachinePartialItem updatePartialItemState(String itemCode, String stateCode) {
         final List<StateMachinePartialItem> partialItemList = getPartialItemList();
-        if(!CollectionUtils.isEmpty(partialItemList)) {
-            for(StateMachinePartialItem item : partialItemList) {
-                if(item.getItemCode().equals(itemCode)) {
-                    item.setStateCode(stateCode);
-                    item.setStatus(StateMachinePartialItemStatus.Completed);
-                    return item;
-                }
+        if(CollectionUtils.isEmpty(partialItemList)) {
+            throw new FlowException("the filed partialItemList is empty.");
+        }
+        for(StateMachinePartialItem item : partialItemList) {
+            if(item.getItemCode().equals(itemCode)) {
+                item.setStateCode(stateCode);
+                item.setStatus(StateMachinePartialItemStatus.Completed);
+                return item;
             }
         }
-        return null;
+        throw new FlowException("cannot find PartialItem by itemCode [%s].", itemCode);
+    }
+
+    /**
+     * 将所有待定的项目状态变更为 Terminated
+     */
+    default List<StateMachinePartialItem> terminateAllPendingItems() {
+        List<StateMachinePartialItem> updatedItems = new ArrayList<>();
+        forEach((item, index, behavior) -> {
+            if(item.getStatus() == StateMachinePartialItemStatus.Pending) {
+                updatedItems.add(item);
+                item.setStatus(StateMachinePartialItemStatus.Terminated);
+            }
+        });
+        return updatedItems;
     }
 
     /**

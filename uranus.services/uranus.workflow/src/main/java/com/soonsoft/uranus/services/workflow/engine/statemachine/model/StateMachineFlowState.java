@@ -51,7 +51,7 @@ public class StateMachineFlowState extends FlowState implements ICopy<StateMachi
         this.findFlowNodeFn = findNodeFn;
     }
     @Transient
-    protected Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
+    public Func1<String, StateMachineFlowNode> getFindFlowNodeFn() {
         return findFlowNodeFn;
     }
 

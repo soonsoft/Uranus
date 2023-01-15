@@ -16,7 +16,6 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
@@ -88,17 +87,17 @@ public class StateMachineFLowEngine<TFlowQuery>
             boolean isCompleted = true;
             if(nextNode instanceof StateMachineParallelNode parallelNode) {
                 if(currentNode instanceof StateMachineParallelNode) {
-                    // 当前是并行节点是才是回流
+                    // 当前是并行节点是才需处理回流
                     ParallelActionNodeState parallelActionNodeState = new ParallelActionNodeState(definition::findNode);
                     StateMachineFlowState.copy(newState, parallelActionNodeState);
                     parallelActionNodeState.setNodeCode(currentNode.getNodeCode());
-                    parallelActionNodeState.setActionNodeCode(actionNode.getNodeCode());
-                    newState = parallelActionNodeState;
                     
-                    // 并行节点状态回流
-                    parallelNode.updatePartialItemState(
-                        parallelActionNodeState.getActionNodeCode(), parallelActionNodeState.getStateCode());
+                    StateMachinePartialItem actionPartialItem = parallelNode.updatePartialItemState(
+                        actionNode.getNodeCode(), parallelActionNodeState.getStateCode());
+                    parallelActionNodeState.setActionPartialItem(actionPartialItem);
                     isCompleted = parallelNode.isCompleted();
+
+                    newState = parallelActionNodeState;
                 } else {
                     isCompleted = false;
                 }
@@ -145,24 +144,24 @@ public class StateMachineFLowEngine<TFlowQuery>
 
         final StateMachineFlowDefinition definition = getDefinition();
 
-        if(StringUtils.isEmpty(definition.getCurrentNodeCode())) {
-            throw new FlowException("the current node code of definition is null.");
-        }
-
         StateMachineFlowNode currentNode = definition.findNode(definition.getCurrentNodeCode());
         if(currentNode == null) {
-            throw new FlowException("can not find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
+            throw new FlowException("cannot find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
         }
-        if(currentNode instanceof StateMachineCompositeNode || currentNode instanceof StateMachineGatewayNode) {
-            // TODO:这个地方有待探讨
-            throw new FlowException("StateMachineCompositeNode or StateMachineGatewayNode unsupported back.");
+        if(currentNode.isBeginNode()) {
+            throw new FlowException("the current node [%s] is begin node, cannot back.", currentNode.getNodeCode());
         }
+
         StateMachineFlowNode actionNode = matchActionNode(definition, currentNode, nodeCode);
+        if(actionNode == null) {
+            throw new FlowException("cannot find action FlowNode by nodeCode [%s]", nodeCode);
+        }
 
         StateMachineFlowBackState backState = definition.createBackState();
         backState.setToNodeCode(definition.getPreviousNodeCode());
         backState.setNodeCode(actionNode.getNodeCode());
 
+        processCompositionAndParallel(currentNode, actionNode, backState, parameter);
         updateDefinitionState(definition, backState);
 
         // 保存状态
@@ -179,30 +178,16 @@ public class StateMachineFLowEngine<TFlowQuery>
 
         StateMachineFlowNode currentNode = definition.findNode(definition.getCurrentNodeCode());
         if(currentNode == null) {
-            throw new FlowException("can not find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
+            throw new FlowException("cannot find current FlowNode by current nodeCode [%s]", definition.getCurrentNodeCode());
         }
         StateMachineFlowNode actionNode = matchActionNode(definition, currentNode, nodeCode);
         if(actionNode == null) {
-            throw new FlowException("can not find action FlowNode by nodeCode [%s]", nodeCode);
+            throw new FlowException("cannot find action FlowNode by nodeCode [%s]", nodeCode);
         }
 
         StateMachineFlowCancelState cancelState = definition.createCancelState();
         cancelState.setNodeCode(definition.getCurrentNodeCode());
-        if(currentNode instanceof StateMachineCompositeNode compositeNode) {
-            String partialItemCode = 
-                (parameter instanceof IPartialItemCode getter) ? getter.getItemCode() : parameter.getOperator();
-            StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, cancelState.getStateCode());
-            partialItem.setStatus(StateMachinePartialItemStatus.Terminated);
-            CompositionPartialState partialItemState = new CompositionPartialState(partialItem, compositeNode);
-            partialItemState.setFlowCode(definition.getFlowCode());
-            // 将复合节点操作信息保留在 previousState 中，回溯是需要查阅复合节点对应的partialItems
-            cancelState.setPreviousFlowState(partialItemState);
-        }
-
-        if(currentNode instanceof StateMachineParallelNode) {
-            // 并行节点，将操作节点修改为实际发起【取消】操作的节点Code
-            cancelState.setNodeCode(actionNode.getNodeCode());
-        }
+        processCompositionAndParallel(currentNode, actionNode, cancelState, parameter);
 
         definition.setStatus(FlowStatus.Canceled);
         updateDefinitionState(definition, cancelState);
@@ -244,26 +229,66 @@ public class StateMachineFLowEngine<TFlowQuery>
             FlowActionParameter parameter) {
         
         String nextStateCode = stateCode;
+        CompositionPartialState partialState = null;
         if(actionNode instanceof StateMachineCompositeNode compositeNode) {
             String partialItemCode = 
                 (parameter instanceof IPartialItemCode getter) 
                     ? getter.getItemCode() 
                     : parameter.getOperator();
             StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, stateCode);
+            partialState = new CompositionPartialState(partialItem, compositeNode);
+            partialState.setFlowCode(definition.getFlowCode());
+
             nextStateCode = compositeNode.resolveStateCode(stateCode);
-            if(StringUtils.isEmpty(nextStateCode)) {
+            if(!StringUtils.isEmpty(nextStateCode)) {
+                // 复合节点已经得出最终状态，将剩余没有处理的节点全部终止
+                List<StateMachinePartialItem> terminatedItems = compositeNode.terminateAllPendingItems();
+                partialState.setRelationPartialItems(terminatedItems);
+            } else {
                 // 多个部分未全部完成
-                CompositionPartialState partialState = new CompositionPartialState(partialItem, compositeNode);
-                partialState.setFlowCode(definition.getFlowCode());
                 return partialState;
             }
         }
         
         StateMachineFlowState state = findState(actionNode, nextStateCode);
         if(state != null) {
-            return copyState(state, definition);
+            StateMachineFlowState copy = copyState(state, definition);
+            copy.setPreviousFlowState(partialState);
+            return copy;
         }
         return null;
+    }
+
+    private void processCompositionAndParallel(StateMachineFlowNode currentNode, StateMachineFlowNode actionNode, StateMachineFlowState resolveState, FlowActionParameter parameter) {
+        if(currentNode instanceof StateMachineCompositeNode compositeNode) {
+            // 复合节点操作
+            String partialItemCode = 
+                (parameter instanceof IPartialItemCode getter) ? getter.getItemCode() : parameter.getOperator();
+            StateMachinePartialItem partialItem = compositeNode.updatePartialItemState(partialItemCode, resolveState.getStateCode());
+            List<StateMachinePartialItem> terminationItems = compositeNode.terminateAllPendingItems();
+
+            CompositionPartialState partialItemState = new CompositionPartialState(partialItem, compositeNode);
+            partialItemState.setFlowCode(resolveState.getFlowCode());
+            partialItemState.setRelationPartialItems(terminationItems);
+
+            // 将复合节点操作信息保留在 previousState 中，回溯是需要查阅复合节点对应的partialItems
+            resolveState.setPreviousFlowState(partialItemState);
+        }
+
+        if(currentNode instanceof StateMachineParallelNode parallelNode) {
+            // 并行节点操作
+            ParallelActionNodeState parallelActionState = new ParallelActionNodeState(resolveState.getFindFlowNodeFn());
+            StateMachineFlowState.copy(resolveState, parallelActionState);
+
+            StateMachinePartialItem partialItem = parallelNode.updatePartialItemState(actionNode.getNodeCode(), resolveState.getStateCode());
+            parallelActionState.setActionPartialItem(partialItem);
+
+            List<StateMachinePartialItem> cancelItems = parallelNode.terminateAllPendingItems();
+            parallelActionState.setRelationPartialItems(cancelItems);
+            
+            // 保留操作信息
+            resolveState.setPreviousFlowState(parallelActionState);
+        }
     }
 
     private void updateDefinitionState(StateMachineFlowDefinition definition, StateMachineFlowState state) {
@@ -272,6 +297,9 @@ public class StateMachineFLowEngine<TFlowQuery>
         StateMachineFlowState previousState = state;
         while(previousState.getPreviousFlowState() != null) {
             if(previousState.getPreviousFlowState() instanceof CompositionPartialState) {
+                break;
+            }
+            if(previousState.getPreviousFlowState() instanceof ParallelActionNodeState) {
                 break;
             }
             previousState = previousState.getPreviousFlowState();

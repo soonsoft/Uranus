@@ -1,9 +1,11 @@
 package com.soonsoft.uranus.services.workflow.engine.linear;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
+import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.workflow.IFlowRepository;
 import com.soonsoft.uranus.services.workflow.engine.BaseFlowEngine;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowState;
@@ -118,7 +120,7 @@ public class LinearFlowEngine<TFlowQuery>
             if(activatedStep == maxStep) {
                 definition.setStatus(FlowStatus.Finished);
             } else {
-                List<LinearFlowNode> nextNodeList = nextNode(activatedStep);
+                List<LinearFlowNode> nextNodeList = nextNodes(activatedStep);
                 if(nextNodeList == null) {
                     throw new FlowException("the activatedStep[%s] is invalid.", activatedStep);
                 }
@@ -128,8 +130,8 @@ public class LinearFlowEngine<TFlowQuery>
 
         LinearFlowResult result = new LinearFlowResult();
         result.setDefinition(definition);
-        result.setNode(actionNode);
         result.setId(actionState.getId());
+        result.setNode(actionNode);
         result.setNodeCode(actionNode.getNodeCode());
         result.setStateName(actionState.getStateName());
         result.setStateCode(actionState.getStateCode());
@@ -142,8 +144,44 @@ public class LinearFlowEngine<TFlowQuery>
 
     @Override
     public LinearFlowState back(String nodeCode, FlowActionParameter parameter) {
-        // TODO Auto-generated method stub
-        return null;
+        prepareAction(nodeCode, parameter);
+
+        final LinearFlowDefinition definition = getDefinition();
+        LinearFlowNode actionNode = getActionNode(definition, nodeCode);
+        if(actionNode.getStepValue() == minStep) {
+            throw new FlowException("the actionNode[%s] is first node, cannot back.", nodeCode);
+        }
+        actionNode.setNodeStatus(LinearFlowStatus.Pending);
+
+        List<LinearFlowNode> changedNodes = new ArrayList<>(definition.getNodeList().size());
+        changedNodes.add(actionNode);
+
+        List<LinearFlowNode> otherSameStepNodeList = actionNode.getSameStepNodeList();
+        if(!CollectionUtils.isEmpty(otherSameStepNodeList)) {
+            for(LinearFlowNode node : otherSameStepNodeList) {
+                if(node.getNodeStatus() != LinearFlowStatus.Pending) {
+                    node.setNodeStatus(LinearFlowStatus.Pending);
+                    changedNodes.add(node);
+                }
+            }
+        }
+
+        List<LinearFlowNode> previousNodes = previousNodes(actionNode.getStepValue());
+        for(LinearFlowNode node : previousNodes) {
+            node.setNodeStatus(LinearFlowStatus.Activated);
+            changedNodes.add(node);
+        }
+        
+        LinearFlowResult result = new LinearFlowResult();
+        result.setDefinition(definition);
+        result.setNodeCode(actionNode.getNodeCode());
+        result.setStateCode("@Back");
+        result.setChangedOtherNodeList(changedNodes);
+        
+        // 保存取消状态
+        getFlowRepository().saveState(result, parameter);
+
+        return result;
     }
 
     @Override
@@ -151,19 +189,27 @@ public class LinearFlowEngine<TFlowQuery>
         prepareCancel(parameter);
 
         final LinearFlowDefinition definition = getDefinition();
+        
         LinearFlowNode actionNode = getActionNode(definition, nodeCode);
+        actionNode.setNodeStatus(LinearFlowStatus.Completed);
 
-        List<LinearFlowNode> otherSameStepNodeList = actionNode.getSameStepNodeList();
-        if(!CollectionUtils.isEmpty(otherSameStepNodeList)) {
-            otherSameStepNodeList.forEach(n -> n.setNodeStatus(LinearFlowStatus.Rejected));
+        // 终止剩下未操作的节点
+        List<LinearFlowNode> changedOtherNodes = new ArrayList<>(definition.getNodeList().size() - 1);
+        for(LinearFlowNode node : definition.getNodeList()) {
+            if(node.getNodeStatus() == LinearFlowStatus.Pending || node.getNodeStatus() == LinearFlowStatus.Activated) {
+                node.setNodeStatus(LinearFlowStatus.Terminated);
+                changedOtherNodes.add(node);
+            }
         }
         
         definition.setStatus(FlowStatus.Canceled);
         
         LinearFlowResult result = new LinearFlowResult();
         result.setDefinition(definition);
+        result.setNode(actionNode);
         result.setNodeCode(actionNode.getNodeCode());
         result.setStateCode("@Cancel");
+        result.setChangedOtherNodeList(changedOtherNodes);
         
         // 保存取消状态
         getFlowRepository().saveState(result, parameter);
@@ -174,14 +220,29 @@ public class LinearFlowEngine<TFlowQuery>
         throw new FlowException("the LinearFlowEngine can not support currentState() function.");
     }
 
-    protected List<LinearFlowNode> nextNode(int currentStep) {
+    protected List<LinearFlowNode> previousNodes(int currentStep) {
+        if(currentStep == minStep) {
+            return null;
+        }
+
+        return getNodesByStep(currentStep, i -> i.intValue() - 1);
+    }
+
+    protected List<LinearFlowNode> nextNodes(int currentStep) {
         if(currentStep == maxStep) {
             return null;
         }
 
+        return getNodesByStep(currentStep, i -> i.intValue() + 1);
+    }
+
+    private List<LinearFlowNode> getNodesByStep(int currentStep, Func1<Integer, Integer> nextStep) {
         for(int i = 0; i < stepArray.length; i++) {
             if(stepArray[i] == currentStep) {
-                return getDefinition().findNode(stepArray[i + 1]);
+                int nextIndex = nextStep.call(i).intValue();
+                if(nextIndex >= 0 && nextIndex < stepArray.length) {
+                    return getDefinition().findNode(stepArray[nextIndex]);
+                }
             }
         }
         return null;

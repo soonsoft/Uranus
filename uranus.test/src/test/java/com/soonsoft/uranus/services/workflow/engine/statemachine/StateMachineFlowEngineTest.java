@@ -120,21 +120,86 @@ public class StateMachineFlowEngineTest {
 
     @Test
     public void test_flowCancel() {
-        StateMachineFlowDefinition definition = createDefaultTestDefinition();
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+                .setFlowCode("完全类型流程")
+                .setCancelable(true)
+                .beginNode().setNodeCode("开始")
+                    .state().setStateCode("Next").setToNodeCode("复合").add()
+                    .add()
+                .compositeNode(node -> node.resolveAllState("Next")).setNodeCode("复合")
+                    .partial().setItemCode("Part1").add()
+                    .partial().setItemCode("Part2").add()
+                    .state().setStateCode("Next").setToNodeCode("分支").add()
+                .add()
+                .forkNode().setNodeCode("分支")
+                    .state((data, forkNode) -> true).setToNodeCode("并行").add()
+                .add()
+                .parallelNode().setNodeCode("并行")
+                    .partialNode()
+                        .setItemCode("并行1")
+                        .addState("Done", null)
+                    .add()
+                    .partialNode()
+                        .setItemCode("并行2")
+                        .addState("Done", null)
+                    .add()
+                .add()
+                .endNode().setNodeCode("结束").add()
+                .build();
         StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
 
         assert engine.getStatus() == FlowStatus.Pending;
 
+        FlowActionParameter parameter = null;
+
+        // 普通节点取消
         engine.start();
         assert engine.isStarted();
 
-        engine.action("001", "Next");
-        assert definition.getCurrentNodeCode().equals("002");
-
-        FlowActionParameter parameter = new FlowActionParameter();
-        parameter.setOperator("002 operator");
-        engine.cancel("002", parameter);
+        parameter = new FlowActionParameter();
+        parameter.setOperator("Starter");
+        engine.cancel("开始", parameter);
         assert engine.isCanceled();
+        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("开始") && definition.getPreviousStateCode().equals("@Cancel");
+
+        // 复合节点取消
+        definition.setStatus(FlowStatus.Started);
+        definition.setCurrentNodeCode("复合");
+        definition.setPreviousNodeCode("开始");
+        definition.setPreviousStateCode("Next");
+
+        parameter = new FlowActionParameter();
+        parameter.setOperator("Part1");
+        engine.cancel("复合", parameter);
+        assert engine.isCanceled();
+        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("复合") && definition.getPreviousStateCode().equals("@Cancel");
+        ((StateMachineCompositeNode)definition.findNode("复合")).forEach((i, idx, b) -> {
+            if(idx > 0) {
+                Assert.assertTrue(i.getStatus() == StateMachinePartialItemStatus.Terminated);
+            }
+        });
+
+        // 并行节点取消
+        definition.setStatus(FlowStatus.Started);
+        definition.setCurrentNodeCode("并行");
+        definition.setPreviousNodeCode("复合");
+        definition.setPreviousStateCode("Next");
+
+        parameter = new FlowActionParameter();
+        parameter.setOperator("操作人");
+        engine.action("并行1", "Done", parameter);
+        engine.cancel("并行2", parameter);
+        assert engine.isCanceled();
+        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("并行") && definition.getPreviousStateCode().equals("@Cancel");
+        ((StateMachineParallelNode)definition.findNode("并行")).forEach((i, idx, b) -> {
+            if(i.getItemCode().equals("并行1")) {
+                Assert.assertTrue(i.getStateCode().equals("Done"));
+            }
+            if(i.getItemCode().equals("并行2")) {
+                Assert.assertTrue(i.getStateCode().equals("@Cancel"));
+            }
+        });
     }
 
     // 复核节点流程
