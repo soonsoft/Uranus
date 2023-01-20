@@ -76,6 +76,7 @@ public class LambdaMetaFactoryTest {
 
             try {
                 MethodHandles.Lookup lookup = MethodHandles.lookup();
+                //delegate = lookup.findGetter(instanceClass, methodName, resultClass);
                 delegate = lookup.findVirtual(instanceClass, methodName, MethodType.methodType(resultClass));
                 CallSite site = LambdaMetafactory.metafactory(
                     lookup, 
