@@ -5,11 +5,17 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Date;
 
+import org.junit.Assert;
+
+import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.core.functional.func.Func3;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class LambdaMetaFactoryTest {
@@ -17,13 +23,35 @@ public class LambdaMetaFactoryTest {
     public static void main(String[] args) throws Throwable {
 
         FlowActionParameter param = new FlowActionParameter();
-        param.setOperatorName("大胃王");
-        param.setOperator("eater");
-        param.setOperateTime(new Date());
-        
-        DynamicFunction<FlowActionParameter, String> df = new DynamicFunction<>("getOperator"){};
-        System.out.println(df.call(param));
 
+        Method setOperatorMethod = FlowActionParameter.class.getMethod("setOperator", String.class);
+        Action2<Object, String> operatorSetter = (Action2<Object, String>) createVirtual(Action2.class, setOperatorMethod);
+
+        Method getOperatorMethod = FlowActionParameter.class.getMethod("getOperator");
+        Func1<Object, String> operatorGetter = (Func1<Object, String>) createVirtual(Func1.class, getOperatorMethod);
+
+        operatorSetter.apply(param, "eater");
+        System.out.println(operatorGetter.call(param));
+
+
+        Method addMethod = LambdaMetaFactoryTest.class.getMethod("add", Integer.class, Integer.class);
+        Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> addDelegate = createVirtual(Func3.class, addMethod);
+
+        LambdaMetaFactoryTest test = new LambdaMetaFactoryTest();
+        System.out.println(addDelegate.call(test, 1, 2));
+
+        Method subtractMethod = LambdaMetaFactoryTest.class.getMethod("subtruct", Integer.class, Integer.class);
+        Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> subtractDelegate = createVirtual(Func3.class, subtractMethod);
+        System.out.println(subtractDelegate.call(test, 5, 1));
+
+    }
+
+    public Integer add(Integer a, Integer b) {
+        return a + b;
+    }
+
+    public Integer subtruct(Integer a, Integer b) {
+        return a - b;
     }
 
     public static void testSpeed() throws Throwable {
@@ -102,7 +130,61 @@ public class LambdaMetaFactoryTest {
             String result = (String) delegate.invokeExact(p);
             return (R) result;
         }
-
     }
+
+    private static void testDynamicFunction() {
+        FlowActionParameter param = new FlowActionParameter();
+        param.setOperatorName("大胃王");
+        param.setOperator("eater");
+        param.setOperateTime(new Date());
+
+        DynamicFunction<FlowActionParameter, String> df = new DynamicFunction<>("getOperator"){};
+        Assert.assertTrue(param.getOperator().equals(df.call(param)));
+        System.out.println(df.call(param));
+    }
+
+    //#region LambdaFactory
+
+    private static Class<?> getParameterClass(Class<?> paramType) {
+        if(paramType == int.class) {
+            return Integer.class;
+        }
+
+        return Object.class;
+    }
+
+    public static <R> R createVirtual(Class<R> funcClass, Method method) {
+        Class<?> instanceClass = method.getDeclaringClass();
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+        Class<?> resultClass = method.getReturnType();
+        Class<?>[] parameterClasses = method.getParameterTypes();
+
+        Class<?>[] lambdaParameterClasses = new Class<?>[parameterClasses.length];
+        Arrays.setAll(lambdaParameterClasses, index -> getParameterClass(parameterClasses[index]));
+
+        //MethodType type = MethodType.methodType(resultClass, instanceClass, lambdaParameterClasses);
+        // if(lambdaParameterClasses.length > 0) {
+        //     type.dropParameterTypes(0, lambdaParameterClasses.length);
+        // }
+
+        String interfaceMethodName = funcClass.getSimpleName().startsWith("Action") ? "apply" : "call";
+
+        try {
+            MethodHandle methodHandle = lookup.unreflect(method);
+            CallSite site = LambdaMetafactory.metafactory(
+                lookup, 
+                interfaceMethodName, 
+                MethodType.methodType(funcClass), 
+                MethodType.methodType(resultClass == void.class ? resultClass : Object.class, Object.class, lambdaParameterClasses),
+                methodHandle,
+                MethodType.methodType(resultClass, instanceClass, parameterClasses));
+            return (R) site.getTarget().invoke();
+        } catch(Throwable e) {
+            throw new RuntimeException("createVirtual error.", e);
+        }
+    }
+
+    //#endregion
     
 }

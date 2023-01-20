@@ -22,7 +22,7 @@ public class FlowDefinition<TFlowNode extends FlowNode<?>> {
     /** 流程是否支持取消 */
     private boolean cancelable = true;
     /** 流程节点列表 */
-    List<TFlowNode> nodeList;
+    private List<TFlowNode> nodeList;
 
     public Object getId() {
         return id;

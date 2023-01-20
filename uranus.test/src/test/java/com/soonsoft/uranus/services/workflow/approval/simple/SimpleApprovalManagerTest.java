@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
 
 import com.soonsoft.uranus.core.common.struct.tuple.Tuple2;
 import com.soonsoft.uranus.services.approval.ApprovalManagerFactory;
@@ -169,8 +170,8 @@ public class SimpleApprovalManagerTest {
         Assert.assertTrue(record.getStatus() == ApprovalStatus.Canceled);
     }
 
-    // 测试会签
     @Test
+    @DisplayName("会签节点测试")
     public void test_countersign() {
         Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer>  tuple2 = createApprovalManager();
         IApprovalManager<SimpleApprovalQuery> manager = tuple2.getItem1();
@@ -224,6 +225,13 @@ public class SimpleApprovalManagerTest {
  
          Assert.assertTrue(record.getCurrentNodeCode().equals(endNodeCode));
          Assert.assertTrue(record.getStatus() == ApprovalStatus.Completed);
+    }
+
+    // 复杂节点
+    @Test
+    @DisplayName("复合节点测试")
+    public void test_composition() {
+        
     }
 
     private Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer> createApprovalManager() {

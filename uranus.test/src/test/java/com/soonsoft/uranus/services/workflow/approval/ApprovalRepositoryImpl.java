@@ -5,7 +5,6 @@ import java.util.List;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.services.approval.IApprovalRepository;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
-import com.soonsoft.uranus.services.approval.model.ApprovalPartialItem;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
@@ -38,9 +37,9 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
     }
 
     @Override
-    public void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords, List<ApprovalPartialItem> partialItems) {
+    public void saveActionState(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords) {
         if(record.getFlowState().findFromNode() instanceof StateMachineCompositeNode) {
-            showPartialItems(record, partialItems);
+            showPartialItems(record, historyRecords);
         } else {
             showRecordState(record);
         }
@@ -68,16 +67,18 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
         );
     }
 
-    private void showPartialItems(ApprovalRecord record, List<ApprovalPartialItem> partialItems) {
+    private void showPartialItems(ApprovalRecord record, List<ApprovalHistoryRecord> historyRecords) {
         System.out.print(
             StringUtils.format("[{0} - {1}]: {2} > ", 
                 record.getApprovalType(), record.getRecordCode(),
                 record.getPreviousNodeCode())
         );
-        for(ApprovalPartialItem item : partialItems) {
-            System.out.print(
-                StringUtils.format("{0}.{1}; ", item.getItemCode(), item.getStateCode())
-            );
+        for(ApprovalHistoryRecord item : historyRecords) {
+            if(!StringUtils.isEmpty(item.getCurrentNodeMark())) {
+                System.out.print(
+                    StringUtils.format("{0}.{1}; ", item.getItemCode(), item.getStateCode())
+                );
+            }
         }
         System.out.print("\n");
     }
