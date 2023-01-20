@@ -1,8 +1,9 @@
 package com.soonsoft.uranus.services.approval.simple;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.springframework.util.CollectionUtils;
 
 import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
@@ -11,7 +12,6 @@ import com.soonsoft.uranus.services.approval.exception.ApprovalException;
 import com.soonsoft.uranus.services.approval.model.ApprovalActionType;
 import com.soonsoft.uranus.services.approval.model.ApprovalCheckParameter;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
-import com.soonsoft.uranus.services.approval.model.ApprovalPartialItem;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStateCode;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
@@ -21,10 +21,10 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.ParallelActionNodeState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
 import com.soonsoft.uranus.util.identity.ID;
@@ -96,10 +96,9 @@ public class SimpleApprovalStateMachineFlowRepository
         }
         
         LinkedList<ApprovalHistoryRecord> historyRecordList = new LinkedList<>();
-        List<ApprovalPartialItem> partialItems = new ArrayList<>();
-        processHistoryRecord(historyRecordList, partialItems, recordHolder, stateParam);
+        processHistoryRecord(historyRecordList, recordHolder, stateParam);
 
-        approvalRepository.saveActionState(record, historyRecordList, partialItems);
+        approvalRepository.saveActionState(record, historyRecordList);
     }
 
     @Override
@@ -109,67 +108,93 @@ public class SimpleApprovalStateMachineFlowRepository
 
     private void processHistoryRecord(
             LinkedList<ApprovalHistoryRecord> historyRecordList,
-            List<ApprovalPartialItem> partialItems,
             ApprovalRecordHolder recordHolder,
             StateMachineFlowState state) {
 
         ApprovalRecord record = recordHolder.getRecord(); 
         ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
 
-        StateMachineFlowNode node = state.findFromNode();
-        if(node instanceof StateMachineCompositeNode compositeNode) {
-            if(state instanceof CompositionPartialState partialState) {
-                partialItems.add(createApprovalPartialItem(partialState.getActionPartialItem(), record.getApprovalFlowCode()));
-            } else {
-                compositeNode.forEach((item, i, b) -> {
-                    partialItems.add(createApprovalPartialItem(item, record.getApprovalFlowCode()));
-                });
+        String pratialItemMark = record.getCurrentNodeMark();
+        StateMachineFlowState previousState = state.getPreviousFlowState();
+        ApprovalHistoryRecord previousHistoryRecord = null;
+        while(previousState != null) {
+            previousHistoryRecord = copyHistoryRecord(historyRecord);
+            if(previousState.getStateCode().startsWith("@")) {
+                historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
             }
-            return;
+
+            fillHistoryRecordState(previousHistoryRecord, previousState, pratialItemMark);
+            historyRecordList.addFirst(previousHistoryRecord);
+
+            // 添加自动取消的 PartialItem 历史记录
+            List<StateMachinePartialItem> relationPartialItems = null;
+            if(state instanceof CompositionPartialState partialState) {
+                relationPartialItems = partialState.getRelationPartialItems();
+            }
+            if(state.getPreviousFlowState() instanceof ParallelActionNodeState actionNodeState) {
+                relationPartialItems = actionNodeState.getRelationPartialItems();
+            }
+            addRelationHistoryRecord(relationPartialItems, previousHistoryRecord, pratialItemMark, historyRecordList);
+            
+            previousState = previousState.getPreviousFlowState();
         }
 
         StateMachineFlowNode nextNode = state.findToNode();
-        if(nextNode instanceof StateMachineCompositeNode compositeNode) {
-            String compositionActionCode = compositionActionCodeGenerator.call();
-            record.setCompositionActionCode(compositionActionCode);
-            historyRecord.setCompositionActionCode(compositionActionCode);
-            historyRecordList.add(historyRecord);
-
-            compositeNode.forEach((item, i, b) -> {
-                partialItems.add(createApprovalPartialItem(item, compositionActionCode));
-            });
-            return;
-        }
-
-        record.setCompositionActionCode(null);
-        if(node instanceof StateMachineGatewayNode gatewayNode) {
-            StateMachineFlowState lastState = state;
-            while(lastState != null) {
-                if(lastState instanceof CompositionPartialState partialState) {
-                    historyRecord = new ApprovalHistoryRecord();
-                    historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
-                    historyRecord.setApprovalRecordCode(record.getRecordCode());
-                    historyRecord.setOperateTime(recordHolder.getOperateTime());
-                } else {
-                    historyRecord = recordHolder.getHistoryRecord();
-                }
-                historyRecord.setFlowState(lastState);
-                historyRecordList.addFirst(historyRecord);
-
-                lastState = lastState.getPreviousFlowState();
+        if(nextNode != null) {
+            if(nextNode instanceof StateMachineCompositeNode || nextNode instanceof StateMachineParallelNode) {
+                // 如果下个节点是复合节点或并行节点，为PartialItem状态生成标记
+                String partialItemMark = compositionActionCodeGenerator.call();
+                record.setCurrentNodeMark(partialItemMark);
+            } else {
+                // 清除标记
+                record.setCurrentNodeMark(null);
             }
-            return;
         }
 
+        fillHistoryRecordState(historyRecord, state, pratialItemMark);
         historyRecordList.add(historyRecord);
     }
 
-    private ApprovalPartialItem createApprovalPartialItem(StateMachinePartialItem item, String compositionActionCode) {
-        ApprovalPartialItem partialItem = new ApprovalPartialItem();
-        StateMachinePartialItem.copy(item, partialItem);
-        partialItem.setCompositionActionCode(compositionActionCode);
-        partialItem.setStatus(StateMachinePartialItemStatus.Pending);
-        return partialItem;
+    private ApprovalHistoryRecord copyHistoryRecord(ApprovalHistoryRecord historyRecord) {
+        ApprovalHistoryRecord copy = new ApprovalHistoryRecord();
+        copy.setApprovalRecordCode(historyRecord.getApprovalRecordCode());
+        copy.setOperateTime(historyRecord.getOperateTime());
+        return copy;
+    }
+
+    private void fillHistoryRecordState(ApprovalHistoryRecord historyRecord, StateMachineFlowState state, String pratialItemMark) {
+        if(state.getPreviousFlowState() instanceof CompositionPartialState partialState) {
+            historyRecord.setCurrentNodeMark(pratialItemMark);
+            historyRecord.setItemCode(partialState.getActionPartialItem().getItemCode());
+            historyRecord.setItemStateCode(partialState.getActionPartialItem().getStateCode());
+        }
+        if(state.getPreviousFlowState() instanceof ParallelActionNodeState actionNodeState) {
+            historyRecord.setItemCode(actionNodeState.getActionNodeCode());
+            historyRecord.setItemStateCode(actionNodeState.getActionPartialItem().getStateCode());
+            historyRecord.setCurrentNodeMark(pratialItemMark);
+        }
+
+        historyRecord.setNodeCode(state.getNodeCode());
+        historyRecord.setStateCode(state.getStateCode());
+    }
+
+    private void addRelationHistoryRecord(
+        List<StateMachinePartialItem> relationPartialItems, 
+        ApprovalHistoryRecord historyRecord,
+        String partialItemMark,
+        LinkedList<ApprovalHistoryRecord> historyRecordList) {
+        
+        if(!CollectionUtils.isEmpty(relationPartialItems)) {
+            for(StateMachinePartialItem item : relationPartialItems) {
+                ApprovalHistoryRecord relationHistoryRecord = copyHistoryRecord(historyRecord);
+                relationHistoryRecord.setNodeCode(historyRecord.getNodeCode());
+                relationHistoryRecord.setStateCode(historyRecord.getStateCode());
+                relationHistoryRecord.setCurrentNodeMark(partialItemMark);
+                relationHistoryRecord.setItemCode(item.getItemCode());
+                relationHistoryRecord.setItemStateCode(item.getStateCode());
+            }
+        }
+
     }
 
 }

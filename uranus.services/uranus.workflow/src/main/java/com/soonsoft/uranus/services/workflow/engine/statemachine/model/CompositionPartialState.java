@@ -34,6 +34,16 @@ public class CompositionPartialState extends StateMachineFlowState {
     }
 
     @Override
+    public void setToNodeCode(String toNodeCode) {
+        // toNodeCode is readonly
+    }
+    @Override
+    public String getToNodeCode() {
+        // toNodeCode be always null
+        return null;
+    }
+
+    @Override
     public void setStateCode(String stateCode) {
         // stateCode is readonly
     }

@@ -2,8 +2,6 @@ package com.soonsoft.uranus.services.approval.model;
 
 import java.util.Date;
 
-import com.soonsoft.uranus.services.workflow.model.FlowState;
-
 public class ApprovalHistoryRecord {
     
     /** 审核历史记录 ID */
@@ -22,10 +20,16 @@ public class ApprovalHistoryRecord {
     private String remark;
     /** 前一个历史记录 ID */
     private Object previousHistoryId;
-    /** 历史状态信息 */
-    private FlowState flowState;
-    /** 复合节点特有数据，用于标识PartialItem数据 */
-    private String compositionActionCode;
+    /** 当前操作节点 */
+    private String nodeCode;
+    /** 当前操作状态 */
+    private String stateCode;
+    /** 复合节点与并行节点，用于关联 PartialItem 数据 */
+    private String currentNodeMark;
+    /** PartialItem 当前操作项 */
+    private String itemCode;
+    /** PartialItem 当前操作状态 */
+    private String itemStateCode;
 
     public Object getId() {
         return id;
@@ -83,17 +87,38 @@ public class ApprovalHistoryRecord {
         this.previousHistoryId = previousHistoryId;
     }
 
-    public FlowState getFlowState() {
-        return flowState;
+    public String getNodeCode() {
+        return nodeCode;
     }
-    public void setFlowState(FlowState flowState) {
-        this.flowState = flowState;
+    public void setNodeCode(String nodeCode) {
+        this.nodeCode = nodeCode;
     }
 
-    public String getCompositionActionCode() {
-        return compositionActionCode;
+    public String getStateCode() {
+        return stateCode;
     }
-    public void setCompositionActionCode(String compositionActionCode) {
-        this.compositionActionCode = compositionActionCode;
+    public void setStateCode(String stateCode) {
+        this.stateCode = stateCode;
+    }
+
+    public String getCurrentNodeMark() {
+        return currentNodeMark;
+    }
+    public void setCurrentNodeMark(String compositionActionCode) {
+        this.currentNodeMark = compositionActionCode;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
+    }
+
+    public String getItemStateCode() {
+        return itemStateCode;
+    }
+    public void setItemStateCode(String itemStateCode) {
+        this.itemStateCode = itemStateCode;
     }
 }
