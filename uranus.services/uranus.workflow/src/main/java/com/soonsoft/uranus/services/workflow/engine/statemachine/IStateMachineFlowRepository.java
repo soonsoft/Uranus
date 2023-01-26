@@ -10,8 +10,6 @@ import com.soonsoft.uranus.services.workflow.model.FlowDefinition;
 public interface IStateMachineFlowRepository<TFlowDefinition extends FlowDefinition<?>, TFlowState> 
     extends IFlowRepository<TFlowDefinition, TFlowState> {
 
-    List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode);
+    List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode, Object parameter);
 
-    
-    
 }

@@ -20,6 +20,7 @@ import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class LambdaMetaFactoryTest {
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Throwable {
 
         FlowActionParameter param = new FlowActionParameter();

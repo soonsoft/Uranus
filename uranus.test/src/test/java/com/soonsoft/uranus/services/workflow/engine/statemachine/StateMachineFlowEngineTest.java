@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
@@ -32,6 +33,7 @@ public class StateMachineFlowEngineTest {
     }
 
     @Test
+    @DisplayName("测试查询结构")
     public void test_query() {
         StateMachineFlowDefinition definition = createDefaultTestDefinition();
         StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
@@ -41,6 +43,7 @@ public class StateMachineFlowEngineTest {
 
     @SuppressWarnings("unchecked")
     @Test
+    @DisplayName("测试扩展查询结构")
     public void test_extensionQuery() {
         Object factoryObj = factory;
         StateMachineFlowFactory<DataSubQuery> factory2 = (StateMachineFlowFactory<DataSubQuery>) factoryObj;
@@ -51,6 +54,7 @@ public class StateMachineFlowEngineTest {
     }
 
     @Test
+    @DisplayName("测试基础流程")
     public void test_flow() {
         StateMachineFlowDefinition definition = createDefaultTestDefinition();
         StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
@@ -97,6 +101,7 @@ public class StateMachineFlowEngineTest {
     }
 
     @Test
+    @DisplayName("测试流程驱动")
     public void test_flowAction() {
         StateMachineFlowRepository repository = (StateMachineFlowRepository) factory.getRepository();
         repository.setDefinitionFn(p -> createDefaultTestDefinition());
@@ -119,6 +124,7 @@ public class StateMachineFlowEngineTest {
     }
 
     @Test
+    @DisplayName("测试流程取消")
     public void test_flowCancel() {
         StateMachineFlowDefinition definition = 
             factory.definitionBuilder()
@@ -202,8 +208,8 @@ public class StateMachineFlowEngineTest {
         });
     }
 
-    // 复核节点流程
     @Test
+    @DisplayName("复合节点流程")
     public void test_composition() {
         StateMachineFlowDefinition definition = 
             factory.definitionBuilder()
@@ -516,9 +522,6 @@ public class StateMachineFlowEngineTest {
     private StateMachineFlowFactory<StateMachineFlowDataQuery> createFactory() {
         StateMachineFlowRepository repository = new StateMachineFlowRepository();
         repository.setDefinitionFn(p -> createDefaultTestDefinition());
-
-        // SerializedLambda sl = new SerializedLambda(getClass(), null, null, null, 0, null, null, null, null, null);
-        // LambdaMetafactory.
 
         DataSubQuery query = new DataSubQuery();
         StateMachineFlowFactory<StateMachineFlowDataQuery> factory = new StateMachineFlowFactory<>(repository, query);
