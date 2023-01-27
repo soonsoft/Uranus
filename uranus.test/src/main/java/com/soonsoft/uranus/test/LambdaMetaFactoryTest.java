@@ -20,31 +20,12 @@ import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class LambdaMetaFactoryTest {
 
-    @SuppressWarnings("unchecked")
+    
     public static void main(String[] args) throws Throwable {
 
-        FlowActionParameter param = new FlowActionParameter();
+        testDynamicFunction();
 
-        Method setOperatorMethod = FlowActionParameter.class.getMethod("setOperator", String.class);
-        Action2<Object, String> operatorSetter = (Action2<Object, String>) createVirtual(Action2.class, setOperatorMethod);
-
-        Method getOperatorMethod = FlowActionParameter.class.getMethod("getOperator");
-        Func1<Object, String> operatorGetter = (Func1<Object, String>) createVirtual(Func1.class, getOperatorMethod);
-
-        operatorSetter.apply(param, "eater");
-        System.out.println(operatorGetter.call(param));
-
-
-        Method addMethod = LambdaMetaFactoryTest.class.getMethod("add", Integer.class, Integer.class);
-        Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> addDelegate = createVirtual(Func3.class, addMethod);
-
-        LambdaMetaFactoryTest test = new LambdaMetaFactoryTest();
-        System.out.println(addDelegate.call(test, 1, 2));
-
-        Method subtractMethod = LambdaMetaFactoryTest.class.getMethod("subtruct", Integer.class, Integer.class);
-        Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> subtractDelegate = createVirtual(Func3.class, subtractMethod);
-        System.out.println(subtractDelegate.call(test, 5, 1));
-
+        testVirtualMethod();
     }
 
     public Integer add(Integer a, Integer b) {
@@ -141,6 +122,31 @@ public class LambdaMetaFactoryTest {
         DynamicFunction<FlowActionParameter, String> df = new DynamicFunction<>("getOperator"){};
         Assert.assertTrue(param.getOperator().equals(df.call(param)));
         System.out.println(df.call(param));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void testVirtualMethod() throws Throwable {
+        FlowActionParameter param = new FlowActionParameter();
+
+        Method setOperatorMethod = FlowActionParameter.class.getMethod("setOperator", String.class);
+        Action2<Object, String> operatorSetter = (Action2<Object, String>) createVirtual(Action2.class, setOperatorMethod);
+
+        Method getOperatorMethod = FlowActionParameter.class.getMethod("getOperator");
+        Func1<Object, String> operatorGetter = (Func1<Object, String>) createVirtual(Func1.class, getOperatorMethod);
+
+        operatorSetter.apply(param, "eater");
+        System.out.println(operatorGetter.call(param));
+
+
+        Method addMethod = LambdaMetaFactoryTest.class.getMethod("add", Integer.class, Integer.class);
+        Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> addDelegate = createVirtual(Func3.class, addMethod);
+
+        LambdaMetaFactoryTest test = new LambdaMetaFactoryTest();
+        System.out.println(addDelegate.call(test, 1, 2));
+
+        Method subtractMethod = LambdaMetaFactoryTest.class.getMethod("subtruct", Integer.class, Integer.class);
+        Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> subtractDelegate = createVirtual(Func3.class, subtractMethod);
+        System.out.println(subtractDelegate.call(test, 5, 1));
     }
 
     //#region LambdaFactory

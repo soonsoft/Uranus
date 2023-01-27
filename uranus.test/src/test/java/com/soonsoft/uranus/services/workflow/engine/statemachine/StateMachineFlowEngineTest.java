@@ -11,7 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.services.workflow.IFlowDataGetter;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.ParallelActionNodeState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
@@ -32,6 +34,8 @@ public class StateMachineFlowEngineTest {
         factory = createFactory();
     }
 
+    //#region 查询对象
+
     @Test
     @DisplayName("测试查询结构")
     public void test_query() {
@@ -41,9 +45,9 @@ public class StateMachineFlowEngineTest {
         Assert.assertTrue(codes.size() == 2);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("测试扩展查询结构")
+    @SuppressWarnings("unchecked")
     public void test_extensionQuery() {
         Object factoryObj = factory;
         StateMachineFlowFactory<DataSubQuery> factory2 = (StateMachineFlowFactory<DataSubQuery>) factoryObj;
@@ -52,6 +56,10 @@ public class StateMachineFlowEngineTest {
         Object data = engine.query().getData("type", 1);
         assert data.toString() == "{}"; 
     }
+
+    //#endregion
+
+    //#region 正向流程测试
 
     @Test
     @DisplayName("测试基础流程")
@@ -121,91 +129,6 @@ public class StateMachineFlowEngineTest {
 
         engine.action("003", "Next");
         assert definition.getCurrentNodeCode().equals("004");
-    }
-
-    @Test
-    @DisplayName("测试流程取消")
-    public void test_flowCancel() {
-        StateMachineFlowDefinition definition = 
-            factory.definitionBuilder()
-                .setFlowCode("完全类型流程")
-                .setCancelable(true)
-                .beginNode().setNodeCode("开始")
-                    .state().setStateCode("Next").setToNodeCode("复合").add()
-                    .add()
-                .compositeNode(node -> node.resolveAllState("Next")).setNodeCode("复合")
-                    .partial().setItemCode("Part1").add()
-                    .partial().setItemCode("Part2").add()
-                    .state().setStateCode("Next").setToNodeCode("分支").add()
-                .add()
-                .forkNode().setNodeCode("分支")
-                    .state((data, forkNode) -> true).setToNodeCode("并行").add()
-                .add()
-                .parallelNode().setNodeCode("并行")
-                    .partialNode()
-                        .setItemCode("并行1")
-                        .addState("Done", null)
-                    .add()
-                    .partialNode()
-                        .setItemCode("并行2")
-                        .addState("Done", null)
-                    .add()
-                .add()
-                .endNode().setNodeCode("结束").add()
-                .build();
-        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
-
-        assert engine.getStatus() == FlowStatus.Pending;
-
-        FlowActionParameter parameter = null;
-
-        // 普通节点取消
-        engine.start();
-        assert engine.isStarted();
-
-        parameter = new FlowActionParameter();
-        parameter.setOperator("Starter");
-        engine.cancel("开始", parameter);
-        assert engine.isCanceled();
-        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("开始") && definition.getPreviousStateCode().equals("@Cancel");
-
-        // 复合节点取消
-        definition.setStatus(FlowStatus.Started);
-        definition.setCurrentNodeCode("复合");
-        definition.setPreviousNodeCode("开始");
-        definition.setPreviousStateCode("Next");
-
-        parameter = new FlowActionParameter();
-        parameter.setOperator("Part1");
-        engine.cancel("复合", parameter);
-        assert engine.isCanceled();
-        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("复合") && definition.getPreviousStateCode().equals("@Cancel");
-        ((StateMachineCompositeNode)definition.findNode("复合")).forEach((i, idx, b) -> {
-            if(idx > 0) {
-                Assert.assertTrue(i.getStatus() == StateMachinePartialItemStatus.Terminated);
-            }
-        });
-
-        // 并行节点取消
-        definition.setStatus(FlowStatus.Started);
-        definition.setCurrentNodeCode("并行");
-        definition.setPreviousNodeCode("复合");
-        definition.setPreviousStateCode("Next");
-
-        parameter = new FlowActionParameter();
-        parameter.setOperator("操作人");
-        engine.action("并行1", "Done", parameter);
-        engine.cancel("并行2", parameter);
-        assert engine.isCanceled();
-        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("并行") && definition.getPreviousStateCode().equals("@Cancel");
-        ((StateMachineParallelNode)definition.findNode("并行")).forEach((i, idx, b) -> {
-            if(i.getItemCode().equals("并行1")) {
-                Assert.assertTrue(i.getStateCode().equals("Done"));
-            }
-            if(i.getItemCode().equals("并行2")) {
-                Assert.assertTrue(i.getStateCode().equals("@Cancel"));
-            }
-        });
     }
 
     @Test
@@ -416,7 +339,7 @@ public class StateMachineFlowEngineTest {
 
         parameter.setOperator("产品经理");
         parameter.setData(Integer.valueOf(100)); // 估时，100 人/月
-        engine.action(definition.getCurrentNodeCode(), "提交", parameter);
+        engine.action("begin", "提交", parameter);
         assert definition.getCurrentNodeCode().equals("评审");
 
         parameter.setOperator("架构师");
@@ -429,10 +352,10 @@ public class StateMachineFlowEngineTest {
 
         parameter.setOperator("部门经理");
         parameter.setItemCode("部门经理审批");
-        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        engine.action("常规审批", "approved", parameter);
         parameter.setOperator("项目管理人员");
         parameter.setItemCode("项目管理部审批");
-        engine.action(definition.getCurrentNodeCode(), "denied", parameter);
+        engine.action("常规审批", "denied", parameter);
         assert definition.getCurrentNodeCode().equals("begin");
 
         resetPartialItems(definition, "评审");
@@ -452,14 +375,14 @@ public class StateMachineFlowEngineTest {
         assert definition.getCurrentNodeCode().equals("CTO审批");
 
         parameter.setOperator("CTO");
-        engine.action(definition.getCurrentNodeCode(), "approved", parameter);
+        engine.action("CTO审批", "approved", parameter);
         assert definition.getCurrentNodeCode().equals("end");
 
         assert engine.isFinished();
     }
 
-    // 测试多重路由节点
     @Test
+    @DisplayName("测试多重路由节点")
     public void test_gatewayNode() {
         StateMachineFlowDefinition definition = 
             factory.definitionBuilder()
@@ -516,6 +439,255 @@ public class StateMachineFlowEngineTest {
         assert definition.getCurrentNodeCode().equals("end");
         assert engine.isFinished();
     }
+
+    //#endregion
+
+    //#region 退回流程
+
+    @Test
+    @DisplayName("测试退回流程")
+    public void test_flowBack() {
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+            .setFlowCode("退回流程")
+            .setCancelable(true)
+            .beginNode().setNodeCode("开始")
+                .state().setStateCode("Pass").setToNodeCode("普通节点").add()
+                .add()
+            .node().setNodeCode("普通节点")
+                .state().setStateCode("Pass").setToNodeCode("复合节点").add()
+                .add()
+            .compositeNode(node -> node.resolveAllState("Pass")).setNodeCode("复合节点")
+                .partial().setItemCode("Part1").add()
+                .partial().setItemCode("Part2").add()
+                .state().setStateCode("Pass").setToNodeCode("分支节点").add()
+                .add()
+            .forkNode().setNodeCode("分支节点")
+                .state((d, n) -> true).setToNodeCode("并行节点").add()
+                .add()
+            .parallelNode().setNodeCode("并行节点")
+                .partialNode().setItemCode("P1")
+                    .addState("Pass", "通过")
+                    .add()
+                .partialNode().setItemCode("P2")
+                    .addState("Pass", "通过")
+                    .add()
+                .state((d, n) -> true).setToNodeCode("结束").add()
+                .add()
+            .endNode().setNodeCode("结束")
+                .add()
+            .build();
+
+        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+        assert engine.getStatus() == FlowStatus.Pending;
+
+        engine.start();
+        assert engine.isStarted();
+        assert definition.getCurrentNodeCode().equals("开始");
+
+        TestActionParameter parameter = null;
+
+        // 【普通节点 > 开始】
+        System.out.println("\n【普通节点 > 开始】");
+        // 1. 设置到普通节点
+        engine.action("开始", "Pass");
+        assert definition.getCurrentNodeCode().equals("普通节点");
+        // 2. 从【普通节点】退回到【开始节点】
+        parameter = new TestActionParameter();
+        parameter.setOperateTime(new Date());
+        parameter.setOperator("普通节点审核员");
+        parameter.setOperatorName("王军");
+        StateMachineFlowState state = engine.back("普通节点", parameter);
+        assert state.getToNodeCode().equals(definition.getCurrentNodeCode());
+        assert definition.getCurrentNodeCode().equals("开始");
+
+        // 【复合节点 > 普通节点】
+        Action1<String> compositionBackAction = (itemCode) -> {
+            TestActionParameter param = null;
+            resetPartialItems(definition, "复合节点");
+            System.out.println("\n【复合节点 > 普通节点】");
+            // 1. 设置到复合节点
+            definition.setCurrentNodeCode("普通节点");
+            definition.setPreviousNodeCode("开始节点");
+            definition.setPreviousStateCode("Pass");
+            engine.action("普通节点", "Pass");
+            assert definition.getCurrentNodeCode().equals("复合节点");
+
+            StateMachineFlowState backState = null;
+            for(int i = 1; i <= 2; i++) {
+                String partialCode = "Part" + i;
+                param = new TestActionParameter();
+                param.setOperateTime(new Date());
+                param.setOperator(partialCode + "审核员");
+                param.setItemCode(partialCode);
+                if(partialCode.equals(itemCode)) {
+                    backState = engine.back("复合节点", param);
+                    break;
+                } else {
+                    engine.action("复合节点", "Pass", param);
+                }
+            }
+            if(backState != null) {
+                CompositionPartialState partialState = (CompositionPartialState) backState.getPreviousFlowState();
+                Assert.assertNotNull(partialState);
+                Assert.assertTrue(partialState.getActionPartialItem().getItemCode().equals(itemCode));
+                if(itemCode.equals("Part1")) {
+                    Assert.assertTrue(partialState.getRelationPartialItems().size() == 1);
+                } else {
+                    Assert.assertTrue(partialState.getRelationPartialItems().isEmpty());
+                }
+            }
+            assert definition.getCurrentNodeCode().equals("普通节点");
+        };
+        // Part1 退回
+        compositionBackAction.apply("Part1");
+        // Part2 退回
+        compositionBackAction.apply("Part2");
+
+        // 【并行节点 > 复合节点】
+        Action1<String> parallelBackAction = (parallelNodeCode) -> {
+            TestActionParameter param = null;
+
+            System.out.println("\n【并行节点 > 复合节点】");
+            // 1. 设置到复合节点
+            definition.setCurrentNodeCode("复合节点");
+            definition.setPreviousNodeCode("普通节点");
+            definition.setPreviousStateCode("Pass");
+            
+            resetPartialItems(definition, "复合节点");
+
+            param = new TestActionParameter();
+            param.setItemCode("Part1");
+            engine.action("复合节点", "Pass", param);
+            param.setItemCode("Part2");
+            engine.action("复合节点", "Pass", param);
+            assert definition.getCurrentNodeCode().equals("并行节点");
+
+            resetPartialItems(definition, "并行节点");
+
+            // 2. 节点退回
+            StateMachineFlowState backState = null;
+            for(int i = 1; i <= 2; i++) {
+                String itemCode = "P" + i;
+                param = new TestActionParameter();
+                param.setOperateTime(new Date());
+                param.setOperator(itemCode + "审核员");
+                if(itemCode.equals(parallelNodeCode)) {
+                    backState = engine.back(itemCode, param);
+                    break;
+                } else {
+                    engine.action(itemCode, "Pass", param);
+                }
+            }
+
+            if(backState != null) {
+                ParallelActionNodeState parallelActionState = (ParallelActionNodeState) backState.getPreviousFlowState();
+                Assert.assertNotNull(parallelActionState);
+                Assert.assertTrue(parallelActionState.getActionPartialItem().getItemCode().equals(parallelNodeCode));
+                if(parallelNodeCode.equals("P1")) {
+                    Assert.assertTrue(parallelActionState.getRelationPartialItems().size() == 1);
+                } else {
+                    Assert.assertTrue(parallelActionState.getRelationPartialItems().isEmpty());
+                }
+            }
+            assert definition.getCurrentNodeCode().equals("复合节点");
+        };
+        // P1 退回
+        parallelBackAction.apply("P1");
+        // P2 退回
+        parallelBackAction.apply("P2");
+    }
+
+    //#endregion
+
+    //#region 取消流程
+
+    @Test
+    @DisplayName("测试流程取消")
+    public void test_flowCancel() {
+        StateMachineFlowDefinition definition = 
+            factory.definitionBuilder()
+                .setFlowCode("完全类型流程")
+                .setCancelable(true)
+                .beginNode().setNodeCode("开始")
+                    .state().setStateCode("Next").setToNodeCode("复合").add()
+                    .add()
+                .compositeNode(node -> node.resolveAllState("Next")).setNodeCode("复合")
+                    .partial().setItemCode("Part1").add()
+                    .partial().setItemCode("Part2").add()
+                    .state().setStateCode("Next").setToNodeCode("分支").add()
+                .add()
+                .forkNode().setNodeCode("分支")
+                    .state((data, forkNode) -> true).setToNodeCode("并行").add()
+                .add()
+                .parallelNode().setNodeCode("并行")
+                    .partialNode()
+                        .setItemCode("并行1")
+                        .addState("Done", null)
+                    .add()
+                    .partialNode()
+                        .setItemCode("并行2")
+                        .addState("Done", null)
+                    .add()
+                .add()
+                .endNode().setNodeCode("结束").add()
+                .build();
+        StateMachineFLowEngine<StateMachineFlowDataQuery> engine = factory.createEngine(definition);
+
+        assert engine.getStatus() == FlowStatus.Pending;
+
+        FlowActionParameter parameter = null;
+
+        // 普通节点取消
+        engine.start();
+        assert engine.isStarted();
+
+        parameter = new FlowActionParameter();
+        parameter.setOperator("Starter");
+        engine.cancel("开始", parameter);
+        assert engine.isCanceled();
+        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("开始") && definition.getPreviousStateCode().equals("@Cancel");
+
+        // 复合节点取消
+        definition.setStatus(FlowStatus.Started);
+        definition.setCurrentNodeCode("复合");
+        definition.setPreviousNodeCode("开始");
+        definition.setPreviousStateCode("Next");
+
+        parameter = new FlowActionParameter();
+        parameter.setOperator("Part1");
+        engine.cancel("复合", parameter);
+        assert engine.isCanceled();
+        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("复合") && definition.getPreviousStateCode().equals("@Cancel");
+        ((StateMachineCompositeNode)definition.findNode("复合")).forEach((i, idx, b) -> {
+            if(idx > 0) {
+                Assert.assertTrue(i.getStatus() == StateMachinePartialItemStatus.Terminated);
+            }
+        });
+
+        // 并行节点取消
+        definition.setStatus(FlowStatus.Started);
+        definition.setCurrentNodeCode("并行");
+        definition.setPreviousNodeCode("复合");
+        definition.setPreviousStateCode("Next");
+
+        parameter = new FlowActionParameter();
+        parameter.setOperator("操作人");
+        engine.action("并行1", "Done", parameter);
+        engine.cancel("并行2", parameter);
+        assert engine.isCanceled();
+        assert definition.getCurrentNodeCode() == null && definition.getPreviousNodeCode().equals("并行") && definition.getPreviousStateCode().equals("@Cancel");
+        ((StateMachineParallelNode)definition.findNode("并行")).forEach((i, idx, b) -> {
+            if(i.getItemCode().equals("并行1")) {
+                Assert.assertTrue(i.getStateCode().equals("Done"));
+            }
+            if(i.getItemCode().equals("并行2")) {
+                Assert.assertTrue(i.getStateCode().equals("@Cancel"));
+            }
+        });
+    }
+
+    //#endregion
 
     //#region helper methonds
 
