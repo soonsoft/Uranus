@@ -1,10 +1,12 @@
 package com.soonsoft.uranus.services.approval.simple;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.util.CollectionUtils;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.services.approval.IApprovalRepository;
@@ -22,6 +24,7 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
+import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItemStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineGatewayNode.StateMachineParallelNode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.ParallelActionNodeState;
@@ -102,8 +105,32 @@ public class SimpleApprovalStateMachineFlowRepository
     }
 
     @Override
-    public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
-        return approvalRepository.getPartialItems(compositeNode);
+    public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode, Object parameter) {
+        ApprovalRecord record = (ApprovalRecord) parameter;
+        String approvalRecordCode = record.getRecordCode();
+        String nodeCode = compositeNode.getNodeCode();
+        String currentNodeMark = record.getCurrentNodeMark();
+
+        List<ApprovalHistoryRecord> historyRecords = 
+            approvalRepository.getPartialApprovalHistoryRecords(approvalRecordCode, nodeCode, currentNodeMark);
+
+        List<StateMachinePartialItem> result = new ArrayList<>();
+        if(historyRecords != null) {
+            for(ApprovalHistoryRecord historyRecord : historyRecords) {
+                if(historyRecord.getNodeCode().equals(nodeCode) 
+                    && (!StringUtils.isEmpty(historyRecord.getCurrentNodeMark()) && historyRecord.getCurrentNodeMark().endsWith(currentNodeMark))) {
+                    
+                    StateMachinePartialItem partialItem = new StateMachinePartialItem();
+                    partialItem.setId(historyRecord.getId());
+                    partialItem.setItemCode(historyRecord.getItemCode());
+                    parseToPartialItem(partialItem, historyRecord.getItemStateCode());
+
+                    result.add(partialItem);
+                }
+            }
+        }
+
+        return result;
     }
 
     private void processHistoryRecord(
@@ -158,6 +185,11 @@ public class SimpleApprovalStateMachineFlowRepository
     private ApprovalHistoryRecord copyHistoryRecord(ApprovalHistoryRecord historyRecord) {
         ApprovalHistoryRecord copy = new ApprovalHistoryRecord();
         copy.setApprovalRecordCode(historyRecord.getApprovalRecordCode());
+        copy.setHistoryRecordType(historyRecord.getHistoryRecordType());
+        copy.setPreviousHistoryId(historyRecord.getPreviousHistoryId());
+        copy.setRemark(historyRecord.getRemark());
+        copy.setOperator(historyRecord.getOperator());
+        copy.setOperatorName(historyRecord.getOperatorName());
         copy.setOperateTime(historyRecord.getOperateTime());
         return copy;
     }
@@ -166,11 +198,11 @@ public class SimpleApprovalStateMachineFlowRepository
         if(state.getPreviousFlowState() instanceof CompositionPartialState partialState) {
             historyRecord.setCurrentNodeMark(pratialItemMark);
             historyRecord.setItemCode(partialState.getActionPartialItem().getItemCode());
-            historyRecord.setItemStateCode(partialState.getActionPartialItem().getStateCode());
+            historyRecord.setItemStateCode(formatItemStateCode(partialState.getActionPartialItem()));
         }
         if(state.getPreviousFlowState() instanceof ParallelActionNodeState actionNodeState) {
             historyRecord.setItemCode(actionNodeState.getActionNodeCode());
-            historyRecord.setItemStateCode(actionNodeState.getActionPartialItem().getStateCode());
+            historyRecord.setItemStateCode(formatItemStateCode(actionNodeState.getActionPartialItem()));
             historyRecord.setCurrentNodeMark(pratialItemMark);
         }
 
@@ -191,10 +223,36 @@ public class SimpleApprovalStateMachineFlowRepository
                 relationHistoryRecord.setStateCode(historyRecord.getStateCode());
                 relationHistoryRecord.setCurrentNodeMark(partialItemMark);
                 relationHistoryRecord.setItemCode(item.getItemCode());
-                relationHistoryRecord.setItemStateCode(item.getStateCode());
+                relationHistoryRecord.setItemStateCode(formatItemStateCode(item));
             }
         }
+    }
 
+    private String formatItemStateCode(StateMachinePartialItem partialItem) {
+        return StringUtils.isEmpty(partialItem.getStateCode()) 
+                    ? StringUtils.format("#{0}", partialItem.getStatus().name())
+                    : StringUtils.format("{0}#{1}", partialItem.getStateCode(), partialItem.getStatus().name());
+    }
+
+    private void parseToPartialItem(StateMachinePartialItem partialItem, String itemStateCode) {
+        if(StringUtils.isEmpty(itemStateCode)) {
+            return;
+        }
+
+        int hashIndex = itemStateCode.indexOf("#");
+        if(hashIndex > -1) {
+            String stateCode = null;
+            StateMachinePartialItemStatus status = null;
+            if(hashIndex > 0) {
+                stateCode = itemStateCode.substring(0, hashIndex);
+            }
+            status = StateMachinePartialItemStatus.valueOf(itemStateCode.substring(hashIndex + 1));
+
+            partialItem.setStateCode(stateCode);
+            partialItem.setStatus(status);
+        } else {
+            partialItem.setStateCode(itemStateCode);
+        }
     }
 
 }

@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 
 public interface IApprovalRepository {
 
@@ -25,11 +23,13 @@ public interface IApprovalRepository {
     ApprovalRecord getApprovalRecord(String recordCode);
 
     /**
-     * 会签与或签审节点获取该节点下所有 PartialItems 的状态
-     * @param compositeNode 复合节点
-     * @return 复合节点下所欧 PartialItems的状态
+     * 会签与或签审节点获取该节点下所有 “部分项” 的状态
+     * @param recordCode 审核记录编号
+     * @param nodeCode 节点编号
+     * @param currentNodeMark 当前节点标记
+     * @return 节点下 “部分项” 相关的历史纪录列表
      */
-    List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode);
+    List<ApprovalHistoryRecord> getPartialApprovalHistoryRecords(String recordCode, String nodeCode, String currentNodeMark);
 
     /**
      * 创建审核单

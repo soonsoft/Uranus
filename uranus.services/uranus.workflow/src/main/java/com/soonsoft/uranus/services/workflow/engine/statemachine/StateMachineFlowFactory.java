@@ -53,7 +53,7 @@ public class StateMachineFlowFactory<TFlowQuery>
         if(state == null) {
             throw new FlowException("cannot find StateMachineFlowState by parameter[%s]", parameter);
         }
-        // 这里必须是一个副本，definition每次需要承载状态，所以每个Flow Engine应该是单独一份
+        // 这里必须是一个副本，definition 需要承载状态，所以每个Flow Engine应该是单独一份
         StateMachineFlowDefinition definition = getRepository().getDefinition(state.getFlowCode());
 
         state.setFindFlowNodeFn(definition::findNode);
@@ -71,10 +71,10 @@ public class StateMachineFlowFactory<TFlowQuery>
             definition.setStatus(FlowStatus.Canceled);
         } else {
             if(currentNode instanceof StateMachineCompositeNode compositeNode) {
-                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPartialItems(compositeNode);
+                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPartialItems(compositeNode, parameter);
                 compositeNode.setAllState(partialItemListWithState);
             } else if (currentNode instanceof StateMachineParallelNode parallelNode) {
-                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPartialItems(parallelNode);
+                List<StateMachinePartialItem> partialItemListWithState = getRepository().getPartialItems(parallelNode, parameter);
                 parallelNode.setAllState(partialItemListWithState);
             }
 

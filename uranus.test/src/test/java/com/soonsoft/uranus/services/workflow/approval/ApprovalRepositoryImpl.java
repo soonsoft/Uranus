@@ -8,8 +8,6 @@ import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachinePartialItem;
 
 public class ApprovalRepositoryImpl implements IApprovalRepository {
 
@@ -21,8 +19,8 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
     }
 
     @Override
-    public List<StateMachinePartialItem> getPartialItems(StateMachineFlowNode compositeNode) {
-        // TODO Auto-generated method stub
+    public List<ApprovalHistoryRecord> getPartialApprovalHistoryRecords(String recordCode, String nodeCode,
+            String currentNodeMark) {
         return null;
     }
 
