@@ -24,6 +24,8 @@ public class ApprovalHistoryRecord {
     private String nodeCode;
     /** 当前操作状态 */
     private String stateCode;
+    /** 到达节点 */
+    private String toNodeCode;
     /** 复合节点与并行节点，用于关联 PartialItem 数据 */
     private String currentNodeMark;
     /** PartialItem 当前操作项 */
@@ -99,6 +101,13 @@ public class ApprovalHistoryRecord {
     }
     public void setStateCode(String stateCode) {
         this.stateCode = stateCode;
+    }
+
+    public String getToNodeCode() {
+        return toNodeCode;
+    }
+    public void setToNodeCode(String toNodeCode) {
+        this.toNodeCode = toNodeCode;
     }
 
     public String getCurrentNodeMark() {

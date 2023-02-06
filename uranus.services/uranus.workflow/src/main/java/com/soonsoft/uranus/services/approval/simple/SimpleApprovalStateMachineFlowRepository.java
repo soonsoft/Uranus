@@ -145,14 +145,6 @@ public class SimpleApprovalStateMachineFlowRepository
         StateMachineFlowState previousState = state.getPreviousFlowState();
         ApprovalHistoryRecord previousHistoryRecord = null;
         while(previousState != null) {
-            previousHistoryRecord = copyHistoryRecord(historyRecord);
-            if(previousState.getStateCode().startsWith("@")) {
-                historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
-            }
-
-            fillHistoryRecordState(previousHistoryRecord, previousState, pratialItemMark);
-            historyRecordList.addFirst(previousHistoryRecord);
-
             // 添加自动取消的 PartialItem 历史记录
             List<StateMachinePartialItem> relationPartialItems = null;
             if(state instanceof CompositionPartialState partialState) {
@@ -163,6 +155,15 @@ public class SimpleApprovalStateMachineFlowRepository
             }
             addRelationHistoryRecord(relationPartialItems, previousHistoryRecord, pratialItemMark, historyRecordList);
             
+            // 添加进行操作的 PartialItem 历史记录（操作的PartialItem历史记录在前，关联操作的历史记录在后）
+            previousHistoryRecord = copyHistoryRecord(historyRecord);
+            if(previousState.getStateCode().startsWith("@")) {
+                historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
+            }
+
+            fillHistoryRecordState(previousHistoryRecord, previousState, pratialItemMark);
+            historyRecordList.addFirst(previousHistoryRecord);
+
             previousState = previousState.getPreviousFlowState();
         }
 
@@ -208,6 +209,7 @@ public class SimpleApprovalStateMachineFlowRepository
 
         historyRecord.setNodeCode(state.getNodeCode());
         historyRecord.setStateCode(state.getStateCode());
+        historyRecord.setToNodeCode(state.getToNodeCode());
     }
 
     private void addRelationHistoryRecord(
@@ -221,9 +223,13 @@ public class SimpleApprovalStateMachineFlowRepository
                 ApprovalHistoryRecord relationHistoryRecord = copyHistoryRecord(historyRecord);
                 relationHistoryRecord.setNodeCode(historyRecord.getNodeCode());
                 relationHistoryRecord.setStateCode(historyRecord.getStateCode());
+                // 操作关联产生的其他部分项目无需设置到达节点
+                relationHistoryRecord.setToNodeCode(null);
                 relationHistoryRecord.setCurrentNodeMark(partialItemMark);
                 relationHistoryRecord.setItemCode(item.getItemCode());
                 relationHistoryRecord.setItemStateCode(formatItemStateCode(item));
+
+                historyRecordList.addFirst(relationHistoryRecord);
             }
         }
     }

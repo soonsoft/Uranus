@@ -39,7 +39,7 @@ public class ApprovalManagerFactory<TApprovalQuery> {
             ApprovalDefinitionContainer definitionContainer) {
 
         SimpleApprovalManager<TApprovalQuery> defaultApprovalManager = 
-            new SimpleApprovalManager<>(query, approvalRepository, codeGenerator, type -> definitionContainer.get(type));
+            new SimpleApprovalManager<>(query, approvalRepository, codeGenerator, type -> definitionContainer.getCopy(type));
         return defaultApprovalManager;
     }
 
