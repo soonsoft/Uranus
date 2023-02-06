@@ -142,15 +142,15 @@ public class SimpleApprovalStateMachineFlowRepository
         ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
 
         String pratialItemMark = record.getCurrentNodeMark();
-        StateMachineFlowState previousState = state.getPreviousFlowState();
+        StateMachineFlowState previousState = state;
         ApprovalHistoryRecord previousHistoryRecord = null;
         while(previousState != null) {
             // 添加自动取消的 PartialItem 历史记录
             List<StateMachinePartialItem> relationPartialItems = null;
-            if(state instanceof CompositionPartialState partialState) {
+            if(previousState instanceof CompositionPartialState partialState) {
                 relationPartialItems = partialState.getRelationPartialItems();
             }
-            if(state.getPreviousFlowState() instanceof ParallelActionNodeState actionNodeState) {
+            if(previousState instanceof ParallelActionNodeState actionNodeState) {
                 relationPartialItems = actionNodeState.getRelationPartialItems();
             }
             addRelationHistoryRecord(relationPartialItems, previousHistoryRecord, pratialItemMark, historyRecordList);
@@ -179,8 +179,8 @@ public class SimpleApprovalStateMachineFlowRepository
             }
         }
 
-        fillHistoryRecordState(historyRecord, state, pratialItemMark);
-        historyRecordList.add(historyRecord);
+        // fillHistoryRecordState(historyRecord, state, pratialItemMark);
+        // historyRecordList.add(historyRecord);
     }
 
     private ApprovalHistoryRecord copyHistoryRecord(ApprovalHistoryRecord historyRecord) {
@@ -196,12 +196,12 @@ public class SimpleApprovalStateMachineFlowRepository
     }
 
     private void fillHistoryRecordState(ApprovalHistoryRecord historyRecord, StateMachineFlowState state, String pratialItemMark) {
-        if(state.getPreviousFlowState() instanceof CompositionPartialState partialState) {
+        if(state instanceof CompositionPartialState partialState) {
             historyRecord.setCurrentNodeMark(pratialItemMark);
             historyRecord.setItemCode(partialState.getActionPartialItem().getItemCode());
             historyRecord.setItemStateCode(formatItemStateCode(partialState.getActionPartialItem()));
         }
-        if(state.getPreviousFlowState() instanceof ParallelActionNodeState actionNodeState) {
+        if(state instanceof ParallelActionNodeState actionNodeState) {
             historyRecord.setItemCode(actionNodeState.getActionNodeCode());
             historyRecord.setItemStateCode(formatItemStateCode(actionNodeState.getActionPartialItem()));
             historyRecord.setCurrentNodeMark(pratialItemMark);

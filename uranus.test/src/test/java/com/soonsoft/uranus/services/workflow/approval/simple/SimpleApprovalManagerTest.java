@@ -264,7 +264,7 @@ public class SimpleApprovalManagerTest {
                                     .add()
                     )
                     .end();
-        IApprovalManager<SimpleApprovalQuery> manager = factory.createManager(query, repository, flowCode -> container.get(flowCode));
+        IApprovalManager<SimpleApprovalQuery> manager = factory.createManager(query, repository, container);
         return new Tuple2<>(manager, container);
     }
 
