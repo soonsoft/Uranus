@@ -141,7 +141,7 @@ public class SimpleApprovalStateMachineFlowRepository
         ApprovalRecord record = recordHolder.getRecord(); 
         ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
 
-        String pratialItemMark = record.getCurrentNodeMark();
+        final String pratialItemMark = record.getCurrentNodeMark();
         StateMachineFlowState previousState = state;
         ApprovalHistoryRecord previousHistoryRecord = null;
         while(previousState != null) {
@@ -178,9 +178,6 @@ public class SimpleApprovalStateMachineFlowRepository
                 record.setCurrentNodeMark(null);
             }
         }
-
-        // fillHistoryRecordState(historyRecord, state, pratialItemMark);
-        // historyRecordList.add(historyRecord);
     }
 
     private ApprovalHistoryRecord copyHistoryRecord(ApprovalHistoryRecord historyRecord) {
