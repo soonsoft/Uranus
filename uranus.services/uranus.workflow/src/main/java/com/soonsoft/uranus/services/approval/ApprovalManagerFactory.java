@@ -39,7 +39,25 @@ public class ApprovalManagerFactory<TApprovalQuery> {
             ApprovalDefinitionContainer definitionContainer) {
 
         SimpleApprovalManager<TApprovalQuery> defaultApprovalManager = 
-            new SimpleApprovalManager<>(query, approvalRepository, codeGenerator, type -> definitionContainer.get(type));
+            new SimpleApprovalManager<>(query, approvalRepository, codeGenerator, type -> definitionContainer.getCopy(type));
+        return defaultApprovalManager;
+    }
+
+    public IApprovalManager<TApprovalQuery> createManager(
+        TApprovalQuery query, 
+        IApprovalRepository approvalRepository,
+        Func1<String, StateMachineFlowDefinition> definitionGetter) {
+            return createManager(query, approvalRepository, () -> ID.newGuid(), definitionGetter);
+        }
+
+    public IApprovalManager<TApprovalQuery> createManager(
+        TApprovalQuery query, 
+        IApprovalRepository approvalRepository,
+        Func0<String> codeGenerator, 
+        Func1<String, StateMachineFlowDefinition> definitionGetter) {
+
+        SimpleApprovalManager<TApprovalQuery> defaultApprovalManager = 
+            new SimpleApprovalManager<>(query, approvalRepository, codeGenerator, definitionGetter);
         return defaultApprovalManager;
     }
 

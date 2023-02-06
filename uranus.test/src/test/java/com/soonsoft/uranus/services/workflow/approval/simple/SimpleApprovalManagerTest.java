@@ -173,7 +173,7 @@ public class SimpleApprovalManagerTest {
     @Test
     @DisplayName("会签节点测试")
     public void test_countersign() {
-        Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer>  tuple2 = createApprovalManager();
+        Tuple2<IApprovalManager<SimpleApprovalQuery>, ApprovalDefinitionContainer> tuple2 = createApprovalManager();
         IApprovalManager<SimpleApprovalQuery> manager = tuple2.getItem1();
         ApprovalDefinitionContainer container = tuple2.getItem2();
         String approvalType = "信息变更";
@@ -264,7 +264,7 @@ public class SimpleApprovalManagerTest {
                                     .add()
                     )
                     .end();
-        IApprovalManager<SimpleApprovalQuery> manager = factory.createManager( query, repository, container);
+        IApprovalManager<SimpleApprovalQuery> manager = factory.createManager(query, repository, container);
         return new Tuple2<>(manager, container);
     }
 
