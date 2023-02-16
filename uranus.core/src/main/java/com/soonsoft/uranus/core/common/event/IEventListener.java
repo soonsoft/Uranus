@@ -15,4 +15,8 @@ public interface IEventListener<E> {
 
     void clear();
 
+    default String getName() {
+        return null;
+    }
+
 }

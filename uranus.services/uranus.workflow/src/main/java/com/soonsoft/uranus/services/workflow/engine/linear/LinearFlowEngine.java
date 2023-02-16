@@ -16,6 +16,8 @@ import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowNode;
 import com.soonsoft.uranus.services.workflow.engine.linear.model.LinearFlowResult;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
+import com.soonsoft.uranus.services.workflow.model.event.FlowActionEvent;
+import com.soonsoft.uranus.services.workflow.model.event.FlowStatusChangedEvent;
 
 /**
  * 线性流程引擎（单路径）
@@ -72,6 +74,7 @@ public class LinearFlowEngine<TFlowQuery>
         prepareStart(parameter);
 
         final LinearFlowDefinition definition = getDefinition();
+        FlowStatus previousStatus = definition.getStatus();
 
         List<LinearFlowNode> beginNodeList = definition.findNode(minStep);
         if(CollectionUtils.isEmpty(beginNodeList)) {
@@ -83,6 +86,10 @@ public class LinearFlowEngine<TFlowQuery>
         
         // 创建
         getFlowRepository().create(definition, parameter);
+
+        // 事件处理
+        onFlowStatusChangedEvent(
+            new FlowStatusChangedEvent<LinearFlowDefinition>(previousStatus, null, definition));
     }
 
     @Override
@@ -90,6 +97,7 @@ public class LinearFlowEngine<TFlowQuery>
         prepareAction(nodeCode, stateCode, parameter);
 
         final LinearFlowDefinition definition = getDefinition();
+        FlowStatusChangedEvent<LinearFlowDefinition> flowStatusChangedEvent = null;
 
         LinearFlowNode actionNode = getActionNode(definition, nodeCode);
         LinearFlowState actionState = null;
@@ -118,6 +126,8 @@ public class LinearFlowEngine<TFlowQuery>
             || !otherSameStepNodeList.stream().anyMatch(n -> n.getNodeStatus() == LinearFlowStatus.Activated)) {
             
             if(activatedStep == maxStep) {
+                flowStatusChangedEvent = 
+                    new FlowStatusChangedEvent<LinearFlowDefinition>(getStatus(), definition);
                 definition.setStatus(FlowStatus.Finished);
             } else {
                 List<LinearFlowNode> nextNodeList = nextNodes(activatedStep);
@@ -138,6 +148,13 @@ public class LinearFlowEngine<TFlowQuery>
 
         // 保存状态
         getFlowRepository().saveState(result, parameter);
+
+        // 事件处理
+        onFlowActionEvent(new FlowActionEvent(result));
+        if(flowStatusChangedEvent != null) {
+            flowStatusChangedEvent.setActionFlowState(result);
+            onFlowStatusChangedEvent(flowStatusChangedEvent);
+        }
 
         return result;
     }
@@ -181,6 +198,9 @@ public class LinearFlowEngine<TFlowQuery>
         // 保存取消状态
         getFlowRepository().saveState(result, parameter);
 
+        // 事件处理
+        onFlowActionEvent(new FlowActionEvent(result));
+
         return result;
     }
 
@@ -202,6 +222,7 @@ public class LinearFlowEngine<TFlowQuery>
             }
         }
         
+        FlowStatus previousStatus = definition.getStatus();
         definition.setStatus(FlowStatus.Canceled);
         
         LinearFlowResult result = new LinearFlowResult();
@@ -213,6 +234,11 @@ public class LinearFlowEngine<TFlowQuery>
         
         // 保存取消状态
         getFlowRepository().saveState(result, parameter);
+
+        // 事件处理
+        FlowStatusChangedEvent<LinearFlowDefinition> statusChangedEvent = 
+            new FlowStatusChangedEvent<LinearFlowDefinition>(previousStatus, result, definition);
+        onFlowStatusChangedEvent(statusChangedEvent);
     }
 
     @Override

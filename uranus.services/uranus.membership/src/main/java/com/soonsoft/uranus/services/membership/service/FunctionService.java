@@ -53,7 +53,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     private static final Object locker = new Object();
 
     /** 事件定义 */
-    private IEventListener<FunctionChangedEvent<SysMenu>> functionChangedDelegate = new SimpleEventListener<>();
+    private final IEventListener<FunctionChangedEvent<SysMenu>> functionChangedDelegate = new SimpleEventListener<>();
 
     public FunctionService(
             SysFunctionDAO functionDAO,

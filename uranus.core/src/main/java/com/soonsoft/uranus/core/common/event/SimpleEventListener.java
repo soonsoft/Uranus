@@ -52,6 +52,7 @@ public class SimpleEventListener<E> implements IEventListener<E> {
         handlerList.clear();
     }
 
+    @Override
     public String getName() {
         return name;
     }
