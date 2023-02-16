@@ -28,7 +28,7 @@ public class WebErrorController implements ErrorController {
 
     private static final String ERROR_PATH = "/error/{status_code}";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
     private final ErrorPageProperties errorPageProperties;
     private final ErrorAttributes errorAttributes;

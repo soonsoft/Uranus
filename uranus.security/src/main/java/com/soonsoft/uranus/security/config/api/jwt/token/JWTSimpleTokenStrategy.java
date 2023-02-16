@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
 
 public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationToken> {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(JWTSimpleTokenStrategy.class); 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JWTSimpleTokenStrategy.class); 
 
     private ITokenStorage tokenStorage;
 

@@ -15,6 +15,7 @@
     <modules>
         <module>uranus.membership</module>
         <module>uranus.workflow</module>
+        <module>uranus.dictionary</module>
     </modules>
 
     <dependencies>

@@ -51,7 +51,7 @@ public class WebApiSecurityContextHolderFilter extends SecurityContextHolderFilt
 
 	public static class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
 
-		private final Logger LOGGER = LoggerFactory.getLogger(WebApiHttpSessionSecurityContextRepository.class);
+		private static final Logger LOGGER = LoggerFactory.getLogger(WebApiHttpSessionSecurityContextRepository.class);
 	
 		private ITokenProvider<?> tokenProvider;
 	

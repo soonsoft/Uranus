@@ -34,9 +34,9 @@ public class WebErrorController extends AbstractErrorController {
 
     private static final String ERROR_PATH = "/error/{status_code}";
 
-    private final static String DEFAULT_ERROR_PAGE = "error/default";
+    private static final String DEFAULT_ERROR_PAGE = "error/default";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebErrorController.class);
 
     private final WebErrorConfiguration errorConfiguration;
     private final ErrorAttributes errorAttributes;

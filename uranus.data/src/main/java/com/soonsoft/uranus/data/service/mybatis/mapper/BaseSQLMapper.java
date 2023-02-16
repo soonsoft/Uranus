@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class BaseSQLMapper implements ISQLMapper {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(BaseSQLMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseSQLMapper.class);
 
     private final String mapperName;
     private MapperBuilderAssistant builderAssistant;

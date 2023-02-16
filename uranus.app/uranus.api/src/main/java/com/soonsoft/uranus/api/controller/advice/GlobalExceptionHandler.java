@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private final ErrorPageProperties errorPageProperties;
 

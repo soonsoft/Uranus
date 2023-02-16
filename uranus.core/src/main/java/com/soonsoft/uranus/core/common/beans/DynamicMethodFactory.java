@@ -10,27 +10,17 @@ import java.util.Arrays;
 
 import com.soonsoft.uranus.core.common.beans.error.MethodProxyException;
 
-public class MethodProxy {
+public class DynamicMethodFactory {
 
-    private MethodHandles.Lookup lookup;
-
-    public MethodProxy() {
-        this.lookup = MethodHandles.lookup();
-    }
-
-    public MethodProxy(MethodHandles.Lookup lookup) {
-        this.lookup = lookup;
-    }
-    
-    public <R> R getVirtualProxy(Class<R> funcClass, Method method) {
+    public static <R> R createLambdaMethodHandler(Class<R> funcClass, Method method) {
         Class<?> instanceClass = method.getDeclaringClass();
-        MethodHandles.Lookup lookup = this.lookup; //MethodHandles.lookup();
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
 
         Class<?> resultClass = method.getReturnType();
         Class<?>[] parameterClasses = method.getParameterTypes();
 
         Class<?>[] lambdaParameterClasses = new Class<?>[parameterClasses.length];
-        Arrays.setAll(lambdaParameterClasses, index -> getParameterClass(parameterClasses[index]));
+        Arrays.setAll(lambdaParameterClasses, index -> parameterClasses[index]);
 
         String interfaceMethodName = funcClass.getSimpleName().startsWith("Action") ? "apply" : "call";
 
@@ -49,11 +39,8 @@ public class MethodProxy {
         }
     }
 
-    private static Class<?> getParameterClass(Class<?> paramType) {
-        if(paramType == int.class) {
-            return Integer.class;
-        }
-
-        return Object.class;
+    public static void getVirtualMethodHandler() {
+        
     }
+
 }

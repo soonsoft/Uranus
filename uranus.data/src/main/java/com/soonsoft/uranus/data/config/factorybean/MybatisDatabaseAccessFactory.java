@@ -39,7 +39,7 @@ import org.springframework.util.ClassUtils;
 
 public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(MybatisDatabaseAccessFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MybatisDatabaseAccessFactory.class);
     private String[] mapperLocations;
     private String[] entityClassPackages;
     private MappedStatementRegistry mappedStatementRegistry;
