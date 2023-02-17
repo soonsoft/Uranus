@@ -21,6 +21,8 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMach
 import com.soonsoft.uranus.services.workflow.exception.FlowException;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 import com.soonsoft.uranus.services.workflow.model.FlowStatus;
+import com.soonsoft.uranus.services.workflow.model.event.FlowActionEvent;
+import com.soonsoft.uranus.services.workflow.model.event.FlowStatusChangedEvent;
 
 /**
  * 状态机流程引擎（多路径）
@@ -52,6 +54,10 @@ public class StateMachineFLowEngine<TFlowQuery>
 
         // 创建工作流数据
         getFlowRepository().create(definition, parameter);
+
+        // 事件处理
+        onFlowStatusChangedEvent(
+            new FlowStatusChangedEvent<StateMachineFlowDefinition>(FlowStatus.Pending, null, definition));
     }
 
     @Override
@@ -59,6 +65,7 @@ public class StateMachineFLowEngine<TFlowQuery>
         prepareAction(nodeCode, stateCode, parameter);
 
         final StateMachineFlowDefinition definition = getDefinition();
+        FlowStatusChangedEvent<StateMachineFlowDefinition> flowStatusChangedEvent = null;
 
         if(StringUtils.isEmpty(definition.getCurrentNodeCode())) {
             throw new FlowException("the current node code of definition is null.");
@@ -128,12 +135,20 @@ public class StateMachineFLowEngine<TFlowQuery>
         if(!(newState instanceof CompositionPartialState) && !(newState instanceof ParallelActionNodeState)) {
             updateDefinitionState(definition, newState);
             if(nextNode.isEndNode()) {
+                FlowStatus previousStatus = definition.getStatus();
+                flowStatusChangedEvent = new FlowStatusChangedEvent<>(previousStatus, newState, definition);
                 definition.setStatus(FlowStatus.Finished);
             }
         }
 
         // 保存状态
         getFlowRepository().saveState(newState, parameter);
+
+        // 事件处理
+        onFlowActionEvent(new FlowActionEvent(newState));
+        if(flowStatusChangedEvent != null) {
+            onFlowStatusChangedEvent(flowStatusChangedEvent);
+        }
 
         return newState;
     }
@@ -167,6 +182,9 @@ public class StateMachineFLowEngine<TFlowQuery>
         // 保存状态
         getFlowRepository().saveState(backState, parameter);
 
+        // 事件处理
+        onFlowActionEvent(new FlowActionEvent(backState));
+
         return backState;
     }
 
@@ -189,11 +207,16 @@ public class StateMachineFLowEngine<TFlowQuery>
         cancelState.setNodeCode(definition.getCurrentNodeCode());
         processCompositionAndParallel(currentNode, actionNode, cancelState, parameter);
 
+        FlowStatus previousStatus = definition.getStatus();
         definition.setStatus(FlowStatus.Canceled);
         updateDefinitionState(definition, cancelState);
 
         // 保存取消状态
         getFlowRepository().saveState(cancelState, parameter);
+
+        // 事件处理
+        onFlowStatusChangedEvent(
+            new FlowStatusChangedEvent<>(previousStatus, cancelState, definition));
     }
 
     @Override

@@ -74,7 +74,6 @@ public class LinearFlowEngine<TFlowQuery>
         prepareStart(parameter);
 
         final LinearFlowDefinition definition = getDefinition();
-        FlowStatus previousStatus = definition.getStatus();
 
         List<LinearFlowNode> beginNodeList = definition.findNode(minStep);
         if(CollectionUtils.isEmpty(beginNodeList)) {
@@ -89,7 +88,7 @@ public class LinearFlowEngine<TFlowQuery>
 
         // 事件处理
         onFlowStatusChangedEvent(
-            new FlowStatusChangedEvent<LinearFlowDefinition>(previousStatus, null, definition));
+            new FlowStatusChangedEvent<LinearFlowDefinition>(FlowStatus.Pending, null, definition));
     }
 
     @Override

@@ -49,7 +49,6 @@ public class SimpleApprovalStateMachineFlowRepository
 
     @Override
     public StateMachineFlowDefinition getDefinition(String flowCode) {
-        // 这里的flowCode就是approvalType
         return findFlowDefinitionFn != null ? findFlowDefinitionFn.call(flowCode) : null;
     }
 

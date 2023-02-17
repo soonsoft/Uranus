@@ -53,7 +53,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         Guard.notNull(parameter, "the arguments parameter is required.");
 
         ApprovalRecord record = createApprovalRecord(parameter);
-        StateMachineFlowDefinition definition = getFlowDefinition(record.getApprovalType());
+        StateMachineFlowDefinition definition = findFlowDefinition(record.getApprovalType());
         record.setApprovalFlowCode(definition.getFlowCode());
 
         StateMachineFLowEngine<TApprovalQuery> flowEngine = getFlowFactory().createEngine(definition);
@@ -155,12 +155,17 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         return flowFactory;
     }
 
-    protected StateMachineFlowDefinition getFlowDefinition(String approvalType) {
+    protected StateMachineFlowDefinition findFlowDefinition(String approvalType) {
         StateMachineFlowDefinition definition = definitionGetter.call(approvalType);
         if(definition == null) {
             throw new ApprovalException("cannot find definition by type[%s]", approvalType);
         }
         return definition;
+    }
+
+    protected StateMachineFlowDefinition getFlowDefinition(String flowCode) {
+        String approvalType = flowCode;
+        return findFlowDefinition(approvalType);
     }
 
     protected StateMachineFlowFactory<TApprovalQuery> createFlowFactory() {
