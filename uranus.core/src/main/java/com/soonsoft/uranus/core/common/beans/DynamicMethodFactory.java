@@ -12,6 +12,13 @@ import com.soonsoft.uranus.core.common.beans.error.MethodProxyException;
 
 public class DynamicMethodFactory {
 
+    /**
+     * 获取 Method 对象的代理 Lambda，用于绑定调用而非反射调用
+     * @param <R> 范围 Lambda 类型，仅支持 Func0 ~ Func9 or Action0 ~ Action9
+     * @param funcClass Func or Action 的 Class，与<R> 对应
+     * @param method 需要代理的 Method 对象
+     * @return 代理 Lambda
+     */
     public static <R> R createLambdaMethodHandler(Class<R> funcClass, Method method) {
         Class<?> instanceClass = method.getDeclaringClass();
         MethodHandles.Lookup lookup = MethodHandles.lookup();
@@ -20,7 +27,7 @@ public class DynamicMethodFactory {
         Class<?>[] parameterClasses = method.getParameterTypes();
 
         Class<?>[] lambdaParameterClasses = new Class<?>[parameterClasses.length];
-        Arrays.setAll(lambdaParameterClasses, index -> parameterClasses[index]);
+        Arrays.setAll(lambdaParameterClasses, index -> Object.class);
 
         String interfaceMethodName = funcClass.getSimpleName().startsWith("Action") ? "apply" : "call";
 

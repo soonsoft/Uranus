@@ -1,29 +1,38 @@
 package com.soonsoft.uranus.core.common.beans;
 
 public class TestBean {
-    private int intValue;
-    private boolean boolValue;
+    private Integer intValue;
+    private Boolean boolValue;
     private String strValue;
     private String[] arrValue;
 
-    public int getIntValue() {
+    public Integer getIntValue() {
         return intValue;
     }
-    public void setIntValue(int intValue) {
+    public void setIntValue(Integer intValue) {
         this.intValue = intValue;
     }
-    public boolean isBoolValue() {
+    // public Boolean isBoolValue() {
+    //     return boolValue;
+    // }
+    // public void setBoolValue(Boolean boolValue) {
+    //     this.boolValue = boolValue;
+    // }
+    
+    public Boolean getBoolValue() {
         return boolValue;
     }
-    public void setBoolValue(boolean boolValue) {
+    public void setBoolValue(Boolean boolValue) {
         this.boolValue = boolValue;
     }
+
     public String getStrValue() {
         return strValue;
     }
     public void setStrValue(String strValue) {
         this.strValue = strValue;
     }
+
     public String[] getArrValue() {
         return arrValue;
     }
@@ -32,6 +41,8 @@ public class TestBean {
     }
 
     public String getName() {
-        return "my Name";
+        return "周星星";
     }
+
+    
 }

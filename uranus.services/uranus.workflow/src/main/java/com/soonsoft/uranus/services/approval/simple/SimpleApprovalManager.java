@@ -90,7 +90,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         ApprovalRecord record = tuple.getItem1();
         StateMachineFlowDefinition definition = tuple.getItem2();
 
-        String previousNodeCode = record.getPreviousNodeCode();
+        String previousNodeCode = record.getFlowState().getNodeCode();
         StateMachineFlowNode previousNode = definition.findNode(previousNodeCode);
         if(!previousNode.isBeginNode()) {
             throw new ApprovalException("the previousNodeCode[%s] can not support revoke.", previousNodeCode);

@@ -138,12 +138,11 @@ public class LambdaMetaFactoryTest {
         operatorSetter.apply(param, "eater");
         System.out.println(operatorGetter.call(param));
 
-
+        LambdaMetaFactoryTest test = new LambdaMetaFactoryTest();
         Method addMethod = LambdaMetaFactoryTest.class.getMethod("add", Integer.class, Integer.class);
         Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> addDelegate = createVirtual(Func3.class, addMethod);
-
-        LambdaMetaFactoryTest test = new LambdaMetaFactoryTest();
-        System.out.println(addDelegate.call(test, 1, 2));
+        Integer result = addDelegate.call(test, 1, 2);
+        System.out.println(result);
 
         Method subtractMethod = LambdaMetaFactoryTest.class.getMethod("subtruct", Integer.class, Integer.class);
         Func3<LambdaMetaFactoryTest, Integer, Integer, Integer> subtractDelegate = createVirtual(Func3.class, subtractMethod);

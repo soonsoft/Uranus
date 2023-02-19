@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.core.common.beans;
 
+import java.lang.reflect.Method;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,31 +14,23 @@ public class MethodProxyTest {
     @Test
     @SuppressWarnings("unchecked")
     public void test_getterAndSetter() throws Throwable {
-        MethodProxy methodProxy = new MethodProxy();
         MethodProxyTest instance = new MethodProxyTest();
 
-        Func1<Object, Object> boolValueGetter = 
-            methodProxy.getVirtualProxy(Func1.class, this.getClass().getMethod("getBoolValue"));
+        Method getBoolValue = MethodProxyTest.class.getMethod("getBoolValue");
+        Func1<MethodProxyTest, Object> boolValueGetter = DynamicMethodFactory.createLambdaMethodHandler(Func1.class, getBoolValue);
         Assert.assertTrue((boolean) boolValueGetter.call(instance));
 
-        Func3<Object, Object, Object, Object> intValueSetter = 
-            methodProxy.getVirtualProxy(
-                Func3.class, 
-                this.getClass().getMethod("setIntValue", Integer.class, Integer.class));
-
-        // Method method = intValueSetter.getClass().getDeclaredMethod("writeReplace");
-        // method.setAccessible(true);
-        // SerializedLambda serializedLambda = (SerializedLambda)method.invoke(intValueSetter);
-        
-        Object value = intValueSetter.call(instance, 1, 2);
-        Assert.assertTrue(Integer.valueOf(3).equals(value));
+        Method setIntegerValue = MethodProxyTest.class.getMethod("setIntegerValue", Integer.class, Integer.class);
+        Func3<MethodProxyTest, Integer, Integer, Integer> intValueSetter = DynamicMethodFactory.createLambdaMethodHandler(Func3.class, setIntegerValue);
+        Integer value = intValueSetter.call(instance, 4, 5);
+        Assert.assertTrue(Integer.valueOf(9).equals(value));
     }
 
     public boolean getBoolValue() {
         return true;
     }
 
-    public Integer setIntValue(Integer num1, Integer num2) {
+    public Integer setIntegerValue(Integer num1, Integer num2) {
         System.out.println(StringUtils.format("num1 = %d, num2 = %d", num1, num2));
         return num1 + num2;
     }

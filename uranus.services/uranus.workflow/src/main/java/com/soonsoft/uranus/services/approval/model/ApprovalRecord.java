@@ -117,10 +117,7 @@ public class ApprovalRecord {
     public String getCurrentNodeCode() {
         return flowState != null ? flowState.getToNodeCode() : null;
     }
-    public String getPreviousNodeCode() {
-        return flowState != null ? flowState.getNodeCode() : null;
-    }
-    public String getPreviousStateCode() {
+    public String getCurrentStateCode() {
         return flowState != null ? flowState.getStateCode() : null;
     }
 

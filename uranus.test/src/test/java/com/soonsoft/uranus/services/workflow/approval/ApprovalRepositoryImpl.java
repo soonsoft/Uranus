@@ -76,7 +76,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
             StringUtils.format(
                 "[{0} - {1}]: {2}.{3} > {4}", 
                 record.getApprovalType(), record.getRecordCode(),
-                record.getPreviousNodeCode(), record.getPreviousStateCode(),
+                record.getFlowState().getNodeCode(), record.getFlowState().getStateCode(),
                 record.getCurrentNodeCode()
             )
         );
@@ -86,7 +86,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
         System.out.print(
             StringUtils.format("[{0} - {1}]: {2} > ", 
                 record.getApprovalType(), record.getRecordCode(),
-                record.getPreviousNodeCode())
+                record.getFlowState().getNodeCode())
         );
         for(ApprovalHistoryRecord item : historyRecords) {
             if(!StringUtils.isEmpty(item.getCurrentNodeMark())) {
