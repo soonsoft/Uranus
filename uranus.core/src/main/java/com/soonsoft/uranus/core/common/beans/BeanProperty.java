@@ -23,10 +23,10 @@ public class BeanProperty<TObject, TValue> {
         this.propertyDescriptor = propertyDescriptor;
 
         if(propertyDescriptor.getReadMethod() != null) {
-            this.getter = (Func1<Object, Object>) DynamicMethodFactory.createLambdaMethodHandler(Func1.class, propertyDescriptor.getReadMethod());
+            this.getter = (Func1<Object, Object>) DynamicMethodFactory.getVirtualMethodHandler(Func1.class, propertyDescriptor.getReadMethod());
         }
         if(propertyDescriptor.getWriteMethod() != null) {
-            this.setter = (Action2<Object, TValue>) DynamicMethodFactory.createLambdaMethodHandler(Action2.class, propertyDescriptor.getWriteMethod());
+            this.setter = (Action2<Object, TValue>) DynamicMethodFactory.getVirtualMethodHandler(Action2.class, propertyDescriptor.getWriteMethod());
         }
     }
 

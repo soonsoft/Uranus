@@ -29,7 +29,5 @@ public class BeanAccessorFactory {
             throw new BeanAccessorException("create BeanAccessor error.", e);
         }
     }
-
-
     
 }
