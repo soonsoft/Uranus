@@ -23,8 +23,6 @@ import com.soonsoft.uranus.services.workflow.engine.statemachine.StateMachineFlo
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.IPartialItemCode;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowDefinition;
 import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowNode;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.CompositionPartialState;
 import com.soonsoft.uranus.services.workflow.model.FlowActionParameter;
 
 public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<TApprovalQuery> {
@@ -63,13 +61,10 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         ApprovalHistoryRecord historyRecord = 
             createApprovalHistoryRecord(parameter, record, ApprovalActionType.Submit);
         // 流程提交
-        StateMachineFlowState actionState = flowEngine.action(
+        flowEngine.action(
             definition.getCurrentNodeCode(), 
             ApprovalStateCode.Checking, 
-            new ApprovalRecordHolder(record, historyRecord));
-
-        record.setFlowState(actionState);
-        record.addHistoryRecord(historyRecord);
+            new ApprovalRecordHolder(record, historyRecord, () -> definition));
 
         return record;
     }
@@ -90,7 +85,7 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
         ApprovalRecord record = tuple.getItem1();
         StateMachineFlowDefinition definition = tuple.getItem2();
 
-        String previousNodeCode = record.getFlowState().getNodeCode();
+        String previousNodeCode = record.getCurrentHistoryRecord().getNodeCode();
         StateMachineFlowNode previousNode = definition.findNode(previousNodeCode);
         if(!previousNode.isBeginNode()) {
             throw new ApprovalException("the previousNodeCode[%s] can not support revoke.", previousNodeCode);
@@ -106,11 +101,9 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
 
         final String currentNodeCode = definition.getCurrentNodeCode();
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
-        StateMachineFlowState actionState = 
-            flowEngine.action(currentNodeCode, ApprovalStateCode.Revoked, 
+        flowEngine.action(currentNodeCode, ApprovalStateCode.Revoked, 
                 new ApprovalRecordHolder(record, historyRecord, () -> definition, itemCode));
-        record.setFlowState(actionState);
-
+        
         return record;
     }
 
@@ -137,7 +130,9 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
                 hr.setPreviousHistoryId(record.getCurrentHistoryId());
             });
         record.setCurrentHistoryId(historyRecord.getId());
-        flowEngine.cancel(parameter.getActionNodeCode(), new ApprovalRecordHolder(record, historyRecord));
+        flowEngine.cancel(
+            parameter.getActionNodeCode(), 
+            new ApprovalRecordHolder(record, historyRecord, () -> definition));
     }
 
     @Override
@@ -231,16 +226,8 @@ public class SimpleApprovalManager<TApprovalQuery> implements IApprovalManager<T
 
         final String itemCode = parameter instanceof IPartialItemCode pic ? pic.getItemCode() : null;
         final String actionNodeCode = parameter.getActionNodeCode();
-        StateMachineFlowState actionState = 
-            flowEngine.action(actionNodeCode, stateCode, 
+        flowEngine.action(actionNodeCode, stateCode, 
                 new ApprovalRecordHolder(record, historyRecord, () -> definition, itemCode));
-        if(actionState instanceof CompositionPartialState partialState) {
-            actionState = definition.createFlowState();
-            actionState.setNodeCode(definition.getPreviousNodeCode());
-            actionState.setStateCode(definition.getPreviousStateCode());
-            actionState.setToNodeCode(definition.getCurrentNodeCode());
-        }
-        record.setFlowState(actionState);
 
         return record;
     }

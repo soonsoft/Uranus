@@ -8,7 +8,6 @@ import com.soonsoft.uranus.services.approval.IApprovalRepository;
 import com.soonsoft.uranus.services.approval.model.ApprovalHistoryRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalRecord;
 import com.soonsoft.uranus.services.approval.model.ApprovalStatus;
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineCompositeNode;
 
 public class ApprovalRepositoryImpl implements IApprovalRepository {
 
@@ -48,7 +47,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
             saveHistoryRecord(historyRecord);
         }
 
-        if(record.getFlowState().findFromNode() instanceof StateMachineCompositeNode) {
+        if(record.getCurrentHistoryRecord().getItemCode() != null) {
             showPartialItems(record, historyRecords);
         } else {
             showRecordState(record);
@@ -76,7 +75,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
             StringUtils.format(
                 "[{0} - {1}]: {2}.{3} > {4}", 
                 record.getApprovalType(), record.getRecordCode(),
-                record.getFlowState().getNodeCode(), record.getFlowState().getStateCode(),
+                record.getCurrentHistoryRecord().getNodeCode(), record.getCurrentHistoryRecord().getStateCode(),
                 record.getCurrentNodeCode()
             )
         );
@@ -86,7 +85,7 @@ public class ApprovalRepositoryImpl implements IApprovalRepository {
         System.out.print(
             StringUtils.format("[{0} - {1}]: {2} > ", 
                 record.getApprovalType(), record.getRecordCode(),
-                record.getFlowState().getNodeCode())
+                record.getCurrentHistoryRecord().getNodeCode())
         );
         for(ApprovalHistoryRecord item : historyRecords) {
             if(!StringUtils.isEmpty(item.getCurrentNodeMark())) {

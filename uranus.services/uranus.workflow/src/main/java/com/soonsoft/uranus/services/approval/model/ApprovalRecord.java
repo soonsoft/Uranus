@@ -1,10 +1,7 @@
 package com.soonsoft.uranus.services.approval.model;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.soonsoft.uranus.services.workflow.engine.statemachine.model.StateMachineFlowState;
 
 /**
  * 审核记录
@@ -33,13 +30,20 @@ public class ApprovalRecord {
     private Object beginHistoryId;
     /** 审核记录当前操作历史 ID */
     private Object currentHistoryId;
+    /** 【流程状态】 - 前一个节点编号 */
+    private String previousNodeCode;
+    /** 【流程状态】 - 前一个状态编号 */
+    private String previousStateCode;
+    /** 【流程状态】 - 当前节点编号 */
+    private String currentNodeCode;
     /** 复合节点与并行节点，用于关联 PartialItem 数据 */
     private String currentNodeMark;
     /** 审核历史列表 */
     private List<ApprovalHistoryRecord> historyRecordList;
-
-    /** 审核流程状态信息(不被序列化) */
-    private transient StateMachineFlowState flowState;
+    /** 提交记录（查询时填充） */
+    private ApprovalHistoryRecord beginHistoryRecord;
+    /** 当前审核记录 */
+    private ApprovalHistoryRecord currentHistoryRecord;
 
     public Object getId() {
         return id;
@@ -106,21 +110,27 @@ public class ApprovalRecord {
         this.targetInfo = targetInfo;
     }
 
-    @Transient
-    public StateMachineFlowState getFlowState() {
-        return flowState;
+    public String getPreviousNodeCode() {
+        return previousNodeCode;
     }
-    public void setFlowState(StateMachineFlowState flowState) {
-        this.flowState = flowState;
+    public void setPreviousNodeCode(String previousNodeCode) {
+        this.previousNodeCode = previousNodeCode;
+    }
+
+    public String getPreviousStateCode() {
+        return previousStateCode;
+    }
+    public void setPreviousStateCode(String previousStateCode) {
+        this.previousStateCode = previousStateCode;
     }
 
     public String getCurrentNodeCode() {
-        return flowState != null ? flowState.getToNodeCode() : null;
+        return currentNodeCode;
     }
-    public String getCurrentStateCode() {
-        return flowState != null ? flowState.getStateCode() : null;
+    public void setCurrentNodeCode(String currentNodeCode) {
+        this.currentNodeCode = currentNodeCode;
     }
-
+    
     public ApprovalStatus getStatus() {
         return status;
     }
@@ -147,6 +157,20 @@ public class ApprovalRecord {
     }
     public void setCurrentNodeMark(String compositionActionCode) {
         this.currentNodeMark = compositionActionCode;
+    }
+
+    public ApprovalHistoryRecord getBeginHistoryRecord() {
+        return beginHistoryRecord;
+    }
+    public void setBeginHistoryRecord(ApprovalHistoryRecord beginHistoryRecord) {
+        this.beginHistoryRecord = beginHistoryRecord;
+    }
+
+    public ApprovalHistoryRecord getCurrentHistoryRecord() {
+        return currentHistoryRecord;
+    }
+    public void setCurrentHistoryRecord(ApprovalHistoryRecord currentHistoryRecord) {
+        this.currentHistoryRecord = currentHistoryRecord;
     }
 
     public List<ApprovalHistoryRecord> getHistoryRecordList() {

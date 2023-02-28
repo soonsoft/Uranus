@@ -12,15 +12,5 @@ public interface ApprovalStateCode {
     String Revoked = "Revoked";
     /** 下一步 - 由操作类型 [AutoFlow] 得到 */
     String Next = "Next";
-
-    // private final ApprovalActionType actionType;
-
-    // private ApprovalStateCode(ApprovalActionType actionType) {
-    //     this.actionType = actionType;
-    // }
-
-    // public ApprovalActionType getActionType() {
-    //     return this.actionType;
-    // }
     
 }

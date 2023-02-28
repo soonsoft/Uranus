@@ -54,9 +54,10 @@ public class SimpleApprovalStateMachineFlowRepository
 
     @Override
     public StateMachineFlowState getCurrentState(Object parameter) {
-        String recordCode;
-        if(parameter instanceof ApprovalRecord record) {
-            return record.getFlowState();
+        String recordCode = null;
+        ApprovalRecord record = null;
+        if(parameter instanceof ApprovalRecord) {
+            record = (ApprovalRecord) parameter;
         } else if(parameter instanceof ApprovalCheckParameter p) {
             recordCode = p.getRecordCode();
         } else if(parameter instanceof String code) {
@@ -64,8 +65,21 @@ public class SimpleApprovalStateMachineFlowRepository
         } else {
             throw new ApprovalException("unknown parameter type.");
         }
-        ApprovalRecord record = approvalRepository.getApprovalRecord(recordCode);
-        return record.getFlowState();
+
+        if(!StringUtils.isEmpty(recordCode)) {
+            record = approvalRepository.getApprovalRecord(recordCode);
+        }
+
+        if(record != null) {
+            StateMachineFlowState state = new StateMachineFlowState();
+            state.setFlowCode(record.getApprovalFlowCode());
+            state.setNodeCode(record.getPreviousNodeCode());
+            state.setStateCode(record.getPreviousStateCode());
+            state.setToNodeCode(record.getCurrentNodeCode());
+            return state;
+        }
+        
+        return null;
     }
 
     @Override
@@ -78,17 +92,26 @@ public class SimpleApprovalStateMachineFlowRepository
         ApprovalRecordHolder recordHolder = (ApprovalRecordHolder) parameter;
 
         ApprovalRecord record = recordHolder.getRecord();
-        record.setFlowState(stateParam);
+        // 设置状态
+        StateMachineFlowDefinition definition = recordHolder.getCurrentDefinition();
+        record.setPreviousNodeCode(definition.getPreviousNodeCode());
+        record.setPreviousStateCode(definition.getPreviousStateCode());
+        record.setCurrentNodeCode(definition.getCurrentNodeCode());
+
+        ApprovalHistoryRecord historyRecord = recordHolder.getHistoryRecord();
+        // 设置当前操作记录的状态数据
+        fillHistoryRecordState(historyRecord, stateParam, record.getCurrentNodeMark());
+        record.setCurrentHistoryRecord(historyRecord);
 
         if(ApprovalStateCode.Checking.equals(stateParam.getStateCode())) {
             record.setStatus(ApprovalStatus.Checking);
-            approvalRepository.create(record, recordHolder.getHistoryRecord());
+            approvalRepository.create(record, historyRecord);
             return;
         }
 
         if(stateParam instanceof StateMachineFlowCancelState) {
             record.setStatus(ApprovalStatus.Canceled);
-            approvalRepository.saveCancelState(record, recordHolder.getHistoryRecord());
+            approvalRepository.saveCancelState(record, historyRecord);
             return;
         }
 
@@ -101,6 +124,8 @@ public class SimpleApprovalStateMachineFlowRepository
         processHistoryRecord(historyRecordList, recordHolder, stateParam);
 
         approvalRepository.saveActionState(record, historyRecordList);
+        // 保存完成后，将操作记录ID更新到审核记录中
+        record.setCurrentHistoryId(historyRecord.getId());
     }
 
     @Override
@@ -155,12 +180,15 @@ public class SimpleApprovalStateMachineFlowRepository
             addRelationHistoryRecord(relationPartialItems, previousHistoryRecord, pratialItemMark, historyRecordList);
             
             // 添加进行操作的 PartialItem 历史记录（操作的PartialItem历史记录在前，关联操作的历史记录在后）
-            previousHistoryRecord = copyHistoryRecord(historyRecord);
+            if(previousState == state) {
+                previousHistoryRecord = historyRecord;
+            } else {
+                previousHistoryRecord = copyHistoryRecord(historyRecord);
+                fillHistoryRecordState(previousHistoryRecord, previousState, pratialItemMark);
+            }
             if(previousState.getStateCode().startsWith("@")) {
                 historyRecord.setHistoryRecordType(ApprovalActionType.AutoFlow);
             }
-
-            fillHistoryRecordState(previousHistoryRecord, previousState, pratialItemMark);
             historyRecordList.addFirst(previousHistoryRecord);
 
             previousState = previousState.getPreviousFlowState();
@@ -192,20 +220,20 @@ public class SimpleApprovalStateMachineFlowRepository
     }
 
     private void fillHistoryRecordState(ApprovalHistoryRecord historyRecord, StateMachineFlowState state, String pratialItemMark) {
+        historyRecord.setNodeCode(state.getNodeCode());
+        historyRecord.setStateCode(state.getStateCode());
+        historyRecord.setToNodeCode(state.getToNodeCode());
+        
         if(state instanceof CompositionPartialState partialState) {
             historyRecord.setCurrentNodeMark(pratialItemMark);
             historyRecord.setItemCode(partialState.getActionPartialItem().getItemCode());
             historyRecord.setItemStateCode(formatItemStateCode(partialState.getActionPartialItem()));
         }
         if(state instanceof ParallelActionNodeState actionNodeState) {
+            historyRecord.setCurrentNodeMark(pratialItemMark);
             historyRecord.setItemCode(actionNodeState.getActionNodeCode());
             historyRecord.setItemStateCode(formatItemStateCode(actionNodeState.getActionPartialItem()));
-            historyRecord.setCurrentNodeMark(pratialItemMark);
         }
-
-        historyRecord.setNodeCode(state.getNodeCode());
-        historyRecord.setStateCode(state.getStateCode());
-        historyRecord.setToNodeCode(state.getToNodeCode());
     }
 
     private void addRelationHistoryRecord(

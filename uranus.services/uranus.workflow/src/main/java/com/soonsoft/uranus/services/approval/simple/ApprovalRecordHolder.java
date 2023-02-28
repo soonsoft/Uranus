@@ -14,8 +14,11 @@ final class ApprovalRecordHolder extends FlowActionParameter implements IPartial
     private final ApprovalHistoryRecord historyRecord;
     private final Func0<StateMachineFlowDefinition> currentDefinitionGetter;
 
-    public ApprovalRecordHolder(ApprovalRecord record, ApprovalHistoryRecord historyRecord) {
-        this(record, historyRecord, null, null);
+    public ApprovalRecordHolder(
+        ApprovalRecord record, 
+        ApprovalHistoryRecord historyRecord,
+        Func0<StateMachineFlowDefinition> currentDefinitionGetter) {
+        this(record, historyRecord, currentDefinitionGetter, null);
     }
 
     public ApprovalRecordHolder(

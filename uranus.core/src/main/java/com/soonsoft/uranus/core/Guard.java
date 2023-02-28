@@ -9,7 +9,7 @@ import com.soonsoft.uranus.core.common.lang.ObjectUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 /**
- * from spring
+ * 参数检查工具集
  */
 public abstract class Guard {
 
