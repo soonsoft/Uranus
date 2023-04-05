@@ -163,9 +163,9 @@ public class Page {
     }
 
     /**
-     * 列表分页
-     * @param <T>
-     * @param list
+     * 列表分页，List<T> > List<T>[]
+     * @param <T> 类型
+     * @param list 原始数组
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -182,9 +182,11 @@ public class Page {
         for(int i = 0; i < arr.length; i++) {
             int fromIndex = page.offset();
             int toIndex = fromIndex + page.getPageSize();
+            toIndex = toIndex > page.getTotal() ? page.getTotal() : toIndex;
             arr[i] = new ArrayList<>(list.subList(fromIndex, toIndex));
-
-            page.next();
+            if(!page.next()) {
+                break;
+            }
         }
         return arr;
     }

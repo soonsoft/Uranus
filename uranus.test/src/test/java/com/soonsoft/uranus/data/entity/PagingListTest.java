@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.web.mvc.model;
+package com.soonsoft.uranus.data.entity;
 
 import java.util.ArrayList;
 import java.util.List;

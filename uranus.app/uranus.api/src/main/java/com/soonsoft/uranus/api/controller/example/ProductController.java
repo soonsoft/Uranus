@@ -7,7 +7,8 @@ import javax.validation.Valid;
 
 import com.soonsoft.uranus.api.model.vo.ProductInfo;
 import com.soonsoft.uranus.api.model.vo.ProductVO;
-import com.soonsoft.uranus.web.mvc.model.PagingList;
+
+import com.soonsoft.uranus.data.entity.PagingList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;

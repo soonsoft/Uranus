@@ -1,9 +1,9 @@
 package com.soonsoft.uranus.api.controller.advice;
 
 import com.soonsoft.uranus.api.model.APIResult;
+import com.soonsoft.uranus.data.entity.PagingList;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 import com.soonsoft.uranus.web.mvc.model.IResultData;
-import com.soonsoft.uranus.web.mvc.model.PagingList;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
