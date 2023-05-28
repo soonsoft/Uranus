@@ -22,6 +22,9 @@ public class DynamicMethodFactory {
      * @return Lambda 实例
      */
     public static <R> R getVirtualMethodHandler(Class<R> funcClass, Method method) {
+        if(funcClass == null) {
+            throw new ArgumentNullException("funcClass");
+        }
         if(method == null) {
             throw new ArgumentNullException("method");
         }
@@ -63,6 +66,9 @@ public class DynamicMethodFactory {
      * @return Lambda 实例
      */
     public static <R> R getStaticMethodHandler(Class<R> funcClass, Method method) {
+        if(funcClass == null) {
+            throw new ArgumentNullException("funcClass");
+        }
         if(method == null) {
             throw new ArgumentNullException("method");
         }
