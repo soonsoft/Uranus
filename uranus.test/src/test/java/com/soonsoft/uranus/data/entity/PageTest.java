@@ -52,11 +52,15 @@ public class PageTest {
     public void test_pagingList() {
         List<Integer> list = new ArrayList<>();
         for(int i = 0; i < 100; i++) {
-            list.add(Integer.valueOf(i));
+            list.add(Integer.valueOf(i + 1));
         }
+        list.add(Integer.valueOf(101));
 
-        List<Integer>[] result = Page.pagingList(list, 5);
-        Assert.assertTrue(result.length == 20);
+        List<Integer>[] result = Page.pagingList(list, 10);
+        Assert.assertTrue(result.length == 11);
+        Assert.assertTrue(result[0].get(0) == 1);
+        Assert.assertTrue(result[0].get(9) == 10);
+        Assert.assertTrue(result[10].get(0) == 101);
 
     }
 
