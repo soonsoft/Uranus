@@ -40,7 +40,7 @@ public class WebAuthorizationManager implements AuthorizationManager<RequestAuth
             resourceAttributesGetter != null ? resourceAttributesGetter.call(httpRequest) : null;
 
         // 处理权限
-        boolean granted = decision(authentication, httpRequest, attributes);
+        boolean granted = attributes == null ? true : decision(authentication, httpRequest, attributes);
 
         return new AuthorizationDecision(granted);
     }

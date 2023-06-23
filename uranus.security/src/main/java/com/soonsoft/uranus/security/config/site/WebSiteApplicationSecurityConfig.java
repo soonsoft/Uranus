@@ -23,7 +23,7 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
         try {
             http.authorizeHttpRequests(
                 authorize -> authorize
-                    .anyRequest().authenticated()
+                    //.anyRequest().authenticated()
                     .anyRequest().access(getWebAuthorizationManager())
             )
             .csrf(csrf -> csrf.disable())

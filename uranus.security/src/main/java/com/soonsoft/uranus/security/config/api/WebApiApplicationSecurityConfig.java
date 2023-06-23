@@ -45,7 +45,7 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
             http
                 .authorizeHttpRequests(
                     authorize -> authorize
-                        .anyRequest().authenticated()
+                        //.anyRequest().authenticated()
                         .anyRequest().access(getWebAuthorizationManager())
                 )
                 .cors(withDefaults())
