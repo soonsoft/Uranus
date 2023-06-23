@@ -21,23 +21,25 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
     @Override
     public void config(HttpSecurity http) {
         try {
-            http.requestMatchers()
-                    .antMatchers("/**")
-                .and()
-                    .authorizeRequests()
+            http.authorizeHttpRequests(
+                authorize -> authorize
                     .anyRequest().authenticated()
-                    .withObjectPostProcessor(getPostProcessor())
-                .and()
-                    .csrf().disable()
-                .formLogin()
+                    .anyRequest().access(getWebAuthorizationManager())
+            )
+            .csrf(csrf -> csrf.disable())
+            .formLogin(
+                login -> login
                     .loginPage(SecurityConfigUrlConstant.SiteLoginUrl)
                     .usernameParameter("username")
                     .passwordParameter("password")
                     .defaultSuccessUrl("/").permitAll()
                     .failureUrl(SecurityConfigUrlConstant.SiteLoginUrl + "?error").permitAll()
-                .and()
-                    .logout()
-                    .logoutUrl(SecurityConfigUrlConstant.SiteLogoutUrl).permitAll();
+            )
+            .logout(
+                logout -> logout
+                    .logoutUrl(SecurityConfigUrlConstant.SiteLogoutUrl)
+                    .permitAll()
+            );
         } catch(Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
         }

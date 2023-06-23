@@ -16,17 +16,14 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * 权限元数据加载器
  */
-public class WebSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
-
-    private FilterInvocationSecurityMetadataSource defaultSecurityMetadataSource;
+public class WebSecurityMetadataSource implements SecurityMetadataSource {
 
     private Map<RequestMatcher, Collection<ConfigAttribute>> requestMap;
 
@@ -87,7 +84,7 @@ public class WebSecurityMetadataSource implements FilterInvocationSecurityMetada
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {        
         if(requestMap != null) {
-            final HttpServletRequest request = ((FilterInvocation) object).getRequest();
+            final HttpServletRequest request = (HttpServletRequest) object;
             for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap
                     .entrySet()) {
                 if (entry.getKey().matches(request)) {
@@ -95,25 +92,13 @@ public class WebSecurityMetadataSource implements FilterInvocationSecurityMetada
                 }
             }
         }
-        return getDefaultSecurityMetadataSource() != null 
-                    ? getDefaultSecurityMetadataSource().getAttributes(object) : null;
+        return  null;
     }
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return FilterInvocation.class.isAssignableFrom(clazz);
+        return true;
     }
 
-    //#region getter and setter
-
-    public FilterInvocationSecurityMetadataSource getDefaultSecurityMetadataSource() {
-        return defaultSecurityMetadataSource;
-    }
-
-    public void setDefaultSecurityMetadataSource(FilterInvocationSecurityMetadataSource defaultSecurityMetadataSource) {
-        this.defaultSecurityMetadataSource = defaultSecurityMetadataSource;
-    }
-
-    //#endregion
     
 }

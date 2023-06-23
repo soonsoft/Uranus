@@ -7,41 +7,33 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 
-import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
-public class PrivilegeVoter implements AccessDecisionVoter<Object> {
+public class PrivilegeVoter implements IVoter {
 
-    @Override
     public boolean supports(ConfigAttribute attribute) {
         return attribute instanceof PrivilegeInfo && !StringUtils.isEmpty(attribute.getAttribute());
     }
 
     @Override
-    public boolean supports(Class<?> clazz) {
-        return clazz == PrivilegeInfo.class;
-    }
-
-    @Override
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+    public boolean vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
         if (authentication == null) {
-			return ACCESS_DENIED;
+			return false;
 		}
-		int result = ACCESS_ABSTAIN;
 
         Object principal = authentication.getPrincipal();
         String userId = principal instanceof UserInfo ? ((UserInfo) principal).getUserId() : (String) principal;
+        Collection<ConfigAttribute> privilegeList = filter(attributes);
 
-		for (ConfigAttribute attribute : attributes) {
+		for (ConfigAttribute attribute : privilegeList) {
 			if (this.supports(attribute)) {
-				result = ACCESS_DENIED;
                 if(attribute.getAttribute().equals(userId)) {
-                    return ACCESS_GRANTED;
+                    return true;
                 }
 			}
 		}
-		return result;
+		return false;
     }
 
     protected Collection<ConfigAttribute> filter(Collection<ConfigAttribute> attributes) {
