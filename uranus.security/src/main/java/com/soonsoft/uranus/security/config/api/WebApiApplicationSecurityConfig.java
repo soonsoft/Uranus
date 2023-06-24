@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.ServletException;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,26 +42,27 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
     public void config(HttpSecurity http) {
         final LogoutHandler logoutHandler = getLogoutHandler();
         try {
-            http.requestMatchers()
-                    .antMatchers("/**")
-                .and()
-                    .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .withObjectPostProcessor(getPostProcessor())
-                .and()
-                    .cors()
-                .and()
-                    .csrf().disable()
+            http
+                .authorizeHttpRequests(
+                    authorize -> authorize
+                        //.anyRequest().authenticated()
+                        .anyRequest().access(getWebAuthorizationManager())
+                )
+                .cors(withDefaults())
+                .csrf(config -> config.disable())
                 .logout(logout -> {
-                    if(logoutHandler != null) {
+                    if (logoutHandler != null) {
                         logout.addLogoutHandler(logoutHandler);
                     }
                     logout.logoutSuccessHandler(new WebApiLogoutSuccessHandler());
                     logout.logoutUrl(SecurityConfigUrlConstant.WebAplLogoutUrl).permitAll();
                 })
-                .exceptionHandling()
-                    .authenticationEntryPoint(new WebApiAuthenticationEntryPoint())
-                    .accessDeniedHandler(new WebApiAccessDeniedHandler());
+                .exceptionHandling(
+                    handling -> handling
+                        .authenticationEntryPoint(new WebApiAuthenticationEntryPoint())
+                        .accessDeniedHandler(new WebApiAccessDeniedHandler())
+                );
+
             setConfig(http);
         } catch (Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);

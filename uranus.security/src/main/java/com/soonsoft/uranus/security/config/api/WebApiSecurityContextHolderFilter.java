@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,12 +33,14 @@ public class WebApiSecurityContextHolderFilter extends SecurityContextHolderFilt
 		this.securityContextRepository = repo;
     }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
+		HttpServletRequest httpRequest = (HttpServletRequest) request; 
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
 		if(securityContextRepository instanceof WebApiHttpSessionSecurityContextRepository repository) {
-			SecurityContext securityContext = repository.loadContext(request, response);
+			SecurityContext securityContext = repository.loadContext(httpRequest, httpResponse);
 			try {
 				SecurityContextHolder.setContext(securityContext);
 				filterChain.doFilter(request, response);
@@ -45,9 +49,9 @@ public class WebApiSecurityContextHolderFilter extends SecurityContextHolderFilt
 				SecurityContextHolder.clearContext();
 			}
 		} else {
-			super.doFilterInternal(request, response, filterChain);
+			super.doFilter(request, response, filterChain);
 		}
-    }
+	}
 
 	public static class WebApiHttpSessionSecurityContextRepository extends HttpSessionSecurityContextRepository {
 
@@ -65,13 +69,11 @@ public class WebApiSecurityContextHolderFilter extends SecurityContextHolderFilt
 				((ISessionIdStrategy) tokenProvider).updateSessionId(request, response);
 			}
 	
-			Supplier<SecurityContext> contextSupplier = this.loadContext(request);
+			Supplier<SecurityContext> contextSupplier = loadDeferredContext(request);
 			return loadSecurityContext(request, contextSupplier);
 		}
 	
 		private SecurityContext loadSecurityContext(HttpServletRequest request, Supplier<SecurityContext> contextSupplier) {
-			 
-			
 			SecurityContext securityContext = contextSupplier.get();
 	
 			// 如果Token无效，则清空登录信息

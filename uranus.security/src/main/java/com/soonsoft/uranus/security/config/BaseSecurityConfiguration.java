@@ -4,7 +4,7 @@ import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authentication.WebUserDetailsService;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
-import com.soonsoft.uranus.security.authorization.WebAccessDecisionManager;
+import com.soonsoft.uranus.security.authorization.WebAuthorizationManager;
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
 import com.soonsoft.uranus.security.authorization.voter.PermissionVoter;
 import com.soonsoft.uranus.security.authorization.voter.PrivilegeVoter;
@@ -49,7 +49,7 @@ public abstract class BaseSecurityConfiguration {
         return web -> {
             // 配置静态资源，这些资源不做安全验证
             web.ignoring()
-                .antMatchers(
+                .requestMatchers(
                     HttpMethod.GET, 
                     securityProperties.getResourcePathArray());
         };
@@ -67,16 +67,18 @@ public abstract class BaseSecurityConfiguration {
 
         // Web应用程序，身份验证配置
         WebApplicationSecurityConfig config = factory.create();
-        WebAccessDecisionManager accessDecisionManager = WebAccessDecisionManager.create();
-        accessDecisionManager.addVoter(new PrivilegeVoter());
-        accessDecisionManager.addVoter(new PermissionVoter());
 
         IFunctionManager functionManager = SecurityManager.current().getFunctionManager();
-        WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();
+        final WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();
         // TODO 当前，系统菜单和角色对应关系是在系统启动时就加载好了，变更需要重启系统。后续，更新角色和菜单绑定关系后，动态刷新菜单权限资源
         securityMetadataSource.setConfigAttributeCollection(functionManager.getEnabledMenus());
 
-        config.setWebAccessDecisionManager(accessDecisionManager);
+        WebAuthorizationManager authorizationManager = 
+            new WebAuthorizationManager(request -> securityMetadataSource.getAttributes(request));
+        authorizationManager.addVoter(new PrivilegeVoter());
+        authorizationManager.addVoter(new PermissionVoter());
+
+        config.setWebAuthorizationManager(authorizationManager);
         config.setWebSecurityMetadataSource(securityMetadataSource);
         config.config(http);
     }

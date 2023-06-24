@@ -23,6 +23,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
  * 我们的投票器其实最接近UnanimousBased的逻辑，但是UnanimousBased把configAttributes中的元素单独判定了
  * 而在角色场景，用户往往可以配置多个角色，往往只要匹配到一个角色就可以放行，所以需要重写。
  */
+@Deprecated
 public class WebAccessDecisionManager extends UnanimousBased {
 
     private List<AccessDecisionVoter<? extends Object>> decisionVoters;
