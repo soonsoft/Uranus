@@ -50,6 +50,7 @@ public class BeanPropertyTest {
         testBeanAccessor.set(testBean, "arrValue", arr);
         String[] arrValue = testBeanAccessor.get(testBean, "arrValue");
         Assert.assertTrue(arrValue == arr);
+        
     }
 
 }
