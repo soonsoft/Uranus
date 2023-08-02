@@ -6,12 +6,10 @@ import com.soonsoft.uranus.security.config.BaseSecurityConfiguration;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.services.membership.config.properties.MembershipProperties;
 
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Configurable
 public class MembershipConfiguration extends BaseSecurityConfiguration {
 
     private MembershipProperties membershipProperties;

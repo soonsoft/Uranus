@@ -20,6 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
 })
 @EnableDatabaseAccess
 @EnableSimpleSecurity
+//@EnableMembership
 public class SiteApplication {
 
     public static void main(String[] args) {
