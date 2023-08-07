@@ -12,10 +12,10 @@ public class AttributeSingleData extends AttributeData {
         return convertor != null ? convertor.convert(attributeValue) : null;
     }
 
-    public String getAttributeValue() {
+    public String getPropertyValue() {
         return this.attributeValue;
     }
-    public void setAttributeValue(String attributeValue) {
+    public void setPropertyValue(String attributeValue) {
         this.attributeValue = attributeValue;
     }
 

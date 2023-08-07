@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.soonsoft.uranus.core.common.attribute.AttributeBag;
+import com.soonsoft.uranus.core.common.attribute.access.AttributeBag;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 

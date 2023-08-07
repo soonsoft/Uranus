@@ -1,18 +1,15 @@
-package com.soonsoft.uranus.core.common.attribute;
+package com.soonsoft.uranus.core.common.attribute.access;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.soonsoft.uranus.core.Guard;
-import com.soonsoft.uranus.core.common.attribute.access.AttributeDataAccessor;
-import com.soonsoft.uranus.core.common.attribute.access.EntityDataAccessor;
+import com.soonsoft.uranus.core.common.attribute.access.IndexNode.*;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
-import com.soonsoft.uranus.core.functional.func.Func2;
 
 public class AttributeBag {
 
@@ -54,7 +51,9 @@ public class AttributeBag {
 
             IndexNode entityNode = map.get(entityName);
             if(entityNode == null) {
-                entityNode = new EntityNode(entityName, rootKey);
+                entityNode = 
+                    new EntityNode(entityName, rootKey)
+                        .createVirtualAttrData(entityName, attributeData.getDataId());
                 map.put(entityName, entityNode);
                 rootNode.addChildNode(entityNode);
             }
@@ -94,111 +93,17 @@ public class AttributeBag {
         indexes = rootNode.getChildren();
     }
 
-    protected String getKey(String part1, String part2) {
-        return (StringUtils.isEmpty(part1) ? "" : part1) + "::" + part2;
+    public StructDataAccessor getEntity() {
+        return indexes != null 
+            ? getEntity(indexes.keySet().stream().findFirst().orElse(null)) 
+            : null;
     }
 
-    public EntityDataAccessor getEntity(String entityName) {
+    public StructDataAccessor getEntity(String entityName) {
+        if(indexes != null || !StringUtils.isEmpty(entityName)) {
+            
+        }
         return null;
-    }
-    
-    public <TValue> TValue getValue(Attribute<TValue> attribute) {
-        return null;
-    }
-
-    public void getArray() {
-
-    }
-
-    public void getStruct() {
-
-    }
-
-    static class IndexNode {
-        // ID
-        private final String key;
-        // ParentID
-        private final String parentKey;
-        // PropertyName
-        private String propertyName;
-        private int index;
-        private Map<String, IndexNode> children;
-
-        IndexNode(String key, String parentKey, String propertyName, int index) {
-            this.key = key;
-            this.parentKey = parentKey;
-            this.propertyName = propertyName;
-            this.index = index;
-        }
-
-        IndexNode(String key, String parentKey, String propertyName, int index, Map<String, IndexNode> children) {
-            this(key, parentKey, propertyName, index);
-            this.children = children;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getParentKey() {
-            return parentKey;
-        }
-
-        public String getPropertyName() {
-            return propertyName;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public Map<String, IndexNode> getChildren() {
-            return children;
-        }
-        protected void setChildren(Map<String, IndexNode> children) {
-            this.children = children;
-        }
-
-        public void addChildNode(IndexNode node) {
-            Guard.notNull(node, "the arguments node is required.");
-            if(children == null) {
-                children = new LinkedHashMap<>();
-            }
-            children.put(node.getPropertyName(), node);
-        }
-    }
-
-    static class RootNode extends IndexNode {
-        RootNode(String key) {
-            super(key, null, null, -1);
-        }
-    }
-
-    static class EntityNode extends IndexNode {
-        EntityNode(String key, String parentKey) {
-            super(key, parentKey, key, -1);
-        }
-    }
-
-    static class ListNode extends IndexNode {
-        ListNode(String key, String parentKey, String attributeCode) {
-            super(key, parentKey, attributeCode, -1);
-        }
-
-        @Override
-        public void addChildNode(IndexNode node) {
-            Guard.notNull(node, "the arguments node is required.");
-            if(getChildren() == null) {
-                setChildren(new LinkedHashMap<>());
-            }
-            getChildren().put(String.valueOf(getChildren().size()), node);
-        }
-    }
-
-    static class TempIndexNode extends IndexNode {
-        TempIndexNode(String key, String parentKey) {
-            super(key, parentKey, null, -1);
-        }
-    }
+    }   
 
 }

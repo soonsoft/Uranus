@@ -16,10 +16,9 @@ public class AttributeData {
     private String dataId;
     private String entityName;
     private String propertyName;
+    private String propertyValue;
     private PropertyType propertyType;
     private String parentId;
-    private String attributeName;
-    private String attributeValue;
     private String attributeEncryptValue;
     private String status;
     private String remark;
@@ -67,18 +66,11 @@ public class AttributeData {
         this.parentId = parentId;
     }
 
-    public String getAttributeName() {
-        return attributeName;
+    public String getPropertyValue() {
+        return propertyValue;
     }
-    public void setAttributeName(String attributeName) {
-        this.attributeName = attributeName;
-    }
-
-    public String getAttributeValue() {
-        return attributeValue;
-    }
-    public void setAttributeValue(String attributeValue) {
-        this.attributeValue = attributeValue;
+    public void setPropertyValue(String propertyValue) {
+        this.propertyValue = propertyValue;
     }
 
     public String getAttributeEncryptValue() {
