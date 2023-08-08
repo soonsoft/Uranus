@@ -89,8 +89,8 @@ public class IndexNode {
     }
 
     static class ListNode extends IndexNode {
-        ListNode(String key, String parentKey, String attributeCode) {
-            super(key, parentKey, attributeCode, -1);
+        ListNode(String key, String parentKey, String propertyName) {
+            super(key, parentKey, propertyName, -1);
         }
 
         @Override
