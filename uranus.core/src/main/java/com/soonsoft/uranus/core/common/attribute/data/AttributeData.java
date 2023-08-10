@@ -4,7 +4,7 @@ package com.soonsoft.uranus.core.common.attribute.data;
  * 属性信息<br>
  * 属性解析规则<br>
  *   1. 一个属性代表一个 Property<br>
- *   2. 如果两个属性的 entityName 相同，则代表这两个属性同属于一个实体<br>
+ *   2. entityName 用于标识属性所属的实体，如果两个属性的 entityName 相同，则代表这两个属性同属于一个实体<br>
  *   3. 如果两个属性的 entityName 相同并且 propertyName 也相同，则代表他们是同属于一个集合（Array 结构）<br>
  *   4. 默认的 propertyType 为 [Property]，代表是属性，为 [Struct] 则表示这个属性为“结构体”，结构体没有 Value，用于承载子对象（Object 结构： { Struct: {} }）<br>
  *   5. EntityName 用于描述属性所属的实体对象定义<br>
@@ -12,23 +12,21 @@ package com.soonsoft.uranus.core.common.attribute.data;
  */
 public class AttributeData {
 
-    private String id;
+    private String key;
     private String dataId;
     private String entityName;
     private String propertyName;
     private String propertyValue;
     private PropertyType propertyType;
-    private String parentId;
-    private String attributeEncryptValue;
-    private String status;
+    private String parentKey;
+    private DataStatus status = DataStatus.Enabled;
     private String remark;
 
-
-    public String getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
-    public void setId(String id) {
-        this.id = id;
+    public void setKey(String key) {
+        this.key = key;
     }
     
     public String getDataId() {
@@ -59,11 +57,11 @@ public class AttributeData {
         this.propertyType = propertyType;
     }
 
-    public String getParentId() {
-        return parentId;
+    public String getParentKey() {
+        return parentKey;
     }
-    public void setParentId(String parentId) {
-        this.parentId = parentId;
+    public void setParentKey(String parentKey) {
+        this.parentKey = parentKey;
     }
 
     public String getPropertyValue() {
@@ -73,17 +71,10 @@ public class AttributeData {
         this.propertyValue = propertyValue;
     }
 
-    public String getAttributeEncryptValue() {
-        return attributeEncryptValue;
-    }
-    public void setAttributeEncryptValue(String attributeEncryptValue) {
-        this.attributeEncryptValue = attributeEncryptValue;
-    }
-
-    public String getStatus() {
+    public DataStatus getStatus() {
         return status;
     }
-    public void setStatus(String status) {
+    public void setStatus(DataStatus status) {
         this.status = status;
     }
 

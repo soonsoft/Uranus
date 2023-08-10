@@ -7,6 +7,7 @@ import java.util.Map;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.*;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
+import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.func.Func1;
@@ -17,6 +18,7 @@ public class AttributeBag {
     private Func1<Integer, AttributeData> attributeDataGetter;
     private Func1<AttributeData, Integer> attributeDataAdder;
     private Map<String, IndexNode> indexes = null;
+    private AttributeKey attributeKey;
 
     public AttributeBag() {
         this(new ArrayList<>());
@@ -42,50 +44,52 @@ public class AttributeBag {
         int index = 0;
         for(AttributeData attributeData : attributeDataList) {
             String entityName = attributeData.getEntityName();
-            String key = attributeData.getId();
+            String key = attributeData.getKey();
             String parentKey = 
-                StringUtils.isEmpty(attributeData.getParentId()) 
+                StringUtils.isEmpty(attributeData.getParentKey()) 
                     ? entityName 
-                    : attributeData.getParentId();
+                    : attributeData.getParentKey();
             String propertyName = attributeData.getPropertyName();
 
             IndexNode entityNode = map.get(entityName);
             if(entityNode == null) {
                 entityNode = 
                     new EntityNode(entityName, rootKey)
-                        .createVirtualAttrData(entityName, attributeData.getDataId());
+                        .initVirtualAttrData(entityName, attributeData.getDataId());
                 map.put(entityName, entityNode);
                 rootNode.addChildNode(entityNode);
-            }
-
-            IndexNode node = map.get(key);
-            if(node == null) {
-                node = new IndexNode(key, parentKey, propertyName, index);
-                map.put(key, node);
-            } else if(node instanceof TempIndexNode tempNode) {
-                node = new IndexNode(
-                    tempNode.getKey(), tempNode.getParentKey(), propertyName, index, tempNode.getChildren());
-                map.put(key, node);
-            } else {
-                // 重复，合并为数组
-                if(node instanceof ListNode listNode) {
-                    IndexNode newNode = new IndexNode(key, parentKey, propertyName, index);
-                    listNode.addChildNode(newNode);
-                } else {
-                    ListNode listNode = new ListNode(key, parentKey, propertyName);
-                    listNode.addChildNode(node);
-                    IndexNode newNode = new IndexNode(key, parentKey, propertyName, index);
-                    listNode.addChildNode(newNode);
-                    map.put(key, listNode);
-                    // 用于更新 parentNode chlidren
-                    node = listNode;
-                }   
             }
 
             IndexNode parentNode = StringUtils.isEmpty(parentKey) ? entityNode : map.get(parentKey);
             if(parentNode == null) {
                 parentNode = new TempIndexNode(key, parentKey);
             }
+
+            IndexNode node = map.get(key);
+            if(node instanceof TempIndexNode tempNode) {
+                node = new IndexNode(tempNode.getKey(), tempNode.getParentKey(), propertyName, index, tempNode.getChildren());
+                map.put(key, node);
+            } else {
+                node = node == null ? parentNode.getChildNode(propertyName) : null;
+                if(node == null) {
+                    node = new IndexNode(key, parentKey, propertyName, index);
+                    map.put(key, node);
+                } else if(node instanceof ListNode listNode) {
+                    // 是数组，将当前元素加入数组
+                    IndexNode newNode = new IndexNode(key, parentKey, propertyName, index);
+                    listNode.addChildNode(newNode);
+                } else {
+                    // 同名属性，合并为数组
+                    ListNode listNode = new ListNode(attributeKey.generate(), parentKey, propertyName);
+                    listNode.addChildNode(node);
+                    IndexNode newNode = new IndexNode(key, parentKey, propertyName, index);
+                    listNode.addChildNode(newNode);
+                    map.put(key, listNode);
+                    // 用于更新 parentNode chlidren
+                    node = listNode;
+                }
+            }
+
             parentNode.addChildNode(node);
 
             index++;

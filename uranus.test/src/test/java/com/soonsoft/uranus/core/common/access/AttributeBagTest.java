@@ -39,7 +39,7 @@ public class AttributeBagTest {
         AttributeData attrData = new AttributeData();
         attrData.setEntityName(entityName);
         attrData.setPropertyName(attrCode);
-        attrData.setParentId(parentAttrCode);
+        attrData.setParentKey(parentAttrCode);
         attrData.setPropertyType(type);
 
         list.add(attrData);

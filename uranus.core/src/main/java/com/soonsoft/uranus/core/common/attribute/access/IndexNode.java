@@ -60,7 +60,11 @@ public class IndexNode {
     }
 
     public IndexNode getChildNode(String propertyName) {
-        return getChildren().get(propertyName);
+        return children != null ? children.get(propertyName) : null;
+    }
+
+    public boolean contains(String propertyName) {
+        return children != null ? children.containsKey(propertyName) : false;
     }
 
     static class RootNode extends IndexNode {
@@ -77,7 +81,7 @@ public class IndexNode {
             virtualAttributeData = new AttributeData();
         }
 
-        public EntityNode createVirtualAttrData(String entityName, String dataId) {
+        public EntityNode initVirtualAttrData(String entityName, String dataId) {
             virtualAttributeData.setEntityName(entityName);
             virtualAttributeData.setDataId(dataId);
             return this;

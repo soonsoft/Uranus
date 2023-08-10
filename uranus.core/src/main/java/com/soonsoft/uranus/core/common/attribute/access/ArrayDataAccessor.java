@@ -3,19 +3,32 @@ package com.soonsoft.uranus.core.common.attribute.access;
 import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
+import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
+import com.soonsoft.uranus.core.functional.action.Action3;
+import com.soonsoft.uranus.core.functional.behavior.ForEachBehavior;
+import com.soonsoft.uranus.core.functional.behavior.IForEach;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
-public class ArrayDataAccessor extends BaseAccessor {
+public class ArrayDataAccessor extends BaseAccessor implements IForEach<AttributeData> {
+    private final String entityName;
+    private final String propertyName;
 
-    public ArrayDataAccessor(ListNode node, Func1<Integer, AttributeData> attributeDataGetter, Func1<AttributeData, Integer> attributeDataAdder) {
-        super(node, attributeDataGetter, attributeDataAdder);
+    public ArrayDataAccessor(
+            String entityName, String propertyName,
+            ListNode node, 
+            Func1<Integer, AttributeData> attributeDataGetter, 
+            Func1<AttributeData, Integer> attributeDataAdder,
+            AttributeKey attributeKey) {
+        super(node, attributeDataGetter, attributeDataAdder, attributeKey);
+        this.entityName = entityName;
+        this.propertyName = propertyName;
     }
 
     public <TValue> TValue getValue(int index, Attribute<TValue> attribute) {
         checkIndex(index);
         checkAttribute(attribute);
 
-        AttributeData attributeData = getAttributeData(String.valueOf(index), node, attributeDataGetter);
+        AttributeData attributeData = getAttributeData(String.valueOf(index));
         return attributeData != null ? attribute.convertValue(attributeData.getPropertyValue()) : null;
     }
 
@@ -23,18 +36,52 @@ public class ArrayDataAccessor extends BaseAccessor {
         checkIndex(index);
         checkAttribute(attribute);
 
-        AttributeData attributeData = getAttributeData(String.valueOf(index), node, attributeDataGetter);
-        if(attributeData != null) {
-            // update
-        } else {
-            addAttributeData(value, attribute, node, attributeDataGetter, attributeDataAdder);
+        AttributeData attributeData = getAttributeData(String.valueOf(index));
+        setAttributeData(attributeData, value, attribute);
+    }
+
+    public <TValue> void addValue(TValue value, Attribute<TValue> attribute) {
+        checkAttribute(attribute);
+        addAttributeData(value, attribute);
+    }
+
+    public <TValue> AttributeDataAccessor<TValue> getData(int index, Attribute<TValue> attribute) {
+        checkIndex(index);
+        checkAttribute(attribute);
+
+        AttributeData attributeData = getAttributeData(String.valueOf(index));
+        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData) : null;
+    }
+
+    public StructDataAccessor getStruct(int index, Attribute<?> attribute) {
+        checkIndex(index);
+        checkAttribute(attribute);
+        IndexNode childNode = node.getChildNode(String.valueOf(index));
+        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataAdder, attributeKey);
+    }
+
+    public ArrayDataAccessor getArray(int index, Attribute<?> attribute) {
+        checkIndex(index);
+        checkAttribute(attribute);
+        IndexNode childNode = node.getChildNode(String.valueOf(index));
+        if(childNode instanceof ListNode listNode) {
+            return new ArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode, attributeDataGetter, attributeDataAdder, attributeKey);
         }
+        ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
+        listNode.addChildNode(childNode);
+        return new ArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode, attributeDataGetter, attributeDataAdder, attributeKey);
     }
 
     private void checkIndex(int index) {
         if(index < 0 || index >= node.getChildren().size()) {
             throw new IndexOutOfBoundsException(index);
         }
+    }
+
+    @Override
+    public void forEach(Action3<AttributeData, Integer, ForEachBehavior> action) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'forEach'");
     }
     
 }
