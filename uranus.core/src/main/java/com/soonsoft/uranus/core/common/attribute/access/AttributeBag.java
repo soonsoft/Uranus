@@ -10,13 +10,16 @@ import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class AttributeBag {
 
-    private List<AttributeData> attributeDataList;
-    private Func1<Integer, AttributeData> attributeDataGetter;
-    private Func1<AttributeData, Integer> attributeDataAdder;
+    private final List<AttributeData> attributeDataList;
+    private final Func1<Integer, AttributeData> attributeDataGetter;
+    private final Action2<Integer, AttributeData> attributeDataSetter;
+    private final Func1<AttributeData, Integer> attributeDataAdder;
+    private final Action2<ActionType, AttributeData> actionCommandPicker;
     private Map<String, IndexNode> indexes = null;
     private AttributeKey attributeKey;
 
@@ -28,6 +31,17 @@ public class AttributeBag {
         Guard.notNull(attributeDataList, "the arguments attributeDataList is requeired.");
         this.attributeDataList = attributeDataList;
         this.attributeDataGetter = index -> attributeDataList.get(index.intValue());
+        this.attributeDataSetter = (index, attrData) -> attributeDataList.set(index.intValue(), attrData);
+        this.attributeDataAdder = item -> {
+            int index = attributeDataList.size();
+            if(attributeDataList.add(item)) {
+                return index;
+            }
+            return -1;
+        };
+        this.actionCommandPicker = (type, data) -> {
+
+        };
 
         init();
     }

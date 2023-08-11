@@ -51,6 +51,13 @@ public class IndexNode {
         this.children = children;
     }
 
+    public void removeChildNode(String propertyName) {
+        Guard.notEmpty(propertyName, "the arguments propertyName is required.");
+        if(children == null) {
+            children.remove(propertyName);
+        }
+    }
+
     public void addChildNode(IndexNode node) {
         Guard.notNull(node, "the arguments node is required.");
         if(children == null) {

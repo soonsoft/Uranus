@@ -4,6 +4,7 @@ import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
+import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.functional.action.Action3;
 import com.soonsoft.uranus.core.functional.behavior.ForEachBehavior;
 import com.soonsoft.uranus.core.functional.behavior.IForEach;
@@ -17,9 +18,11 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
             String entityName, String propertyName,
             ListNode node, 
             Func1<Integer, AttributeData> attributeDataGetter, 
+            Action2<Integer, AttributeData> attributeDataSetter,
             Func1<AttributeData, Integer> attributeDataAdder,
+            Action2<ActionType, AttributeData> actionCommandPicker,
             AttributeKey attributeKey) {
-        super(node, attributeDataGetter, attributeDataAdder, attributeKey);
+        super(node, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
         this.entityName = entityName;
         this.propertyName = propertyName;
     }
@@ -57,7 +60,7 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkIndex(index);
         checkAttribute(attribute);
         IndexNode childNode = node.getChildNode(String.valueOf(index));
-        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataAdder, attributeKey);
+        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
     }
 
     public ArrayDataAccessor getArray(int index, Attribute<?> attribute) {
@@ -65,11 +68,27 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkAttribute(attribute);
         IndexNode childNode = node.getChildNode(String.valueOf(index));
         if(childNode instanceof ListNode listNode) {
-            return new ArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode, attributeDataGetter, attributeDataAdder, attributeKey);
+            return new ArrayDataAccessor(
+                    attribute.getEntityName(), 
+                    attribute.getPropertyName(), 
+                    listNode, 
+                    attributeDataGetter, 
+                    attributeDataSetter, 
+                    attributeDataAdder, 
+                    actionCommandPicker,
+                    attributeKey);
         }
         ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
         listNode.addChildNode(childNode);
-        return new ArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode, attributeDataGetter, attributeDataAdder, attributeKey);
+        return new ArrayDataAccessor(
+                attribute.getEntityName(), 
+                attribute.getPropertyName(), 
+                listNode, 
+                attributeDataGetter, 
+                attributeDataSetter, 
+                attributeDataAdder, 
+                actionCommandPicker, 
+                attributeKey);
     }
 
     private void checkIndex(int index) {
