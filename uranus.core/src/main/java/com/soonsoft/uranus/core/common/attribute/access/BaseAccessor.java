@@ -66,7 +66,7 @@ public abstract class BaseAccessor {
         Integer index = attributeDataAdder.call(attributeData);
         IndexNode structNode = new IndexNode(attributeData.getKey(), attributeData.getParentKey(), propertyName, index.intValue());
 
-        return new StructDataAccessor(structNode, attributeDataGetter, attributeDataAdder, attributeKey);
+        return createStructDataAccessor(structNode);
     }
 
     public ArrayDataAccessor addArray(String entityName, String propertyName) {
@@ -82,6 +82,9 @@ public abstract class BaseAccessor {
 
     protected AttributeData getAttributeData(String propertyName) {
         IndexNode childNode = node.getChildNode(propertyName);
+        if(childNode == null) {
+            return null;
+        }
         AttributeData attributeData = attributeDataGetter.call(childNode.getIndex());
         return attributeData;
     }
@@ -104,7 +107,13 @@ public abstract class BaseAccessor {
     }
 
     protected StructDataAccessor createStructDataAccessor(IndexNode structNode) {
-        
+        return new StructDataAccessor(
+                structNode, 
+                attributeDataGetter, 
+                attributeDataSetter, 
+                attributeDataAdder, 
+                actionCommandPicker, 
+                attributeKey);
     }
 
     protected ArrayDataAccessor createArrayDataAccessor(String entityName, String propertyName, ListNode listNode) {

@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.core.common.attribute.access;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,8 @@ public class AttributeBag {
     private final Func1<AttributeData, Integer> attributeDataAdder;
     private final Action2<ActionType, AttributeData> actionCommandPicker;
     private Map<String, IndexNode> indexes = null;
-    private AttributeKey attributeKey;
+    private AttributeKey attributeKey = new AttributeKey();
+    private final static String ROOT_KEY = "__ROOT__";
 
     public AttributeBag() {
         this(new ArrayList<>());
@@ -44,6 +46,9 @@ public class AttributeBag {
         };
 
         init();
+        if(indexes == null) {
+            indexes = new LinkedHashMap<>();
+        }
     }
 
     protected void init() {
@@ -51,9 +56,8 @@ public class AttributeBag {
             return;
         }
 
-        String rootKey = "__ROOT__";
         Map<String, IndexNode> map = MapUtils.createHashMap(attributeDataList.size() + 10);
-        RootNode rootNode = new RootNode(rootKey);
+        RootNode rootNode = new RootNode(ROOT_KEY);
 
         int index = 0;
         for(AttributeData attributeData : attributeDataList) {
@@ -68,7 +72,7 @@ public class AttributeBag {
             IndexNode entityNode = map.get(entityName);
             if(entityNode == null) {
                 entityNode = 
-                    new EntityNode(entityName, rootKey)
+                    new EntityNode(entityName, ROOT_KEY)
                         .initVirtualAttrData(entityName, attributeData.getDataId());
                 map.put(entityName, entityNode);
                 rootNode.addChildNode(entityNode);
@@ -112,16 +116,31 @@ public class AttributeBag {
     }
 
     public StructDataAccessor getEntity() {
-        return indexes != null 
-            ? getEntity(indexes.keySet().stream().findFirst().orElse(null)) 
-            : null;
+        return getEntity(indexes.keySet().stream().findFirst().orElse(null));
     }
 
     public StructDataAccessor getEntity(String entityName) {
-        if(indexes != null || !StringUtils.isEmpty(entityName)) {
-            
+        if(!StringUtils.isEmpty(entityName)) {
+            EntityNode node = (EntityNode) indexes.get(entityName);
+            if(node != null) {
+                return createStructDataAccessor(node);
+            }
         }
         return null;
-    }   
+    }
+
+    public StructDataAccessor newEntity(String entityName) {
+        if(indexes.containsKey(entityName)) {
+            return getEntity(entityName);
+        }
+
+        EntityNode entityNode = new EntityNode(entityName, ROOT_KEY);
+        indexes.put(entityName, entityNode);
+        return createStructDataAccessor(entityNode);
+    }
+
+    protected StructDataAccessor createStructDataAccessor(EntityNode entityNode) {
+        return new StructDataAccessor(entityNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
+    }
 
 }

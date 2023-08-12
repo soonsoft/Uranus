@@ -60,7 +60,7 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkIndex(index);
         checkAttribute(attribute);
         IndexNode childNode = node.getChildNode(String.valueOf(index));
-        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
+        return createStructDataAccessor(childNode);
     }
 
     public ArrayDataAccessor getArray(int index, Attribute<?> attribute) {
@@ -68,27 +68,11 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkAttribute(attribute);
         IndexNode childNode = node.getChildNode(String.valueOf(index));
         if(childNode instanceof ListNode listNode) {
-            return new ArrayDataAccessor(
-                    attribute.getEntityName(), 
-                    attribute.getPropertyName(), 
-                    listNode, 
-                    attributeDataGetter, 
-                    attributeDataSetter, 
-                    attributeDataAdder, 
-                    actionCommandPicker,
-                    attributeKey);
+            return createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
         }
         ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
         listNode.addChildNode(childNode);
-        return new ArrayDataAccessor(
-                attribute.getEntityName(), 
-                attribute.getPropertyName(), 
-                listNode, 
-                attributeDataGetter, 
-                attributeDataSetter, 
-                attributeDataAdder, 
-                actionCommandPicker, 
-                attributeKey);
+        return createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
     }
 
     private void checkIndex(int index) {

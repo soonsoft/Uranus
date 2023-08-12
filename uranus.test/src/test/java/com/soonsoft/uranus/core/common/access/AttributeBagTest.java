@@ -3,13 +3,27 @@ package com.soonsoft.uranus.core.common.access;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.access.AttributeBag;
+import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
+import com.soonsoft.uranus.core.common.attribute.convertor.StringConvertor;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 
 public class AttributeBagTest {
+
+    @Test
+    public void test_ArrayValue() {
+        AttributeBag bag = new AttributeBag();
+        StructDataAccessor person = bag.newEntity("Person");
+        Attribute<String> nameProperty = new Attribute<String>("Person", "Name", new StringConvertor());
+        person.setValue("Jack", nameProperty);
+
+        Assert.assertTrue("Jack".equals(person.getValue(nameProperty)));
+    }
     
     @Test
     public void test_createBag() {
