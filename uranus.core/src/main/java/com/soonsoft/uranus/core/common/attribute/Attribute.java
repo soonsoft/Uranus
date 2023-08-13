@@ -15,6 +15,10 @@ public class Attribute<TValue> {
 
     private final IAttributeConvertor<TValue> valueConvertor;
 
+    public Attribute(String entityName, String propertyName, PropertyType type) {
+        this(entityName, propertyName, type, null);
+    } 
+
     public Attribute(String entityName, String propertyName, IAttributeConvertor<TValue> valueConvertor) {
         this.entityName = entityName;
         this.propertyName = propertyName;

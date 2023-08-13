@@ -13,6 +13,7 @@ import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.core.functional.action.Action3;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 public abstract class BaseAccessor {
@@ -20,7 +21,7 @@ public abstract class BaseAccessor {
     protected final Func1<Integer, AttributeData> attributeDataGetter;
     protected final Action2<Integer, AttributeData> attributeDataSetter;
     protected final Func1<AttributeData, Integer> attributeDataAdder;
-    protected final Action2<ActionType, AttributeData> actionCommandPicker;
+    protected final Action3<ActionType, AttributeData, Object> notifyChanged;
     protected final AttributeKey attributeKey;
 
     public BaseAccessor(
@@ -28,13 +29,13 @@ public abstract class BaseAccessor {
             Func1<Integer, AttributeData> attributeDataGetter, 
             Action2<Integer, AttributeData> attributeDataSetter,
             Func1<AttributeData, Integer> attributeDataAdder, 
-            Action2<ActionType, AttributeData> actionCommandPicker,
+            Action3<ActionType, AttributeData, Object> notifyChanged,
             AttributeKey attributeKey) {
         this.node = node;
         this.attributeDataGetter = attributeDataGetter;
         this.attributeDataSetter = attributeDataSetter;
         this.attributeDataAdder = attributeDataAdder;
-        this.actionCommandPicker = actionCommandPicker;
+        this.notifyChanged = notifyChanged;
         this.attributeKey = attributeKey;
     }
 
@@ -51,13 +52,13 @@ public abstract class BaseAccessor {
             AttributeData attributeData = attributeDataGetter.call(itemNode.getIndex());
             attributeDataSetter.apply(itemNode.getIndex(), null);
             if(attributeData.getStatus() != DataStatus.Temp) {
-                actionCommandPicker.apply(ActionType.Delete, attributeData);
+                notifyChanged.apply(ActionType.Delete, attributeData, null);
             }
         });
         return true;
     }
 
-    public StructDataAccessor addStruct(String entityName, String propertyName) {
+    public StructDataAccessor newStruct(String entityName, String propertyName) {
         if(node.contains(propertyName)) {
             throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
         }
@@ -65,17 +66,28 @@ public abstract class BaseAccessor {
         attributeData.setStatus(DataStatus.Temp);
         Integer index = attributeDataAdder.call(attributeData);
         IndexNode structNode = new IndexNode(attributeData.getKey(), attributeData.getParentKey(), propertyName, index.intValue());
+        node.addChildNode(structNode);
 
         return createStructDataAccessor(structNode);
     }
 
-    public ArrayDataAccessor addArray(String entityName, String propertyName) {
+    public ArrayDataAccessor newArray(String propertyName) {
         if(node.contains(propertyName)) {
             throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
         }
+
+        AttributeData attributeData = null;
+        if(node instanceof EntityNode entityNode) {
+            attributeData = entityNode.getVirtualAttributeData();
+        } else {
+            attributeData = attributeDataGetter.call(node.getIndex());
+        }
+        String entityName = attributeData.getEntityName();
+        
         String key = attributeKey.generate();
         String parentKey = node.getKey();
-        ListNode listNode = new ListNode(key, parentKey, propertyName);
+        ListNode listNode = new ListNode(key, parentKey, propertyName).init(entityName, attributeData.getDataId());
+        node.addChildNode(listNode);
 
         return createArrayDataAccessor(entityName, propertyName, listNode);
     }
@@ -103,7 +115,7 @@ public abstract class BaseAccessor {
         TValue oldValue = attribute.convertValue(attributeData.getPropertyValue());
         attributeData.setPropertyValue(strValue);
 
-        // notify(oldValue);
+        notifyChanged.apply(ActionType.Modify, attributeData, oldValue);
     }
 
     protected StructDataAccessor createStructDataAccessor(IndexNode structNode) {
@@ -112,7 +124,7 @@ public abstract class BaseAccessor {
                 attributeDataGetter, 
                 attributeDataSetter, 
                 attributeDataAdder, 
-                actionCommandPicker, 
+                notifyChanged, 
                 attributeKey);
     }
 
@@ -124,7 +136,7 @@ public abstract class BaseAccessor {
                 attributeDataGetter, 
                 attributeDataSetter, 
                 attributeDataAdder, 
-                actionCommandPicker, 
+                notifyChanged, 
                 attributeKey); 
     }
 
@@ -156,9 +168,11 @@ public abstract class BaseAccessor {
 
     private AttributeData createAttributeData(String entityName, String propertyName, String strValue) {
         AttributeData parentAttributeData = 
-            node.getIndex() > -1 
+            node.getIndex() > -1
                 ? attributeDataGetter.call(node.getIndex())
-                : ((EntityNode) node).getVirtualAttributeData();
+                : (node instanceof EntityNode e
+                    ? e.getVirtualAttributeData()
+                    : ((ListNode) node).getVirtualAttributeData());
 
         AttributeData attributeData = new AttributeData();
         attributeData.setKey(attributeKey.generate());
@@ -169,7 +183,5 @@ public abstract class BaseAccessor {
         attributeData.setPropertyValue(strValue);
         return attributeData;
     }
-
-    //void dependency(Action3<String, TValue, ActionType> action);
 
 }

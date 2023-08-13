@@ -80,28 +80,37 @@ public class IndexNode {
         }
     }
 
-    static class EntityNode extends IndexNode {
+    static class VirtualNode<T extends VirtualNode<T>> extends IndexNode {
         private AttributeData virtualAttributeData;
-        
-        EntityNode(String key, String parentKey) {
-            super(key, parentKey, key, -1);
+
+        public VirtualNode(String key, String parentKey, String propertyName) {
+            super(key, parentKey, propertyName, -1);
             virtualAttributeData = new AttributeData();
+            virtualAttributeData.setPropertyName(propertyName);
         }
 
-        public EntityNode initVirtualAttrData(String entityName, String dataId) {
+        @SuppressWarnings("unchecked")
+        public T init(String entityName, String dataId) {
             virtualAttributeData.setEntityName(entityName);
             virtualAttributeData.setDataId(dataId);
-            return this;
+            return (T) this;
         }
 
         public AttributeData getVirtualAttributeData() {
             return virtualAttributeData;
         }
+        
     }
 
-    static class ListNode extends IndexNode {
+    static class EntityNode extends VirtualNode<EntityNode> {
+        EntityNode(String key, String parentKey) {
+            super(key, parentKey, key);
+        }
+    }
+
+    static class ListNode extends VirtualNode<ListNode> {
         ListNode(String key, String parentKey, String propertyName) {
-            super(key, parentKey, propertyName, -1);
+            super(key, parentKey, propertyName);
         }
 
         @Override

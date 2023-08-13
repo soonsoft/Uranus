@@ -7,22 +7,61 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.soonsoft.uranus.core.common.attribute.Attribute;
+import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.AttributeBag;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.convertor.AttributeDataType;
+import com.soonsoft.uranus.core.common.attribute.convertor.IAttributeConvertor;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 
 public class AttributeBagTest {
 
+    private static abstract class Person {
+        private static <TValue> Attribute<TValue> define(String propertyName, IAttributeConvertor<TValue> convertor) {
+            return new Attribute<>("Person", propertyName, convertor);
+        }
+        public final static Attribute<String> Name = define("Name", AttributeDataType.StringConvetor);
+        public final static Attribute<String> CellPhoneNumber = define("CellPhoneNumber", AttributeDataType.StringConvetor);
+        public final static Attribute<Object> BothAddress = new Attribute<Object>("BothAddress", "BothAddress", PropertyType.STRUCT);
+    }
+
+    private static abstract class Address {
+        private static <TValue> Attribute<TValue> define(String propertyName, IAttributeConvertor<TValue> convertor) {
+            return new Attribute<>("Address", propertyName, convertor);
+        }
+        public final static Attribute<String> Province = define("Province", AttributeDataType.StringConvetor);
+        public final static Attribute<String> City = define("City", AttributeDataType.StringConvetor);
+        public final static Attribute<String> District = define("District", AttributeDataType.StringConvetor);
+        public final static Attribute<String> Detail = define("Detail", AttributeDataType.StringConvetor);
+    }
+
     @Test
-    public void test_ArrayValue() {
+    public void test_EmptyBag() {
         AttributeBag bag = new AttributeBag();
         StructDataAccessor person = bag.newEntity("Person");
-        Attribute<String> nameProperty = new Attribute<String>("Person", "Name", AttributeDataType.StringConvetor);
-        person.setValue("Jack", nameProperty);
+        
+        person.setValue("Jack", Person.Name);
+        Assert.assertTrue("Jack".equals(person.getValue(Person.Name)));
 
-        Assert.assertTrue("Jack".equals(person.getValue(nameProperty)));
+        ArrayDataAccessor array = person.newArray("CellPhoneNumber");
+        array.addValue("138-0920-8909", Person.CellPhoneNumber);
+        array.addValue("186-7689-1234", Person.CellPhoneNumber);
+
+        Assert.assertTrue(person.getArray(Person.CellPhoneNumber).size() == 2);
+        Assert.assertTrue(person.getArray(Person.CellPhoneNumber).getValue(0, Person.CellPhoneNumber).equals("138-0920-8909"));
+        Assert.assertTrue(person.getArray(Person.CellPhoneNumber).getValue(1, Person.CellPhoneNumber).equals("186-7689-1234"));
+
+        StructDataAccessor bothAddress = person.newStruct("Address", "BothAddress");
+        bothAddress.setValue("江苏省", Address.Province);
+        bothAddress.setValue("南京市", Address.City);
+        bothAddress.setValue("江宁区", Address.District);
+        bothAddress.setValue("将军大道100号", Address.Detail);
+
+        Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.Province).equals("江苏省"));
+        Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.City).equals("南京市"));
+        Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.District).equals("江宁区"));
+        Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.Detail).equals("将军大道100号"));
     }
     
     @Test

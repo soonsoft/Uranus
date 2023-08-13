@@ -1,17 +1,21 @@
 package com.soonsoft.uranus.core.common.attribute.access;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.*;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
+import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.core.functional.action.Action3;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class AttributeBag {
@@ -20,9 +24,10 @@ public class AttributeBag {
     private final Func1<Integer, AttributeData> attributeDataGetter;
     private final Action2<Integer, AttributeData> attributeDataSetter;
     private final Func1<AttributeData, Integer> attributeDataAdder;
-    private final Action2<ActionType, AttributeData> actionCommandPicker;
+    private final Action3<ActionType, AttributeData, Object> notifyChanged;
     private Map<String, IndexNode> indexes = null;
     private AttributeKey attributeKey = new AttributeKey();
+    private Set<ActionCommand> actionCommandSet = new HashSet<>();
     private final static String ROOT_KEY = "__ROOT__";
 
     public AttributeBag() {
@@ -41,9 +46,7 @@ public class AttributeBag {
             }
             return -1;
         };
-        this.actionCommandPicker = (type, data) -> {
-
-        };
+        this.notifyChanged = (type, data, oldValue) -> onNotifyChanged(type, data, oldValue);
 
         init();
         if(indexes == null) {
@@ -73,7 +76,7 @@ public class AttributeBag {
             if(entityNode == null) {
                 entityNode = 
                     new EntityNode(entityName, ROOT_KEY)
-                        .initVirtualAttrData(entityName, attributeData.getDataId());
+                        .init(entityName, attributeData.getDataId());
                 map.put(entityName, entityNode);
                 rootNode.addChildNode(entityNode);
             }
@@ -98,7 +101,7 @@ public class AttributeBag {
                     listNode.addChildNode(newNode);
                 } else {
                     // 同名属性，合并为数组
-                    ListNode listNode = new ListNode(attributeKey.generate(), parentKey, propertyName);
+                    ListNode listNode = new ListNode(attributeKey.generate(), parentKey, propertyName).init(entityName, attributeData.getDataId());
                     listNode.addChildNode(node);
                     IndexNode newNode = new IndexNode(key, parentKey, propertyName, index);
                     listNode.addChildNode(newNode);
@@ -134,13 +137,23 @@ public class AttributeBag {
             return getEntity(entityName);
         }
 
-        EntityNode entityNode = new EntityNode(entityName, ROOT_KEY);
+        EntityNode entityNode = new EntityNode(entityName, ROOT_KEY).init(entityName, entityName);
         indexes.put(entityName, entityNode);
         return createStructDataAccessor(entityNode);
     }
 
     protected StructDataAccessor createStructDataAccessor(EntityNode entityNode) {
-        return new StructDataAccessor(entityNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
+        return new StructDataAccessor(entityNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, notifyChanged, attributeKey);
+    }
+
+    protected void onNotifyChanged(ActionType actionType, AttributeData data, Object oldValue) {
+        ActionCommand command = new ActionCommand(actionType, data);
+        if(actionType == ActionType.Delete) {
+            if(data.getStatus() == DataStatus.Temp) {
+                actionCommandSet.remove(command);
+            }
+        }
+        actionCommandSet.add(command);
     }
 
 }

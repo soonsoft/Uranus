@@ -6,6 +6,7 @@ import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.functional.action.Action2;
+import com.soonsoft.uranus.core.functional.action.Action3;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class StructDataAccessor extends BaseAccessor {
@@ -15,9 +16,9 @@ public class StructDataAccessor extends BaseAccessor {
             Func1<Integer, AttributeData> attributeDataGetter, 
             Action2<Integer, AttributeData> attributeDataSetter,
             Func1<AttributeData, Integer> attributeDataAdder,
-            Action2<ActionType, AttributeData> actionCommandPicker,
+            Action3<ActionType, AttributeData, Object> notifyChanged,
             AttributeKey attributeKey) {
-        super(node, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
+        super(node, attributeDataGetter, attributeDataSetter, attributeDataAdder, notifyChanged, attributeKey);
     }
 
     public <TValue> TValue getValue(Attribute<TValue> attribute) {
@@ -48,7 +49,7 @@ public class StructDataAccessor extends BaseAccessor {
     public StructDataAccessor getStruct(Attribute<?> attribute) {
         checkAttribute(attribute);
         IndexNode childNode = node.getChildNode(attribute.getPropertyName());
-        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, actionCommandPicker, attributeKey);
+        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, notifyChanged, attributeKey);
     }
 
     public ArrayDataAccessor getArray(Attribute<?> attribute) {
@@ -62,7 +63,7 @@ public class StructDataAccessor extends BaseAccessor {
                 attributeDataGetter, 
                 attributeDataSetter, 
                 attributeDataAdder, 
-                actionCommandPicker, 
+                notifyChanged, 
                 attributeKey);
         }
         ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
@@ -74,7 +75,7 @@ public class StructDataAccessor extends BaseAccessor {
             attributeDataGetter, 
             attributeDataSetter, 
             attributeDataAdder, 
-            actionCommandPicker, 
+            notifyChanged, 
             attributeKey);
     }
     
