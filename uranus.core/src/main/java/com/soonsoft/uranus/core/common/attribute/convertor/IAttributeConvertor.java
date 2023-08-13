@@ -8,7 +8,7 @@ public interface IAttributeConvertor<TValue> {
 
     TValue convert(String attributeValue, String defaultValue);
 
-    default String toAttributeValue(TValue value) {
+    default String toStringValue(TValue value) {
         return value == null ? null : String.valueOf(value);
     }
 

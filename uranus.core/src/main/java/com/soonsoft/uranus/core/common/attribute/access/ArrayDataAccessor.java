@@ -55,7 +55,7 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkAttribute(attribute);
 
         AttributeData attributeData = getAttributeData(String.valueOf(index));
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, notifyChanged) : null;
     }
 
     public StructDataAccessor getStruct(int index, Attribute<?> attribute) {

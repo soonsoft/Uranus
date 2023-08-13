@@ -11,6 +11,7 @@ import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.functional.action.Action3;
@@ -102,7 +103,7 @@ public abstract class BaseAccessor {
     }
 
     protected <TValue> void addAttributeData(TValue value, Attribute<TValue> attribute) {
-        String strValue = attribute.getConvertor().toAttributeValue(value);
+        String strValue = attribute.getConvertor().toStringValue(value);
         AttributeData attributeData = createAttributeData(null, attribute.getPropertyName(), strValue);
         
         Integer index = attributeDataAdder.call(attributeData);
@@ -111,7 +112,10 @@ public abstract class BaseAccessor {
     }
 
     protected <TValue> void setAttributeData(AttributeData attributeData, TValue value, Attribute<TValue> attribute) {
-        String strValue = attribute.getConvertor().toAttributeValue(value);
+        String strValue = attribute.getConvertor().toStringValue(value);
+        if(StringUtils.equals(strValue, attributeData.getPropertyValue())) {
+            return;
+        }
         TValue oldValue = attribute.convertValue(attributeData.getPropertyValue());
         attributeData.setPropertyValue(strValue);
 

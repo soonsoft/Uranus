@@ -43,7 +43,7 @@ public class StructDataAccessor extends BaseAccessor {
         IndexNode childNode = node.getChildNode(attribute.getPropertyName());
         AttributeData attributeData = attributeDataGetter.call(childNode.getIndex());
 
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, notifyChanged) : null;
     }
 
     public StructDataAccessor getStruct(Attribute<?> attribute) {
