@@ -14,17 +14,12 @@ import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.core.functional.action.Action2;
-import com.soonsoft.uranus.core.functional.action.Action3;
-import com.soonsoft.uranus.core.functional.func.Func1;
+import com.soonsoft.uranus.core.functional.action.Action1;
 
 public class AttributeBag {
 
     private final List<AttributeData> attributeDataList;
-    private final Func1<Integer, AttributeData> attributeDataGetter;
-    private final Action2<Integer, AttributeData> attributeDataSetter;
-    private final Func1<AttributeData, Integer> attributeDataAdder;
-    private final Action3<ActionType, AttributeData, Object> notifyChanged;
+    private final AttributeBagOperator attributeBagOperator;
     private Map<String, IndexNode> indexes = null;
     private AttributeKey attributeKey = new AttributeKey();
     private Set<ActionCommand> actionCommandSet = new HashSet<>();
@@ -37,26 +32,29 @@ public class AttributeBag {
     public AttributeBag(List<AttributeData> attributeDataList) {
         Guard.notNull(attributeDataList, "the arguments attributeDataList is requeired.");
         this.attributeDataList = attributeDataList;
-        this.attributeDataGetter = index -> attributeDataList.get(index.intValue());
-        this.attributeDataSetter = (index, attrData) -> attributeDataList.set(index.intValue(), attrData);
-        this.attributeDataAdder = item -> {
+
+        attributeBagOperator = initOperator(attributeDataList);
+        indexes = initData();
+    }
+
+    protected AttributeBagOperator initOperator(final List<AttributeData> attributeDataList) {
+        AttributeBagOperator operator = new AttributeBagOperator();
+        operator.setAttributeDataGetter(index -> attributeDataList.get(index.intValue()));
+        operator.setAttributeDataSetter((index, attrData) -> attributeDataList.set(index.intValue(), attrData));
+        operator.setAttributeDataAdder(item -> {
             int index = attributeDataList.size();
             if(attributeDataList.add(item)) {
                 return index;
             }
             return -1;
-        };
-        this.notifyChanged = (type, data, oldValue) -> onNotifyChanged(type, data, oldValue);
-
-        init();
-        if(indexes == null) {
-            indexes = new LinkedHashMap<>();
-        }
+        });
+        operator.setNotifyChanged((type, data, oldValue) -> onNotifyChanged(type, data, oldValue));
+        return operator;
     }
 
-    protected void init() {
+    protected Map<String, IndexNode> initData() {
         if(attributeDataList == null || attributeDataList.isEmpty()) {
-            return;
+            return new LinkedHashMap<>();
         }
 
         Map<String, IndexNode> map = MapUtils.createHashMap(attributeDataList.size() + 10);
@@ -115,7 +113,7 @@ public class AttributeBag {
 
             index++;
         }
-        indexes = rootNode.getChildren();
+        return rootNode.getChildren() != null ? rootNode.getChildren() : new LinkedHashMap<>();
     }
 
     public StructDataAccessor getEntity() {
@@ -142,8 +140,31 @@ public class AttributeBag {
         return createStructDataAccessor(entityNode);
     }
 
+    public void saveChanges(Action1<ActionCommand> action) {
+        Guard.notNull(action, "the arguments action is required.");
+        if(actionCommandSet.isEmpty()) {
+            return;
+        }
+
+        Set<ActionCommand> commands = actionCommandSet;
+        actionCommandSet = new HashSet<>();
+        for(ActionCommand command : commands) {
+            if(command != null) {
+                action.apply(command);
+            }
+            AttributeData attributeData = command.getAttributeData();
+            if(attributeData != null && attributeData.getStatus() == DataStatus.Temp) {
+                attributeData.setStatus(DataStatus.Enabled);
+            }
+        }
+    }
+
+    public int getActionCommandCount() {
+        return actionCommandSet.size();
+    }
+
     protected StructDataAccessor createStructDataAccessor(EntityNode entityNode) {
-        return new StructDataAccessor(entityNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, notifyChanged, attributeKey);
+        return new StructDataAccessor(entityNode, attributeBagOperator, attributeKey);
     }
 
     protected void onNotifyChanged(ActionType actionType, AttributeData data, Object oldValue) {
@@ -151,6 +172,7 @@ public class AttributeBag {
         if(actionType == ActionType.Delete) {
             if(data.getStatus() == DataStatus.Temp) {
                 actionCommandSet.remove(command);
+                return;
             }
         }
         actionCommandSet.add(command);

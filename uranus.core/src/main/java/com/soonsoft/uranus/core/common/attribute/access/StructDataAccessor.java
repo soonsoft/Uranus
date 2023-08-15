@@ -5,20 +5,14 @@ import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
-import com.soonsoft.uranus.core.functional.action.Action2;
-import com.soonsoft.uranus.core.functional.action.Action3;
-import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class StructDataAccessor extends BaseAccessor {
 
     public StructDataAccessor(
             IndexNode node, 
-            Func1<Integer, AttributeData> attributeDataGetter, 
-            Action2<Integer, AttributeData> attributeDataSetter,
-            Func1<AttributeData, Integer> attributeDataAdder,
-            Action3<ActionType, AttributeData, Object> notifyChanged,
+            AttributeBagOperator attributeBagOperator,
             AttributeKey attributeKey) {
-        super(node, attributeDataGetter, attributeDataSetter, attributeDataAdder, notifyChanged, attributeKey);
+        super(node, attributeBagOperator, attributeKey);
     }
 
     public <TValue> TValue getValue(Attribute<TValue> attribute) {
@@ -41,15 +35,15 @@ public class StructDataAccessor extends BaseAccessor {
         Guard.notNull(attribute, "the arguments [attribute] is required.");
         Guard.notEmpty(attribute.getPropertyName(), "the arguments [attribute.propertyName] is required.");
         IndexNode childNode = node.getChildNode(attribute.getPropertyName());
-        AttributeData attributeData = attributeDataGetter.call(childNode.getIndex());
+        AttributeData attributeData = attributeBagOperator.getAttributeData(childNode.getIndex());
 
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, notifyChanged) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator.getNotifyChanged()) : null;
     }
 
     public StructDataAccessor getStruct(Attribute<?> attribute) {
         checkAttribute(attribute);
         IndexNode childNode = node.getChildNode(attribute.getPropertyName());
-        return new StructDataAccessor(childNode, attributeDataGetter, attributeDataSetter, attributeDataAdder, notifyChanged, attributeKey);
+        return new StructDataAccessor(childNode, attributeBagOperator, attributeKey);
     }
 
     public ArrayDataAccessor getArray(Attribute<?> attribute) {
@@ -60,10 +54,7 @@ public class StructDataAccessor extends BaseAccessor {
                 attribute.getEntityName(), 
                 attribute.getPropertyName(), 
                 listNode, 
-                attributeDataGetter, 
-                attributeDataSetter, 
-                attributeDataAdder, 
-                notifyChanged, 
+                attributeBagOperator,
                 attributeKey);
         }
         ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
@@ -72,10 +63,7 @@ public class StructDataAccessor extends BaseAccessor {
             attribute.getEntityName(), 
             attribute.getPropertyName(), 
             listNode, 
-            attributeDataGetter, 
-            attributeDataSetter, 
-            attributeDataAdder, 
-            notifyChanged, 
+            attributeBagOperator, 
             attributeKey);
     }
     

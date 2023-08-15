@@ -7,12 +7,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.soonsoft.uranus.core.common.attribute.Attribute;
+import com.soonsoft.uranus.core.common.attribute.access.ActionType;
 import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.AttributeBag;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.convertor.AttributeDataType;
 import com.soonsoft.uranus.core.common.attribute.convertor.IAttributeConvertor;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
+import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 
 public class AttributeBagTest {
@@ -62,6 +64,47 @@ public class AttributeBagTest {
         Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.City).equals("南京市"));
         Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.District).equals("江宁区"));
         Assert.assertTrue(person.getStruct(Person.BothAddress).getValue(Address.Detail).equals("将军大道100号"));
+    }
+
+    @Test
+    public void test_changeSameValue() {
+        AttributeBag bag = new AttributeBag();
+        StructDataAccessor person = bag.newEntity("Person");
+        
+        person.setValue("Rose", Person.Name);
+        person.setValue("Rose", Person.Name);
+
+        Assert.assertTrue(bag.getActionCommandCount() == 1);
+
+
+        bag.saveChanges(c -> {
+            Assert.assertTrue(c.getActionType() == ActionType.Add);
+            Assert.assertTrue(c.getAttributeData().getStatus() == DataStatus.Temp);
+            Assert.assertTrue("Rose".equals(person.getValue(Person.Name)));
+        });
+
+        Assert.assertTrue(bag.getActionCommandCount() == 0);
+    }
+
+    @Test
+    public void test_tempValue() {
+        AttributeBag bag = new AttributeBag();
+        StructDataAccessor person = bag.newEntity("Person");
+
+        person.setValue("139-0088-9922", Person.CellPhoneNumber);
+        person.setValue("186-9900-8765", Person.CellPhoneNumber);
+        person.delete(Person.CellPhoneNumber.getPropertyName());
+
+        Assert.assertTrue(bag.getActionCommandCount() == 0);
+    }
+
+    @Test
+    public void test_structArray() {
+        AttributeBag bag = new AttributeBag();
+        StructDataAccessor person = bag.newEntity("Person");
+
+        ArrayDataAccessor addressArray = person.newArray("addressList");
+        addressArray.newStruct("Address", "");
     }
     
     @Test

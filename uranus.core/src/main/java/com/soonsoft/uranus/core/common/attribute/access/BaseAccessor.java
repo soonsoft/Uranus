@@ -13,30 +13,18 @@ import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
-import com.soonsoft.uranus.core.functional.action.Action2;
-import com.soonsoft.uranus.core.functional.action.Action3;
-import com.soonsoft.uranus.core.functional.func.Func1;
 
 public abstract class BaseAccessor {
     protected final IndexNode node;
-    protected final Func1<Integer, AttributeData> attributeDataGetter;
-    protected final Action2<Integer, AttributeData> attributeDataSetter;
-    protected final Func1<AttributeData, Integer> attributeDataAdder;
-    protected final Action3<ActionType, AttributeData, Object> notifyChanged;
+    protected final AttributeBagOperator attributeBagOperator;
     protected final AttributeKey attributeKey;
 
     public BaseAccessor(
             IndexNode node, 
-            Func1<Integer, AttributeData> attributeDataGetter, 
-            Action2<Integer, AttributeData> attributeDataSetter,
-            Func1<AttributeData, Integer> attributeDataAdder, 
-            Action3<ActionType, AttributeData, Object> notifyChanged,
+            AttributeBagOperator attributeBagOperator,
             AttributeKey attributeKey) {
         this.node = node;
-        this.attributeDataGetter = attributeDataGetter;
-        this.attributeDataSetter = attributeDataSetter;
-        this.attributeDataAdder = attributeDataAdder;
-        this.notifyChanged = notifyChanged;
+        this.attributeBagOperator = attributeBagOperator;
         this.attributeKey = attributeKey;
     }
 
@@ -50,11 +38,9 @@ public abstract class BaseAccessor {
             if(itemNode instanceof ListNode) {
                 return;
             }
-            AttributeData attributeData = attributeDataGetter.call(itemNode.getIndex());
-            attributeDataSetter.apply(itemNode.getIndex(), null);
-            if(attributeData.getStatus() != DataStatus.Temp) {
-                notifyChanged.apply(ActionType.Delete, attributeData, null);
-            }
+            AttributeData attributeData = attributeBagOperator.getAttributeData(itemNode.getIndex());
+            attributeBagOperator.setAttributeData(itemNode.getIndex(), null);
+            attributeBagOperator.notifyChanged(ActionType.Delete, attributeData, null);
         });
         return true;
     }
@@ -65,7 +51,7 @@ public abstract class BaseAccessor {
         }
         AttributeData attributeData = createAttributeData(entityName, propertyName, null);
         attributeData.setStatus(DataStatus.Temp);
-        Integer index = attributeDataAdder.call(attributeData);
+        Integer index = attributeBagOperator.addAttributeData(attributeData);
         IndexNode structNode = new IndexNode(attributeData.getKey(), attributeData.getParentKey(), propertyName, index.intValue());
         node.addChildNode(structNode);
 
@@ -81,7 +67,7 @@ public abstract class BaseAccessor {
         if(node instanceof EntityNode entityNode) {
             attributeData = entityNode.getVirtualAttributeData();
         } else {
-            attributeData = attributeDataGetter.call(node.getIndex());
+            attributeData = attributeBagOperator.getAttributeData(node.getIndex());
         }
         String entityName = attributeData.getEntityName();
         
@@ -98,17 +84,20 @@ public abstract class BaseAccessor {
         if(childNode == null) {
             return null;
         }
-        AttributeData attributeData = attributeDataGetter.call(childNode.getIndex());
+        AttributeData attributeData = attributeBagOperator.getAttributeData(childNode.getIndex());
         return attributeData;
     }
 
     protected <TValue> void addAttributeData(TValue value, Attribute<TValue> attribute) {
         String strValue = attribute.getConvertor().toStringValue(value);
         AttributeData attributeData = createAttributeData(null, attribute.getPropertyName(), strValue);
+        attributeData.setStatus(DataStatus.Temp);
         
-        Integer index = attributeDataAdder.call(attributeData);
+        Integer index = attributeBagOperator.addAttributeData(attributeData);
         IndexNode newNode = new IndexNode(attributeData.getKey(), node.getKey(), attribute.getPropertyName(), index.intValue());
         node.addChildNode(newNode);
+
+        attributeBagOperator.notifyChanged(ActionType.Add, attributeData, null);
     }
 
     protected <TValue> void setAttributeData(AttributeData attributeData, TValue value, Attribute<TValue> attribute) {
@@ -119,16 +108,13 @@ public abstract class BaseAccessor {
         TValue oldValue = attribute.convertValue(attributeData.getPropertyValue());
         attributeData.setPropertyValue(strValue);
 
-        notifyChanged.apply(ActionType.Modify, attributeData, oldValue);
+        attributeBagOperator.notifyChanged(ActionType.Modify, attributeData, oldValue);
     }
 
     protected StructDataAccessor createStructDataAccessor(IndexNode structNode) {
         return new StructDataAccessor(
                 structNode, 
-                attributeDataGetter, 
-                attributeDataSetter, 
-                attributeDataAdder, 
-                notifyChanged, 
+                attributeBagOperator, 
                 attributeKey);
     }
 
@@ -137,10 +123,7 @@ public abstract class BaseAccessor {
                 entityName, 
                 propertyName, 
                 listNode, 
-                attributeDataGetter, 
-                attributeDataSetter, 
-                attributeDataAdder, 
-                notifyChanged, 
+                attributeBagOperator, 
                 attributeKey); 
     }
 
@@ -173,7 +156,7 @@ public abstract class BaseAccessor {
     private AttributeData createAttributeData(String entityName, String propertyName, String strValue) {
         AttributeData parentAttributeData = 
             node.getIndex() > -1
-                ? attributeDataGetter.call(node.getIndex())
+                ? attributeBagOperator.getAttributeData(node.getIndex())
                 : (node instanceof EntityNode e
                     ? e.getVirtualAttributeData()
                     : ((ListNode) node).getVirtualAttributeData());
