@@ -10,7 +10,7 @@ public class Attribute<TValue> {
     
     private final String entityName;
     private final String propertyName;
-    private PropertyType type = PropertyType.PROPERTY;
+    private PropertyType type = PropertyType.Property;
     private String defaultValue;
 
     private final IAttributeConvertor<TValue> valueConvertor;

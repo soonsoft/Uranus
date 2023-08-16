@@ -25,7 +25,7 @@ public class AttributeBagTest {
         }
         public final static Attribute<String> Name = define("Name", AttributeDataType.StringConvetor);
         public final static Attribute<String> CellPhoneNumber = define("CellPhoneNumber", AttributeDataType.StringConvetor);
-        public final static Attribute<Object> BothAddress = new Attribute<Object>("BothAddress", "BothAddress", PropertyType.STRUCT);
+        public final static Attribute<Object> BothAddress = new Attribute<Object>("BothAddress", "BothAddress", PropertyType.Struct);
     }
 
     private static abstract class Address {
@@ -111,19 +111,19 @@ public class AttributeBagTest {
     public void test_createBag() {
 
         List<AttributeData> list = new ArrayList<>();
-        addData(list, "Individual", "Name", null, PropertyType.PROPERTY);
-        addData(list, "Individual", "EnName", null, PropertyType.PROPERTY);
-        addData(list, "Individual", "LastName", null, PropertyType.PROPERTY);
-        addData(list, "Individual", "FirstName", null, PropertyType.PROPERTY);
-        addData(list, "Individual", "Email", null, PropertyType.PROPERTY);
-        addData(list, "Individual", "Email", null, PropertyType.PROPERTY);
-        addData(list, "Individual", "Address", null, PropertyType.STRUCT);
-        addData(list, "Individual", "AddressDetail", "Address", PropertyType.PROPERTY);
-        addData(list, "Individual", "AddressType", "Address", PropertyType.PROPERTY);
+        addData(list, "Individual", "Name", null, PropertyType.Property);
+        addData(list, "Individual", "EnName", null, PropertyType.Property);
+        addData(list, "Individual", "LastName", null, PropertyType.Property);
+        addData(list, "Individual", "FirstName", null, PropertyType.Property);
+        addData(list, "Individual", "Email", null, PropertyType.Property);
+        addData(list, "Individual", "Email", null, PropertyType.Property);
+        addData(list, "Individual", "Address", null, PropertyType.Struct);
+        addData(list, "Individual", "AddressDetail", "Address", PropertyType.Property);
+        addData(list, "Individual", "AddressType", "Address", PropertyType.Property);
 
-        addData(list, "Bankcard", "BankAccountNo", null, PropertyType.PROPERTY);
-        addData(list, "Bankcard", "SwiftCode", null, PropertyType.PROPERTY);
-        addData(list, "Bankcard", "BankAccountName", null, PropertyType.PROPERTY);
+        addData(list, "Bankcard", "BankAccountNo", null, PropertyType.Property);
+        addData(list, "Bankcard", "SwiftCode", null, PropertyType.Property);
+        addData(list, "Bankcard", "BankAccountName", null, PropertyType.Property);
 
         AttributeBag bag = new AttributeBag(list);
         System.out.println(bag);

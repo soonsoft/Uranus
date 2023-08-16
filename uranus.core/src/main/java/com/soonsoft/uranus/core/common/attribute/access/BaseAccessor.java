@@ -11,6 +11,7 @@ import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
+import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
 
@@ -50,6 +51,7 @@ public abstract class BaseAccessor {
             throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
         }
         AttributeData attributeData = createAttributeData(entityName, propertyName, null);
+        attributeData.setPropertyType(PropertyType.Struct);
         attributeData.setStatus(DataStatus.Temp);
         Integer index = attributeBagOperator.addAttributeData(attributeData);
         IndexNode structNode = new IndexNode(attributeData.getKey(), attributeData.getParentKey(), propertyName, index.intValue());
