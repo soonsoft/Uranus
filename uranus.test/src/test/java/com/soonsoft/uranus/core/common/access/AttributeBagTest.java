@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.soonsoft.uranus.core.common.attribute.Attribute;
+import com.soonsoft.uranus.core.common.attribute.AttributeBagFactory;
 import com.soonsoft.uranus.core.common.attribute.access.ActionType;
 import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.AttributeBag;
@@ -38,9 +39,11 @@ public class AttributeBagTest {
         public final static Attribute<String> Detail = define("Detail", AttributeDataType.StringConvetor);
     }
 
+    private AttributeBagFactory bagFactory = new AttributeBagFactory();
+
     @Test
     public void test_EmptyBag() {
-        AttributeBag bag = new AttributeBag();
+        AttributeBag bag = bagFactory.createBag();
         StructDataAccessor person = bag.newEntity("Person");
         
         person.setValue("Jack", Person.Name);
@@ -68,7 +71,7 @@ public class AttributeBagTest {
 
     @Test
     public void test_changeSameValue() {
-        AttributeBag bag = new AttributeBag();
+        AttributeBag bag = bagFactory.createBag();
         StructDataAccessor person = bag.newEntity("Person");
         
         person.setValue("Rose", Person.Name);
@@ -88,7 +91,7 @@ public class AttributeBagTest {
 
     @Test
     public void test_tempValue() {
-        AttributeBag bag = new AttributeBag();
+        AttributeBag bag = bagFactory.createBag();
         StructDataAccessor person = bag.newEntity("Person");
 
         person.setValue("139-0088-9922", Person.CellPhoneNumber);
@@ -100,7 +103,7 @@ public class AttributeBagTest {
 
     @Test
     public void test_structArray() {
-        AttributeBag bag = new AttributeBag();
+        AttributeBag bag = bagFactory.createBag();
         StructDataAccessor person = bag.newEntity("Person");
 
         ArrayDataAccessor addressArray = person.newArray("addressList");
@@ -125,7 +128,7 @@ public class AttributeBagTest {
         addData(list, "Bankcard", "SwiftCode", null, PropertyType.Property);
         addData(list, "Bankcard", "BankAccountName", null, PropertyType.Property);
 
-        AttributeBag bag = new AttributeBag(list);
+        AttributeBag bag = bagFactory.createBag(list);
         System.out.println(bag);
 
 

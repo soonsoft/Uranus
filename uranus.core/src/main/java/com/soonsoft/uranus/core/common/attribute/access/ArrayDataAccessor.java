@@ -12,7 +12,7 @@ import com.soonsoft.uranus.core.functional.action.Action3;
 import com.soonsoft.uranus.core.functional.behavior.ForEachBehavior;
 import com.soonsoft.uranus.core.functional.behavior.IForEach;
 
-public class ArrayDataAccessor extends BaseAccessor implements IForEach<AttributeData> {
+public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> implements IForEach<AttributeData> {
     private final String entityName;
     private final String propertyName;
 
@@ -31,6 +31,7 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkAttribute(attribute);
 
         AttributeData attributeData = getAttributeData(String.valueOf(index));
+        attributeBagOperator.collectDependency(attributeData.getKey());
         return attributeData != null ? attribute.convertValue(attributeData.getPropertyValue()) : null;
     }
 
@@ -52,7 +53,7 @@ public class ArrayDataAccessor extends BaseAccessor implements IForEach<Attribut
         checkAttribute(attribute);
 
         AttributeData attributeData = getAttributeData(String.valueOf(index));
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator.getNotifyChanged()) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator) : null;
     }
 
     public StructDataAccessor getStruct(int index, Attribute<?> attribute) {

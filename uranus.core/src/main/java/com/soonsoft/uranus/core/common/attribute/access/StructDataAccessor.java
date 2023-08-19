@@ -5,8 +5,9 @@ import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
+import com.soonsoft.uranus.core.functional.action.Action1;
 
-public class StructDataAccessor extends BaseAccessor {
+public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
 
     public StructDataAccessor(
             IndexNode node, 
@@ -17,8 +18,13 @@ public class StructDataAccessor extends BaseAccessor {
 
     public <TValue> TValue getValue(Attribute<TValue> attribute) {
         checkAttribute(attribute);
-        AttributeData attributeData = getAttributeData(attribute.getPropertyName());
-        return attributeData != null ? attribute.convertValue(attributeData.getPropertyValue()) : null;
+        String propertyName = attribute.getPropertyName();
+        if(node.contains(propertyName)) {
+            AttributeData attributeData = getAttributeData(propertyName);
+            attributeBagOperator.collectDependency(attributeData.getKey());
+            return attributeData != null ? attribute.convertValue(attributeData.getPropertyValue()) : null;
+        }
+        return null;
     }
 
     public <TValue> void setValue(TValue value, Attribute<TValue> attribute) {
@@ -37,18 +43,26 @@ public class StructDataAccessor extends BaseAccessor {
         IndexNode childNode = node.getChildNode(attribute.getPropertyName());
         AttributeData attributeData = attributeBagOperator.getAttributeData(childNode.getIndex());
 
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator.getNotifyChanged()) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator) : null;
     }
 
     public StructDataAccessor getStruct(Attribute<?> attribute) {
         checkAttribute(attribute);
-        IndexNode childNode = node.getChildNode(attribute.getPropertyName());
-        return new StructDataAccessor(childNode, attributeBagOperator, attributeKey);
+        String propertyName = attribute.getPropertyName();
+        if(node.contains(propertyName)) {
+            IndexNode childNode = node.getChildNode(propertyName);
+            return new StructDataAccessor(childNode, attributeBagOperator, attributeKey);
+        }
+        return null;
     }
 
     public ArrayDataAccessor getArray(Attribute<?> attribute) {
         checkAttribute(attribute);
-        IndexNode childNode = node.getChildNode(attribute.getPropertyName());
+        String propertyName = attribute.getPropertyName();
+        if(!node.contains(propertyName)) {
+            return null;
+        }
+        IndexNode childNode = node.getChildNode(propertyName);
         if(childNode instanceof ListNode listNode) {
             return new ArrayDataAccessor(
                 attribute.getEntityName(), 
@@ -65,6 +79,10 @@ public class StructDataAccessor extends BaseAccessor {
             listNode, 
             attributeBagOperator, 
             attributeKey);
+    }
+
+    public void createComputedProperty(String propertyName, Action1<StructDataAccessor> computedAction) {
+        // TODO 实现计算属性
     }
     
 }

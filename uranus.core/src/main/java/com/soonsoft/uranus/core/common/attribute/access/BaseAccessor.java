@@ -14,8 +14,9 @@ import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
+import com.soonsoft.uranus.core.functional.action.Action4;
 
-public abstract class BaseAccessor {
+public abstract class BaseAccessor<TAccessor> {
     protected final IndexNode node;
     protected final AttributeBagOperator attributeBagOperator;
     protected final AttributeKey attributeKey;
@@ -46,6 +47,12 @@ public abstract class BaseAccessor {
         return true;
     }
 
+    /**
+     * 创建对象属性
+     * @param entityName 实体名称
+     * @param propertyName 属性名称
+     * @return 返回 StructDataAccessor 实例
+     */
     public StructDataAccessor newStruct(String entityName, String propertyName) {
         if(node.contains(propertyName)) {
             throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
@@ -60,6 +67,11 @@ public abstract class BaseAccessor {
         return createStructDataAccessor(structNode);
     }
 
+    /**
+     * 创建数组属性
+     * @param propertyName 属性名称
+     * @return 返回 ArrayDataAccessor 实例
+     */
     public ArrayDataAccessor newArray(String propertyName) {
         if(node.contains(propertyName)) {
             throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
@@ -79,6 +91,16 @@ public abstract class BaseAccessor {
         node.addChildNode(listNode);
 
         return createArrayDataAccessor(entityName, propertyName, listNode);
+    }
+
+    public void watch(String propertyName, Action4<TAccessor, String, Object, Object> action) {
+        // TODO 实现监听器
+        if(!node.contains(propertyName)) {
+            throw new AttributeException("the propertyName [%s] is not exists.",  propertyName);
+        }
+
+        AttributeData attributeData = getAttributeData(propertyName);
+        //attributeData.getKey();
     }
 
     protected AttributeData getAttributeData(String propertyName) {

@@ -12,6 +12,7 @@ import com.soonsoft.uranus.core.common.attribute.access.IndexNode.*;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
+import com.soonsoft.uranus.core.common.attribute.notify.Dependency;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
@@ -23,15 +24,19 @@ public class AttributeBag {
     private Map<String, IndexNode> indexes = null;
     private AttributeKey attributeKey = new AttributeKey();
     private Set<ActionCommand> actionCommandSet = new HashSet<>();
+    private Dependency<String> dependency;
     private final static String ROOT_KEY = "__ROOT__";
 
-    public AttributeBag() {
-        this(new ArrayList<>());
+    public AttributeBag(Dependency<String> dependency) {
+        this(new ArrayList<>(), dependency);
     }
 
-    public AttributeBag(List<AttributeData> attributeDataList) {
-        Guard.notNull(attributeDataList, "the arguments attributeDataList is requeired.");
+    public AttributeBag(List<AttributeData> attributeDataList, Dependency<String> dependency) {
+        Guard.notNull(attributeDataList, "the arguments attributeDataList is required.");
+        Guard.notNull(dependency, "the arguments dependency is required.");
+
         this.attributeDataList = attributeDataList;
+        this.dependency = dependency;
 
         attributeBagOperator = initOperator(attributeDataList);
         indexes = initData();
@@ -48,7 +53,8 @@ public class AttributeBag {
             }
             return -1;
         });
-        operator.setNotifyChanged((type, data, oldValue) -> onNotifyChanged(type, data, oldValue));
+        operator.setNotifyChangedFn((type, data, oldValue) -> onNotifyChanged(type, data, oldValue));
+        operator.setCollectDependencyFn(key -> onDepend(key));
         return operator;
     }
 
@@ -176,6 +182,10 @@ public class AttributeBag {
             }
         }
         actionCommandSet.add(command);
+    }
+
+    protected void onDepend(String key) {
+        dependency.depend(key);
     }
 
 }
