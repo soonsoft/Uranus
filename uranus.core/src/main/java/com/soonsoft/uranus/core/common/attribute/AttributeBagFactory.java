@@ -19,11 +19,11 @@ public class AttributeBagFactory {
         this.dependency = dependency;
     }
 
-    public AttributeBag createBag() {
+    public IAttributeBag createBag() {
         return createBag(new ArrayList<>());
     }
 
-    public AttributeBag createBag(List<AttributeData> attributeDataList) {
+    public IAttributeBag createBag(List<AttributeData> attributeDataList) {
         return new AttributeBag(attributeDataList, dependency);
     }
     

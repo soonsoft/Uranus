@@ -2,10 +2,14 @@ package com.soonsoft.uranus.core.common.attribute.access;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.attribute.Attribute;
+import com.soonsoft.uranus.core.common.attribute.AttributeException;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
+import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
+import com.soonsoft.uranus.core.common.attribute.notify.Watcher;
 import com.soonsoft.uranus.core.functional.action.Action1;
+import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
 
@@ -81,8 +85,33 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
             attributeKey);
     }
 
-    public void createComputedProperty(String propertyName, Action1<StructDataAccessor> computedAction) {
-        // TODO 实现计算属性
+    public <TValue> void createComputedProperty(Attribute<TValue> attribute, Func1<StructDataAccessor, TValue> computedFn) {
+        checkAttribute(attribute);
+        checkPropertyName(attribute.getPropertyName());
+        if(attribute.getType() != PropertyType.ComputedProperty) {
+            throw new AttributeException("unexpected propertyType [%s]", attribute.getType().name());
+        }
+        if(computedFn == null) {
+            Guard.notNull(computedFn, "the arguments computedFn is required.");
+        }
+
+        AttributeData computedAttributeData = createAttributeData(attribute.getEntityName(), attribute.getPropertyName(), null);
+        computedAttributeData.setPropertyType(PropertyType.ComputedProperty);
+
+        Watcher<StructDataAccessor, TValue> watcher = new Watcher<>(this, attributeBagOperator.getDependency(), computedFn);
+        Action1<TValue> updateAction = value -> {
+            TValue oldValue = attribute.getConvertor().convert(computedAttributeData.getPropertyValue());
+            computedAttributeData.setPropertyValue(attribute.getConvertor().toStringValue(value));
+            attributeBagOperator.notifyChanged(ActionType.Modify, computedAttributeData, oldValue);
+        };
+        watcher.setUpdateAction(updateAction);
+        computedAttributeData.setPropertyValue(attribute.getConvertor().toStringValue(watcher.getComputedValue()));
+
+        Integer index = attributeBagOperator.addAttributeData(computedAttributeData);
+        IndexNode indexNode = new IndexNode(computedAttributeData.getKey(), computedAttributeData.getParentKey(), attribute.getPropertyName(), index.intValue());
+        node.addChildNode(indexNode);
+
+        attributeBagOperator.notifyChanged(ActionType.Add, computedAttributeData);
     }
     
 }

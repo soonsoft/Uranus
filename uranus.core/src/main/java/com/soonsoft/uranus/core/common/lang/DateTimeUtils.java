@@ -19,12 +19,20 @@ public abstract class DateTimeUtils {
 
     public static final String DATETIME_MS_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
+    public static Date parseDay(String dateText) {
+        return parse(dateText, DAY_PATTERN);
+    }
+
     public static Date parse(String dateText) {
+        return parse(dateText, DAY_PATTERN);
+    }
+
+    public static Date parse(String dateText, String pattern) {
         if(StringUtils.isEmpty(dateText)) {
             throw new IllegalArgumentException("the arguments dateText is required.");
         }
 
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern);
         try {
             return formatter.parse(dateText);
         } catch (ParseException e) {

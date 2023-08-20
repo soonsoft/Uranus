@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.attribute.IAttributeBag;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.*;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
@@ -17,7 +18,7 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
 
-public class AttributeBag {
+public class AttributeBag implements IAttributeBag {
 
     private final List<AttributeData> attributeDataList;
     private final AttributeBagOperator attributeBagOperator;
@@ -38,11 +39,11 @@ public class AttributeBag {
         this.attributeDataList = attributeDataList;
         this.dependency = dependency;
 
-        attributeBagOperator = initOperator(attributeDataList);
+        attributeBagOperator = initOperator();
         indexes = initData();
     }
 
-    protected AttributeBagOperator initOperator(final List<AttributeData> attributeDataList) {
+    protected AttributeBagOperator initOperator() {
         AttributeBagOperator operator = new AttributeBagOperator();
         operator.setAttributeDataGetter(index -> attributeDataList.get(index.intValue()));
         operator.setAttributeDataSetter((index, attrData) -> attributeDataList.set(index.intValue(), attrData));
@@ -55,6 +56,7 @@ public class AttributeBag {
         });
         operator.setNotifyChangedFn((type, data, oldValue) -> onNotifyChanged(type, data, oldValue));
         operator.setCollectDependencyFn(key -> onDepend(key));
+        operator.setDependencyGetter(() -> dependency);
         return operator;
     }
 
@@ -122,10 +124,12 @@ public class AttributeBag {
         return rootNode.getChildren() != null ? rootNode.getChildren() : new LinkedHashMap<>();
     }
 
+    @Override
     public StructDataAccessor getEntity() {
         return getEntity(indexes.keySet().stream().findFirst().orElse(null));
     }
 
+    @Override
     public StructDataAccessor getEntity(String entityName) {
         if(!StringUtils.isEmpty(entityName)) {
             EntityNode node = (EntityNode) indexes.get(entityName);
@@ -136,7 +140,10 @@ public class AttributeBag {
         return null;
     }
 
-    public StructDataAccessor newEntity(String entityName) {
+    @Override
+    public StructDataAccessor getEntityOrNew(String entityName) {
+        Guard.notEmpty(entityName, "the arguments entityName is required.");
+
         if(indexes.containsKey(entityName)) {
             return getEntity(entityName);
         }
@@ -146,6 +153,12 @@ public class AttributeBag {
         return createStructDataAccessor(entityNode);
     }
 
+    @Override
+    public boolean hasEntity(String entityName) {
+        return indexes.containsKey(entityName);
+    }
+
+    @Override
     public void saveChanges(Action1<ActionCommand> action) {
         Guard.notNull(action, "the arguments action is required.");
         if(actionCommandSet.isEmpty()) {
@@ -165,6 +178,7 @@ public class AttributeBag {
         }
     }
 
+    @Override
     public int getActionCommandCount() {
         return actionCommandSet.size();
     }
@@ -181,7 +195,10 @@ public class AttributeBag {
                 return;
             }
         }
+        // 指令采集
         actionCommandSet.add(command);
+        // 依赖通知
+        dependency.notify(data.getKey());
     }
 
     protected void onDepend(String key) {

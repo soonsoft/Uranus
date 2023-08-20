@@ -54,9 +54,8 @@ public abstract class BaseAccessor<TAccessor> {
      * @return 返回 StructDataAccessor 实例
      */
     public StructDataAccessor newStruct(String entityName, String propertyName) {
-        if(node.contains(propertyName)) {
-            throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
-        }
+        checkPropertyName(propertyName);
+
         AttributeData attributeData = createAttributeData(entityName, propertyName, null);
         attributeData.setPropertyType(PropertyType.Struct);
         attributeData.setStatus(DataStatus.Temp);
@@ -73,9 +72,7 @@ public abstract class BaseAccessor<TAccessor> {
      * @return 返回 ArrayDataAccessor 实例
      */
     public ArrayDataAccessor newArray(String propertyName) {
-        if(node.contains(propertyName)) {
-            throw new AttributeException("the arguments propertyName[%s] is exists.", propertyName);
-        }
+        checkPropertyName(propertyName);
 
         AttributeData attributeData = null;
         if(node instanceof EntityNode entityNode) {
@@ -171,13 +168,7 @@ public abstract class BaseAccessor<TAccessor> {
         }
     }
 
-    protected void checkAttribute(Attribute<?> attribute) {
-        Guard.notNull(attribute, "the arguments [attribute] is required.");
-        Guard.notEmpty(attribute.getEntityName(), "the arguments [attribute.entityName] is required.");
-        Guard.notEmpty(attribute.getPropertyName(), "the arguments [attribute.propertyName] is required.");
-    }
-
-    private AttributeData createAttributeData(String entityName, String propertyName, String strValue) {
+    protected AttributeData createAttributeData(String entityName, String propertyName, String strValue) {
         AttributeData parentAttributeData = 
             node.getIndex() > -1
                 ? attributeBagOperator.getAttributeData(node.getIndex())
@@ -193,6 +184,19 @@ public abstract class BaseAccessor<TAccessor> {
         attributeData.setPropertyName(propertyName);
         attributeData.setPropertyValue(strValue);
         return attributeData;
+    }
+
+    protected void checkAttribute(Attribute<?> attribute) {
+        Guard.notNull(attribute, "the arguments [attribute] is required.");
+        Guard.notEmpty(attribute.getEntityName(), "the arguments [attribute.entityName] is required.");
+        Guard.notEmpty(attribute.getPropertyName(), "the arguments [attribute.propertyName] is required.");
+    }
+
+    protected void checkPropertyName(String propertyName) {
+        Guard.notEmpty(propertyName, "the arguments propertyName is required.");
+        if(node.contains(propertyName)) {
+            throw new AttributeException("the propertyName [%s] is exists.", propertyName);
+        }
     }
 
 }

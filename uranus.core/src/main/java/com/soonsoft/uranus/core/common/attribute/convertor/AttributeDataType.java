@@ -85,6 +85,11 @@ public interface AttributeDataType {
             String strVal = StringUtils.isEmpty(attributeValue) ? defaultValue : attributeValue;
             return StringUtils.isEmpty(strVal) ? null : DateTimeUtils.parse(strVal);
         }
+
+        @Override
+        public String toStringValue(Date value) {
+            return value == null ? null : DateTimeUtils.format(value);
+        }
     };
 
 }

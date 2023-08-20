@@ -1,9 +1,11 @@
 package com.soonsoft.uranus.core.common.attribute.access;
 
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
+import com.soonsoft.uranus.core.common.attribute.notify.Dependency;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.functional.action.Action3;
+import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 class AttributeBagOperator {
@@ -12,6 +14,7 @@ class AttributeBagOperator {
     private Func1<AttributeData, Integer> attributeDataAdder;
     private Action1<String> collectDependencyFn;
     private Action3<ActionType, AttributeData, Object> notifyChangedFn;
+    private Func0<Dependency<String>> dependencyGetter;
 
     public void setAttributeDataGetter(Func1<Integer, AttributeData> attributeDataGetter) {
         this.attributeDataGetter = attributeDataGetter;
@@ -53,6 +56,14 @@ class AttributeBagOperator {
     }
     public void collectDependency(String key) {
         collectDependencyFn.apply(key);
+    }
+
+    
+    public void setDependencyGetter(Func0<Dependency<String>> dependencyGetter) {
+        this.dependencyGetter = dependencyGetter;
+    }
+    public Dependency<String> getDependency() {
+        return dependencyGetter.call();
     }
     
 }

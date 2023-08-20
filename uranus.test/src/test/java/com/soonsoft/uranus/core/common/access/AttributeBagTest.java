@@ -1,6 +1,8 @@
 package com.soonsoft.uranus.core.common.access;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
@@ -8,15 +10,17 @@ import org.junit.Test;
 
 import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.AttributeBagFactory;
+import com.soonsoft.uranus.core.common.attribute.IAttributeBag;
+import com.soonsoft.uranus.core.common.attribute.access.ActionCommand;
 import com.soonsoft.uranus.core.common.attribute.access.ActionType;
 import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
-import com.soonsoft.uranus.core.common.attribute.access.AttributeBag;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.convertor.AttributeDataType;
 import com.soonsoft.uranus.core.common.attribute.convertor.IAttributeConvertor;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
+import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
 
 public class AttributeBagTest {
 
@@ -25,8 +29,10 @@ public class AttributeBagTest {
             return new Attribute<>("Person", propertyName, convertor);
         }
         public final static Attribute<String> Name = define("Name", AttributeDataType.StringConvetor);
+        public final static Attribute<Date> Birthday = define("Birthday", AttributeDataType.DateTimeonvetor);
         public final static Attribute<String> CellPhoneNumber = define("CellPhoneNumber", AttributeDataType.StringConvetor);
         public final static Attribute<Object> BothAddress = new Attribute<Object>("BothAddress", "BothAddress", PropertyType.Struct);
+        public final static Attribute<Integer> Age = new Attribute<>("Person", "Age", PropertyType.ComputedProperty, AttributeDataType.IntegerConvetor);
     }
 
     private static abstract class Address {
@@ -43,8 +49,8 @@ public class AttributeBagTest {
 
     @Test
     public void test_EmptyBag() {
-        AttributeBag bag = bagFactory.createBag();
-        StructDataAccessor person = bag.newEntity("Person");
+        IAttributeBag bag = bagFactory.createBag();
+        StructDataAccessor person = bag.getEntityOrNew("Person");
         
         person.setValue("Jack", Person.Name);
         Assert.assertTrue("Jack".equals(person.getValue(Person.Name)));
@@ -71,8 +77,8 @@ public class AttributeBagTest {
 
     @Test
     public void test_changeSameValue() {
-        AttributeBag bag = bagFactory.createBag();
-        StructDataAccessor person = bag.newEntity("Person");
+        IAttributeBag bag = bagFactory.createBag();
+        StructDataAccessor person = bag.getEntityOrNew("Person");
         
         person.setValue("Rose", Person.Name);
         person.setValue("Rose", Person.Name);
@@ -91,8 +97,8 @@ public class AttributeBagTest {
 
     @Test
     public void test_tempValue() {
-        AttributeBag bag = bagFactory.createBag();
-        StructDataAccessor person = bag.newEntity("Person");
+        IAttributeBag bag = bagFactory.createBag();
+        StructDataAccessor person = bag.getEntityOrNew("Person");
 
         person.setValue("139-0088-9922", Person.CellPhoneNumber);
         person.setValue("186-9900-8765", Person.CellPhoneNumber);
@@ -103,11 +109,43 @@ public class AttributeBagTest {
 
     @Test
     public void test_structArray() {
-        AttributeBag bag = bagFactory.createBag();
-        StructDataAccessor person = bag.newEntity("Person");
+        IAttributeBag bag = bagFactory.createBag();
+        StructDataAccessor person = bag.getEntityOrNew("Person");
 
         ArrayDataAccessor addressArray = person.newArray("addressList");
         addressArray.newStruct("Address", "");
+    }
+
+    @Test
+    public void test_computedProperty() {
+        IAttributeBag bag = bagFactory.createBag();
+        StructDataAccessor person = bag.getEntityOrNew("Person");
+        person.setValue("Tony", Person.Name);
+        person.setValue(DateTimeUtils.parseDay("1980-01-29"), Person.Birthday);
+        person.createComputedProperty(Person.Age, p -> {
+            Date birthday = p.getValue(Person.Birthday);
+            if(birthday == null) {
+                return null;
+            }
+            
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            Calendar birthdayCalendar = Calendar.getInstance();
+            birthdayCalendar.setTime(birthday);
+            int birthdayYear = birthdayCalendar.get(Calendar.YEAR);
+            return year - birthdayYear;
+        });
+
+        Assert.assertTrue(person.getValue(Person.Age).equals(43));
+
+        person.setValue(DateTimeUtils.parseDay("1983-01-01"), Person.Birthday);
+        Assert.assertTrue(person.getValue(Person.Age).equals(40));
+
+        List<ActionCommand> commands = new ArrayList<>();
+        bag.saveChanges(cmd -> {
+            commands.add(cmd);
+        });
+
+        Assert.assertTrue(commands.size() == 3);
     }
     
     @Test
@@ -128,7 +166,7 @@ public class AttributeBagTest {
         addData(list, "Bankcard", "SwiftCode", null, PropertyType.Property);
         addData(list, "Bankcard", "BankAccountName", null, PropertyType.Property);
 
-        AttributeBag bag = bagFactory.createBag(list);
+        IAttributeBag bag = bagFactory.createBag(list);
         System.out.println(bag);
 
 
