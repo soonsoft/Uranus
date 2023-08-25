@@ -22,6 +22,10 @@ public class ActionCommand {
         return attributeData;
     }
 
+    public String getKey() {
+        return attributeData.getKey();
+    }
+
     @Override
     public int hashCode() {
         return attributeData.getKey().hashCode();
