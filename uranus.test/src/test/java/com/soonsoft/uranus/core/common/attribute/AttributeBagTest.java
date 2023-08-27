@@ -13,7 +13,7 @@ import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
-import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 public class AttributeBagTest {
     private AttributeBagFactory bagFactory = new AttributeBagFactory();
@@ -84,7 +84,7 @@ public class AttributeBagTest {
         StructDataAccessor person = bag.getEntityOrNew("Person");
 
         ArrayDataAccessor addressArray = person.newArray("addressList");
-        addressArray.newStruct("Address", "");
+        addressArray.newStruct("Address", "0");
     }
 
     @Test
@@ -119,36 +119,38 @@ public class AttributeBagTest {
         Assert.assertTrue(commands.get(0).getActionType() == ActionType.Delete);
         Assert.assertTrue(commands.get(0).getAttributeData().getPropertyValue().equals("晓峰"));
     }
-    
+
     @Test
-    public void test_createBag() {
-        List<AttributeData> list = new ArrayList<>();
-        addData(list, "Individual", "Name", null, PropertyType.Property);
-        addData(list, "Individual", "EnName", null, PropertyType.Property);
-        addData(list, "Individual", "LastName", null, PropertyType.Property);
-        addData(list, "Individual", "FirstName", null, PropertyType.Property);
-        addData(list, "Individual", "Email", null, PropertyType.Property);
-        addData(list, "Individual", "Email", null, PropertyType.Property);
-        addData(list, "Individual", "Address", null, PropertyType.Struct);
-        addData(list, "Individual", "AddressDetail", "Address", PropertyType.Property);
-        addData(list, "Individual", "AddressType", "Address", PropertyType.Property);
+    public void test_restore() {
+        List<AttributeData> data = 
+            AttributeDataBuilder.create().entity("Person")
+                .property("Name", "Jack")
+                .array("CellPhoneNumber", "131-1111-1111", "132-2222-2222", "133-3333-3333")
+                .property("Birthday", "1994-03-08")
+                .struct("Address", "BothAddress")
+                    .property("Province", "浙江")
+                    .property("City", "衢州")
+                    .property("District", "江山")
+                    .property("Detail", "城中路")
+                    .done()
+                .getData();
 
-        addData(list, "Bankcard", "BankAccountNo", null, PropertyType.Property);
-        addData(list, "Bankcard", "SwiftCode", null, PropertyType.Property);
-        addData(list, "Bankcard", "BankAccountName", null, PropertyType.Property);
+        IAttributeBag bag = bagFactory.createBag(data);
+        StructDataAccessor person = bag.getEntity("Person");
 
-        IAttributeBag bag = bagFactory.createBag(list);
-        System.out.println(bag);
-    }
+        Assert.assertTrue(StringUtils.equals(person.getValue(Person.Name), "Jack"));
 
-    private static void addData(List<AttributeData> list, String entityName, String attrCode, String parentAttrCode, PropertyType type) {
-        AttributeData attrData = new AttributeData();
-        attrData.setEntityName(entityName);
-        attrData.setPropertyName(attrCode);
-        attrData.setParentKey(parentAttrCode);
-        attrData.setPropertyType(type);
+        ArrayDataAccessor phoneArray = person.getArray(Person.CellPhoneNumber);
+        Assert.assertTrue(phoneArray.size() == 3);
+        Assert.assertTrue(StringUtils.equals(phoneArray.getValue(0, Person.CellPhoneNumber), "131-1111-1111"));
+        Assert.assertTrue(StringUtils.equals(phoneArray.getValue(1, Person.CellPhoneNumber), "132-2222-2222"));
+        Assert.assertTrue(StringUtils.equals(phoneArray.getValue(2, Person.CellPhoneNumber), "133-3333-3333"));
 
-        list.add(attrData);
+        StructDataAccessor address = person.getStruct(Person.BothAddress);
+        Assert.assertTrue(StringUtils.equals(address.getValue(Address.Province), "浙江"));
+        Assert.assertTrue(StringUtils.equals(address.getValue(Address.City), "衢州"));
+        Assert.assertTrue(StringUtils.equals(address.getValue(Address.District), "江山"));
+        Assert.assertTrue(StringUtils.equals(address.getValue(Address.Detail), "城中路"));
     }
 
     private static List<ActionCommand> getCommands(IAttributeBag bag) {
