@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.core.common.access;
+package com.soonsoft.uranus.core.common.attribute;
 
 public class AttributeDataBuilder {
 

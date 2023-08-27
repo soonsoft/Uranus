@@ -53,26 +53,43 @@ public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> implement
         checkAttribute(attribute);
 
         AttributeData attributeData = getAttributeData(String.valueOf(index));
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(node, attribute, attributeData, attributeBagOperator) : null;
     }
 
     public StructDataAccessor getStruct(int index, Attribute<?> attribute) {
         checkIndex(index);
         checkAttribute(attribute);
+        
         IndexNode childNode = node.getChildNode(String.valueOf(index));
-        return createStructDataAccessor(childNode);
+        StructDataAccessor structAccessor = createStructDataAccessor(childNode);
+
+        // 依赖收集
+        attributeBagOperator.collectDependency(childNode.getDependencyKey());
+
+        return structAccessor;
     }
 
     public ArrayDataAccessor getArray(int index, Attribute<?> attribute) {
         checkIndex(index);
         checkAttribute(attribute);
+
+        ArrayDataAccessor arrayAccessor = null;
+        ListNode listNode = null;
+
         IndexNode childNode = node.getChildNode(String.valueOf(index));
-        if(childNode instanceof ListNode listNode) {
-            return createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
+        if(childNode instanceof ListNode) {
+            listNode = (ListNode) childNode;
+            arrayAccessor = createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
+        } else {
+            listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
+            listNode.addChildNode(childNode);
+            arrayAccessor = createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
         }
-        ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
-        listNode.addChildNode(childNode);
-        return createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
+
+        // 依赖收集
+        attributeBagOperator.collectDependency(listNode.getDependencyKey());
+
+        return arrayAccessor;
     }
 
     public int size() {

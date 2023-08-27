@@ -7,7 +7,7 @@ import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
-import com.soonsoft.uranus.core.common.attribute.notify.Watcher;
+import com.soonsoft.uranus.core.common.attribute.notify.ComputedWather;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
@@ -25,7 +25,6 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         String propertyName = attribute.getPropertyName();
         if(node.contains(propertyName)) {
             AttributeData attributeData = getAttributeData(propertyName);
-            attributeBagOperator.collectDependency(attributeData.getKey());
             return attributeData != null ? attribute.convertValue(attributeData.getPropertyValue()) : null;
         }
         return null;
@@ -47,17 +46,23 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         IndexNode childNode = node.getChildNode(attribute.getPropertyName());
         AttributeData attributeData = attributeBagOperator.getAttributeData(childNode.getIndex());
 
-        return attributeData != null ? new AttributeDataAccessor<>(attribute, attributeData, attributeBagOperator) : null;
+        return attributeData != null ? new AttributeDataAccessor<>(node, attribute, attributeData, attributeBagOperator) : null;
     }
 
     public StructDataAccessor getStruct(Attribute<?> attribute) {
         checkAttribute(attribute);
         String propertyName = attribute.getPropertyName();
-        if(node.contains(propertyName)) {
-            IndexNode childNode = node.getChildNode(propertyName);
-            return new StructDataAccessor(childNode, attributeBagOperator, attributeKey);
+        if(!node.contains(propertyName)) {
+            return null;
         }
-        return null;
+
+        IndexNode childNode = node.getChildNode(propertyName);
+        StructDataAccessor structAccessor = createStructDataAccessor(childNode);
+
+         // 依赖收集
+         attributeBagOperator.collectDependency(childNode.getDependencyKey());
+
+        return structAccessor;
     }
 
     public ArrayDataAccessor getArray(Attribute<?> attribute) {
@@ -66,23 +71,26 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         if(!node.contains(propertyName)) {
             return null;
         }
+        
+        ArrayDataAccessor arrayAccessor = null;
+        ListNode listNode = null;
         IndexNode childNode = node.getChildNode(propertyName);
-        if(childNode instanceof ListNode listNode) {
-            return new ArrayDataAccessor(
-                attribute.getEntityName(), 
-                attribute.getPropertyName(), 
-                listNode, 
-                attributeBagOperator,
-                attributeKey);
+        if(childNode instanceof ListNode) {
+            listNode = (ListNode) childNode;
+            arrayAccessor = createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
+        } else {
+            // 把原本只有一个的属性，以数组的方式返回
+            listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
+            listNode.addChildNode(childNode);
+
+            arrayAccessor = createArrayDataAccessor(attribute.getEntityName(), attribute.getPropertyName(), listNode);
         }
-        ListNode listNode = new ListNode(childNode.getKey(), childNode.getParentKey(), childNode.getPropertyName());
-        listNode.addChildNode(childNode);
-        return new ArrayDataAccessor(
-            attribute.getEntityName(), 
-            attribute.getPropertyName(), 
-            listNode, 
-            attributeBagOperator, 
-            attributeKey);
+
+        // 依赖收集
+        attributeBagOperator.collectDependency(listNode.getDependencyKey());
+
+        return arrayAccessor;
+        
     }
 
     public <TValue> void createComputedProperty(Attribute<TValue> attribute, Func1<StructDataAccessor, TValue> computedFn) {
@@ -98,11 +106,11 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         AttributeData computedAttributeData = createAttributeData(attribute.getEntityName(), attribute.getPropertyName(), null);
         computedAttributeData.setPropertyType(PropertyType.ComputedProperty);
 
-        Watcher<StructDataAccessor, TValue> watcher = new Watcher<>(this, attributeBagOperator.getDependency(), computedFn);
+        ComputedWather<StructDataAccessor, TValue> watcher = new ComputedWather<>(this, attributeBagOperator.getDependency(), computedFn);
         Action1<TValue> updateAction = value -> {
             TValue oldValue = attribute.getConvertor().convert(computedAttributeData.getPropertyValue());
             computedAttributeData.setPropertyValue(attribute.getConvertor().toStringValue(value));
-            attributeBagOperator.notifyChanged(ActionType.Modify, computedAttributeData, oldValue);
+            attributeBagOperator.notifyChanged(node, ActionType.Modify, computedAttributeData, oldValue);
         };
         watcher.setUpdateAction(updateAction);
         computedAttributeData.setPropertyValue(attribute.getConvertor().toStringValue(watcher.getComputedValue()));
@@ -111,7 +119,7 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         IndexNode indexNode = new IndexNode(computedAttributeData.getKey(), computedAttributeData.getParentKey(), attribute.getPropertyName(), index.intValue());
         node.addChildNode(indexNode);
 
-        attributeBagOperator.notifyChanged(ActionType.Add, computedAttributeData);
+        attributeBagOperator.notifyChanged(node, ActionType.Add, computedAttributeData);
     }
     
 }

@@ -24,7 +24,7 @@ public class AttributeBag implements IAttributeBag {
     private final AttributeBagOperator attributeBagOperator;
     private Map<String, IndexNode> indexes = null;
     private AttributeKey attributeKey = new AttributeKey();
-    private Set<ActionCommand> actionCommandSet = new HashSet<>();
+    private ActionCommandPackage actionCommandPackage = new ActionCommandPackage();
     private Dependency<String> dependency;
     private final static String ROOT_KEY = "__ROOT__";
 
@@ -39,8 +39,8 @@ public class AttributeBag implements IAttributeBag {
         this.attributeDataList = attributeDataList;
         this.dependency = dependency;
 
-        attributeBagOperator = initOperator();
-        indexes = initData();
+        this.attributeBagOperator = initOperator();
+        this.indexes = initData();
     }
 
     protected AttributeBagOperator initOperator() {
@@ -54,7 +54,7 @@ public class AttributeBag implements IAttributeBag {
             }
             return -1;
         });
-        operator.setNotifyChangedFn((type, data, oldValue) -> onNotifyChanged(type, data, oldValue));
+        operator.setNotifyChangedFn((node, type, data, oldValue) -> onNotifyChanged(node, type, data, oldValue));
         operator.setCollectDependencyFn(key -> onDepend(key));
         operator.setDependencyGetter(() -> dependency);
         return operator;
@@ -161,12 +161,12 @@ public class AttributeBag implements IAttributeBag {
     @Override
     public void saveChanges(Action1<ActionCommand> action) {
         Guard.notNull(action, "the arguments action is required.");
-        if(actionCommandSet.isEmpty()) {
+        if(actionCommandPackage.isEmpty()) {
             return;
         }
 
-        Set<ActionCommand> commands = actionCommandSet;
-        actionCommandSet = new HashSet<>();
+        ActionCommandPackage commands = actionCommandPackage;
+        actionCommandPackage = new ActionCommandPackage();
         for(ActionCommand command : commands) {
             if(command != null) {
                 action.apply(command);
@@ -180,29 +180,44 @@ public class AttributeBag implements IAttributeBag {
 
     @Override
     public int getActionCommandCount() {
-        return actionCommandSet.size();
+        return actionCommandPackage.size();
     }
 
     protected StructDataAccessor createStructDataAccessor(EntityNode entityNode) {
         return new StructDataAccessor(entityNode, attributeBagOperator, attributeKey);
     }
 
-    protected void onNotifyChanged(ActionType actionType, AttributeData data, Object oldValue) {
+    protected void onNotifyChanged(IndexNode node, ActionType actionType, AttributeData data, Object oldValue) {
         ActionCommand command = new ActionCommand(actionType, data);
         if(actionType == ActionType.Delete) {
             if(data.getStatus() == DataStatus.Temp) {
-                actionCommandSet.remove(command);
+                actionCommandPackage.remove(command);
                 return;
             }
         }
         // 指令采集
-        actionCommandSet.add(command);
+        actionCommandPackage.add(command);
         // 依赖通知
-        dependency.notify(data.getKey());
+        onNotify(data.getKey(), node);
     }
 
     protected void onDepend(String key) {
         dependency.depend(key);
+    }
+
+    protected void onNotify(String key, IndexNode node) {
+        Set<String> keys = new HashSet<>();
+        keys.add(key);
+
+        // 冒泡依赖通知
+        IndexNode parentNode = node;
+        while(parentNode != null) {
+            keys.add(parentNode.getDependencyKey());
+            parentNode = parentNode.getParentNode();
+        }
+
+        // 属性变更通知
+        dependency.notify(keys);
     }
 
 }

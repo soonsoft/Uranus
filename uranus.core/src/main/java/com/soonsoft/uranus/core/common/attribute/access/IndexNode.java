@@ -15,6 +15,7 @@ public class IndexNode {
     private String propertyName;
     private int index;
     private Map<String, IndexNode> children;
+    private IndexNode parentNode;
 
     public IndexNode(String key, String parentKey, String propertyName, int index) {
         this.key = key;
@@ -26,6 +27,12 @@ public class IndexNode {
     public IndexNode(String key, String parentKey, String propertyName, int index, Map<String, IndexNode> children) {
         this(key, parentKey, propertyName, index);
         this.children = children;
+        // 修正 parentNode 引用
+        if(this.children != null) {
+            for(Map.Entry<String ,IndexNode> entry : this.children.entrySet()) {
+                entry.getValue().setParentNode(this);
+            }
+        }
     }
 
     public String getKey() {
@@ -64,6 +71,7 @@ public class IndexNode {
             children = new LinkedHashMap<>();
         }
         children.put(node.getPropertyName(), node);
+        node.setParentNode(this);
     }
 
     public IndexNode getChildNode(String propertyName) {
@@ -72,6 +80,17 @@ public class IndexNode {
 
     public boolean contains(String propertyName) {
         return children != null ? children.containsKey(propertyName) : false;
+    }
+
+    protected void setParentNode(IndexNode parentNode) {
+        this.parentNode = parentNode;
+    }
+    public IndexNode getParentNode() {
+        return parentNode;
+    }
+
+    public String getDependencyKey() {
+        return this.key;
     }
 
     static class RootNode extends IndexNode {
@@ -120,6 +139,12 @@ public class IndexNode {
                 setChildren(new LinkedHashMap<>());
             }
             getChildren().put(String.valueOf(getChildren().size()), node);
+            node.setParentNode(this);
+        }
+
+        @Override
+        public String getDependencyKey() {
+            return getParentKey() + "::" + getPropertyName();
         }
     }
 

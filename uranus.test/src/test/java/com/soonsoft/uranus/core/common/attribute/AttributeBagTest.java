@@ -1,50 +1,21 @@
-package com.soonsoft.uranus.core.common.access;
+package com.soonsoft.uranus.core.common.attribute;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.soonsoft.uranus.core.common.attribute.Attribute;
-import com.soonsoft.uranus.core.common.attribute.AttributeBagFactory;
-import com.soonsoft.uranus.core.common.attribute.IAttributeBag;
+import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.*;
 import com.soonsoft.uranus.core.common.attribute.access.ActionCommand;
 import com.soonsoft.uranus.core.common.attribute.access.ActionType;
 import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
-import com.soonsoft.uranus.core.common.attribute.convertor.AttributeDataType;
-import com.soonsoft.uranus.core.common.attribute.convertor.IAttributeConvertor;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
-import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
 
 public class AttributeBagTest {
-
-    private static abstract class Person {
-        private static <TValue> Attribute<TValue> define(String propertyName, IAttributeConvertor<TValue> convertor) {
-            return new Attribute<>("Person", propertyName, convertor);
-        }
-        public final static Attribute<String> Name = define("Name", AttributeDataType.StringConvetor);
-        public final static Attribute<Date> Birthday = define("Birthday", AttributeDataType.DateTimeonvetor);
-        public final static Attribute<String> CellPhoneNumber = define("CellPhoneNumber", AttributeDataType.StringConvetor);
-        public final static Attribute<Object> BothAddress = new Attribute<Object>("BothAddress", "BothAddress", PropertyType.Struct);
-        public final static Attribute<Integer> Age = new Attribute<>("Person", "Age", PropertyType.ComputedProperty, AttributeDataType.IntegerConvetor);
-    }
-
-    private static abstract class Address {
-        private static <TValue> Attribute<TValue> define(String propertyName, IAttributeConvertor<TValue> convertor) {
-            return new Attribute<>("Address", propertyName, convertor);
-        }
-        public final static Attribute<String> Province = define("Province", AttributeDataType.StringConvetor);
-        public final static Attribute<String> City = define("City", AttributeDataType.StringConvetor);
-        public final static Attribute<String> District = define("District", AttributeDataType.StringConvetor);
-        public final static Attribute<String> Detail = define("Detail", AttributeDataType.StringConvetor);
-    }
-
     private AttributeBagFactory bagFactory = new AttributeBagFactory();
 
     @Test
@@ -117,40 +88,40 @@ public class AttributeBagTest {
     }
 
     @Test
-    public void test_computedProperty() {
+    public void test_command() {
         IAttributeBag bag = bagFactory.createBag();
         StructDataAccessor person = bag.getEntityOrNew("Person");
-        person.setValue("Tony", Person.Name);
-        person.setValue(DateTimeUtils.parseDay("1980-01-29"), Person.Birthday);
-        person.createComputedProperty(Person.Age, p -> {
-            Date birthday = p.getValue(Person.Birthday);
-            if(birthday == null) {
-                return null;
-            }
-            
-            int year = Calendar.getInstance().get(Calendar.YEAR);
-            Calendar birthdayCalendar = Calendar.getInstance();
-            birthdayCalendar.setTime(birthday);
-            int birthdayYear = birthdayCalendar.get(Calendar.YEAR);
-            return year - birthdayYear;
-        });
+        person.setValue("王大锤", Person.Name); // Add
+        person.setValue("张国焘", Person.Name); // Modify
 
-        Assert.assertTrue(person.getValue(Person.Age).equals(43));
+        Assert.assertTrue(bag.getActionCommandCount() == 1);
+        List<ActionCommand> commands = getCommands(bag);
+        Assert.assertTrue(commands.get(0).getActionType() == ActionType.Add);
+        Assert.assertTrue(commands.get(0).getAttributeData().getPropertyValue().equals("张国焘"));
 
-        person.setValue(DateTimeUtils.parseDay("1983-01-01"), Person.Birthday);
-        Assert.assertTrue(person.getValue(Person.Age).equals(40));
 
-        List<ActionCommand> commands = new ArrayList<>();
-        bag.saveChanges(cmd -> {
-            commands.add(cmd);
-        });
+        person.delete(Person.Name.getPropertyName()); // Delete
+        person.setValue("刘大石", Person.Name); // Add new
 
-        Assert.assertTrue(commands.size() == 3);
+        Assert.assertTrue(bag.getActionCommandCount() == 2);
+        commands = getCommands(bag);
+        Assert.assertTrue(commands.get(0).getActionType() == ActionType.Delete);
+        Assert.assertTrue(commands.get(0).getAttributeData().getPropertyValue().equals("张国焘"));
+        Assert.assertTrue(commands.get(1).getActionType() == ActionType.Add);
+        Assert.assertTrue(commands.get(1).getAttributeData().getPropertyValue().equals("刘大石"));
+
+
+        person.setValue("晓峰", Person.Name); // Modify
+        person.delete(Person.Name.getPropertyName()); // Delete
+
+        Assert.assertTrue(bag.getActionCommandCount() == 1);
+        commands = getCommands(bag);
+        Assert.assertTrue(commands.get(0).getActionType() == ActionType.Delete);
+        Assert.assertTrue(commands.get(0).getAttributeData().getPropertyValue().equals("晓峰"));
     }
     
     @Test
     public void test_createBag() {
-
         List<AttributeData> list = new ArrayList<>();
         addData(list, "Individual", "Name", null, PropertyType.Property);
         addData(list, "Individual", "EnName", null, PropertyType.Property);
@@ -168,8 +139,6 @@ public class AttributeBagTest {
 
         IAttributeBag bag = bagFactory.createBag(list);
         System.out.println(bag);
-
-
     }
 
     private static void addData(List<AttributeData> list, String entityName, String attrCode, String parentAttrCode, PropertyType type) {
@@ -180,6 +149,14 @@ public class AttributeBagTest {
         attrData.setPropertyType(type);
 
         list.add(attrData);
+    }
+
+    private static List<ActionCommand> getCommands(IAttributeBag bag) {
+        List<ActionCommand> commands = new ArrayList<>();
+        bag.saveChanges(cmd -> {
+            commands.add(cmd);
+        });
+        return commands;
     }
 
 }

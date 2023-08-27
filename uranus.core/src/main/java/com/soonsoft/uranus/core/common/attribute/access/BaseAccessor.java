@@ -14,7 +14,6 @@ import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
-import com.soonsoft.uranus.core.functional.action.Action4;
 
 public abstract class BaseAccessor<TAccessor> {
     protected final IndexNode node;
@@ -42,9 +41,14 @@ public abstract class BaseAccessor<TAccessor> {
             }
             AttributeData attributeData = attributeBagOperator.getAttributeData(itemNode.getIndex());
             attributeBagOperator.setAttributeData(itemNode.getIndex(), null);
-            attributeBagOperator.notifyChanged(ActionType.Delete, attributeData, null);
+            attributeBagOperator.notifyChanged(node, ActionType.Delete, attributeData, null);
         });
         return true;
+    }
+
+    public StructDataAccessor newStruct(Attribute<Object> attribute) {
+        Guard.notNull(attribute, "the arguments attribute is required.");
+        return newStruct(attribute.getEntityName(), attribute.getPropertyName());
     }
 
     /**
@@ -90,22 +94,15 @@ public abstract class BaseAccessor<TAccessor> {
         return createArrayDataAccessor(entityName, propertyName, listNode);
     }
 
-    public void watch(String propertyName, Action4<TAccessor, String, Object, Object> action) {
-        // TODO 实现监听器
-        if(!node.contains(propertyName)) {
-            throw new AttributeException("the propertyName [%s] is not exists.",  propertyName);
-        }
-
-        AttributeData attributeData = getAttributeData(propertyName);
-        //attributeData.getKey();
-    }
-
     protected AttributeData getAttributeData(String propertyName) {
         IndexNode childNode = node.getChildNode(propertyName);
         if(childNode == null) {
             return null;
         }
         AttributeData attributeData = attributeBagOperator.getAttributeData(childNode.getIndex());
+        if(attributeData != null) {
+            attributeBagOperator.collectDependency(attributeData.getKey());
+        }
         return attributeData;
     }
 
@@ -118,7 +115,7 @@ public abstract class BaseAccessor<TAccessor> {
         IndexNode newNode = new IndexNode(attributeData.getKey(), node.getKey(), attribute.getPropertyName(), index.intValue());
         node.addChildNode(newNode);
 
-        attributeBagOperator.notifyChanged(ActionType.Add, attributeData, null);
+        attributeBagOperator.notifyChanged(node, ActionType.Add, attributeData, null);
     }
 
     protected <TValue> void setAttributeData(AttributeData attributeData, TValue value, Attribute<TValue> attribute) {
@@ -129,7 +126,7 @@ public abstract class BaseAccessor<TAccessor> {
         TValue oldValue = attribute.convertValue(attributeData.getPropertyValue());
         attributeData.setPropertyValue(strValue);
 
-        attributeBagOperator.notifyChanged(ActionType.Modify, attributeData, oldValue);
+        attributeBagOperator.notifyChanged(node, ActionType.Modify, attributeData, oldValue);
     }
 
     protected StructDataAccessor createStructDataAccessor(IndexNode structNode) {

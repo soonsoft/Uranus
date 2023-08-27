@@ -9,11 +9,14 @@ public class AttributeDataAccessor<TValue> {
     private final Attribute<TValue> attribute;
     private final AttributeData attributeData;
     protected final AttributeBagOperator attributeBagOperator;
+    private final IndexNode node;
 
     public AttributeDataAccessor(
+            IndexNode node,
             Attribute<TValue> attribute, 
             AttributeData attributeData, 
             AttributeBagOperator attributeBagOperator) {
+        this.node = node;
         this.attribute = attribute;
         this.attributeData = attributeData;
         this.attributeBagOperator = attributeBagOperator;
@@ -33,7 +36,7 @@ public class AttributeDataAccessor<TValue> {
         }
         attributeData.setPropertyValue(propertyValue);
         // 变更通知
-        attributeBagOperator.notifyChanged(ActionType.Modify, attributeData, attribute.getConvertor().convert(oldPropertyValue));
+        attributeBagOperator.notifyChanged(node, ActionType.Modify, attributeData, attribute.getConvertor().convert(oldPropertyValue));
     }
     
 }

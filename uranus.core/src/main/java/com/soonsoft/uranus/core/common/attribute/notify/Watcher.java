@@ -1,24 +1,21 @@
 package com.soonsoft.uranus.core.common.attribute.notify;
 
-
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func0;
-import com.soonsoft.uranus.core.functional.func.Func1;
 
-public class Watcher<TAccessor, TValue> {
+public class Watcher<TValue> {
 
-    private TAccessor accessor;
-    private Dependency<?> dependency;
-    private Func1<TAccessor, TValue> computedFn;
-    private Action1<TValue> updateAction;
-    private final IUpdateDelegate updateDelegate;
+    protected Dependency<?> dependency;
+    protected final IUpdateDelegate updateDelegate;
+    // 计算逻辑
+    protected Func0<TValue> computedFn;
+    // 缓存计算结果
     private TValue value;
+    private Action1<TValue> updateAction;
     private Func0<TValue> valueGetter;
 
-    public Watcher(TAccessor accessor, Dependency<?> dependency, Func1<TAccessor, TValue> computedFn) {
-        this.accessor = accessor;
+    protected Watcher(Dependency<?> dependency) {
         this.dependency = dependency;
-        this.computedFn = computedFn;
 
         updateDelegate = new IUpdateDelegate() {
             @Override
@@ -29,6 +26,11 @@ public class Watcher<TAccessor, TValue> {
                 }
             }
         };
+    }
+
+    public Watcher(Dependency<?> dependency, Func0<TValue> computedFn) {
+        this(dependency);
+        this.computedFn = computedFn;
     }
 
     public void setUpdateAction(Action1<TValue> updateAction) {
@@ -44,10 +46,10 @@ public class Watcher<TAccessor, TValue> {
         return this.value;
     }
 
-    private TValue computeValue() {
+    protected TValue computeValue() {
         dependency.setCurrent(updateDelegate);
         try {
-            return computedFn.call(accessor);
+            return computedFn.call();
         } finally {
             dependency.setCurrent(null);
         }

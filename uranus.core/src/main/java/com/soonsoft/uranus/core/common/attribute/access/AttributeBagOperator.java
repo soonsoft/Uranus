@@ -4,7 +4,7 @@ import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.notify.Dependency;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.action.Action2;
-import com.soonsoft.uranus.core.functional.action.Action3;
+import com.soonsoft.uranus.core.functional.action.Action4;
 import com.soonsoft.uranus.core.functional.func.Func0;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
@@ -13,7 +13,7 @@ class AttributeBagOperator {
     private Action2<Integer, AttributeData> attributeDataSetter;
     private Func1<AttributeData, Integer> attributeDataAdder;
     private Action1<String> collectDependencyFn;
-    private Action3<ActionType, AttributeData, Object> notifyChangedFn;
+    private Action4<IndexNode, ActionType, AttributeData, Object> notifyChangedFn;
     private Func0<Dependency<String>> dependencyGetter;
 
     public void setAttributeDataGetter(Func1<Integer, AttributeData> attributeDataGetter) {
@@ -40,14 +40,14 @@ class AttributeBagOperator {
     }
 
 
-    public void setNotifyChangedFn(Action3<ActionType, AttributeData, Object> notifyChangedFn) {
+    public void setNotifyChangedFn(Action4<IndexNode, ActionType, AttributeData, Object> notifyChangedFn) {
         this.notifyChangedFn = notifyChangedFn;
     }
-    public void notifyChanged(ActionType type, AttributeData data) {
-        notifyChanged(type, data, null);
+    public void notifyChanged(IndexNode node, ActionType type, AttributeData data) {
+        notifyChanged(node, type, data, null);
     }
-    public void notifyChanged(ActionType type, AttributeData data, Object oldValue) {
-        notifyChangedFn.apply(type, data, oldValue);
+    public void notifyChanged(IndexNode node, ActionType type, AttributeData data, Object oldValue) {
+        notifyChangedFn.apply(node, type, data, oldValue);
     }
 
 
