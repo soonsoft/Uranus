@@ -8,10 +8,11 @@ import java.util.Stack;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
+import com.soonsoft.uranus.core.functional.behavior.IDeepEach;
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.core.functional.predicate.Predicate1;
 
-public class TreeRoot<TData> extends TreeNode<TData> {
+public class TreeRoot<TData> extends TreeNode<TData> implements IDeepEach<TData> {
 
     public final static String ROOT_KEY = "ROOT_KEY";
 
@@ -77,7 +78,8 @@ public class TreeRoot<TData> extends TreeNode<TData> {
         }
     }
 
-    public void forEach(Action1<TData> fn) {
+    @Override
+    public void deepEach(Action1<TData> fn) {
         if(this.getChildren() == null) {
             return;
         }

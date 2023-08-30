@@ -1,18 +1,13 @@
 package com.soonsoft.uranus.core.common.attribute.access;
 
-import java.util.Map.Entry;
-
 import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.error.argument.ArgumentException;
-import com.soonsoft.uranus.core.functional.action.Action3;
-import com.soonsoft.uranus.core.functional.behavior.ForEachBehavior;
-import com.soonsoft.uranus.core.functional.behavior.IForEach;
 
-public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> implements IForEach<AttributeData> {
+public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> {
     private final String entityName;
     private final String propertyName;
 
@@ -48,6 +43,11 @@ public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> implement
         addAttributeData(value, attribute);
     }
 
+    public <TValue> StructDataAccessor addStruct(Attribute<TValue> attribute) {
+        checkAttribute(attribute);
+        return newStruct(attribute.getEntityName(), attribute.getPropertyName());
+    }
+
     public <TValue> AttributeDataAccessor<TValue> getData(int index, Attribute<TValue> attribute) {
         checkIndex(index);
         checkAttribute(attribute);
@@ -59,7 +59,7 @@ public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> implement
     public StructDataAccessor getStruct(int index, Attribute<?> attribute) {
         checkIndex(index);
         checkAttribute(attribute);
-        
+
         IndexNode childNode = node.getChildNode(String.valueOf(index));
         StructDataAccessor structAccessor = createStructDataAccessor(childNode);
 
@@ -94,24 +94,6 @@ public class ArrayDataAccessor extends BaseAccessor<ArrayDataAccessor> implement
 
     public int size() {
         return node.getChildren() != null ? node.getChildren().size() : 0;
-    }
-
-    @Override
-    public void forEach(Action3<AttributeData, Integer, ForEachBehavior> action) {
-        if(node.getChildren() == null) {
-            return;
-        }
-
-        int index = 0;
-        for(Entry<String, IndexNode> entry : node.getChildren().entrySet()) {
-            ForEachBehavior behavior = new ForEachBehavior();
-            AttributeData attributeData = attributeBagOperator.getAttributeData(entry.getValue().getIndex());
-            action.apply(attributeData, index, behavior);
-            if(behavior.isBreak()) {
-                break;
-            }
-            index++;
-        }
     }
 
     @Override

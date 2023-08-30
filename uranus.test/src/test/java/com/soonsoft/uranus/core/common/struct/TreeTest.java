@@ -29,7 +29,7 @@ public class TreeTest {
         TreeRoot<Element> tree = new TreeRoot<>(e -> e.getKey(), e -> e.getParentKey());
         tree.load(list);
         
-        tree.forEach(e -> System.out.println(e.key));
+        tree.deepEach(e -> System.out.println(e.key));
 
     }
 

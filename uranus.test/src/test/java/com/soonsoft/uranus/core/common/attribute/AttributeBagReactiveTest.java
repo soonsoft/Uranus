@@ -15,6 +15,7 @@ import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.convertor.AttributeDataType;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
+import com.soonsoft.uranus.core.common.attribute.notify.Watcher;
 import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
@@ -93,6 +94,37 @@ public class AttributeBagReactiveTest {
 
         array.setValue("198-0099-1188", 0, Person.CellPhoneNumber);
         Assert.assertTrue(triggerCount[0] == 4);
+    }
+
+    @Test
+    public void test_BagWatch() {
+        IAttributeBag bag1 = bagFactory.createBag();
+        StructDataAccessor person1 = bag1.getEntityOrNew("Person");
+        person1.setValue("小花", Person.Name);
+        person1.setValue(DateTimeUtils.parseDay("1987-09-11"), Person.Birthday);
+
+        IAttributeBag bag2 = bagFactory.createBag();
+        StructDataAccessor person2 = bag2.getEntityOrNew("Person");
+        person2.setValue("小明", Person.Name);
+        person2.setValue(DateTimeUtils.parseDay("1982-02-17"), Person.Birthday);
+
+        Watcher<String> watcher = bagFactory.watch(() -> {
+            Date birthday1 = person1.getValue(Person.Birthday);
+            Date birthday2 = person2.getValue(Person.Birthday);
+
+            String name1 = person1.getValue(Person.Name);
+            String name2 = person2.getValue(Person.Name);
+
+            return birthday1.compareTo(birthday2) < 0 ? name1 : name2;
+        });
+
+        Assert.assertTrue(watcher.getComputedValue().equals("小明"));
+
+        StructDataAccessor person3 = bag1.getEntityOrNew("Person");
+        person3.setValue("小华", Person.Name);
+        person3.setValue(DateTimeUtils.parseDay("1975-06-01"), Person.Birthday);
+
+        Assert.assertTrue(watcher.getComputedValue().equals("小华"));
     }
     
 }

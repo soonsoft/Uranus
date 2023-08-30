@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.core.common.attribute.access;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import com.soonsoft.uranus.core.Guard;
@@ -14,8 +15,13 @@ import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
+import com.soonsoft.uranus.core.functional.action.Action3;
+import com.soonsoft.uranus.core.functional.behavior.ForEachBehavior;
+import com.soonsoft.uranus.core.functional.behavior.IDeepEach;
+import com.soonsoft.uranus.core.functional.behavior.IForEach;
 
-public abstract class BaseAccessor<TAccessor> {
+public abstract class BaseAccessor<TAccessor> 
+        implements IForEach<AttributeData>, IDeepEach<AttributeData> {
     protected final IndexNode node;
     protected final AttributeBagOperator attributeBagOperator;
     protected final AttributeKey attributeKey;
@@ -35,7 +41,8 @@ public abstract class BaseAccessor<TAccessor> {
         }
         IndexNode deleteRoot = node.getChildNode(propertyName);
         node.removeChildNode(propertyName);
-        deepForeach(deleteRoot, itemNode -> {
+        deepEach(deleteRoot, itemNode -> {
+            // ListNode 为虚拟节点，没有对应的数据
             if(itemNode instanceof ListNode) {
                 return;
             }
@@ -94,6 +101,47 @@ public abstract class BaseAccessor<TAccessor> {
         return createArrayDataAccessor(entityName, propertyName, listNode);
     }
 
+    /**
+     * 遍历子元素
+     * @param action 每次迭代需要处理的逻辑
+     */
+    @Override
+    public void forEach(Action3<AttributeData, Integer, ForEachBehavior> action) {
+        Guard.notNull(action, "the arguments action is required.");
+        if(node.getChildren() == null) {
+            return;
+        }
+
+        int index = 0;
+        for(Entry<String, IndexNode> entry : node.getChildren().entrySet()) {
+            ForEachBehavior behavior = new ForEachBehavior();
+            AttributeData attributeData = attributeBagOperator.getAttributeData(entry.getValue().getIndex());
+            action.apply(attributeData, index, behavior);
+            if(behavior.isBreak()) {
+                break;
+            }
+            index++;
+        }
+    }
+
+    /**
+     * 深度遍历子元素
+     * @param action 每次迭代需要处理的逻辑
+     */
+    @Override
+    public void deepEach(Action1<AttributeData> action) {
+        Guard.notNull(action, "the arguments action is required.");
+
+        deepEach(node, itemNode -> {
+            // ListNode 为虚拟节点，没有对应的数据
+            if(itemNode instanceof ListNode) {
+                return;
+            }
+            AttributeData attributeData = attributeBagOperator.getAttributeData(itemNode.getIndex());
+            action.apply(attributeData);
+        });
+    }
+
     protected AttributeData getAttributeData(String propertyName) {
         IndexNode childNode = node.getChildNode(propertyName);
         if(childNode == null) {
@@ -145,7 +193,7 @@ public abstract class BaseAccessor<TAccessor> {
                 attributeKey); 
     }
 
-    protected void deepForeach(IndexNode root, Action1<IndexNode> fn) {
+    protected void deepEach(IndexNode root, Action1<IndexNode> fn) {
         if(root == null) {
             return;
         }
