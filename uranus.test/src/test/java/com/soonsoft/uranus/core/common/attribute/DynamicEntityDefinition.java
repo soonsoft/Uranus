@@ -28,5 +28,31 @@ public interface DynamicEntityDefinition {
         public final static Attribute<String> District = define("District", AttributeDataType.StringConvetor);
         public final static Attribute<String> Detail = define("Detail", AttributeDataType.StringConvetor);
     }
+
+    static abstract class Account {
+        private static <TValue> Attribute<TValue> define(String propertyName, IAttributeConvertor<TValue> convertor) {
+            return new Attribute<>("Account", propertyName, convertor);
+        }
+
+        public final static Attribute<String> AccountName = define("AccountName", AttributeDataType.StringConvetor);
+        public final static Attribute<CustomerType> CustomerType = define("CustomerType", AttributeDataType.createEnumConvertor(CustomerType.class));
+        public final static Attribute<String> CustomerName = define("CustomerName", AttributeDataType.StringConvetor);
+        public final static Attribute<AccountStatus> AccountStatus = define("AccountStatus", AttributeDataType.createEnumConvertor(AccountStatus.class));
+    }
+
+    static enum CustomerType {
+        Individual,
+        Organization,
+        ;
+    }
+
+    static enum AccountStatus {
+        Draft,
+        CheckingForKYC,
+        CheckingForCompliance,
+        CheckingForRO,
+        AccountOpened,
+        ;
+    }
     
 }

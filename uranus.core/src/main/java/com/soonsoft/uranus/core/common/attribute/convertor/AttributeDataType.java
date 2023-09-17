@@ -92,4 +92,19 @@ public interface AttributeDataType {
         }
     };
 
+    public static <TEnum extends Enum<TEnum>> IAttributeConvertor<TEnum> createEnumConvertor(Class<TEnum> enumClass) {
+        return new IAttributeConvertor<TEnum>() {
+            @Override
+            public TEnum convert(String attributeValue, String defaultValue) {
+                String strVal = StringUtils.isEmpty(attributeValue) ? defaultValue : attributeValue;
+                return StringUtils.isEmpty(strVal) ? null : Enum.valueOf(enumClass, strVal);
+            }
+
+            @Override
+            public String toStringValue(TEnum value) {
+                return value == null ? null : value.name();
+            }
+        };
+    }
+
 }
