@@ -2,12 +2,12 @@ package com.soonsoft.uranus.core.common.attribute.notify;
 
 import com.soonsoft.uranus.core.functional.func.Func1;
 
-public class ComputedWather<TAccessor, TValue> extends Watcher<TValue> {
+public class ComputedWatcher<TAccessor, TValue> extends Watcher<TValue> {
     
     private TAccessor accessor;
     private Func1<TAccessor, TValue> computedFn;
 
-    public ComputedWather(TAccessor accessor, Dependency<?> dependency, Func1<TAccessor, TValue> computedFn) {
+    public ComputedWatcher(TAccessor accessor, Dependency<?> dependency, Func1<TAccessor, TValue> computedFn) {
         super(dependency);
         this.accessor = accessor;
         this.computedFn = computedFn;

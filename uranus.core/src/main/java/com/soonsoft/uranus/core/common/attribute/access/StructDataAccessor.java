@@ -7,7 +7,7 @@ import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
-import com.soonsoft.uranus.core.common.attribute.notify.ComputedWather;
+import com.soonsoft.uranus.core.common.attribute.notify.ComputedWatcher;
 import com.soonsoft.uranus.core.functional.action.Action1;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
@@ -106,7 +106,7 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         AttributeData computedAttributeData = createAttributeData(attribute.getEntityName(), attribute.getPropertyName(), null);
         computedAttributeData.setPropertyType(PropertyType.ComputedProperty);
 
-        ComputedWather<StructDataAccessor, TValue> watcher = new ComputedWather<>(this, attributeBagOperator.getDependency(), computedFn);
+        ComputedWatcher<StructDataAccessor, TValue> watcher = new ComputedWatcher<>(this, attributeBagOperator.getDependency(), computedFn);
         Action1<TValue> updateAction = value -> {
             TValue oldValue = attribute.getConvertor().convert(computedAttributeData.getPropertyValue());
             computedAttributeData.setPropertyValue(attribute.getConvertor().toStringValue(value));
