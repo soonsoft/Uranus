@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.core.common.attribute.data;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
+
 /**
  * 属性信息<br>
  * 属性解析规则<br>
@@ -11,6 +13,8 @@ package com.soonsoft.uranus.core.common.attribute.data;
  *   6. 对于特殊的 CommonEntity，会用 propertyName 辅助表达，如：{ entityName: Customer, propertyName: AddressEntity::addressDetail }<br>
  */
 public class AttributeData {
+
+    public static final String SEPARATOR = "::";
 
     private String key;
     private String dataId;
@@ -39,8 +43,19 @@ public class AttributeData {
     public String getEntityName() {
         return entityName;
     }
+    public String getRootEntityName() {
+        if(StringUtils.isEmpty(entityName)) {
+            return entityName;
+        }
+
+        String[] arr = entityName.split(SEPARATOR);
+        return arr[0];
+    }
     public void setEntityName(String entityName) {
         this.entityName = entityName;
+    }
+    public void setEntityName(String rootEntityName, String entityName) {
+        this.entityName = rootEntityName + SEPARATOR + entityName;
     }
     
     public String getPropertyName() {

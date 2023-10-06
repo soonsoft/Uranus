@@ -9,8 +9,12 @@ public interface IAttributeBag {
     StructDataAccessor getEntity();
 
     StructDataAccessor getEntity(String entityName);
+
+    default StructDataAccessor getEntityOrNew(String entityName) {
+        return getEntityOrNew(entityName, entityName);
+    }
     
-    StructDataAccessor getEntityOrNew(String entityName);
+    StructDataAccessor getEntityOrNew(String entityName, String dataId);
 
     boolean hasEntity(String entityName);
 

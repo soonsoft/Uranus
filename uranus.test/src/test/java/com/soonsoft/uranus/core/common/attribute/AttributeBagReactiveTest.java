@@ -1,23 +1,26 @@
 package com.soonsoft.uranus.core.common.attribute;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.Address;
+import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.Account;
+import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.AccountStatus;
+import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.BankCard;
+import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.CustomerType;
 import com.soonsoft.uranus.core.common.attribute.DynamicEntityDefinition.Person;
 import com.soonsoft.uranus.core.common.attribute.access.ActionCommand;
+import com.soonsoft.uranus.core.common.attribute.access.ActionType;
 import com.soonsoft.uranus.core.common.attribute.access.ArrayDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.access.StructDataAccessor;
 import com.soonsoft.uranus.core.common.attribute.convertor.AttributeDataType;
+import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 import com.soonsoft.uranus.core.common.attribute.notify.Watcher;
 import com.soonsoft.uranus.core.common.lang.DateTimeUtils;
-import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 public class AttributeBagReactiveTest {
     private AttributeBagFactory bagFactory = new AttributeBagFactory();
@@ -28,18 +31,7 @@ public class AttributeBagReactiveTest {
         StructDataAccessor person = bag.getEntityOrNew("Person");
         person.setValue("Tony", Person.Name);
         person.setValue(DateTimeUtils.parseDay("1980-01-29"), Person.Birthday);
-        person.createComputedProperty(Person.Age, p -> {
-            Date birthday = p.getValue(Person.Birthday);
-            if(birthday == null) {
-                return null;
-            }
-            
-            int year = Calendar.getInstance().get(Calendar.YEAR);
-            Calendar birthdayCalendar = Calendar.getInstance();
-            birthdayCalendar.setTime(birthday);
-            int birthdayYear = birthdayCalendar.get(Calendar.YEAR);
-            return year - birthdayYear;
-        });
+        person.createComputedProperty(Person.Age);
 
         Assert.assertTrue(person.getValue(Person.Age).equals(43));
 
@@ -52,21 +44,45 @@ public class AttributeBagReactiveTest {
         });
 
         Assert.assertTrue(commands.size() == 3);
+        Assert.assertTrue(commands.get(0).getActionType() == ActionType.Add);
+        Assert.assertTrue(commands.get(0).getAttributeData().getPropertyName().equals(Person.Name.getPropertyName()));
+
+        Assert.assertTrue(commands.get(1).getActionType() == ActionType.Add);
+        Assert.assertTrue(commands.get(1).getAttributeData().getPropertyName().equals(Person.Birthday.getPropertyName()));
+
+        Assert.assertTrue(commands.get(2).getActionType() == ActionType.Add);
+        Assert.assertTrue(commands.get(2).getAttributeData().getPropertyName().equals(Person.Age.getPropertyName()));
     }
 
     @Test
     public void test_structProperty() {
         IAttributeBag bag = bagFactory.createBag();
-        StructDataAccessor person = bag.getEntityOrNew("Person");
+        StructDataAccessor account = bag.getEntityOrNew("Account");
 
-        StructDataAccessor bothAddress = person.newStruct(Person.BothAddress);
-        Attribute<String> bothAddressDetail = new Attribute<>("Person", "BothAddressDetail", PropertyType.ComputedProperty, AttributeDataType.StringConvetor);
-        person.createComputedProperty(bothAddressDetail, p -> p.getStruct(Person.BothAddress).getValue(Address.Detail));
-        Assert.assertTrue(person.getValue(bothAddressDetail) == null);
+        // 先创建依赖项，再创建计算属性，否则不会收集依赖
+        StructDataAccessor bankCard = account.newStruct(Account.BankCard);
+        // 定义计算属性
+        Attribute<String> BankCardChangedValue = new Attribute<>("Account", "BankCardChangedValue", PropertyType.ComputedProperty, AttributeDataType.String);
+        account.createComputedProperty(BankCardChangedValue, p -> {
+            String changedValue = null;
+            var card = p.getStruct(Account.BankCard);
+            if(card != null) {
+                changedValue = card.getValue(BankCard.BankCardAccountNo);
+            }
+            return changedValue;
+        });
+        Assert.assertTrue(account.getValue(BankCardChangedValue) == null);
 
-        bothAddress.setValue("中国江苏省南京市", Address.Detail);
-        Assert.assertTrue(StringUtils.equals(person.getValue(bothAddressDetail), "中国江苏省南京市"));
+        bankCard.setValue("刘大石", BankCard.BankCardAccountName);
+        bankCard.setValue("89078222", BankCard.BankCardAccountNo);
+        bankCard.setValue("中国银行", BankCard.BankName);
+        bankCard.setValue("ICBCHKXXX", BankCard.SwiftCode);
+        // 计算属性值更新
+        Assert.assertTrue(account.getValue(BankCardChangedValue).equals(bankCard.getValue(BankCard.BankCardAccountNo)));
 
+        // 再次更新
+        bankCard.setValue("123456789", BankCard.BankCardAccountNo);
+        Assert.assertTrue(account.getValue(BankCardChangedValue).equals("123456789"));
     }
 
     @Test
@@ -75,7 +91,7 @@ public class AttributeBagReactiveTest {
         StructDataAccessor person = bag.getEntityOrNew("Person");
 
         ArrayDataAccessor array = person.newArray("CellPhoneNumber");
-        Attribute<Integer> cellPhoneCount = new Attribute<>("Person", "CellPhoneCount", PropertyType.ComputedProperty, AttributeDataType.IntegerConvetor);
+        Attribute<Integer> cellPhoneCount = new Attribute<>("Person", "CellPhoneCount", PropertyType.ComputedProperty, AttributeDataType.Integer);
         int[] triggerCount = new int[] { 0 };
         person.createComputedProperty(cellPhoneCount, p -> {
             triggerCount[0]++;
@@ -94,6 +110,51 @@ public class AttributeBagReactiveTest {
 
         array.setValue("198-0099-1188", 0, Person.CellPhoneNumber);
         Assert.assertTrue(triggerCount[0] == 4);
+        Assert.assertTrue(person.getValue(cellPhoneCount).equals(2));
+    }
+
+    @Test
+    public void test_resumeComputedProperty() {
+        IAttributeBag bag = bagFactory.createBag();
+        StructDataAccessor account = bag.getEntityOrNew("Account", "PN0001");
+
+        StructDataAccessor person = account.newStruct(Account.PersonInfo);
+        person.setValue("王军", Person.Name);
+        person.setValue(DateTimeUtils.parseDay("1982-12-29"), Person.Birthday);
+        person.createComputedProperty(Person.Age);
+
+        account.setValue("投资基金账户", Account.AccountName);
+        account.setValue(CustomerType.Individual, Account.CustomerType);
+        account.setValue(AccountStatus.AccountOpened, Account.AccountStatus);
+        account.createComputedProperty(Account.CustomerName);
+
+        List<AttributeData> saveData = new ArrayList<>();
+        bag.saveChanges(cmd -> saveData.add(cmd.getAttributeData()));
+
+        Assert.assertTrue(saveData.size() == 8);
+
+        bag = bagFactory.createBag(saveData, attr -> {
+            if(attr.getPropertyName().equals(Account.CustomerName.getPropertyName())) {
+                return Account.CustomerName;
+            }
+            if(attr.getPropertyName().equals(Person.Age.getPropertyName())) {
+                return Person.Age;
+            }
+
+            return null;
+        });
+
+        account = bag.getEntity("Account");
+        person = account.getStruct(Account.PersonInfo);
+        
+        Assert.assertTrue(account.getValue(Account.CustomerName).equals("王军"));
+        Assert.assertTrue(person.getValue(Person.Age).equals(41));
+
+        person.setValue("Nick", Person.Name);
+        person.setValue(DateTimeUtils.parseDay("1987-09-12"), Person.Birthday);
+
+        Assert.assertTrue(account.getValue(Account.CustomerName).equals("Nick"));
+        Assert.assertTrue(person.getValue(Person.Age).equals(36));
     }
 
     @Test

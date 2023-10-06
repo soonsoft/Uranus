@@ -8,15 +8,19 @@ import java.util.Map;
 import java.util.Set;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.attribute.ComputedAttribute;
 import com.soonsoft.uranus.core.common.attribute.IAttributeBag;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.*;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
 import com.soonsoft.uranus.core.common.attribute.data.DataStatus;
+import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
+import com.soonsoft.uranus.core.common.attribute.notify.ComputedWatcher;
 import com.soonsoft.uranus.core.common.attribute.notify.Dependency;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.functional.action.Action1;
+import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class AttributeBag implements IAttributeBag {
 
@@ -29,10 +33,14 @@ public class AttributeBag implements IAttributeBag {
     private final static String ROOT_KEY = "__ROOT__";
 
     public AttributeBag(Dependency<String> dependency) {
-        this(new ArrayList<>(), dependency);
+        this(new ArrayList<>(), dependency, null);
     }
 
     public AttributeBag(List<AttributeData> attributeDataList, Dependency<String> dependency) {
+        this(attributeDataList, dependency, null);
+    }
+
+    public AttributeBag(List<AttributeData> attributeDataList, Dependency<String> dependency, Func1<AttributeData, ComputedAttribute<?>> computedAttributeFinder) {
         Guard.notNull(attributeDataList, "the arguments attributeDataList is required.");
         Guard.notNull(dependency, "the arguments dependency is required.");
 
@@ -40,7 +48,7 @@ public class AttributeBag implements IAttributeBag {
         this.dependency = dependency;
 
         this.attributeBagOperator = initOperator();
-        this.indexes = initData();
+        this.indexes = initData(computedAttributeFinder);
     }
 
     protected AttributeBagOperator initOperator() {
@@ -60,7 +68,7 @@ public class AttributeBag implements IAttributeBag {
         return operator;
     }
 
-    protected Map<String, IndexNode> initData() {
+    protected Map<String, IndexNode> initData(Func1<AttributeData, ComputedAttribute<?>> computedAttributeFinder) {
         if(attributeDataList == null || attributeDataList.isEmpty()) {
             return new LinkedHashMap<>();
         }
@@ -68,28 +76,31 @@ public class AttributeBag implements IAttributeBag {
         Map<String, IndexNode> map = MapUtils.createHashMap(attributeDataList.size() + 10);
         RootNode rootNode = new RootNode(ROOT_KEY);
 
+        List<IndexNode> computedPropertyNodeList = new ArrayList<>();
         int index = 0;
         for(AttributeData attributeData : attributeDataList) {
-            String entityName = attributeData.getEntityName();
+            String entityName = attributeData.getRootEntityName();
             String key = attributeData.getKey();
-            String parentKey = 
-                StringUtils.isEmpty(attributeData.getParentKey()) 
-                    ? entityName 
-                    : attributeData.getParentKey();
+            String parentKey = attributeData.getParentKey();
             String propertyName = attributeData.getPropertyName();
 
-            IndexNode entityNode = map.get(entityName);
-            if(entityNode == null) {
-                entityNode = 
-                    new EntityNode(entityName, ROOT_KEY)
-                        .init(entityName, attributeData.getDataId());
-                map.put(entityName, entityNode);
-                rootNode.addChildNode(entityNode);
-            }
-
-            IndexNode parentNode = StringUtils.isEmpty(parentKey) ? entityNode : map.get(parentKey);
-            if(parentNode == null) {
-                parentNode = new TempIndexNode(key, parentKey);
+            IndexNode parentNode;
+            if(StringUtils.isEmpty(parentKey)) {
+                IndexNode entityNode = map.get(entityName);
+                if(entityNode == null) {
+                    entityNode = 
+                        new EntityNode(entityName, ROOT_KEY)
+                            .init(entityName, attributeData.getDataId());
+                    map.put(entityName, entityNode);
+                    rootNode.addChildNode(entityNode);
+                }
+                parentNode = entityNode;
+                parentKey = entityName;
+            } else {
+                parentNode = map.get(parentKey);
+                if(parentNode == null) {
+                    parentNode = new TempIndexNode(key, parentKey);
+                }
             }
 
             IndexNode node = map.get(key);
@@ -117,10 +128,23 @@ public class AttributeBag implements IAttributeBag {
                 }
             }
 
+            if(attributeData.getPropertyType() == PropertyType.ComputedProperty) {
+                computedPropertyNodeList.add(node);
+            }
+
             parentNode.addChildNode(node);
 
             index++;
         }
+
+        if(computedAttributeFinder != null) {
+            for(IndexNode propertyNode : computedPropertyNodeList) {
+                AttributeData computedAttributeData = attributeDataList.get(propertyNode.getIndex());
+                ComputedAttribute<?> computedAttribute = computedAttributeFinder.call(computedAttributeData);
+                resumeComputedProperty(computedAttribute, propertyNode, computedAttributeData);
+            }
+        }
+
         return rootNode.getChildren() != null ? rootNode.getChildren() : new LinkedHashMap<>();
     }
 
@@ -141,14 +165,14 @@ public class AttributeBag implements IAttributeBag {
     }
 
     @Override
-    public StructDataAccessor getEntityOrNew(String entityName) {
+    public StructDataAccessor getEntityOrNew(String entityName, String dataId) {
         Guard.notEmpty(entityName, "the arguments entityName is required.");
 
         if(indexes.containsKey(entityName)) {
             return getEntity(entityName);
         }
 
-        EntityNode entityNode = new EntityNode(entityName, ROOT_KEY).init(entityName, entityName);
+        EntityNode entityNode = new EntityNode(entityName, ROOT_KEY).init(entityName, dataId);
         indexes.put(entityName, entityNode);
         return createStructDataAccessor(entityNode);
     }
@@ -185,6 +209,17 @@ public class AttributeBag implements IAttributeBag {
 
     protected StructDataAccessor createStructDataAccessor(EntityNode entityNode) {
         return new StructDataAccessor(entityNode, attributeBagOperator, attributeKey);
+    }
+
+    protected <TValue> void resumeComputedProperty(ComputedAttribute<TValue> computedAttribute, IndexNode propertyNode, AttributeData computedAttributeData) {
+        IndexNode parentNode = propertyNode.getParentNode();
+        StructDataAccessor structDataAccessor = new StructDataAccessor(parentNode, attributeBagOperator, attributeKey);
+        ComputedWatcher<StructDataAccessor, TValue> watcher = new ComputedWatcher<>(structDataAccessor, attributeBagOperator.getDependency(), computedAttribute.getComputedFn());
+        watcher.setUpdateAction(value -> {
+            TValue oldValue = computedAttribute.getConvertor().convert(computedAttributeData.getPropertyValue());
+            computedAttributeData.setPropertyValue(computedAttribute.getConvertor().toStringValue(value));
+            attributeBagOperator.notifyChanged(parentNode, ActionType.Modify, computedAttributeData, oldValue);
+        });
     }
 
     protected void onNotifyChanged(IndexNode node, ActionType actionType, AttributeData data, Object oldValue) {

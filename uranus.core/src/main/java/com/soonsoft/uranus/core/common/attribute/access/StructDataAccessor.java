@@ -3,6 +3,7 @@ package com.soonsoft.uranus.core.common.attribute.access;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.attribute.Attribute;
 import com.soonsoft.uranus.core.common.attribute.AttributeException;
+import com.soonsoft.uranus.core.common.attribute.ComputedAttribute;
 import com.soonsoft.uranus.core.common.attribute.access.IndexNode.ListNode;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
@@ -90,7 +91,10 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
         attributeBagOperator.collectDependency(listNode.getDependencyKey());
 
         return arrayAccessor;
-        
+    }
+
+    public <TValue> void createComputedProperty(ComputedAttribute<TValue> attribute) {
+        createComputedProperty(attribute, attribute.getComputedFn());
     }
 
     public <TValue> void createComputedProperty(Attribute<TValue> attribute, Func1<StructDataAccessor, TValue> computedFn) {

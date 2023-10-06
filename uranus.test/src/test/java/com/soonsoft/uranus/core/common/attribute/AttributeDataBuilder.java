@@ -2,6 +2,7 @@ package com.soonsoft.uranus.core.common.attribute;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.soonsoft.uranus.core.common.attribute.data.AttributeData;
 import com.soonsoft.uranus.core.common.attribute.data.AttributeKey;
@@ -10,13 +11,15 @@ import com.soonsoft.uranus.core.common.attribute.data.PropertyType;
 
 public class AttributeDataBuilder {
 
+    private String dataId;
     private List<AttributeData> data;
     private AttributeKey attributeKey;
     private AttributeDataBuilder parent;
     private String entityName = null;
     private String parentKey = null;
 
-    public AttributeDataBuilder(String entityName, List<AttributeData> data, AttributeKey key, AttributeDataBuilder parent) {
+    public AttributeDataBuilder(String dataId, String entityName, List<AttributeData> data, AttributeKey key, AttributeDataBuilder parent) {
+        this.dataId = dataId;
         this.data = data;
         this.attributeKey = key;
         this.parent = parent;
@@ -28,13 +31,14 @@ public class AttributeDataBuilder {
     }
 
     public AttributeDataBuilder entity(String entityName) {
-        return new AttributeDataBuilder(entityName, data, attributeKey, this);
+        return new AttributeDataBuilder(dataId, entityName, data, attributeKey, this);
     }
 
     public AttributeDataBuilder property(String propertyName, String value) {
         AttributeData elem = new AttributeData();
+        elem.setDataId(this.dataId);
         elem.setKey(attributeKey.generate());
-        elem.setParentKey(parentKey);
+        elem.setParentKey(this.parentKey);
         elem.setPropertyType(PropertyType.Property);
         elem.setEntityName(this.entityName);
         elem.setPropertyName(propertyName);
@@ -47,15 +51,16 @@ public class AttributeDataBuilder {
 
     public AttributeDataBuilder struct(String entityName, String propertyName) {
         AttributeData elem = new AttributeData();
+        elem.setDataId(this.dataId);
         elem.setKey(attributeKey.generate());
-        elem.setParentKey(parentKey);
+        elem.setParentKey(this.entityName); // 一级entity的结构属性，parentKey必须是entityName
         elem.setPropertyType(PropertyType.Struct);
-        elem.setEntityName(this.entityName);
+        elem.setEntityName(entityName);
         elem.setPropertyName(propertyName);
         elem.setStatus(DataStatus.Enabled);
         data.add(elem);
 
-        AttributeDataBuilder builder = new AttributeDataBuilder(entityName, data, attributeKey, this);
+        AttributeDataBuilder builder = new AttributeDataBuilder(dataId, entityName, data, attributeKey, this);
         builder.parentKey = elem.getKey();
         return builder;
     }
@@ -72,6 +77,6 @@ public class AttributeDataBuilder {
     }
 
     public static AttributeDataBuilder create() {
-        return new AttributeDataBuilder(null, new ArrayList<>(100), new AttributeKey(), null);
+        return new AttributeDataBuilder(UUID.randomUUID().toString(), null, new ArrayList<>(100), new AttributeKey(), null);
     }
 }

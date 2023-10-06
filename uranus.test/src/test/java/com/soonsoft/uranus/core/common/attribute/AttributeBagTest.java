@@ -123,16 +123,20 @@ public class AttributeBagTest {
     @Test
     public void test_restore() {
         List<AttributeData> data = 
-            AttributeDataBuilder.create().entity("Person")
-                .property("Name", "Jack")
-                .array("CellPhoneNumber", "131-1111-1111", "132-2222-2222", "133-3333-3333")
-                .property("Birthday", "1994-03-08")
-                .struct("Address", "BothAddress")
-                    .property("Province", "浙江")
-                    .property("City", "衢州")
-                    .property("District", "江山")
-                    .property("Detail", "城中路")
-                    .done()
+            AttributeDataBuilder.create()
+                .entity("Person")
+                    .property("Name", "Jack")
+                    .array("CellPhoneNumber", "131-1111-1111", "132-2222-2222", "133-3333-3333")
+                    .property("Birthday", "1994-03-08")
+                    .struct("Address", "BothAddress")
+                        .property("Province", "浙江")
+                        .property("City", "衢州")
+                        .property("District", "江山")
+                        .property("Detail", "城中路")
+                        .done()
+                .entity("Account")
+                    .property("Type", "Individual")
+                    .property("AccountStatus", "Opened")
                 .getData();
 
         IAttributeBag bag = bagFactory.createBag(data);

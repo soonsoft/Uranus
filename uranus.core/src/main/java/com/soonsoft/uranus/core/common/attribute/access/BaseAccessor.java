@@ -68,11 +68,17 @@ public abstract class BaseAccessor<TAccessor>
         checkPropertyName(propertyName);
 
         AttributeData attributeData = createAttributeData(entityName, propertyName, null);
+        if(node instanceof EntityNode) {
+            // RootEntity需要特殊结构：RootEntityName::EntityName
+            attributeData.setEntityName(node.getKey(), entityName);
+        }
         attributeData.setPropertyType(PropertyType.Struct);
         attributeData.setStatus(DataStatus.Temp);
         Integer index = attributeBagOperator.addAttributeData(attributeData);
         IndexNode structNode = new IndexNode(attributeData.getKey(), attributeData.getParentKey(), propertyName, index.intValue());
         node.addChildNode(structNode);
+
+        attributeBagOperator.notifyChanged(node, ActionType.Add, attributeData, null);
 
         return createStructDataAccessor(structNode);
     }
@@ -97,6 +103,8 @@ public abstract class BaseAccessor<TAccessor>
         String parentKey = node.getKey();
         ListNode listNode = new ListNode(key, parentKey, propertyName).init(entityName, attributeData.getDataId());
         node.addChildNode(listNode);
+
+        attributeBagOperator.notifyChanged(node, ActionType.Add, attributeData, null);
 
         return createArrayDataAccessor(entityName, propertyName, listNode);
     }
@@ -156,7 +164,7 @@ public abstract class BaseAccessor<TAccessor>
 
     protected <TValue> void addAttributeData(TValue value, Attribute<TValue> attribute) {
         String strValue = attribute.getConvertor().toStringValue(value);
-        AttributeData attributeData = createAttributeData(null, attribute.getPropertyName(), strValue);
+        AttributeData attributeData = createAttributeData(attribute.getEntityName(), attribute.getPropertyName(), strValue);
         attributeData.setStatus(DataStatus.Temp);
         
         Integer index = attributeBagOperator.addAttributeData(attributeData);
