@@ -3,6 +3,8 @@ package com.soonsoft.uranus.core.common.attribute.notify;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
 public class ComputedWatcher<TAccessor, TValue> extends Watcher<TValue> {
+
+    public final static String WATCHER_NAME = "ComputedWatcher";
     
     private TAccessor accessor;
     private Func1<TAccessor, TValue> computedFn;

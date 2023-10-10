@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.core.common.attribute.access;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class IndexNode {
     private int index;
     private Map<String, IndexNode> children;
     private IndexNode parentNode;
+    private Map<String, Object> attachmentMap;
 
     public IndexNode(String key, String parentKey, String propertyName, int index) {
         this.key = key;
@@ -91,6 +93,25 @@ public class IndexNode {
 
     public String getDependencyKey() {
         return this.key;
+    }
+
+    public boolean setAttachment(String key, Object attachment) {
+        Guard.notEmpty(key, "the arguments [key] is required.");
+        if(attachment == null) {
+            return false;
+        }
+        if(this.attachmentMap != null) {
+            this.attachmentMap = new HashMap<>();
+        }
+        this.attachmentMap.put(key, attachment);
+        return true;
+    }
+
+    public Object getAttachment(String key) {
+        if(this.attachmentMap != null) {
+            return this.attachmentMap.get(key);
+        }
+        return null;
     }
 
     static class RootNode extends IndexNode {

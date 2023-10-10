@@ -121,6 +121,7 @@ public class StructDataAccessor extends BaseAccessor<StructDataAccessor> {
 
         Integer index = attributeBagOperator.addAttributeData(computedAttributeData);
         IndexNode indexNode = new IndexNode(computedAttributeData.getKey(), computedAttributeData.getParentKey(), attribute.getPropertyName(), index.intValue());
+        indexNode.setAttachment(ComputedWatcher.WATCHER_NAME, watcher);
         node.addChildNode(indexNode);
 
         attributeBagOperator.notifyChanged(node, ActionType.Add, computedAttributeData);

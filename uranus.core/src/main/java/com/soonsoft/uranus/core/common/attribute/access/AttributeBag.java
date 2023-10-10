@@ -220,6 +220,7 @@ public class AttributeBag implements IAttributeBag {
             computedAttributeData.setPropertyValue(computedAttribute.getConvertor().toStringValue(value));
             attributeBagOperator.notifyChanged(parentNode, ActionType.Modify, computedAttributeData, oldValue);
         });
+        propertyNode.setAttachment(ComputedWatcher.WATCHER_NAME, watcher);
     }
 
     protected void onNotifyChanged(IndexNode node, ActionType actionType, AttributeData data, Object oldValue) {
