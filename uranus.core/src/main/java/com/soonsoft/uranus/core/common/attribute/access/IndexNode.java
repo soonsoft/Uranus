@@ -100,7 +100,7 @@ public class IndexNode {
         if(attachment == null) {
             return false;
         }
-        if(this.attachmentMap != null) {
+        if(this.attachmentMap == null) {
             this.attachmentMap = new HashMap<>();
         }
         this.attachmentMap.put(key, attachment);

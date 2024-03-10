@@ -214,8 +214,15 @@ public abstract class BaseAccessor<TAccessor>
             fn.apply(node);
 
             if(node.getChildren() != null && !node.getChildren().isEmpty()) {
+                // 反向入栈以保持顺序
+                IndexNode[] children = new IndexNode[node.getChildren().size()];
+                int index = children.length - 1;
                 for(Map.Entry<String, IndexNode> entry : node.getChildren().entrySet()) {
-                    fn.apply(entry.getValue());
+                    children[index] = entry.getValue();
+                    index--;
+                }
+                for(int i = 0; i < children.length; i++) {
+                    stack.push(children[i]);
                 }
             }
         }

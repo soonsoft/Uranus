@@ -1,7 +1,6 @@
 spring:
-  config:
-    active:
-      on-profile: test
+  profiles:
+    active: test
 uranus:
   datasource:
     master:

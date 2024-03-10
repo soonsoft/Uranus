@@ -1,7 +1,8 @@
 spring:
   config:
-    active:
-      on-profile: dev
+    activate:
+      on-profile:
+      - dev
 uranus:
   datasource:
     master:

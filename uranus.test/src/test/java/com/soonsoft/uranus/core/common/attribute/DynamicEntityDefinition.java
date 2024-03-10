@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.core.common.attribute;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -27,12 +29,16 @@ public interface DynamicEntityDefinition {
                     if(birthday == null) {
                         return null;
                     }
+
                     
-                    int year = Calendar.getInstance().get(Calendar.YEAR);
                     Calendar birthdayCalendar = Calendar.getInstance();
                     birthdayCalendar.setTime(birthday);
-                    int birthdayYear = birthdayCalendar.get(Calendar.YEAR);
-                    return year - birthdayYear;
+
+                     LocalDate dateNow = LocalDate.now();
+                    LocalDate dateBirth = LocalDate.of(birthdayCalendar.get(Calendar.YEAR), birthdayCalendar.get(Calendar.MONTH) + 1, birthdayCalendar.get(Calendar.DAY_OF_MONTH));
+
+                    Period period = Period.between(dateBirth, dateNow);
+                    return period.getYears();
                 }
             );
     }

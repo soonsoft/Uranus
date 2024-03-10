@@ -1,0 +1,92 @@
+{
+    "properties": [
+        {
+            "name": "uranus.error.bad-request-message",
+            "type": "java.lang.String",
+            "description": "HTTP 400 Status Code 提示描述文本"
+        },
+        {
+            "name": "uranus.error.unauthorized-message",
+            "type": "java.lang.String",
+            "description": "HTTP 401 Status Code 提示描述文本"
+        },
+        {
+            "name": "uranus.error.forbidden-message",
+            "type": "java.lang.String",
+            "description": "HTTP 403 Status Code 提示描述文本"
+        },
+        {
+            "name": "uranus.error.unfound-message",
+            "type": "java.lang.String",
+            "description": "HTTP 404 Status Code 提示描述文本"
+        },
+        {
+            "name": "uranus.error.server-error-message",
+            "type": "java.lang.String",
+            "description": "HTTP 500 Status Code 提示描述文本"
+        },
+
+        {
+            "name": "uranus.security.token-header",
+            "type": "java.lang.String",
+            "description": "存放在 Http Header 中的 AccessToken 对应的 Key 名称"
+        },
+        {
+            "name": "uranus.security.resource-path",
+            "type": "java.lang.String",
+            "description": "工程中静态资源路径，这些路径表示可以匿名访问"
+        },
+
+        {
+            "name": "uranus.security.membership.default-password",
+            "type": "java.lang.String",
+            "description": "成员管理模块中默认用户密码配置"
+        },
+        {
+            "name": "uranus.security.membership.salt",
+            "type": "java.lang.String",
+            "description": "成员管理模块中默认用户密码的盐值"
+        },
+
+        {
+            "name": "uranus.datasource.master.driver-class-name",
+            "type": "java.lang.String",
+            "description": "[Master] 数据库驱动类名"
+        },
+        {
+            "name": "uranus.datasource.master.url",
+            "type": "java.lang.String",
+            "description": "[Master] 数据库连接字符串"
+        },
+        {
+            "name": "uranus.datasource.master.username",
+            "type": "java.lang.String",
+            "description": "[Master] 数据库用户名"
+        },
+        {
+            "name": "uranus.datasource.master.password",
+            "type": "java.lang.String",
+            "description": "[Master] 数据库密码"
+        },
+        {
+            "name": "uranus.datasource.master.minimum-idle",
+            "type": "java.lang.Integer",
+            "description": "[Master] 数据库连接池最小连接数"
+        },
+        {
+            "name": "uranus.datasource.master.maximum-pool-size",
+            "type": "java.lang.Integer",
+            "description": "[Master] 数据库连接池最大连接数"
+        },
+        {
+            "name": "uranus.datasource.master.connection-timeout",
+            "type": "java.lang.Long",
+            "description": "[Master] 等待连接池返回链接的超时时间（毫秒），如果值小于250毫秒则会重置为30秒"
+        },
+        {
+            "name": "uranus.datasource.master.pool-name",
+            "type": "java.lang.String",
+            "description": "[Master] 连接池名称"
+        }
+    ]
+}

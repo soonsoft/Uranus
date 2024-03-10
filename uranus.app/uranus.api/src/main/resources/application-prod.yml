@@ -1,7 +1,6 @@
 spring:
-  config:
-    active:
-      on-profile: prod
+  profiles:
+    active: prod
 uranus:
   datasource:
     master:

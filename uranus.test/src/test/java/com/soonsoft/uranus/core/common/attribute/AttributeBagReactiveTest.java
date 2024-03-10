@@ -1,6 +1,9 @@
 package com.soonsoft.uranus.core.common.attribute;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,10 +36,10 @@ public class AttributeBagReactiveTest {
         person.setValue(DateTimeUtils.parseDay("1980-01-29"), Person.Birthday);
         person.createComputedProperty(Person.Age);
 
-        Assert.assertTrue(person.getValue(Person.Age).equals(43));
+        Assert.assertTrue(person.getValue(Person.Age).equals(calculateAge("1980-01-29")));
 
         person.setValue(DateTimeUtils.parseDay("1983-01-01"), Person.Birthday);
-        Assert.assertTrue(person.getValue(Person.Age).equals(40));
+        Assert.assertTrue(person.getValue(Person.Age).equals(calculateAge("1983-01-01")));
 
         List<ActionCommand> commands = new ArrayList<>();
         bag.saveChanges(cmd -> {
@@ -148,13 +151,13 @@ public class AttributeBagReactiveTest {
         person = account.getStruct(Account.PersonInfo);
         
         Assert.assertTrue(account.getValue(Account.CustomerName).equals("王军"));
-        Assert.assertTrue(person.getValue(Person.Age).equals(41));
+        Assert.assertTrue(person.getValue(Person.Age).equals(calculateAge("1982-12-29")));
 
         person.setValue("Nick", Person.Name);
         person.setValue(DateTimeUtils.parseDay("1987-09-12"), Person.Birthday);
 
         Assert.assertTrue(account.getValue(Account.CustomerName).equals("Nick"));
-        Assert.assertTrue(person.getValue(Person.Age).equals(36));
+        Assert.assertTrue(person.getValue(Person.Age).equals(calculateAge("1987-09-12")));
     }
 
     @Test
@@ -186,6 +189,17 @@ public class AttributeBagReactiveTest {
         person3.setValue(DateTimeUtils.parseDay("1975-06-01"), Person.Birthday);
 
         Assert.assertTrue(watcher.getComputedValue().equals("小华"));
+    }
+
+    private int calculateAge(String birthday) {
+        Calendar birthDate = Calendar.getInstance();
+        birthDate.setTime(DateTimeUtils.parseDay(birthday));
+
+        LocalDate dateNow = LocalDate.now();
+        LocalDate dateBirth = LocalDate.of(birthDate.get(Calendar.YEAR), birthDate.get(Calendar.MONTH) + 1, birthDate.get(Calendar.DAY_OF_MONTH));
+
+        Period period = Period.between(dateBirth, dateNow);
+        return period.getYears();
     }
     
 }
