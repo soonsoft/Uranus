@@ -256,4 +256,9 @@ public class AttributeBag implements IAttributeBag {
         dependency.notify(keys);
     }
 
+    @Override
+    public DefaultAttributeJsonTemplate toJSON() {
+        return new DefaultAttributeJsonTemplate(indexes, attributeBagOperator);
+    }
+
 }

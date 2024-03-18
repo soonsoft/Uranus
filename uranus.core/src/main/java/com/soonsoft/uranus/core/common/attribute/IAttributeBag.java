@@ -22,4 +22,6 @@ public interface IAttributeBag {
 
     int getActionCommandCount();
 
+    IAttributeJsonTemplate toJSON();
+
 }

@@ -29,12 +29,11 @@ public interface DynamicEntityDefinition {
                     if(birthday == null) {
                         return null;
                     }
-
                     
                     Calendar birthdayCalendar = Calendar.getInstance();
                     birthdayCalendar.setTime(birthday);
 
-                     LocalDate dateNow = LocalDate.now();
+                    LocalDate dateNow = LocalDate.now();
                     LocalDate dateBirth = LocalDate.of(birthdayCalendar.get(Calendar.YEAR), birthdayCalendar.get(Calendar.MONTH) + 1, birthdayCalendar.get(Calendar.DAY_OF_MONTH));
 
                     Period period = Period.between(dateBirth, dateNow);
