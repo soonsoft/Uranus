@@ -20,6 +20,7 @@ public interface DynamicEntityDefinition {
         public final static Attribute<String> Name = define("Name", AttributeDataType.String);
         public final static Attribute<Date> Birthday = define("Birthday", AttributeDataType.DateTime);
         public final static Attribute<String> CellPhoneNumber = define("CellPhoneNumber", AttributeDataType.String);
+        public final static Attribute<String> Email = define("Email", AttributeDataType.String);
         public final static Attribute<Object> BothAddress = new Attribute<Object>("BothAddress", "BothAddress", PropertyType.Struct);
         public final static ComputedAttribute<Integer> Age = 
             new ComputedAttribute<>(
