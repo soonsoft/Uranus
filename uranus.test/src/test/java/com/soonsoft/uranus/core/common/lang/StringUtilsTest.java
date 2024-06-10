@@ -40,4 +40,16 @@ public class StringUtilsTest {
         byte[] arr = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 99, 44, 98, 127, -90, 93, -100, 100 };
         System.out.println(StringUtils.toHexString(arr));
     }
+
+    @Test
+    public void test_trimBlank() {
+        Assert.assertTrue("hello".equals(StringUtils.trimBlank("  hello  ")));
+        Assert.assertTrue(StringUtils.trimBlank("    ").length() == 0);
+        Assert.assertTrue("没有空格".equals(StringUtils.trimBlank("没有空格")));
+        Assert.assertTrue("前面有空格".equals(StringUtils.trimBlank("   前面有空格")));
+        Assert.assertTrue("后面有空格".equals(StringUtils.trimBlank("后面有空格   ")));
+        Assert.assertTrue("hello".equals(StringUtils.trimBlank("\r\t\nhello  \t\r\n")));
+        Assert.assertTrue(StringUtils.trimBlank(null) == null);
+        Assert.assertTrue("中间 \n有".equals(StringUtils.trimBlank("  中间 \n有\r\n\t\f")));
+    }
 }

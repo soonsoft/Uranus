@@ -34,6 +34,34 @@ public abstract class StringUtils {
         return input == null ? null : input.trim();
     }
 
+    public static String trimBlank(String input) {
+        if(isEmpty(input)) {
+            return input;
+        }
+
+        int len = input.length();
+        int start = -1;
+        for(int i = 0; i < len; i++) {
+            if(!Character.isWhitespace(input.charAt(i))) {
+                start = i;
+                break;
+            }
+        }
+
+        if(start == -1) {
+            return Empty;
+        }
+
+        int end = -1;
+        for(int i = len - 1; i >= 0; i--) {
+            if(!Character.isWhitespace(input.charAt(i))) {
+                break;
+            }
+            end = i;
+        }
+        return input.substring(start, end == -1 ? len : end);
+    }
+
     public static boolean equals(CharSequence str1, CharSequence str2) {
         if(str1 == null && str2 == null) {
             return true;
