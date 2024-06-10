@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.core.common.collection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -26,5 +27,16 @@ public abstract class CollectionUtils {
         if(items.length > 0) {
             collection.addAll(Arrays.asList(items));
         }
+    }
+
+    @SafeVarargs
+    public static <T> ArrayList<T> createArrayList(T... elements) {
+        ArrayList<T> arrayList = new ArrayList<>();
+        if(elements != null) {
+            for(int i = 0; i < elements.length; i++) {
+                arrayList.add(elements[i]);
+            }
+        }
+        return arrayList;
     }
 }

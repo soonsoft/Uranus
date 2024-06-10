@@ -1,6 +1,9 @@
 package com.soonsoft.uranus.core.common.lang;
 
+import java.util.List;
+
 import com.soonsoft.uranus.core.error.format.StringFormatException;
+import com.soonsoft.uranus.core.functional.func.Func1;
 
 /**
  * 字符串函数工具集
@@ -9,6 +12,7 @@ public abstract class StringUtils {
 
     private final static String FORMAT_OPEN = "{";
     private final static String FORMAT_CLOSE = "}";
+    private final static String DEFAULT_DELIMITER = ",";
 
     public static String Empty = "";
 
@@ -189,13 +193,33 @@ public abstract class StringUtils {
         return builder.toString();
     }
 
+    public static String join(CharSequence... elements) {
+        return join(DEFAULT_DELIMITER, elements);
+    }
+
+    public static String join(Iterable<? extends CharSequence> elements) {
+        return join(DEFAULT_DELIMITER, elements);
+    }
+
     public static String join(CharSequence delimiter, Iterable<? extends CharSequence> elements) {
         return String.join(delimiter, elements);
     }
 
     public static String join(CharSequence delimiter, CharSequence... elements) {
         return String.join(delimiter, elements);
+    }
 
+    public static String join(CharSequence delimiter, List<?> elements, Func1<Object, String> convertor) {
+        if(elements == null || elements.isEmpty()) {
+            return Empty;
+        }
+
+        String[] strElements = new String[elements.size()];
+        for(int i = 0; i < strElements.length; i++) {
+            strElements[i] = convertor.call(elements.get(i));
+        }
+
+        return join(delimiter, strElements);
     }
 
     public static String toString(Object o) {
