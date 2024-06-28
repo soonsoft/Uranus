@@ -61,25 +61,25 @@ public abstract class Guard {
         }
     }
 
-    public static void anyNotNull(String str1, String str2, String message) {
+    public static void anyNotEmpty(String str1, String str2, String message) {
         if(StringUtils.isEmpty(str1) && StringUtils.isEmpty(str2)) {
             throw new IllegalArgumentException(message);
         }
     }
 
-    public static void anyNotNull(String str1, String str2, String str3, String message) {
+    public static void anyNotEmpty(String str1, String str2, String str3, String message) {
         if(StringUtils.isEmpty(str1) && StringUtils.isEmpty(str2) && StringUtils.isEmpty(str3)) {
             throw new IllegalArgumentException(message);
         }
     }
 
-    public static void allNotNull(String str1, String str2, String message) {
+    public static void allNotEmpty(String str1, String str2, String message) {
         if(StringUtils.isEmpty(str1) || StringUtils.isEmpty(str2)) {
             throw new IllegalArgumentException(message);
         }
     }
 
-    public static void allNotNull(String str1, String str2, String str3, String message) {
+    public static void allNotEmpty(String str1, String str2, String str3, String message) {
         if(StringUtils.isEmpty(str1) || StringUtils.isEmpty(str2) || StringUtils.isEmpty(str3)) {
             throw new IllegalArgumentException(message);
         }
