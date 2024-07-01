@@ -62,7 +62,9 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
         beanDefinition.setPrimary(primary);
         String beanName = dataSourceName + "TransactionManager";
         registry.registerBeanDefinition(beanName, beanDefinition);
-
+        if (primary) {
+            registry.registerAlias(dataSourceName, "transactionManager");
+        }
     }
 
     protected void registerDatabaseAccess(
