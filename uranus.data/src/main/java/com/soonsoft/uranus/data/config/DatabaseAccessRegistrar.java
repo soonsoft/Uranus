@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.data.EnableDatabaseAccess;
@@ -23,6 +24,9 @@ public class DatabaseAccessRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
+        Guard.notNull(annotationMetadata, "the arguments annotationMetadata is required.");
+        Guard.notNull(registry, "the arguments registry is required.");
+
         Map<String, Object> annotationAttrs = annotationMetadata.getAnnotationAttributes(EnableDatabaseAccess.class.getName());
         if(annotationAttrs == null) {
             throw new IllegalStateException("cannot find the annotation class [EnableDatabaseAccess].");

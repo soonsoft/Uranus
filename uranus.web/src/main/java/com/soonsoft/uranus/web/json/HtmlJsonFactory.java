@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
 
 import org.springframework.web.util.HtmlUtils;
 
@@ -33,7 +33,7 @@ public final class HtmlJsonFactory extends JsonFactory {
             gen.setCharacterEscapes(_characterEscapes);
         }
         SerializableString rootSep = _rootValueSeparator;
-        if (rootSep != DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR) {
+        if (Separators.DEFAULT_ROOT_VALUE_SEPARATOR.equals(rootSep.getValue())) {
             gen.setRootValueSeparator(rootSep);
         }
         return gen;
@@ -46,7 +46,7 @@ public final class HtmlJsonFactory extends JsonFactory {
             gen.setCharacterEscapes(_characterEscapes);
         }
         SerializableString rootSep = _rootValueSeparator;
-        if (rootSep != DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR) {
+        if (Separators.DEFAULT_ROOT_VALUE_SEPARATOR.equals(rootSep.getValue())) {
             gen.setRootValueSeparator(rootSep);
         }
         return gen;
