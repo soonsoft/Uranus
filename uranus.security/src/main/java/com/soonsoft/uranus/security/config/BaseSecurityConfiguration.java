@@ -10,7 +10,6 @@ import com.soonsoft.uranus.security.authorization.voter.PermissionVoter;
 import com.soonsoft.uranus.security.authorization.voter.PrivilegeVoter;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -29,7 +28,7 @@ public abstract class BaseSecurityConfiguration {
      * 自定义身份验证管理器
      */
     @Bean
-    public WebUserDetailsService webUserDetailsService(@Qualifier("userManager") IUserManager userManager) {
+    public WebUserDetailsService webUserDetailsService(IUserManager userManager) {
         WebUserDetailsService userDetailsService = new WebUserDetailsService();
         userDetailsService.setUserManager(userManager);
         return userDetailsService;

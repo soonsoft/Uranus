@@ -31,7 +31,7 @@ public class MembershipConfiguration extends BaseSecurityConfiguration {
     }
 
     @Bean
-    public UserServiceFactory userService(PasswordEncoder passwordEncoder) {
+    public UserServiceFactory userManager(PasswordEncoder passwordEncoder) {
         String membershipDatabaseAccessName = membershipProperties.getDatabaseAccessName();
         ApplicationContext applicationContext = getApplicationContext();
         if(StringUtils.isEmpty(membershipDatabaseAccessName)) {
@@ -42,7 +42,7 @@ public class MembershipConfiguration extends BaseSecurityConfiguration {
     }
 
     @Bean
-    public RoleServiceFactory roleService() {
+    public RoleServiceFactory roleManager() {
         String membershipDatabaseAccessName = membershipProperties.getDatabaseAccessName();
         ApplicationContext applicationContext = getApplicationContext();
         if(StringUtils.isEmpty(membershipDatabaseAccessName)) {
@@ -53,7 +53,7 @@ public class MembershipConfiguration extends BaseSecurityConfiguration {
     }
 
     @Bean
-    public FunctionServiceFactory functionService() {
+    public FunctionServiceFactory functionManager() {
     String membershipDatabaseAccessName = membershipProperties.getDatabaseAccessName();
         ApplicationContext applicationContext = getApplicationContext();
         if(StringUtils.isEmpty(membershipDatabaseAccessName)) {

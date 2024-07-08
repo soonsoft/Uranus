@@ -45,17 +45,17 @@ public class SimpleSecutityConfiguration extends BaseSecurityConfiguration {
         return http.build();
     }
 
-    @Bean(name = "userManager")
+    @Bean
     public IUserManager userManager(PasswordEncoder passwordEncoder) {
         return new SimpleUserManager(passwordEncoder);
     }
 
-    @Bean(name = "roleManager")
+    @Bean
     public IRoleManager roleManager() {
         return new SimpleRoleManager();
     }
 
-    @Bean(name = "functionManager")
+    @Bean
     public IFunctionManager functionManager() {
         return new SimpleFunctionManager();
     }
