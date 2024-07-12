@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.PermitAll;
+
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
@@ -30,6 +33,8 @@ import org.springframework.web.servlet.View;
 @Controller
 public class SettingsController extends BaseController {
 
+    private String defaultPassword = "1";
+
     private UserService getUserService() {
         return (UserService) SecurityManager.current().getUserManager();
     }
@@ -44,6 +49,7 @@ public class SettingsController extends BaseController {
 
     //#region 用户管理
 
+    //@PermitAll
     @RequestMapping(value = "/settings/users", method = RequestMethod.GET)
     public String users() {
         return "settings/users";
@@ -86,7 +92,10 @@ public class SettingsController extends BaseController {
 
         UserService userService = getUserService();
         if(user.getUserId() == null) {
-            String passwordValue = "1";
+            String passwordValue = parameter.get("password");
+            if(StringUtils.isBlank(passwordValue)) {
+                passwordValue = defaultPassword;
+            }
             userService.create(user, passwordValue);
         } else {
             userService.update(user);

@@ -39,7 +39,7 @@ public abstract class BaseSecurityConfiguration {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
+    //@Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         SecurityProperties securityProperties = getSecurityProperties();
         if(securityProperties == null) {
@@ -65,7 +65,7 @@ public abstract class BaseSecurityConfiguration {
         factory.applyInitModuleAction();
 
         // Web应用程序，身份验证配置
-        WebApplicationSecurityConfig config = factory.create();
+        WebApplicationSecurityConfig config = factory.create(getSecurityProperties());
 
         IFunctionManager functionManager = SecurityManager.current().getFunctionManager();
         final WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();

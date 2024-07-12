@@ -10,6 +10,7 @@ import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.config.api.WebApiApplicationSecurityConfig;
+import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 
 public class WebApplicationSecurityConfigFactory {
 
@@ -24,8 +25,9 @@ public class WebApplicationSecurityConfigFactory {
         this.configurers = configurers;
     }
 
-    public WebApplicationSecurityConfig create() {
+    public WebApplicationSecurityConfig create(SecurityProperties securityProperties) {
         WebApplicationSecurityConfig config = type.createConfig(configurers);
+        config.setSecurityProperties(securityProperties);
         return config;
     }
 

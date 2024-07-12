@@ -23,7 +23,7 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
         try {
             http.authorizeHttpRequests(
                 authorize -> authorize
-                    //.anyRequest().authenticated()
+                    .requestMatchers(getPermitPatterns()).permitAll() // 设置不做鉴权的url 
                     .anyRequest().access(getWebAuthorizationManager())
             )
             .csrf(csrf -> csrf.disable())

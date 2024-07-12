@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ public class WebAuthorizationManager implements AuthorizationManager<RequestAuth
 
     private final Func1<HttpServletRequest, Collection<ConfigAttribute>> resourceAttributesGetter;
     private List<IVoter> voterList;
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     public WebAuthorizationManager(Func1<HttpServletRequest, Collection<ConfigAttribute>> resourceAttributesGetter) {
         this.resourceAttributesGetter = resourceAttributesGetter;
@@ -29,8 +32,11 @@ public class WebAuthorizationManager implements AuthorizationManager<RequestAuth
     @Override
     @Nullable
     public AuthorizationDecision check(Supplier<Authentication> authenticationGetter, RequestAuthorizationContext requestAuthorizationContext) {
+        // 身份校验
         Authentication authentication = authenticationGetter.get();
-        if(authentication == null) {
+        boolean isAuthenticated = 
+            authentication != null && !this.trustResolver.isAnonymous(authentication) && authentication.isAuthenticated();
+        if(!isAuthenticated) {
             return new AuthorizationDecision(false);
         }
 
@@ -38,8 +44,7 @@ public class WebAuthorizationManager implements AuthorizationManager<RequestAuth
         // 访问资源的权限信息
         Collection<ConfigAttribute> attributes = 
             resourceAttributesGetter != null ? resourceAttributesGetter.call(httpRequest) : null;
-
-        // 处理权限
+        // 权限校验
         boolean granted = attributes == null ? true : decision(authentication, httpRequest, attributes);
 
         return new AuthorizationDecision(granted);

@@ -45,8 +45,8 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
             http
                 .authorizeHttpRequests(
                     authorize -> authorize
-                        //.anyRequest().authenticated()
-                        .anyRequest().access(getWebAuthorizationManager())
+                        .requestMatchers(getPermitPatterns()).permitAll() // 设置不做鉴权的url
+                        .anyRequest().access(getWebAuthorizationManager()) // 同时包含了身份验证与权限验证
                 )
                 .cors(withDefaults())
                 .csrf(config -> config.disable())
