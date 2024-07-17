@@ -12,6 +12,8 @@ import java.util.UUID;
 import com.soonsoft.uranus.core.error.BusinessException;
 import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.authentication.IUserManager;
+import com.soonsoft.uranus.security.entity.PasswordInfo;
+import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.constant.PasswordStatusEnum;
 import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
@@ -94,13 +96,13 @@ public class UserService implements IUserManager {
         Guard.notNull(userInfo, "the UserInfo is required.");
         
         AuthUser user = new AuthUser();
-        user.setUserName(userInfo.getUsername());
+        user.setUserName(userInfo.getUserName());
         user.setNickName(userInfo.getNickName());
         user.setCellPhone(userInfo.getCellPhone());
         user.setStatus(UserStatusEnum.ENABLED.Value);
         user.setCreateTime(new Date());
 
-        Collection<GrantedAuthority> roles = userInfo.getAuthorities();
+        Collection<RoleInfo> roles = userInfo.getRoles();
         if(!CollectionUtils.isEmpty(roles)) {
             List<Object> roleIdList = new ArrayList<>(roles.size());
             for(GrantedAuthority role : roles) {
@@ -109,7 +111,7 @@ public class UserService implements IUserManager {
             user.setRoles(roleIdList);
         }
 
-        return create(user, userInfo.getPassword());
+        return create(user, userInfo.getPasswordInfo().getPassword());
     }
 
     @Override
@@ -168,19 +170,28 @@ public class UserService implements IUserManager {
     }
 
     @Override
+    public PasswordInfo getEnabledPassword(String userId) {
+        AuthPassword password = passwordDAO.getEnabledPassword(UUID.fromString(userId));
+        PasswordInfo passwordInfo = Transformer.toPasswordInfo(password);
+        return passwordInfo;
+    }
+
+    @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public void changeMyPassword(UserInfo user) {
         Guard.notNull(user, "the user is required.");
 
-        AuthUser authUser = userDAO.getUser(user.getUsername());
+        AuthUser authUser = userDAO.getUser(user.getUserName());
         if(authUser == null) {
-            throw new BusinessException("can not find AuthUser by username: " + user.getUsername());
+            throw new BusinessException("can not find AuthUser by username: " + user.getUserName());
         }
+
+        PasswordInfo passwordInfo = user.getPasswordInfo();
 
         AuthPassword password = new AuthPassword();
         password.setUserId(authUser.getUserId());
-        password.setPasswordValue(encryptPassword(user.getPassword(), user.getPasswordSalt()));
-        password.setPasswordSalt(user.getPasswordSalt());
+        password.setPasswordValue(encryptPassword(passwordInfo.getPassword(), passwordInfo.getPasswordSalt()));
+        password.setPasswordSalt(passwordInfo.getPasswordSalt());
         password.setPasswordChangedTime(new Date());
 
         passwordDAO.update(password);
@@ -326,4 +337,6 @@ public class UserService implements IUserManager {
     protected String createSalt() {
         return UUID.randomUUID().toString();
     }
+
+    
 }

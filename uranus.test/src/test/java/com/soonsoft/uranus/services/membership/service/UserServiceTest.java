@@ -2,6 +2,7 @@ package com.soonsoft.uranus.services.membership.service;
 
 import java.util.Date;
 
+import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import org.junit.Assert;
@@ -31,10 +32,9 @@ public class UserServiceTest {
     @Test
     public void test_createUser() {
         String password = "1";
-        UserInfo userInfo = new UserInfo("zhousong", password);
+        SecurityUser userInfo = new SecurityUser("zhousong", password, null, null);
         userInfo.setNickName("周SOON");
         userInfo.setCellPhone("18666229900");
-        userInfo.setPasswordSalt(null);
         userInfo.setCreateTime(new Date());
 
         boolean result = userService.createUser(userInfo);

@@ -4,6 +4,7 @@ import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.entity.AnonymousUser;
+import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.profile.IUserProfile;
 import com.soonsoft.uranus.core.Guard;
@@ -91,20 +92,20 @@ public class SecurityManager {
         this.userProfile = userProfile;
     }
 
-    public UserInfo getCurrentUser() {
+    public SecurityUser getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null) {
             return new AnonymousUser(ANONYMOUS_USER);
         }
         Object user = authentication.getPrincipal();
-        if(user instanceof UserInfo) {
-            return (UserInfo) user;
+        if(user instanceof SecurityUser) {
+            return (SecurityUser) user;
         } else {
             String username = (String) user;
             if(StringUtils.equals(username, ANONYMOUS_USER)) {
                 return new AnonymousUser(username);
             } else {
-                return new UserInfo(username);
+                return new SecurityUser(username);
             }
         }
     }

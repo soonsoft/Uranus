@@ -7,6 +7,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.soonsoft.uranus.security.entity.RoleInfo;
+import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 
 import org.junit.Assert;
@@ -24,10 +25,9 @@ public class JWTAuthenticationTokenTest {
         roleInfo = new RoleInfo("admin", "系统管理员");
         roles.add(roleInfo);
 
-        UserInfo userInfo = new UserInfo("zhousong", "1", roles);
+        SecurityUser userInfo = new SecurityUser("zhousong", "1", "0911", roles);
         userInfo.setCellPhone("13605160000");
         userInfo.setNickName("周大侠");
-        userInfo.setPasswordSalt("0911");
 
         user = userInfo;
     }
@@ -35,7 +35,7 @@ public class JWTAuthenticationTokenTest {
     @Test
     public void test_getAccessToken() {
 
-       JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getAuthorities());
+       JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getRoles());
        String accessToken = jwtAuthenticationToken.getAccessToken();
        Assert.assertTrue(accessToken.equals(jwtAuthenticationToken.getAccessToken()));
 
@@ -44,7 +44,7 @@ public class JWTAuthenticationTokenTest {
     @Test
     public void test_getRefreshToken() {
 
-       JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getAuthorities());
+       JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getRoles());
        String refreshToken = jwtAuthenticationToken.getRefreshToken();
        System.out.println(refreshToken);
        Assert.assertTrue(refreshToken.equals(jwtAuthenticationToken.getRefreshToken()));
@@ -53,7 +53,7 @@ public class JWTAuthenticationTokenTest {
 
     @Test
     public void test_accessTokenExpireTime() {
-        JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getAuthorities());
+        JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, user.getRoles());
         jwtAuthenticationToken.setAccessTokenExpireTime(1);
 
         String accessToken = jwtAuthenticationToken.getAccessToken();

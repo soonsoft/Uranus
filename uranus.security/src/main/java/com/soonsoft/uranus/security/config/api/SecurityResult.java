@@ -29,7 +29,7 @@ public class SecurityResult {
         Object user = authentication.getPrincipal();
         if(user instanceof UserInfo) {
             UserInfo userInfo = (UserInfo) user;
-            this.username = userInfo.getUsername();
+            this.username = userInfo.getUserName();
             this.nickname = userInfo.getNickName();
         } else {
             this.username = (String) user;

@@ -7,14 +7,23 @@ public enum RoleStatusEnum {
     ;
     
     public final int Value;
-    public final String Name;
+    public final String Remark;
 
-    private RoleStatusEnum(int value, String name) {
+    private RoleStatusEnum(int value, String remark) {
         this.Value = value;
-        this.Name = name;
+        this.Remark = remark;
     }
 
     public boolean eq(Integer value) {
         return value != null && value.intValue() == Value;
+    }
+
+    public static RoleStatusEnum valueOf(int value) {
+        for(RoleStatusEnum item : values()) {
+            if(item.Value == value) {
+                return item;
+            }
+        }
+        return null;
     }
 }

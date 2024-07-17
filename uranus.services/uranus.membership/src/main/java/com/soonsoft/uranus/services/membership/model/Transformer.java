@@ -9,11 +9,14 @@ import java.util.UUID;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
+import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.constant.FunctionTypeEnum;
+import com.soonsoft.uranus.services.membership.constant.PasswordStatusEnum;
+import com.soonsoft.uranus.services.membership.constant.PasswordTypeEnum;
 import com.soonsoft.uranus.services.membership.constant.RoleStatusEnum;
 import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
 import com.soonsoft.uranus.services.membership.po.AuthPassword;
@@ -22,8 +25,6 @@ import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * 类型变化器
@@ -36,7 +37,7 @@ public abstract class Transformer {
         Collection<AuthRole> roles, 
         Collection<AuthPrivilege> functions) {
         
-        Set<GrantedAuthority> roleInfoSet = new HashSet<>();
+        Set<RoleInfo> roleInfoSet = new HashSet<>();
         if(roles != null) {
             roles.forEach(r -> roleInfoSet.add(toRoleInfo(r)));
         }
@@ -47,13 +48,21 @@ public abstract class Transformer {
                 new MembershipPrivilegeInfo(p.getFunctionId().toString(), p.getFunctionName())));
         }
 
-        boolean enabled = authUser.getStatus() == UserStatusEnum.ENABLED.Value;
-        UserInfo user = new UserInfo(authUser.getUserName(), password.getPasswordValue(), enabled, true, true, true, roleInfoSet); 
+        PasswordInfo passwordInfo = new PasswordInfo();
+        passwordInfo.setPassword(password.getPasswordValue());
+        passwordInfo.setPasswordSalt(password.getPasswordSalt());
+        passwordInfo.setPasswordStatus(PasswordStatusEnum.valueOf(password.getStatus()).name());
+        passwordInfo.setPasswordType(PasswordTypeEnum.valueOf(password.getPasswordType()).name());
 
+        UserInfo user = new UserInfo();
         user.setUserId(authUser.getUserId().toString());
+        user.setUserName(authUser.getUserName());
         user.setCellPhone(authUser.getCellPhone());
         user.setNickName(authUser.getNickName());
+        user.setStatus(UserStatusEnum.valueOf(authUser.getStatus()).name());
         user.setCreateTime(authUser.getCreateTime());
+        user.setPasswordInfo(passwordInfo);
+        user.setRoles(roleInfoSet);
 
         return user;
     }
@@ -62,13 +71,24 @@ public abstract class Transformer {
         AuthUser authUser = new AuthUser();
         
         authUser.setUserId(UUID.fromString(userInfo.getUserId()));
-        authUser.setUserName(userInfo.getUsername());
+        authUser.setUserName(userInfo.getUserName());
         authUser.setNickName(userInfo.getNickName());
-        authUser.setStatus(userInfo.isEnabled() ? UserStatusEnum.ENABLED.Value : UserStatusEnum.DISABLED.Value);
+        authUser.setStatus(UserStatusEnum.valueOf(userInfo.getStatus()).Value);
         authUser.setCellPhone(userInfo.getCellPhone());
         authUser.setCreateTime(userInfo.getCreateTime());
 
         return authUser;
+    }
+
+    public static PasswordInfo toPasswordInfo(AuthPassword password) {
+        PasswordInfo passwordInfo = new PasswordInfo();
+        passwordInfo.setId(password.getUserId().toString());
+        passwordInfo.setPassword(password.getPasswordValue());
+        passwordInfo.setPasswordSalt(password.getPasswordSalt());
+        passwordInfo.setPasswordType(PasswordTypeEnum.valueOf(password.getPasswordType()).name());
+        passwordInfo.setPasswordStatus(PasswordStatusEnum.valueOf(password.getStatus()).name());
+        password.setCreateTime(password.getCreateTime());
+        return passwordInfo;
     }
 
     public static AuthRole toAuthRole(RoleInfo role) {

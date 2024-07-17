@@ -13,6 +13,7 @@ import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.config.api.ITokenStorage;
 import com.soonsoft.uranus.security.config.api.ITokenStrategy;
+import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
 
 import org.slf4j.Logger;
@@ -80,7 +81,8 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
 
         try {
             UserInfo userInfo = userManager.getUser(username);
-            JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(userInfo, userInfo.getAuthorities());
+            SecurityUser user = new SecurityUser(userInfo);
+            JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, userInfo.getRoles());
             return jwtAuthenticationToken;
         } catch(Exception e) {
             LOGGER.error("get userInfo by username [" + username + "] failed.", e);
@@ -92,7 +94,7 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
     public void updateRefreshToken(JWTAuthenticationToken jwtAuthenticationToken) {
 
         if(this.tokenStorage != null) {
-            String jti = ((UserInfo) jwtAuthenticationToken.getPrincipal()).getUsername();
+            String jti = ((SecurityUser) jwtAuthenticationToken.getPrincipal()).getUsername();
             this.tokenStorage.set(jti, jwtAuthenticationToken.getRefreshToken());
         }
         

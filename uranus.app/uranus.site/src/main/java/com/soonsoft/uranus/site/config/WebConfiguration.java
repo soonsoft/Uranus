@@ -28,7 +28,6 @@ import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBea
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -75,15 +74,18 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     private void initUserManager(IUserManager userManager) {
-        Set<GrantedAuthority> roles = new HashSet<>();
+        Set<RoleInfo> roles = new HashSet<>();
         roles.add(new RoleInfo("Admin", "管理员"));
         
         List<UserInfo> users = new ArrayList<>();
         String salt = null;
-        UserInfo user = new UserInfo("admin", userManager.encryptPassword("1", salt), roles);
+        String password = "1";
+        UserInfo user = new UserInfo();
+        user.setUserName("admin");
         user.setUserId(UUID.randomUUID().toString());
         user.setNickName("张三");
-        user.setPasswordSalt(salt);
+        user.setRoles(roles);
+        user.setPassword(password, salt);
         user.setCellPhone("139-0099-8877");
         user.setCreateTime(new Date());
         users.add(user);

@@ -7,14 +7,23 @@ public enum UserStatusEnum {
     ;
     
     public final int Value;
-    public final String Name;
+    public final String Remark;
 
-    private UserStatusEnum(int value, String name) {
+    private UserStatusEnum(int value, String remark) {
         this.Value = value;
-        this.Name = name;
+        this.Remark = remark;
     }
 
     public boolean eq(Integer value) {
         return value != null && value.intValue() == Value;
+    }
+
+    public static UserStatusEnum valueOf(int value) {
+        for(UserStatusEnum item : values()) {
+            if(item.Value == value) {
+                return item;
+            }
+        }
+        return DISABLED;
     }
 }

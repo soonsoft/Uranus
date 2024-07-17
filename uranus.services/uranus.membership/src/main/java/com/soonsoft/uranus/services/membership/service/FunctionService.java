@@ -34,7 +34,6 @@ import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthPermission;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,7 +133,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     @Override
     public List<MenuInfo> getMenus(UserInfo user) {
         if (user != null) {
-            Collection<GrantedAuthority> authorities = user.getAuthorities();
+            Collection<RoleInfo> authorities = user.getRoles();
             if (!CollectionUtils.isEmpty(authorities)) {
                 Set<String> userRoles = new HashSet<>();
                 authorities.forEach(i -> userRoles.add(i.getAuthority()));

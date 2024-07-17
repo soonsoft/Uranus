@@ -7,11 +7,11 @@ public enum FunctionStatusEnum {
     ;
     
     public final int Value;
-    public final String Name;
+    public final String Remark;
 
-    private FunctionStatusEnum(int value, String name) {
+    private FunctionStatusEnum(int value, String remark) {
         this.Value = value;
-        this.Name = name;
+        this.Remark = remark;
     }
 
     public boolean eq(Integer value) {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.soonsoft.uranus.core.error.UnsupportedException;
 import com.soonsoft.uranus.security.authentication.IUserManager;
+import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.core.Guard;
 
@@ -28,9 +29,9 @@ public class SimpleUserManager implements IUserManager {
         return passwordEncoder;
     }
 
-    public void add(UserInfo user) {
-        if (user != null) {
-            userStore.put(user.getUsername(), user);
+    public void add(UserInfo userInfo) {
+        if (userInfo != null) {
+            userStore.put(userInfo.getUserName(), userInfo);
         }
     }
 
@@ -55,11 +56,8 @@ public class SimpleUserManager implements IUserManager {
         Guard.notEmpty(username, "username is required.");
         UserInfo user = userStore.get(username);
         if (user != null) {
-            UserInfo copy = new UserInfo(user.getUsername(), user.getPassword(), user.getAuthorities());
-            copy.setCellPhone(user.getCellPhone());
-            copy.setNickName(user.getNickName());
-            copy.setPasswordSalt(user.getPasswordSalt());
-            copy.setCreateTime(user.getCreateTime());
+            UserInfo copy = new UserInfo();
+            user.copy(copy);
             return copy;
         }
         return user;
@@ -115,6 +113,12 @@ public class SimpleUserManager implements IUserManager {
     @Override
     public void findMyPassword(UserInfo user) {
         throw new UnsupportedException();
+    }
+
+    @Override
+    public PasswordInfo getEnabledPassword(String username) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEnabledPassword'");
     }
 
     //#endregion

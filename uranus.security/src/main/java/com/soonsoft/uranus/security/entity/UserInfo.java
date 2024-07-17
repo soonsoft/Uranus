@@ -1,23 +1,13 @@
 package com.soonsoft.uranus.security.entity;
 
-import java.util.Collection;
+
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
-
-import com.soonsoft.uranus.core.common.lang.StringUtils;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 
 /**
  * 用户信息
  */
-public class UserInfo extends User {
-
-    private static final String EMPTY_PASSWORD = "NoPassword";
-
-    private static final Set<GrantedAuthority> EMPTY_ROLES = new HashSet<>(0);
+public class UserInfo {
 
     /**
      * 用户ID
@@ -25,9 +15,19 @@ public class UserInfo extends User {
     private String userId;
 
     /**
+     * 用户名
+     */
+    private String userName;
+
+    /**
      * 用户昵称
      */
     private String nickName;
+
+    /**
+     * 手机地区码（e.g. 中国：+86）
+     */
+    private String cellPhoneAreaCode;
 
     /**
      * 手机号码
@@ -35,9 +35,14 @@ public class UserInfo extends User {
     private String cellPhone;
 
     /**
-     * 密码盐值
+     * 邮箱
      */
-    private String passwordSalt;
+    private String email;
+
+    /**
+     * 用户状态（Enabled, Disabled, Locked, Expired）
+     */
+    private String status;
 
     /**
      * 创建时间
@@ -45,117 +50,114 @@ public class UserInfo extends User {
     private Date createTime;
 
     /**
+     * 用户密码
+     */
+    private PasswordInfo passwordInfo;
+
+    /**
+     * 用户拥有的角色
+     */
+    private Set<RoleInfo> roles;
+
+    /**
      * 用户拥有的特权
      */
     private Set<PrivilegeInfo> privileges;
 
-    public UserInfo(String username) {
-        this(username, EMPTY_PASSWORD);
-    }
 
-    public UserInfo(String username, String password) {
-        this(username, password, EMPTY_ROLES);
-    }
-
-    public UserInfo(String username, String password, Collection<GrantedAuthority> roles) {
-        super(username, 
-            StringUtils.isEmpty(password) ? EMPTY_PASSWORD : password, 
-            roles == null ? EMPTY_ROLES : roles);
-    }
-
-    public UserInfo(String username, String password, boolean enabled,
-			boolean accountNonExpired, boolean credentialsNonExpired,
-			boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-    }
-
-    /**
-     * @return the userId
-     */
     public String getUserId() {
         return userId;
     }
-
-    /**
-     * @param userId the userId to set
-     */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    /**
-     * @return the nickName
-     */
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public String getNickName() {
         return nickName;
     }
-
-    /**
-     * @param nickName the nickName to set
-     */
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }
 
-    /**
-     * @return the cellPhone
-     */
+    public String getCellPhoneAreaCode() {
+        return cellPhoneAreaCode;
+    }
+    public void setCellPhoneAreaCode(String cellPhoneAreaCode) {
+        this.cellPhoneAreaCode = cellPhoneAreaCode;
+    }
+
     public String getCellPhone() {
         return cellPhone;
     }
-
-    /**
-     * @param cellPhone the cellPhone to set
-     */
     public void setCellPhone(String cellPhone) {
         this.cellPhone = cellPhone;
     }
 
-    /**
-     * @return the passwordSalt
-     */
-    public String getPasswordSalt() {
-        return passwordSalt;
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    /**
-     * @param passwordSalt the passwordSalt to set
-     */
-    public void setPasswordSalt(String passwordSalt) {
-        this.passwordSalt = passwordSalt;
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    /**
-     * @return the createTime
-     */
     public Date getCreateTime() {
         return createTime;
     }
-
-    /**
-     * @param createTime the createTime to set
-     */
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public PasswordInfo getPasswordInfo() {
+        return passwordInfo;
+    }
+    public void setPasswordInfo(PasswordInfo passwordInfo) {
+        this.passwordInfo = passwordInfo;
+    }
+    public void setPassword(String password, String passwordSalt) {
+        this.passwordInfo = new PasswordInfo();
+        this.passwordInfo.setPassword(password);
+        this.passwordInfo.setPasswordSalt(passwordSalt);
     }
 
     public Set<PrivilegeInfo> getPrivileges() {
         return privileges;
     }
-
     public void setPrivileges(Set<PrivilegeInfo> privileges) {
         this.privileges = privileges;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString()).append("; ");
-        sb.append("cellPhone: ").append(this.cellPhone).append("; ");
-        sb.append("createTime: ").append(this.createTime).append("; ");
-        sb.append("nickName: ").append(this.nickName).append("; ");
-        sb.append("passwordSalt: ").append("[PROTECTED]");
-        return sb.toString();
+    public Set<RoleInfo> getRoles() {
+        return roles;
+    }
+    public void setRoles(Set<RoleInfo> roles) {
+        this.roles = roles;
+    }
+
+    public void copy(UserInfo dist) {
+        dist.setUserId(this.getUserId());
+        dist.setUserName(this.getUserName());
+        dist.setCellPhoneAreaCode(this.getCellPhoneAreaCode());
+        dist.setCellPhone(this.getCellPhone());
+        dist.setEmail(this.getEmail());
+        dist.setNickName(this.getNickName());
+        dist.setStatus(this.getStatus());
+        dist.setCreateTime(this.getCreateTime());
+        dist.setRoles(this.getRoles());
+        dist.setPrivileges(this.getPrivileges());
     }
     
 }

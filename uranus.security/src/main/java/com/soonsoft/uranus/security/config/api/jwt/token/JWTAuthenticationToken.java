@@ -14,7 +14,7 @@ import com.auth0.jwt.impl.PublicClaims;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.entity.RoleInfo;
-import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.SecurityUser;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,11 +53,10 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         header.put(PublicClaims.TYPE, "JWT");
         header.put(PublicClaims.ALGORITHM, algorithm.getName());
 
-        UserInfo userInfo = (UserInfo) getPrincipal();
-        Collection<GrantedAuthority> authorities = userInfo.getAuthorities();
+        SecurityUser userInfo = (SecurityUser) getPrincipal();
         List<String> roles = null;
-        if(authorities != null) {
-            roles = authorities.stream().map(i -> i.getAuthority()).collect(Collectors.toList());
+        if(userInfo.getAuthorities() != null) {
+            roles = userInfo.getAuthorities().stream().map(i -> i.getAuthority()).collect(Collectors.toList());
         }
         
         String token = JWT.create()
@@ -79,7 +78,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         header.put(PublicClaims.TYPE, "JWT");
         header.put(PublicClaims.ALGORITHM, algorithm.getName());
 
-        UserInfo userInfo = (UserInfo) getPrincipal();
+        SecurityUser userInfo = (SecurityUser) getPrincipal();
         
         String token = JWT.create()
             .withIssuedAt(issuedTime)
@@ -151,7 +150,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         }
             
         String username = jwt.getClaim("username").asString();
-        UserInfo userInfo = new UserInfo(username);
+        SecurityUser userInfo = new SecurityUser(username);
         List<String> roles = jwt.getClaim("roles").asList(String.class);
         Collection<GrantedAuthority> authorities = null;
         if(roles != null) {

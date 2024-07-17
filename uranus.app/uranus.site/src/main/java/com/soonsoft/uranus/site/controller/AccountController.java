@@ -51,11 +51,8 @@ public class AccountController extends BaseController {
         Guard.notEmpty(newPassword, "the newPassword is required.");
 
         try {
-            String username = getCurrentUser().getUsername();
             IUserManager userManager = SecurityManager.current().getUserManager();
-            UserInfo user = new UserInfo(username, newPassword);
-
-            userManager.changeMyPassword(user);
+            userManager.changeMyPassword(getCurrentUser());
         } catch(Exception e) {
             throw new WebActionException("更新密码失败。", e);
         }

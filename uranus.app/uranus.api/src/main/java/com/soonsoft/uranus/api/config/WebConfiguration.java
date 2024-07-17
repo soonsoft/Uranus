@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.Filter;
 import javax.servlet.ServletRequest;
@@ -43,7 +44,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -146,14 +146,18 @@ public class WebConfiguration implements WebMvcConfigurer {
     //#region 测试数据
 
     private void initUserManager(IUserManager userManager) {
-        Set<GrantedAuthority> roles = new HashSet<>();
+        Set<RoleInfo> roles = new HashSet<>();
         roles.add(new RoleInfo("Admin", "管理员"));
         
         List<UserInfo> users = new ArrayList<>();
         String salt = null;
-        UserInfo user = new UserInfo("admin", userManager.encryptPassword("1", salt), roles);
+        String password = "1";
+        UserInfo user = new UserInfo();
+        user.setUserName("admin");
+        user.setUserId(UUID.randomUUID().toString());
         user.setNickName("张三");
-        user.setPasswordSalt(salt);
+        user.setRoles(roles);
+        user.setPassword(password, salt);
         user.setCellPhone("139-0099-8877");
         user.setCreateTime(new Date());
         users.add(user);

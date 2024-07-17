@@ -1,7 +1,6 @@
 package com.soonsoft.uranus.security.simple.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,8 +10,6 @@ import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
-
-import org.springframework.security.core.GrantedAuthority;;
 
 public class SimpleFunctionManager implements IFunctionManager {
 
@@ -41,7 +38,7 @@ public class SimpleFunctionManager implements IFunctionManager {
     @Override
     public List<MenuInfo> getMenus(UserInfo user) {
         if (user != null) {
-            Collection<GrantedAuthority> authorities = user.getAuthorities();
+            Set<RoleInfo> authorities = user.getRoles();
             if (authorities != null && !authorities.isEmpty()) {
                 Set<String> userRoles = new HashSet<>();
                 authorities.forEach(i -> userRoles.add(i.getAuthority()));

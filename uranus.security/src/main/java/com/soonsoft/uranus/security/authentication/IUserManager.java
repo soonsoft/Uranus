@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.security.authentication;
 
+import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.core.Guard;
 
@@ -7,16 +8,18 @@ public interface IUserManager {
 
     UserInfo getUser(String username);
 
-    boolean createUser(UserInfo user);
+    boolean createUser(UserInfo userInfo);
 
     boolean deleteUser(String username);
 
     default boolean deleteUser(UserInfo user) {
         Guard.notNull(user, "the UserInfo is required.");
-        return deleteUser(user.getUsername());
+        return deleteUser(user.getUserName());
     }
 
     boolean disableUser(UserInfo user);
+
+    PasswordInfo getEnabledPassword(String username);
 
     void resetPassword(UserInfo user);
 

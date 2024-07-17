@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.site.controller.base;
 
 import com.soonsoft.uranus.security.SecurityManager;
-import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.web.mvc.controller.AbstractController;
 
 /**
@@ -9,7 +9,7 @@ import com.soonsoft.uranus.web.mvc.controller.AbstractController;
  */
 public abstract class BaseController extends AbstractController {
 
-    public UserInfo getCurrentUser() {
+    public SecurityUser getCurrentUser() {
         return SecurityManager.current().getCurrentUser();
     }
     

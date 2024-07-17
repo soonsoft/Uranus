@@ -6,14 +6,23 @@ public enum PasswordStatusEnum {
     ;
     
     public final int Value;
-    public final String Name;
+    public final String Remark;
 
-    private PasswordStatusEnum(int value, String name) {
+    private PasswordStatusEnum(int value, String remark) {
         this.Value = value;
-        this.Name = name;
+        this.Remark = remark;
     }
 
     public boolean eq(Integer value) {
         return value != null && value.intValue() == Value;
+    }
+
+    public static PasswordStatusEnum valueOf(int value) {
+        for(PasswordStatusEnum item : values()) {
+            if(item.Value == value) {
+                return item;
+            }
+        }
+        return DISABLED;
     }
 }
