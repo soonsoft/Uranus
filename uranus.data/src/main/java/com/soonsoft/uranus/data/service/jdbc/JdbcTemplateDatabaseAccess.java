@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.soonsoft.uranus.core.Guard;
-import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.core.model.data.Page;
 import com.soonsoft.uranus.data.paging.IPagingDailect;
 import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 import com.soonsoft.uranus.data.service.DatabaseAccessException;
@@ -168,7 +168,7 @@ public class JdbcTemplateDatabaseAccess extends BaseDatabaseAccess<NamedParamete
                 return ensureGetTemplate().batchUpdate(sql, (Map<String, ?>[]) parameters);
             }
 
-            if(element instanceof SqlParameterSource paramSource) {
+            if(element instanceof SqlParameterSource) {
                 return ensureGetTemplate().batchUpdate(sql, (SqlParameterSource[]) parameters);
             }
 

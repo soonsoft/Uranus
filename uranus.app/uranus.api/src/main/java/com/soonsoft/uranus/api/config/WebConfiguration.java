@@ -28,6 +28,7 @@ import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.StatusConst.UserStatus;
 import com.soonsoft.uranus.security.simple.service.MemoryRefreshTokenStorage;
 import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
 import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
@@ -43,6 +44,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -59,7 +61,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry
             .addInterceptor(new UserInfoInterceptor())
             .addPathPatterns("/**")
@@ -67,8 +69,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-
+    public void addCorsMappings(@NonNull CorsRegistry registry) {
         List<String> exposedHeaders = new ArrayList<>();
         exposedHeaders.add("Access-Control-Allow-Origin");
 
@@ -86,7 +87,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void configureMessageConverters(@NonNull List<HttpMessageConverter<?>> converters) {
         List<HttpMessageConverter<?>> newConverters = new ArrayList<>();
         newConverters.add(new GenericJsonHttpMessageConverter());
         newConverters.addAll(converters);
@@ -151,13 +152,14 @@ public class WebConfiguration implements WebMvcConfigurer {
         
         List<UserInfo> users = new ArrayList<>();
         String salt = null;
-        String password = "1";
+        String password = userManager.encryptPassword("1", salt);
         UserInfo user = new UserInfo();
         user.setUserName("admin");
         user.setUserId(UUID.randomUUID().toString());
         user.setNickName("张三");
         user.setRoles(roles);
         user.setPassword(password, salt);
+        user.setStatus(UserStatus.ENABLED);
         user.setCellPhone("139-0099-8877");
         user.setCreateTime(new Date());
         users.add(user);
@@ -173,7 +175,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     private void initFunctionManager(IFunctionManager functionManager) {
         List<RoleInfo> allowRoles = new ArrayList<>();
-        allowRoles.add(new RoleInfo("Admin"));
+        allowRoles.add(new RoleInfo("Admin", "管理员"));
 
         List<FunctionInfo> functions = new ArrayList<>();
         FunctionInfo function = new FunctionInfo("1", "queryProductList", "/product/list");
@@ -202,7 +204,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         @Override
         public boolean canWrite(
                 @Nullable Type type, 
-                Class<?> clazz, 
+                @Nullable Class<?> clazz, 
                 @Nullable MediaType mediaType) {
 
             return type instanceof Class && CharSequence.class.isAssignableFrom((Class<?>) type) && CharSequence.class.isAssignableFrom(clazz);
@@ -210,7 +212,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 
         @Override
         protected void addDefaultHeaders(
-                HttpHeaders headers, Object t, 
+                @NonNull HttpHeaders headers, 
+                @NonNull Object t, 
                 @Nullable MediaType contentType) throws IOException {
                     
             super.addDefaultHeaders(headers, t, MediaType.APPLICATION_JSON);

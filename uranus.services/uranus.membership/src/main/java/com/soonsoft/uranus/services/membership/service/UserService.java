@@ -2,7 +2,6 @@ package com.soonsoft.uranus.services.membership.service;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,10 +9,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.soonsoft.uranus.core.error.BusinessException;
-import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.core.model.data.IPagingList;
+import com.soonsoft.uranus.core.model.data.Page;
+import com.soonsoft.uranus.core.model.data.PagingList;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.entity.PasswordInfo;
-import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.services.membership.constant.PasswordStatusEnum;
 import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
@@ -31,7 +31,6 @@ import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +72,25 @@ public class UserService implements IUserManager {
     //#region IUserManager methods
 
     @Override
+    public IPagingList<UserInfo> queryUsers(Map<String, Object> params, int pageIndex, int pageSize) {
+        Page page = new Page();
+        page.setPageIndex(pageIndex);
+        page.setPageSize(pageSize);
+
+        List<AuthUser> userList = queryUsers(params, page);
+        List<UserInfo> userInfoList = 
+            userList.stream()
+                .map(u -> Transformer.toUserInfo(u))
+                .toList();
+        
+        PagingList<UserInfo> result = new PagingList<>(userInfoList, page.getTotal());
+        result.setPageIndex(page.getPageIndex());
+        result.setPageSize(page.getPageSize());
+
+        return result;
+    }
+
+    @Override
     public UserInfo getUser(String username) {
         AuthUser authUser = userDAO.getUser(username);
         if(authUser == null) {
@@ -93,25 +111,18 @@ public class UserService implements IUserManager {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createUser(UserInfo userInfo) {
-        Guard.notNull(userInfo, "the UserInfo is required.");
+        Guard.notNull(userInfo, "the parameter [userInfo] is required.");
         
-        AuthUser user = new AuthUser();
-        user.setUserName(userInfo.getUserName());
-        user.setNickName(userInfo.getNickName());
-        user.setCellPhone(userInfo.getCellPhone());
-        user.setStatus(UserStatusEnum.ENABLED.Value);
-        user.setCreateTime(new Date());
-
-        Collection<RoleInfo> roles = userInfo.getRoles();
-        if(!CollectionUtils.isEmpty(roles)) {
-            List<Object> roleIdList = new ArrayList<>(roles.size());
-            for(GrantedAuthority role : roles) {
-                roleIdList.add(role.getAuthority());
-            }
-            user.setRoles(roleIdList);
-        }
-
+        AuthUser user = Transformer.toAuthUser(userInfo);
         return create(user, userInfo.getPasswordInfo().getPassword());
+    }
+
+    @Override
+    public boolean updateUser(UserInfo userInfo) {
+        Guard.notNull(userInfo, "the parameter [userInfo] is required.");
+        
+        AuthUser user = Transformer.toAuthUser(userInfo);
+        return update(user);
     }
 
     @Override

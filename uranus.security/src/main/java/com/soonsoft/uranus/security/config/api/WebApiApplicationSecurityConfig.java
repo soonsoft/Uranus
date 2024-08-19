@@ -15,7 +15,7 @@ import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
 import com.soonsoft.uranus.security.config.api.jwt.JWTConfigurer;
 import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
-import com.soonsoft.uranus.security.entity.SecurityUser;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;

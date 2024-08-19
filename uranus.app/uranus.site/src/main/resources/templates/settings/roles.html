@@ -100,7 +100,7 @@
 
                 function statusFormatter(value) {
                     var tag = null;
-                    if(value === 1) {
+                    if(value === "ENABLED") {
                         tag = $("<span class='state-text state-true' />").text("有效");
                     } else {
                         tag = $("<span class='state-text state-false' />").text("禁用");
@@ -136,8 +136,8 @@
             function createFilterButton() {
                 var filter = $("#filter").filterButton({
                     viewData: [
-                        { text: "有效", value: 1, selected: true },
-                        { text: "禁用", value: 0 }
+                        { text: "有效", value: "ENABLED", selected: true },
+                        { text: "禁用", value: "DISABLED" }
                     ]
                 });
                 filter.selected(function(e) {

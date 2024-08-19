@@ -3,20 +3,21 @@ package com.soonsoft.uranus.site.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.PermitAll;
-
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.core.model.data.IPagingList;
+import com.soonsoft.uranus.core.model.data.PagingList;
 import com.soonsoft.uranus.security.SecurityManager;
-import com.soonsoft.uranus.services.membership.po.AuthRole;
-import com.soonsoft.uranus.services.membership.po.AuthUser;
-import com.soonsoft.uranus.services.membership.po.SysMenu;
-import com.soonsoft.uranus.services.membership.service.FunctionService;
-import com.soonsoft.uranus.services.membership.service.RoleService;
-import com.soonsoft.uranus.services.membership.service.UserService;
+import com.soonsoft.uranus.security.authentication.IUserManager;
+import com.soonsoft.uranus.security.authorization.IFunctionManager;
+import com.soonsoft.uranus.security.authorization.IRoleManager;
+import com.soonsoft.uranus.security.entity.PrivilegeInfo;
+import com.soonsoft.uranus.security.entity.RoleInfo;
+import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.StatusConst.ResourceType;
+import com.soonsoft.uranus.services.membership.constant.RoleStatusEnum;
+import com.soonsoft.uranus.services.membership.constant.UserStatusEnum;
 import com.soonsoft.uranus.site.controller.base.BaseController;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
 import com.soonsoft.uranus.web.mvc.model.RequestData;
@@ -35,16 +36,16 @@ public class SettingsController extends BaseController {
 
     private String defaultPassword = "1";
 
-    private UserService getUserService() {
-        return (UserService) SecurityManager.current().getUserManager();
+    private IUserManager getUserService() {
+        return SecurityManager.current().getUserManager();
     }
 
-    private RoleService getRoleService() {
-        return (RoleService) SecurityManager.current().getRoleManager();
+    private IRoleManager getRoleService() {
+        return SecurityManager.current().getRoleManager();
     }
 
-    private FunctionService getFunctionService() {
-        return (FunctionService) SecurityManager.current().getFunctionManager();
+    private IFunctionManager getFunctionService() {
+        return SecurityManager.current().getFunctionManager();
     }
 
     //#region 用户管理
@@ -59,46 +60,49 @@ public class SettingsController extends BaseController {
     public View queryUsers(@RequestBody RequestData parameter) {
         Map<String, Object> params = new HashMap<>();
         params.put("userName", parameter.get("userName"));
-        params.put("status", parameter.getInteger("status"));
+        params.put("status", parameter.get("status"));
 
-        Page page = new Page(
-            parameter.getInteger("pageIndex"), 
-            parameter.getInteger("pageSize"));
+        int pageIndex = parameter.getInteger("pageIndex", 1);
+        int pageSize = parameter.getInteger("pageSize", 10);
 
-        List<AuthUser> users = getUserService().queryUsers(params, page);
-        return json(JsonResult.create(users, page.getTotal()));
+        IPagingList<UserInfo> users = getUserService().queryUsers(params, pageIndex, pageSize);
+        return json(JsonResult.create(users, users.getPageTotal()));
     }
 
     @RequestMapping(value = "/settings/users/save", method = RequestMethod.POST)
     public View saveUser(@RequestBody RequestData parameter) {
-        AuthUser user = new AuthUser();
-        user.setUserId(parameter.getUUID("userId"));
+        UserInfo user = new UserInfo();
+        user.setUserId(parameter.get("userId"));
         user.setUserName(parameter.get("userName"));
         user.setNickName(parameter.get("nickName"));
-        user.setNickName(parameter.get("cellPhone"));
+        user.setCellPhone(parameter.get("cellPhone"));
         user.setEmail(parameter.get("email"));
-        user.setStatus(parameter.getInteger("status"));
+        user.setStatus(UserStatusEnum.valueOf(parameter.getInteger("status")).name());
         user.setCreateTime(parameter.getJsonDate("createTime"));
+
 
         List<Object> roles = parameter.getObject("roles");
         if(roles != null) {
-            user.setRoles(roles.stream().map(i -> UUID.fromString((String) i)).collect(Collectors.toList()));
+            user.setRoles(roles.stream().map(i -> new RoleInfo((String) i, null)).collect(Collectors.toSet()));
         }
 
-        List<Object> functions = parameter.getObject("functions");
-        if(functions != null) {
-            user.setFunctions(functions.stream().map(i -> UUID.fromString((String) i)).collect(Collectors.toList()));
+        List<Object> privileges = parameter.getObject("privileges");
+        if(privileges != null) {
+            user.setPrivileges(
+                privileges.stream()
+                    .map(i -> new PrivilegeInfo(user.getUserId(), (String) i))
+                    .collect(Collectors.toSet()));
         }
 
-        UserService userService = getUserService();
         if(user.getUserId() == null) {
             String passwordValue = parameter.get("password");
             if(StringUtils.isBlank(passwordValue)) {
                 passwordValue = defaultPassword;
             }
-            userService.create(user, passwordValue);
+            user.setPassword(passwordValue, null);
+            getUserService().createUser(user);
         } else {
-            userService.update(user);
+            getUserService().updateUser(user);
         }
 
         return json(JsonResult.getTrue());
@@ -117,29 +121,28 @@ public class SettingsController extends BaseController {
     public View queryRoles(@RequestBody RequestData parameter) {
         Map<String, Object> params = new HashMap<>();
         params.put("roleName", parameter.get("roleName"));
-        params.put("status", parameter.getInteger("status"));
+        params.put("status", parameter.get("status"));
 
-        Page page = new Page(
-            parameter.getInteger("pageIndex"), 
-            parameter.getInteger("pageSize"));
+        int pageIndex = parameter.getInteger("pageIndex", 1);
+        int pageSize = parameter.getInteger("pageSize", 10);
 
-        List<AuthRole> roles = getRoleService().queryRoles(params, page);
-        return json(JsonResult.create(roles, page.getTotal()));
+        PagingList<RoleInfo> roles = (PagingList<RoleInfo>) getRoleService().queryRoles(params, pageIndex, pageSize);
+        return json(JsonResult.create(roles, roles.getPageTotal()));
     }
 
     @RequestMapping(value = "/settings/roles/save", method = RequestMethod.POST)
     public View saveRole(@RequestBody RequestData parameter) {
-        AuthRole role = new AuthRole();
-        role.setRoleId(parameter.getUUID("roleId"));
+        RoleInfo role = new RoleInfo();
+        role.setRoleCode(parameter.get("roleId"));
         role.setRoleName(parameter.get("roleName"));
-        role.setStatus(parameter.getInteger("status"));
+        role.setRoleStatus(RoleStatusEnum.valueOf(parameter.getInteger("status")).name());
         role.setDescription(parameter.get("description"));
         List<Object> menus = parameter.getObject("menus");
         if(menus != null) {
-            role.setMenus(menus.stream().map(i -> UUID.fromString((String) i)).collect(Collectors.toList()));
+            role.setResourceCodeList(menus.stream().map(i -> (String) i).collect(Collectors.toList()));
         }
 
-        if(role.getRoleId() == null) {
+        if(role.getRoleCode() == null) {
             getRoleService().createRole(role);
         } else {
             getRoleService().updateRole(role);
@@ -159,9 +162,7 @@ public class SettingsController extends BaseController {
 
     @RequestMapping(value = "/settings/menus/query", method = RequestMethod.POST)
     public View queryMenus() {
-        Map<String, Object> params = new HashMap<>();
-        List<SysMenu> menus = getFunctionService().getAllMenus(params);
-
+        List<?> menus = getFunctionService().queryFunctions(null, ResourceType.MENU);
         return json(menus);
     }
 

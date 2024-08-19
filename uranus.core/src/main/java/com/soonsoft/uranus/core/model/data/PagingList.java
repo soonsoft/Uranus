@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.entity;
+package com.soonsoft.uranus.core.model.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class PagingList<T> implements List<T> {
+public class PagingList<T> implements IPagingList<T> {
 
     private final List<T> originalList;
 
@@ -149,10 +149,12 @@ public class PagingList<T> implements List<T> {
         return originalList.toString();
     }
 
+    @Override
     public Integer getPageTotal() {
         return this.pageTotal;
     }
 
+    @Override
     public Integer getPageIndex() {
         return pageIndex;
     }
@@ -161,6 +163,7 @@ public class PagingList<T> implements List<T> {
         this.pageIndex = pageIndex;
     }
 
+    @Override
     public Integer getPageSize() {
         return pageSize;
     }

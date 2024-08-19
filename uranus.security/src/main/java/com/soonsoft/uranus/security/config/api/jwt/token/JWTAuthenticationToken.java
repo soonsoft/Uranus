@@ -13,8 +13,8 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.impl.PublicClaims;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.security.entity.RoleInfo;
-import com.soonsoft.uranus.security.entity.SecurityUser;
+import com.soonsoft.uranus.security.entity.security.SecurityRole;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -154,7 +154,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
         List<String> roles = jwt.getClaim("roles").asList(String.class);
         Collection<GrantedAuthority> authorities = null;
         if(roles != null) {
-            authorities = roles.stream().map(i -> new RoleInfo(i)).collect(Collectors.toList());
+            authorities = roles.stream().map(i -> new SecurityRole(i)).collect(Collectors.toList());
         }
 
         JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(userInfo, authorities);

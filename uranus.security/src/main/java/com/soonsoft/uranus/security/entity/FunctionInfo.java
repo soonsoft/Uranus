@@ -6,14 +6,11 @@ import java.util.List;
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.authorization.IResource;
+import com.soonsoft.uranus.security.entity.StatusConst.ResourceStatus;
+import com.soonsoft.uranus.security.entity.StatusConst.ResourceType;
 
-/**
- * 功能信息
- */
-public class FunctionInfo implements IResource {
 
-    public final static String MENU_TYPE = "menu";
-    public final static String ACTION_TYPE = "action";
+public class FunctionInfo implements IResource<String> {
 
     private String resourceCode;
 
@@ -23,13 +20,15 @@ public class FunctionInfo implements IResource {
 
     private String url;
 
-    private boolean enabled;
+    private String functionStatus;
 
-    private String type = ACTION_TYPE;
+    private String type = ResourceType.ACTION;
+
+    private String description;
 
     private List<String> allowUsers;
 
-    private List<RoleInfo> allowRoles;
+    private List<String> allowRoles;
 
     public FunctionInfo(String resourceCode, String name) {
         this(resourceCode, name, null);
@@ -47,6 +46,10 @@ public class FunctionInfo implements IResource {
     @Override
     public String getResourceCode() {
         return resourceCode;
+    }
+
+    public void setResourceCode(String resourceCode) {
+        this.resourceCode = resourceCode;
     }
 
     @Override
@@ -76,14 +79,18 @@ public class FunctionInfo implements IResource {
 
     public void setUrl(String url) {
         this.url = url;
-    }    
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public boolean isEnabled() {
+        return ResourceStatus.ENABLED.equals(functionStatus);
+    }
+
+    public String getFunctionStatus() {
+        return functionStatus;
+    }
+
+    public void setFunctionStatus(String functionStatus) {
+        this.functionStatus = functionStatus;
     }
 
     public String getType() {
@@ -94,20 +101,28 @@ public class FunctionInfo implements IResource {
         this.type = type;
     }
 
-    public List<RoleInfo> getAllowRoles() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getAllowRoles() {
         return allowRoles;
     }
 
-    public void setAllowRoles(List<RoleInfo> allowRoles) {
+    public void setAllowRoles(List<String> allowRoles) {
         this.allowRoles = allowRoles;
     }
 
-    public void addAllowRole(RoleInfo role) {
-        Guard.notNull(role, "the parameter role is required.");
+    public void addAllowRole(String roleCode) {
+        Guard.notNull(roleCode, "the parameter [roleCode] is required.");
         if(this.allowRoles == null) {
             this.allowRoles = new ArrayList<>();
         }
-        this.allowRoles.add(role);
+        this.allowRoles.add(roleCode);
     }
 
     public List<String> getAllowUsers() {

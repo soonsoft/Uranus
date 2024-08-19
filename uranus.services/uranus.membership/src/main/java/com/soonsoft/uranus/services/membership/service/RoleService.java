@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
 import com.soonsoft.uranus.security.authorization.event.IRoleChangedListener;
 import com.soonsoft.uranus.security.authorization.event.RoleChangedEvent;
@@ -28,6 +27,9 @@ import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.event.IEventListener;
 import com.soonsoft.uranus.core.common.event.SimpleEventListener;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.core.model.data.IPagingList;
+import com.soonsoft.uranus.core.model.data.Page;
+import com.soonsoft.uranus.core.model.data.PagingList;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
@@ -57,6 +59,21 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
 
     // #region IRoleManager methods
 
+	@Override
+	public IPagingList<RoleInfo> queryRoles(Map<String, Object> params, int pageIndex, int pageSize) {
+        Page page = new Page(pageIndex, pageSize);
+        List<AuthRole> roleList = queryRoles(params, page);
+        List<RoleInfo> result = roleList.stream()
+            .map(r -> Transformer.toSecurityRole(r))
+            .collect(Collectors.toList());
+
+        PagingList<RoleInfo> pagingList = new PagingList<>(result, page.getTotal());
+        pagingList.setPageIndex(page.getPageIndex());
+        pagingList.setPageSize(page.getPageSize());
+
+        return pagingList;
+    }
+
     @Override
     @Transactional
     public boolean createRole(RoleInfo role) {
@@ -70,7 +87,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     @Transactional
     public boolean updateRole(RoleInfo role) {
         Guard.notNull(role, "the RoleInfo is required.");
-        Guard.notEmpty(role.getRole(), "the RoleInfo.role can not be null.");
+        Guard.notEmpty(role.getRoleCode(), "the RoleInfo.role can not be null.");
 
         AuthRole authRole = Transformer.toAuthRole(role);
         return updateRole(authRole);
@@ -96,7 +113,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         }
 
         List<GrantedAuthority> roles = new ArrayList<>(data.size());
-        data.forEach(i -> roles.add(Transformer.toRoleInfo(i)));
+        data.forEach(i -> roles.add(Transformer.toSecurityRole(i)));
         return roles;
     }
 
@@ -117,7 +134,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
                     List<RoleInfo> roles = new ArrayList<>(roleSet.size());
                     for (Object item : roleSet) {
                         if (item != null) {
-                            roles.add(Transformer.toRoleInfo((AuthRole) item));
+                            roles.add(Transformer.toSecurityRole((AuthRole) item));
                         }
                     }
                     result.put(i, roles);
@@ -133,7 +150,6 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     // #endregion
 
     public List<AuthRole> queryRoles(Map<String, Object> params, Page page) {
-
         if (page == null) {
             page = new Page();
         }

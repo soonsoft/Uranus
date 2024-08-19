@@ -1,8 +1,8 @@
 package com.soonsoft.uranus.security.authorization;
 
-public interface IResource {
+public interface IResource<T> {
 
-    String getResourceCode();
+    T getResourceCode();
 
     String getResourceUrl();
     

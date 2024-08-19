@@ -1,13 +1,16 @@
-package com.soonsoft.uranus.security.entity;
+package com.soonsoft.uranus.security.entity.security;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.entity.StatusConst;
+import com.soonsoft.uranus.security.entity.UserInfo;
 
 public class SecurityUser extends UserInfo implements UserDetails {
 
@@ -55,7 +58,17 @@ public class SecurityUser extends UserInfo implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.getRoles();
+        return this.getRoles() == null
+                    ? null
+                    : this.getRoles().stream()
+                        .map(r -> {
+                            if(r instanceof SecurityRole role) {
+                                return role;
+                            } else {
+                                return new SecurityRole(r.getRoleCode(), r.getRoleName());
+                            }
+                        })
+                        .collect(Collectors.toList());
     }
 
     @Override
@@ -80,7 +93,7 @@ public class SecurityUser extends UserInfo implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override

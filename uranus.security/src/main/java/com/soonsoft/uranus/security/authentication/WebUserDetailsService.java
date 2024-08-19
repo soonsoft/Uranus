@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.soonsoft.uranus.security.entity.PasswordInfo;
-import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
 /**
  * WebUserDetailsService

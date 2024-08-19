@@ -2,11 +2,16 @@ package com.soonsoft.uranus.security.simple.service;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.soonsoft.uranus.core.error.UnsupportedException;
+import com.soonsoft.uranus.core.model.data.IPagingList;
+import com.soonsoft.uranus.core.model.data.PagingList;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.StatusConst.RoleStatus;
+import com.soonsoft.uranus.security.entity.StatusConst.UserStatus;
 import com.soonsoft.uranus.core.Guard;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,27 +87,51 @@ public class SimpleUserManager implements IUserManager {
 
     @Override
     public boolean createUser(UserInfo user) {
-        throw new UnsupportedException();
+        Guard.notNull(user, "the password is required.");
+
+        user.setStatus(RoleStatus.ENABLED);
+        add(user);
+        return true;
+    }
+
+    @Override
+    public boolean updateUser(UserInfo userInfo) {
+        UserInfo old = userStore.get(userInfo.getUserName());
+        if(old == null) {
+            add(userInfo);
+            return true;
+        }
+
+        userInfo.copy(old);
+        return true;
     }
 
     @Override
     public boolean deleteUser(UserInfo user) {
-        throw new UnsupportedException();
+        return userStore.remove(user.getUserName()) != null;
     }
 
     @Override
     public boolean deleteUser(String username) {
-        throw new UnsupportedException();
+        return userStore.remove(username) != null;
     }
 
     @Override
     public boolean disableUser(UserInfo user) {
+        UserInfo userInfo = userStore.get(user.getUserName());
+        if(userInfo != null) {
+            user.setStatus(UserStatus.DISABLED);
+            return true;
+        }
         return false;
     }
 
     @Override
     public void resetPassword(UserInfo user) {
-        throw new UnsupportedException();
+        UserInfo userInfo = userStore.get(user.getUserName());
+        if(userInfo != null) {
+            user.setPassword("1", null);
+        }
     }
 
     @Override
@@ -116,9 +145,25 @@ public class SimpleUserManager implements IUserManager {
     }
 
     @Override
-    public PasswordInfo getEnabledPassword(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEnabledPassword'");
+    public PasswordInfo getEnabledPassword(String userId) {
+        UserInfo userInfo = 
+            userStore.values().stream()
+                .filter(u -> u.getUserId().equals(userId))
+                .findFirst()
+                .orElse(null);
+        if(userInfo != null) {
+            return userInfo.getPasswordInfo();
+        }
+        return null;
+    }
+
+    @Override
+    public IPagingList<UserInfo> queryUsers(Map<String, Object> params, int pageIndex, int pageSize) {
+        List<UserInfo> result = userStore.values().stream().toList();
+        PagingList<UserInfo> pageList = new PagingList<>(result);
+        pageList.setPageIndex(pageIndex);
+        pageList.setPageSize(pageSize);
+        return pageList;
     }
 
     //#endregion

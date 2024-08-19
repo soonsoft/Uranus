@@ -1,6 +1,8 @@
 package com.soonsoft.uranus.security.config.api.jwt.token;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,8 +15,9 @@ import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.config.api.ITokenStorage;
 import com.soonsoft.uranus.security.config.api.ITokenStrategy;
-import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityRole;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +85,11 @@ public class JWTSimpleTokenStrategy implements ITokenStrategy<JWTAuthenticationT
         try {
             UserInfo userInfo = userManager.getUser(username);
             SecurityUser user = new SecurityUser(userInfo);
-            JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, userInfo.getRoles());
+            List<SecurityRole> roles = 
+                userInfo.getRoles().stream()
+                    .map(r -> new SecurityRole(r.getRoleCode()))
+                    .collect(Collectors.toList());
+            JWTAuthenticationToken jwtAuthenticationToken = new JWTAuthenticationToken(user, roles);
             return jwtAuthenticationToken;
         } catch(Exception e) {
             LOGGER.error("get userInfo by username [" + username + "] failed.", e);

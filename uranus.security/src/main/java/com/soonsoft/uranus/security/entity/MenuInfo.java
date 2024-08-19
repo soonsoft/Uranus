@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.security.entity;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.entity.StatusConst.ResourceType;
 
 /**
  * 菜单信息
@@ -11,7 +12,7 @@ public class MenuInfo extends FunctionInfo {
 
     public MenuInfo(String resourceCode, String menuName, String url) {
         super(resourceCode, menuName, url);
-        setType(MENU_TYPE);
+        setType(ResourceType.MENU);
     }
 
     /**

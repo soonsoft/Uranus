@@ -9,9 +9,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.security.entity.FunctionInfo;
-import com.soonsoft.uranus.security.entity.PermissionInfo;
-import com.soonsoft.uranus.security.entity.PrivilegeInfo;
-import com.soonsoft.uranus.security.entity.RoleInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityPermission;
+import com.soonsoft.uranus.security.entity.security.SecurityPrivilege;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
@@ -48,17 +47,18 @@ public class WebSecurityMetadataSource implements SecurityMetadataSource {
                     menuMap.put(url, attributes);
                 }
 
+                final String resourceCode = function.getResourceCode();
                 final Collection<ConfigAttribute> attributeSet = attributes;
                 // add Privilege
                 List<String> users = function.getAllowUsers();
                 if(users != null && !users.isEmpty()) {
-                    users.forEach(uid -> attributeSet.add(new PrivilegeInfo(uid)));
+                    users.forEach(uid -> attributeSet.add(new SecurityPrivilege(uid, resourceCode)));
                 }
 
                 // add Premission
-                List<RoleInfo> roles = function.getAllowRoles();
+                List<String> roles = function.getAllowRoles();
                 if(roles != null && !roles.isEmpty()) {
-                    roles.forEach(role -> attributeSet.add(new PermissionInfo(role.getRole())));
+                    roles.forEach(role -> attributeSet.add(new SecurityPermission(role, resourceCode)));
                 }
             }
         }

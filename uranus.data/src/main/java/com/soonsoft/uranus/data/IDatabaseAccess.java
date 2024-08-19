@@ -3,7 +3,7 @@ package com.soonsoft.uranus.data;
 import java.util.List;
 import java.util.Map;
 
-import com.soonsoft.uranus.data.entity.Page;
+import com.soonsoft.uranus.core.model.data.Page;
 
 public interface IDatabaseAccess<TemplateType> {
 

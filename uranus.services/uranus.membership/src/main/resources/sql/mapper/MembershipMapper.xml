@@ -129,7 +129,13 @@
         LEFT JOIN sys_menu m ON f.function_id = m.function_id
         <trim prefix="where" suffixOverrides="and">
             <if test="status != null">
-                status = #{status, jdbcType=INTEGER} and
+                f.status = #{status, jdbcType=INTEGER} and
+            </if>
+            <if test="typeList != null and typeList.size() > 0">
+                f.type IN
+                <foreach collection="typeList" item="resourceType" index="index" open="(" separator="," close=")">
+                    #{resourceType}
+                </foreach>
             </if>
         </trim>
         ORDER BY f.sort_value

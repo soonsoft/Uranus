@@ -13,6 +13,7 @@ import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.PrivilegeInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityRole;
 import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.constant.FunctionTypeEnum;
 import com.soonsoft.uranus.services.membership.constant.PasswordStatusEnum;
@@ -24,6 +25,7 @@ import com.soonsoft.uranus.services.membership.po.AuthPrivilege;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
 import com.soonsoft.uranus.services.membership.po.SysMenu;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 /**
@@ -31,28 +33,72 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
  */
 public abstract class Transformer {
 
+    //#region Users
+
+    public static UserInfo toUserInfo(AuthUser authUser) {
+        if(authUser == null) {
+            return null;
+        }
+
+        List<AuthRole> roles = null;
+        if(authUser.getRoles() != null) {
+            roles = 
+                authUser.getRoles().stream()
+                    .map(i -> {
+                        AuthRole role = new AuthRole();
+                        role.setRoleId((UUID) i);
+                        return role;
+                    })
+                    .toList();
+        }
+
+        List<AuthPrivilege> privileges = null;
+        if(authUser.getFunctions() != null) {
+            privileges = 
+                authUser.getFunctions().stream()
+                    .map(p -> {
+                        if(p instanceof AuthPrivilege privilege) {
+                            return privilege;
+                        } else {
+                            AuthPrivilege privilege = new AuthPrivilege();
+                            privilege.setFunctionId((UUID) p);
+                            return privilege;
+                        }
+                    })
+                    .toList();
+        }
+
+        return toUserInfo(authUser, null, roles, privileges);
+    }
+
     public static UserInfo toUserInfo(
         AuthUser authUser, 
         AuthPassword password, 
         Collection<AuthRole> roles, 
-        Collection<AuthPrivilege> functions) {
+        Collection<AuthPrivilege> privileges) {
+
+        if(authUser == null) {
+            return null;
+        }
         
         Set<RoleInfo> roleInfoSet = new HashSet<>();
         if(roles != null) {
-            roles.forEach(r -> roleInfoSet.add(toRoleInfo(r)));
+            roles.forEach(r -> roleInfoSet.add(toSecurityRole(r)));
         }
 
         Set<PrivilegeInfo> privilegeSet = new HashSet<>();
-        if(functions != null) {
-            functions.forEach(p -> privilegeSet.add(
-                new MembershipPrivilegeInfo(p.getFunctionId().toString(), p.getFunctionName())));
+        if(privileges != null) {
+            privileges.forEach(p -> privilegeSet.add(toPrivilegeInfo(p)));
         }
 
-        PasswordInfo passwordInfo = new PasswordInfo();
-        passwordInfo.setPassword(password.getPasswordValue());
-        passwordInfo.setPasswordSalt(password.getPasswordSalt());
-        passwordInfo.setPasswordStatus(PasswordStatusEnum.valueOf(password.getStatus()).name());
-        passwordInfo.setPasswordType(PasswordTypeEnum.valueOf(password.getPasswordType()).name());
+        PasswordInfo passwordInfo = null;
+        if(password != null) {
+            passwordInfo = new PasswordInfo();
+            passwordInfo.setPassword(password.getPasswordValue());
+            passwordInfo.setPasswordSalt(password.getPasswordSalt());
+            passwordInfo.setPasswordStatus(PasswordStatusEnum.valueOf(password.getStatus()).name());
+            passwordInfo.setPasswordType(PasswordTypeEnum.valueOf(password.getPasswordType()).name());
+        }
 
         UserInfo user = new UserInfo();
         user.setUserId(authUser.getUserId().toString());
@@ -70,12 +116,30 @@ public abstract class Transformer {
     public static AuthUser toAuthUser(UserInfo userInfo) {
         AuthUser authUser = new AuthUser();
         
-        authUser.setUserId(UUID.fromString(userInfo.getUserId()));
+        if(!StringUtils.isEmpty(userInfo.getUserId())) {
+            authUser.setUserId(UUID.fromString(userInfo.getUserId()));
+        }
         authUser.setUserName(userInfo.getUserName());
         authUser.setNickName(userInfo.getNickName());
         authUser.setStatus(UserStatusEnum.valueOf(userInfo.getStatus()).Value);
         authUser.setCellPhone(userInfo.getCellPhone());
         authUser.setCreateTime(userInfo.getCreateTime());
+
+        if(!CollectionUtils.isEmpty(userInfo.getPrivileges())) {
+            authUser.setFunctions(
+                userInfo.getPrivileges().stream()
+                    .map(p -> (Object) UUID.fromString(p.getResourceCode()))
+                    .toList()
+            );
+        }
+
+        if(!CollectionUtils.isEmpty(userInfo.getRoles())) {
+            authUser.setRoles(
+                userInfo.getRoles().stream()
+                    .map(r -> (Object) UUID.fromString(r.getRoleCode()))
+                    .toList()
+            );
+        }
 
         return authUser;
     }
@@ -91,26 +155,70 @@ public abstract class Transformer {
         return passwordInfo;
     }
 
+    //#endregion
+
+    //#region Privileges
+
+    public static AuthPrivilege toAuthPrivilege(PrivilegeInfo privilegeInfo) {
+        AuthPrivilege privilege = new AuthPrivilege();
+        privilege.setFunctionId(UUID.fromString(privilegeInfo.getResourceCode()));
+        privilege.setFunctionName(privilegeInfo.getResourceName());
+        privilege.setUserId(
+            privilegeInfo.getUserId() != null 
+                ? UUID.fromString(privilegeInfo.getUserId()) 
+                : null);
+        return privilege;
+    }
+
+    public static PrivilegeInfo toPrivilegeInfo(AuthPrivilege authPrivilege) {
+        return new MembershipPrivilegeInfo(
+            authPrivilege.getUserId() != null ? authPrivilege.getUserId().toString() : null, 
+            authPrivilege.getFunctionId() != null ? authPrivilege.getFunctionId().toString() : null, 
+            authPrivilege.getFunctionName());
+    }
+
+    //#endregion
+
+    //#region Roles
+
     public static AuthRole toAuthRole(RoleInfo role) {
         AuthRole authRole = new AuthRole();
-        if(StringUtils.isEmpty(role.getRole()) 
-            || StringUtils.equals(MembershipRole.EMPTY_ROLE, role.getRole())) {
+        if(StringUtils.isEmpty(role.getRoleCode()) 
+            || StringUtils.equals(MembershipRole.EMPTY_ROLE, role.getRoleCode())) {
             authRole.setRoleId(UUID.randomUUID());
         } else {
-            authRole.setRoleId(UUID.fromString(role.getRole()));
+            authRole.setRoleId(UUID.fromString(role.getRoleCode()));
         }
         authRole.setRoleName(role.getRoleName());
         authRole.setDescription(role.getDescription());
-        authRole.setStatus(role.isEnable() ? RoleStatusEnum.ENABLED.Value : RoleStatusEnum.DISABLED.Value);
+        authRole.setStatus(RoleStatusEnum.valueOf(role.getRoleStatus()).Value);
+        
+        if(!CollectionUtils.isEmpty(role.getResourceCodeList())) {
+            authRole.setMenus(
+                role.getResourceCodeList().stream()
+                    .map(i -> (Object) UUID.fromString(i))
+                    .toList());
+        }
+        
         return authRole;
     }
 
-    public static RoleInfo toRoleInfo(AuthRole authRole) {
+    public static SecurityRole toSecurityRole(AuthRole authRole) {
         MembershipRole role = new MembershipRole(authRole.getRoleId().toString(), authRole.getRoleName());
         role.setDescription(authRole.getDescription());
-        role.setEnable(RoleStatusEnum.ENABLED.eq(authRole.getStatus()));
+        role.setRoleStatus(RoleStatusEnum.valueOf(authRole.getStatus()).name());
+        
+        if(!CollectionUtils.isEmpty(authRole.getMenus())) {
+            role.setResourceCodeList(
+                authRole.getMenus().stream().map(i -> i.toString()).toList());
+        }
+        
         return role;
     }
+
+    //#endregion
+
+    //#region Functions
 
     public static FunctionInfo toFunctionInfo(SysMenu sysMenu) {
         FunctionInfo functionInfo = null;
@@ -119,7 +227,7 @@ public abstract class Transformer {
             MenuInfo menu = new MenuInfo(
                 sysMenu.getFunctionId().toString(), sysMenu.getFunctionName(), sysMenu.getUrl());
             menu.setParentResourceCode(sysMenu.getParentId().toString());
-            menu.setEnabled(FunctionStatusEnum.ENABLED.eq(sysMenu.getStatus()));
+            menu.setFunctionStatus(FunctionStatusEnum.valueOf(sysMenu.getStatus()).name());
             menu.setIcon(sysMenu.getIcon());
 
             functionInfo = menu;
@@ -130,10 +238,10 @@ public abstract class Transformer {
 
         Collection<AuthRole> roles = sysMenu.getRoles();
         if(roles != null) {
-            List<RoleInfo> roleList = new ArrayList<>(roles.size());
-            for(Object item : roles) {
+            List<String> roleList = new ArrayList<>(roles.size());
+            for(AuthRole item : roles) {
                 if(item != null) {
-                    roleList.add(toRoleInfo((AuthRole) item));
+                    roleList.add(item.getRoleId().toString());
                 }
             }
             functionInfo.setAllowRoles(roleList);
@@ -148,4 +256,29 @@ public abstract class Transformer {
 
         return (MenuInfo) toFunctionInfo(sysMenu);
     }
+
+    public static SysMenu toSysMenu(MenuInfo menuInfo) {
+        SysMenu sysMenu = new SysMenu();
+        sysMenu.setFunctionId(UUID.fromString(menuInfo.getResourceCode()));
+        sysMenu.setFunctionName(menuInfo.getName());
+        sysMenu.setDescription(menuInfo.getDescription());
+        sysMenu.setParentId(UUID.fromString(menuInfo.getParentResourceCode()));
+        sysMenu.setType(FunctionTypeEnum.valueOf(menuInfo.getType()).Value);
+        sysMenu.setStatus(FunctionStatusEnum.valueOf(menuInfo.getFunctionStatus()).Value);
+        sysMenu.setUrl(menuInfo.getUrl());
+        sysMenu.setIcon(menuInfo.getIcon());
+
+        if(menuInfo.getAllowRoles() != null) {
+            List<AuthRole> roles = new ArrayList<>(menuInfo.getAllowRoles().size());
+            for(String role : menuInfo.getAllowRoles()) {
+                AuthRole authRole = new AuthRole();
+                authRole.setRoleId(UUID.fromString(role));
+                roles.add(authRole);
+            }
+        }
+
+        return sysMenu;
+    }
+
+    //#endregion
 }

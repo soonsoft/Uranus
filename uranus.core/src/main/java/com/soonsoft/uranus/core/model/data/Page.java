@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.data.entity;
+package com.soonsoft.uranus.core.model.data;
 
 import java.util.ArrayList;
 import java.util.List;

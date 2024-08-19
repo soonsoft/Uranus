@@ -17,5 +17,14 @@ public enum FunctionStatusEnum {
     public boolean eq(Integer value) {
         return value != null && value.intValue() == Value;
     }
+
+    public static FunctionStatusEnum valueOf(int value) {
+        for(FunctionStatusEnum item : values()) {
+            if(item.Value == value) {
+                return item;
+            }
+        }
+        return DISABLED;
+    }
     
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.soonsoft.uranus.security.entity.FunctionInfo;
+import com.soonsoft.uranus.security.entity.StatusConst.ResourceType;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.po.AuthRole;
@@ -46,7 +46,7 @@ public class FunctionServiceTest {
     public void test_createApiFunction() {
         SysMenu apiFunc = new SysMenu();
         apiFunc.setUrl("/account/menus");
-        apiFunc.setType(FunctionInfo.ACTION_TYPE);
+        apiFunc.setType(ResourceType.ACTION);
         apiFunc.setFunctionName("getUserMenus");
         apiFunc.setDescription("查询用户菜单");
         apiFunc.setStatus(FunctionStatusEnum.ENABLED.Value);

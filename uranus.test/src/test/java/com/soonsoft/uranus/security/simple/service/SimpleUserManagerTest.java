@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.security.simple.service;
 
-import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -4,6 +4,8 @@ package com.soonsoft.uranus.security.entity;
 import java.util.Date;
 import java.util.Set;
 
+import com.soonsoft.uranus.security.entity.StatusConst.UserStatus;
+
 /**
  * 用户信息
  */
@@ -42,7 +44,7 @@ public class UserInfo {
     /**
      * 用户状态（Enabled, Disabled, Locked, Expired）
      */
-    private String status;
+    private String status = UserStatus.ENABLED;
 
     /**
      * 创建时间
@@ -154,6 +156,7 @@ public class UserInfo {
         dist.setCellPhone(this.getCellPhone());
         dist.setEmail(this.getEmail());
         dist.setNickName(this.getNickName());
+        dist.setPasswordInfo(this.getPasswordInfo());
         dist.setStatus(this.getStatus());
         dist.setCreateTime(this.getCreateTime());
         dist.setRoles(this.getRoles());

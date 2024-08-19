@@ -24,6 +24,6 @@ public enum RoleStatusEnum {
                 return item;
             }
         }
-        return null;
+        return DISABLED;
     }
 }

@@ -3,6 +3,7 @@ package com.soonsoft.uranus.security.simple.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
@@ -41,14 +42,14 @@ public class SimpleFunctionManager implements IFunctionManager {
             Set<RoleInfo> authorities = user.getRoles();
             if (authorities != null && !authorities.isEmpty()) {
                 Set<String> userRoles = new HashSet<>();
-                authorities.forEach(i -> userRoles.add(i.getAuthority()));
+                authorities.forEach(i -> userRoles.add(i.getRoleCode()));
 
                 List<MenuInfo> menus = getEnabledMenus();
                 List<MenuInfo> userMenus = new ArrayList<>(menus.size());
                 for (MenuInfo menu : menus) {
-                    List<RoleInfo> roles = menu.getAllowRoles();
-                    for (RoleInfo role : roles) {
-                        if (userRoles.contains(role.getAuthority())) {
+                    List<String> roles = menu.getAllowRoles();
+                    for (String roleCode : roles) {
+                        if (userRoles.contains(roleCode)) {
                             userMenus.add(menu);
                             break;
                         }
@@ -58,6 +59,29 @@ public class SimpleFunctionManager implements IFunctionManager {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<? extends FunctionInfo> queryFunctions(String status, String... resourceTypes) {
+        return this.functions;
+    }
+
+    @Override
+    public List<MenuInfo> queryMenus(Map<String, Object> params) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'queryMenus'");
+    }
+
+    @Override
+    public boolean createMenu(MenuInfo menu) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createMenu'");
+    }
+
+    @Override
+    public boolean updateMenu(MenuInfo menu) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateMenu'");
     }
 
     

@@ -2,8 +2,8 @@ package com.soonsoft.uranus.services.membership.service;
 
 import java.util.Date;
 
-import com.soonsoft.uranus.security.entity.SecurityUser;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import org.junit.Assert;
 import org.junit.Test;

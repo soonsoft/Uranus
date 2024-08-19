@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.entity;
+package com.soonsoft.uranus.security.entity.security;
 
 /**
  * 匿名用户

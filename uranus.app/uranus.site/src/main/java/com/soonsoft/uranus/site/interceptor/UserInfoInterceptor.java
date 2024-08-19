@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.security.SecurityManager;
 import com.soonsoft.uranus.security.entity.RoleInfo;
-import com.soonsoft.uranus.security.entity.SecurityUser;
+import com.soonsoft.uranus.security.entity.security.SecurityUser;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.web.util.HttpRequestUtils;

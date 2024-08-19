@@ -23,4 +23,17 @@ public interface StatusConst {
         String ENABLED = "ENABLED";
         String DISABLED = "DISABLED";
     }
+
+    public interface ResourceStatus {
+        String ENABLED = "ENABLED";
+        String DISABLED = "DISABLED";
+    }
+
+    public interface ResourceType {
+        String WEB_API = "WEB_API";
+        String PAGE = "PAGE";
+        String ACTION = "ACTION";
+        String MENU = "MENU";
+        String FILE = "FILE";
+    }
 }

@@ -2,13 +2,21 @@ package com.soonsoft.uranus.security.authentication;
 
 import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+
+import java.util.Map;
+
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.model.data.IPagingList;
 
 public interface IUserManager {
+
+    IPagingList<UserInfo> queryUsers(Map<String, Object> params, int pageIndex, int pageSize);
 
     UserInfo getUser(String username);
 
     boolean createUser(UserInfo userInfo);
+
+    boolean updateUser(UserInfo userInfo);
 
     boolean deleteUser(String username);
 
@@ -19,7 +27,7 @@ public interface IUserManager {
 
     boolean disableUser(UserInfo user);
 
-    PasswordInfo getEnabledPassword(String username);
+    PasswordInfo getEnabledPassword(String userId);
 
     void resetPassword(UserInfo user);
 

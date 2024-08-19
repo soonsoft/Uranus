@@ -7,9 +7,9 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import com.soonsoft.uranus.core.model.data.Page;
 import com.soonsoft.uranus.data.config.DataSourceFactory;
 import com.soonsoft.uranus.data.config.factorybean.JdbcTemplateDatabaseAccessFactory;
-import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.data.service.jdbc.JdbcSqlParameter;
 import com.soonsoft.uranus.data.service.jdbc.JdbcTemplateDatabaseAccess;
 import com.soonsoft.uranus.services.membership.config.MembershipDataSourceProperty;

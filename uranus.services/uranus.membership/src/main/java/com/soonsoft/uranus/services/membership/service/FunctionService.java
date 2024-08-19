@@ -25,6 +25,7 @@ import com.soonsoft.uranus.security.entity.FunctionInfo;
 import com.soonsoft.uranus.security.entity.MenuInfo;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
+import com.soonsoft.uranus.security.entity.StatusConst.ResourceType;
 import com.soonsoft.uranus.services.membership.constant.FunctionStatusEnum;
 import com.soonsoft.uranus.services.membership.dao.AuthPermissionDAO;
 import com.soonsoft.uranus.services.membership.dao.SysFunctionDAO;
@@ -89,7 +90,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     // #region IFunctionManager methods
 
     @Override
-    public List<? extends FunctionInfo> getEnabledFunctions() {
+    public List<FunctionInfo> queryFunctions(String status, String... resourceTypes) {
         if (functionStore != null) {
             List<String> mySequence = this.sequence;
             if (mySequence != null) {
@@ -109,9 +110,11 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
         Map<String, Object> params = MapUtils.createHashMap(1);
         params.put("status", FunctionStatusEnum.ENABLED.Value);
+        params.put("typeList", CollectionUtils.createArrayList(resourceTypes));
+        
         List<SysMenu> menus = getAllMenus(params);
-        List<FunctionInfo> records = new ArrayList<>(menus.size());
 
+        List<FunctionInfo> records = new ArrayList<>(menus.size());
         if (functionStore != null && !CollectionUtils.isEmpty(menus)) {
             Map<String, FunctionInfo> cacheValue = MapUtils.createHashMap(menus.size());
             List<String> sequence = new ArrayList<>(menus.size());
@@ -136,14 +139,14 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
             Collection<RoleInfo> authorities = user.getRoles();
             if (!CollectionUtils.isEmpty(authorities)) {
                 Set<String> userRoles = new HashSet<>();
-                authorities.forEach(i -> userRoles.add(i.getAuthority()));
+                authorities.forEach(i -> userRoles.add(i.getRoleCode()));
 
                 List<MenuInfo> menus = getEnabledMenus();
                 List<MenuInfo> userMenus = new ArrayList<>(menus.size());
                 for (MenuInfo menu : menus) {
-                    List<RoleInfo> roles = menu.getAllowRoles();
-                    for (RoleInfo role : roles) {
-                        if (userRoles.contains(role.getAuthority())) {
+                    List<String> roles = menu.getAllowRoles();
+                    for (String roleCode : roles) {
+                        if (userRoles.contains(roleCode)) {
                             userMenus.add(menu);
                             break;
                         }
@@ -153,6 +156,28 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
             }
         }
         return null;
+    }
+
+    @Override
+    public List<MenuInfo> queryMenus(Map<String, Object> params) {
+        List<SysMenu> menuList = getAllMenus(params);
+        return menuList.stream().map(m -> Transformer.toMenuInfo(m)).toList();
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
+    public boolean createMenu(MenuInfo menu) {
+        Guard.notNull(menu, "the parameter [menu] is required.");
+        SysMenu sysMenu = Transformer.toSysMenu(menu);
+        return createMenu(sysMenu);
+    }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
+    public boolean updateMenu(MenuInfo menu) {
+        Guard.notNull(menu, "the parameter [menu] is required.");
+        SysMenu sysMenu = Transformer.toSysMenu(menu);
+        return updateMenu(sysMenu);
     }
 
     // #endregion
@@ -194,7 +219,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
         effectRows += functionDAO.insert(menu);
         effectRows += updateRoles(menu, false);
         
-        if(StringUtils.equals(menu.getType(), FunctionInfo.MENU_TYPE)) {
+        if(StringUtils.equals(menu.getType(), ResourceType.MENU)) {
             effectRows += menuDAO.insert(menu);
         }
 
@@ -242,11 +267,11 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
                 UUID functionGuid = UUID.fromString(functionId);
                 if (!functionIdSet.contains(functionGuid)) {
                     // 移除取消的菜单权限
-                    List<RoleInfo> roles = functionInfo.getAllowRoles();
+                    List<String> roles = functionInfo.getAllowRoles();
                     if (roles != null) {
-                        List<RoleInfo> newRoles = new ArrayList<>(roles.size());
-                        for (RoleInfo role : roles) {
-                            if (!role.getRole().equals(roleId)) {
+                        List<String> newRoles = new ArrayList<>(roles.size());
+                        for (String role : roles) {
+                            if (!role.equals(roleId)) {
                                 newRoles.add(role);
                             }
                         }
@@ -254,17 +279,34 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
                     }
                 } else {
                     // 更新菜单的可用角色列表
-                    List<RoleInfo> newRoles = new ArrayList<>();
+                    List<String> newRoles = new ArrayList<>();
                     Set<Object> roleSet = functionRoleMap.get(functionGuid);
                     if (roleSet != null) {
                         for (Object item : roleSet) {
-                            newRoles.add(Transformer.toRoleInfo((AuthRole) item));
+                            newRoles.add(item.toString());
                         }
                     }
                     functionInfo.setAllowRoles(newRoles);
                 }
             });
         }
+    }
+
+    private int updateRoles(SysMenu menu, boolean isUpdate) {
+        int effectRows = 0;
+        Collection<AuthRole> roles = menu.getRoles();
+        if (!CollectionUtils.isEmpty(roles)) {
+            if(isUpdate) {
+                permissionDAO.deleteByFunctionId(menu.getFunctionId());
+            }
+            for (AuthRole role : roles) {
+                AuthPermission roleIdFunctionId = new AuthPermission();
+                roleIdFunctionId.setRoleId(role.getRoleId());
+                roleIdFunctionId.setFunctionId(menu.getFunctionId());
+                effectRows += permissionDAO.insert(roleIdFunctionId);
+            }
+        }
+        return effectRows;
     }
 
     // #region 事件
@@ -285,20 +327,4 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
 
     //#endregion
 
-    private int updateRoles(SysMenu menu, boolean isUpdate) {
-        int effectRows = 0;
-        Collection<AuthRole> roles = menu.getRoles();
-        if (!CollectionUtils.isEmpty(roles)) {
-            if(isUpdate) {
-                permissionDAO.deleteByFunctionId(menu.getFunctionId());
-            }
-            for (AuthRole role : roles) {
-                AuthPermission roleIdFunctionId = new AuthPermission();
-                roleIdFunctionId.setRoleId(role.getRoleId());
-                roleIdFunctionId.setFunctionId(menu.getFunctionId());
-                effectRows += permissionDAO.insert(roleIdFunctionId);
-            }
-        }
-        return effectRows;
-    }
 }

@@ -1,40 +1,37 @@
 package com.soonsoft.uranus.security.entity;
 
-import org.springframework.security.access.ConfigAttribute;
+public class PrivilegeInfo {
 
-public class PrivilegeInfo implements ConfigAttribute {
+    private final String userId;
+    private String userName;
+    private final String resourceCode;
+    private String resourceName;
 
-    private final String privilegeCode;
-
-    public PrivilegeInfo(String code) {
-        this.privilegeCode = code;
+    public PrivilegeInfo(String userId, String resourceCode) {
+        this.userId = userId;
+        this.resourceCode = resourceCode;
     }
 
-    @Override
-    public String getAttribute() {
-        return privilegeCode;
+    public String getUserId() {
+        return userId;
     }
 
-    @Override
-    public int hashCode() {
-        return this.privilegeCode.hashCode();
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String username) {
+        this.userName = username;
     }
 
-    @Override
-    public boolean equals(Object target) {
-        if(target == null) {
-            return false;
-        }
-
-        if(target instanceof PrivilegeInfo p) {
-            return p.getAttribute() != null && p.getAttribute().equals(this.privilegeCode);
-        }
-        return false;
+    public String getResourceCode() {
+        return resourceCode;
     }
 
-    @Override
-    public String toString() {
-        return "[PrivilegeInfo] " + String.valueOf(privilegeCode);
+    public String getResourceName() {
+        return resourceName;
     }
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }    
     
 }

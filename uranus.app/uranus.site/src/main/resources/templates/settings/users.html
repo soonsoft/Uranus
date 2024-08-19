@@ -119,8 +119,10 @@
             function createFilterButton() {
                 var filter = $("#filter").filterButton({
                     viewData: [
-                        { text: "有效", value: 1, selected: true },
-                        { text: "禁用", value: 0 }
+                        { text: "有效", value: "ENABLED", selected: true },
+                        { text: "禁用", value: "DISABLED" },
+                        { text: "锁定", value: "LOCKED" },
+                        { text: "过期", value: "EXPIRED" }
                     ]
                 });
                 filter.selected(function(e) {
@@ -135,10 +137,10 @@
 
                 function statusFormatter(value) {
                     var tag = null;
-                    if(value === 1) {
-                        tag = $("<span class='state-text state-true' />").text("有效");
+                    if(value === "ENABLED") {
+                        tag = $("<span class='ui-tag ui-tag-green' />").text("有效");
                     } else {
-                        tag = $("<span class='state-text state-false' />").text("禁用");
+                        tag = $("<span class='ui-tag state-false' />").text("禁用");
                     }
                     return tag;
                 }
@@ -147,7 +149,7 @@
                     var p = ui.ColumnStyle.cfn.paragraph("");
                     if(Array.isArray(value)) {
                         value.forEach(function(i) {
-                            var tag = $("<span class='state-text' style='margin-right:5px'>");
+                            var tag = $("<span class='ui-tag' style='margin-right:5px'>");
                             tag.text(i.roleName);
                             tag.addClass("title-color").addClass("border-highlight");
                             p.append(tag);

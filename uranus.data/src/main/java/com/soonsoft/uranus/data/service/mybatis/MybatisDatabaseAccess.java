@@ -3,11 +3,11 @@ package com.soonsoft.uranus.data.service.mybatis;
 import java.util.List;
 import java.util.Map;
 
-import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.data.service.BaseDatabaseAccess;
 import com.soonsoft.uranus.data.service.mybatis.interceptor.PagingRowBounds;
 import com.soonsoft.uranus.data.service.mybatis.mapper.MappedStatementRegistry;
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.model.data.Page;
 
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;

@@ -4,6 +4,9 @@ public enum FunctionTypeEnum {
 
     MENU("menu", "菜单"),
     ACTION("action", "按钮"),
+    WEB_API("web-api", "Web接口"),
+    PAGE("page", "页面"),
+    FILE("file", "文件"),
     ;
     
     public final String Value;
@@ -16,6 +19,15 @@ public enum FunctionTypeEnum {
 
     public boolean eq(String value) {
         return value != null && value.equals(Value);
+    }
+
+    public static FunctionTypeEnum byValue(String value) {
+        for(FunctionTypeEnum item : values()) {
+            if(item.Value.equals(value)) {
+                return item;
+            }
+        }
+        return ACTION;
     }
     
 }

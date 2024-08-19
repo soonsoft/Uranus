@@ -1,124 +1,64 @@
 package com.soonsoft.uranus.security.entity;
 
-import com.soonsoft.uranus.core.common.lang.StringUtils;
+import java.util.List;
 
-import org.springframework.security.core.GrantedAuthority;
+import com.soonsoft.uranus.security.entity.StatusConst.RoleStatus;
 
-public class RoleInfo implements GrantedAuthority {
+public class RoleInfo {
 
-    private static final String ROLE_PREFIX = "ROLE_";
-
-    private String role;
+    private String roleCode;
 
     private String roleName;
 
     private String description;
 
-    private boolean enable;
+    private String roleStatus = RoleStatus.ENABLED;
 
-    public RoleInfo(String role) {
-        this(role, null);
+    private List<String> resourceCodeList;
+
+    public RoleInfo() {
+
     }
 
-    public RoleInfo(String role, String roleName) {
-        setRole(role);
-        setRoleName(roleName);
+    public RoleInfo(String roleCode, String roleName) {
+        this.roleCode = roleCode;
+        this.roleName = roleName;
     }
 
-    protected String getPrefix() {
-        return ROLE_PREFIX;
+
+    public String getRoleCode() {
+        return roleCode;
+    }
+    public void setRoleCode(String roleCode) {
+        this.roleCode = roleCode;
     }
 
-    /**
-     * @return the role
-     */
-    public String getRole() {
-        return role;
-    }
-
-    private void setRole(String role) {
-        if(StringUtils.isEmpty(role)) {
-            throw new IllegalArgumentException("the argument role can not be null or empty.");
-        }
-        String prefix = getPrefix();
-        if(StringUtils.isEmpty(prefix) || role.startsWith(prefix)) {
-            this.role = role;
-        } else {
-            this.role = prefix + role;
-        }
-    }
-
-    /**
-     * @return the roleName
-     */
     public String getRoleName() {
         return roleName;
     }
-
-    /**
-     * @param roleName the roleName to set
-     */
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
 
-    /**
-     * @return the description
-     */
     public String getDescription() {
         return description;
     }
-
-    /**
-     * @param description the description to set
-     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    /**
-     * @return the enable
-     */
-    public boolean isEnable() {
-        return enable;
+    public String getRoleStatus() {
+        return roleStatus;
+    }
+    public void setRoleStatus(String roleStatus) {
+        this.roleStatus = roleStatus;
     }
 
-    /**
-     * @param enable the enable to set
-     */
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public List<String> getResourceCodeList() {
+        return resourceCodeList;
     }
 
-    //#region GrantedAuthority
-
-    @Override
-    public String getAuthority() {
-        return getRole();
+    public void setResourceCodeList(List<String> resourceCodeList) {
+        this.resourceCodeList = resourceCodeList;
     }
-
-    //#endregion
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (obj instanceof RoleInfo) {
-			return role.equals(((RoleInfo) obj).role);
-		}
-
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return this.role.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return this.role;
-	}
 }

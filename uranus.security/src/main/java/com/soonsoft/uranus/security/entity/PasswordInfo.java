@@ -2,13 +2,15 @@ package com.soonsoft.uranus.security.entity;
 
 import java.util.Date;
 
+import com.soonsoft.uranus.security.entity.StatusConst.PasswordStatus;
+
 public class PasswordInfo {
 
     private String id;
     private String password;
     private String passwordSalt;
     private String passwordType;
-    private String passwordStatus;
+    private String passwordStatus = PasswordStatus.ENABLED;
     private Date createTime;
 
     

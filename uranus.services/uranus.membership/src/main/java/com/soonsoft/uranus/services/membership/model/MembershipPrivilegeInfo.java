@@ -6,8 +6,8 @@ public class MembershipPrivilegeInfo extends PrivilegeInfo {
 
     private final String privilegeName;
 
-    public MembershipPrivilegeInfo(String code, String name) {
-        super(code);
+    public MembershipPrivilegeInfo(String userId, String code, String name) {
+        super(userId, code);
         this.privilegeName = name;
     }
 

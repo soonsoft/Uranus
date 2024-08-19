@@ -28,6 +28,7 @@ import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBea
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -41,7 +42,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(new UserInfoInterceptor()).addPathPatterns("/**")
                 .excludePathPatterns(securityProperties.getResourcePathList());
     }
@@ -79,7 +80,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         
         List<UserInfo> users = new ArrayList<>();
         String salt = null;
-        String password = "1";
+        String password = userManager.encryptPassword("1", salt);
         UserInfo user = new UserInfo();
         user.setUserName("admin");
         user.setUserId(UUID.randomUUID().toString());
@@ -100,8 +101,8 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     private void initFunctionManager(IFunctionManager functionManager) {
-        List<RoleInfo> allowRoles = new ArrayList<>();
-        allowRoles.add(new RoleInfo("Admin"));
+        List<String> allowRoles = new ArrayList<>();
+        allowRoles.add("Admin");
 
         List<MenuInfo> menus = new ArrayList<>();
         MenuInfo menu = new MenuInfo("1", "HOME", "/index");
@@ -139,17 +140,17 @@ public class WebConfiguration implements WebMvcConfigurer {
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_1", "用户管理", "/coming-soon");
+        menu = new MenuInfo("4_1", "用户管理", "/settings/users");
         menu.setParentResourceCode("4");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_2", "角色管理", "/coming-soon");
+        menu = new MenuInfo("4_2", "角色管理", "/settings/roles");
         menu.setParentResourceCode("4");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);
 
-        menu = new MenuInfo("4_3", "模块管理", "/coming-soon");
+        menu = new MenuInfo("4_3", "模块管理", "/settings/menus");
         menu.setParentResourceCode("4");
         menu.setAllowRoles(allowRoles);
         menus.add(menu);

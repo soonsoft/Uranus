@@ -1,8 +1,8 @@
 package com.soonsoft.uranus.services.membership.model;
 
-import com.soonsoft.uranus.security.entity.RoleInfo;
+import com.soonsoft.uranus.security.entity.security.SecurityRole;
 
-public class MembershipRole extends RoleInfo {
+public class MembershipRole extends SecurityRole {
 
     static final String EMPTY_ROLE = "__EMPTY__ROLE";
 

@@ -3,8 +3,8 @@ package com.soonsoft.uranus.services.membership.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.soonsoft.uranus.core.model.data.Page;
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.data.service.mybatis.MybatisBaseDAO;
 import com.soonsoft.uranus.services.membership.po.AuthUser;
 

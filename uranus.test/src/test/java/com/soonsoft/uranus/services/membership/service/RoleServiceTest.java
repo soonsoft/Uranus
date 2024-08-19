@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.soonsoft.uranus.core.model.data.Page;
 import com.soonsoft.uranus.data.IDatabaseAccess;
-import com.soonsoft.uranus.data.entity.Page;
 import com.soonsoft.uranus.security.entity.RoleInfo;
+import com.soonsoft.uranus.security.entity.StatusConst.RoleStatus;
 import com.soonsoft.uranus.data.service.mybatis.MybatisDatabaseAccess;
 import com.soonsoft.uranus.services.membership.config.MembershipConfig;
 import com.soonsoft.uranus.services.membership.model.MembershipRole;
@@ -56,7 +57,7 @@ public class RoleServiceTest {
     public void test_createRole() {
         RoleInfo role = new MembershipRole(UUID.randomUUID().toString(), "CTO");
         role.setDescription("首席技术官");
-        role.setEnable(true);
+        role.setRoleStatus(RoleStatus.ENABLED);
 
         boolean result = roleService.createRole(role);
         Assert.assertTrue(result);

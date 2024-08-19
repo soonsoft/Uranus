@@ -7,23 +7,50 @@ import java.util.Map;
 import com.soonsoft.uranus.security.entity.RoleInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.model.data.IPagingList;
 
 import org.springframework.security.core.GrantedAuthority;
 
-/**
- * IRoleManager
- */
 public interface IRoleManager {
 
+    /**
+     * 查询角色列表
+     * @param params 查询参数
+     * @param pageIndex 第几页
+     * @param pageSize 每页几行
+     * @return
+     */
+    IPagingList<RoleInfo> queryRoles(Map<String, Object> params, int pageIndex, int pageSize);
+
+    /**
+     * 创建角色
+     * @param role 角色信息
+     * @return
+     */
     boolean createRole(RoleInfo role);
 
+    /**
+     * 更新角色
+     * @param role 角色信息
+     * @return
+     */
     boolean updateRole(RoleInfo role);
 
-    boolean deleteRole(String role);
+    /**
+     * 删除角色
+     * @param roleCode 角色编码
+     * @return
+     */
+    boolean deleteRole(String roleCode);
 
+    /***
+     * 删除角色
+     * @param role 角色信息
+     * @return
+     */
     default boolean deleteRole(RoleInfo role) {
         Guard.notNull(role, "the RoleInfo is required.");
-        return deleteRole(role.getRole());
+        return deleteRole(role.getRoleCode());
     }
 
     /**
