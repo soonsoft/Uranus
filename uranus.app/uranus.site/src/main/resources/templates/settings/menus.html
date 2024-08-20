@@ -115,7 +115,7 @@
                             grid.empty();
                             return;
                         }
-                        var treeList = grid.tree.listTree(data, "parentId", "functionId");
+                        var treeList = grid.tree.listTree(data, "parentResourceCode", "resourceCode");
                         grid.createBody(treeList);
                     },
                     function(e) {
