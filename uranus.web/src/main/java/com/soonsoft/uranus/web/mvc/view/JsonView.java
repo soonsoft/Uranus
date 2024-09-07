@@ -15,6 +15,8 @@ import com.soonsoft.uranus.web.json.HtmlJsonFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.view.AbstractView;
 
 public class JsonView extends AbstractView {
@@ -47,8 +49,10 @@ public class JsonView extends AbstractView {
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
+    protected void renderMergedOutputModel(
+        @Nullable Map<String, Object> model, 
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response) throws Exception {
 
         ObjectMapper objectMapper = getObjectMapper();
         PrintWriter out = response.getWriter();

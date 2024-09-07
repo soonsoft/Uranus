@@ -46,6 +46,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -80,9 +81,10 @@ public class WebConfiguration implements WebMvcConfigurer {
 
         registry
             .addMapping("/**")
-            .allowedOrigins("*")
+            .allowedOrigins(CorsConfiguration.ALL)
             .allowedHeaders("*")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD")
+            .maxAge(3600L)
             .exposedHeaders(exposedHeaders.toArray(new String[exposedHeaders.size()]));
     }
 
@@ -115,6 +117,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Bean
     public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
         return createJWTFactory();
+        // return createSesstionIdFactory();
     }
 
     protected WebApplicationSecurityConfigFactory createSesstionIdFactory() {

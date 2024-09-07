@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.security.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
@@ -14,6 +15,7 @@ public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
     private WebSecurityMetadataSource webSecurityMetadataSource;
     private AuthorizationManager<RequestAuthorizationContext> webAuthorizationManager;
     private SecurityProperties securityProperties;
+    // private Func1
 
     private List<ICustomConfigurer> configurerList;
 
@@ -48,7 +50,14 @@ public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
 
     protected void setConfigurerList(ICustomConfigurer... configurers) {
         if(configurers != null && configurers.length > 0) {
-            this.configurerList = List.of(configurers);
+            ArrayList<ICustomConfigurer> afterConfigurers = new ArrayList<>();
+            for(ICustomConfigurer configurer : configurers) {
+                if(configurer instanceof IBeforeConfigurer) {
+                    continue;
+                }
+                afterConfigurers.add(configurer);
+            }
+            this.configurerList = afterConfigurers;
         }
     }
 

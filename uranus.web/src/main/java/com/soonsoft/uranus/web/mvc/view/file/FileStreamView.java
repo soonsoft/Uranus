@@ -7,6 +7,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 public class FileStreamView extends FileView {
 
     private InputStream fileStream;
@@ -23,9 +26,9 @@ public class FileStreamView extends FileView {
 
     @Override
     protected void renderMergedOutputModel(
-        Map<String, Object> model, 
-        HttpServletRequest request,
-        HttpServletResponse response) throws Exception {
+        @Nullable Map<String, Object> model, 
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response) throws Exception {
 
         response.setContentType(getContentType());
         if(fileStream != null) {

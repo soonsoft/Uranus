@@ -32,6 +32,8 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
                     .loginPage(SecurityConfigUrlConstant.SiteLoginUrl)
                     .usernameParameter("username")
                     .passwordParameter("password")
+                    .successHandler(null)
+                    .failureHandler(null)
                     .defaultSuccessUrl("/").permitAll()
                     .failureUrl(SecurityConfigUrlConstant.SiteLoginUrl + "?error").permitAll()
             )
