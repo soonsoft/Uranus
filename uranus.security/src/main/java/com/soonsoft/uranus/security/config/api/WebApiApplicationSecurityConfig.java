@@ -63,6 +63,11 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
                         .accessDeniedHandler(new WebApiAccessDeniedHandler())
                 );
 
+                List<ICustomConfigurer> afterConfigurers = getConfigurerList();
+                if(afterConfigurers == null || afterConfigurers.isEmpty()) {
+                    // TODO 需要提供默认的 login 配置
+                }
+
             setConfig(http);
         } catch (Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
