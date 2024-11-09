@@ -24,21 +24,57 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public class WebSecurityMetadataSource implements SecurityMetadataSource {
 
-    private Map<RequestMatcher, Collection<ConfigAttribute>> requestMap;
+    private IFunctionManager functionManager;
 
-    private Collection<? extends FunctionInfo> functionCollection;
+    public IFunctionManager getFunctionManager() {
+        return functionManager;
+    }
+
+    public void setFunctionManager(IFunctionManager functionManager) {
+        this.functionManager = functionManager;
+    }
 
     /**
-     * @param configAttributeCollection the configAttributeCollection to set
+     * 获取该SecurityMetadataSource对象中保存的针对所有安全对象的权限信息的集合。
+     * 该方法的主要目的是被AbstractSecurityInterceptor用于启动时校验每个ConfigAttribute对象。
      */
-    public void setConfigAttributeCollection(Collection<? extends FunctionInfo> functionCollection) {
-        if(functionCollection == null || functionCollection.isEmpty()) {
-            return;
-        }
-        this.functionCollection = functionCollection;
-        Map<String, Collection<ConfigAttribute>> menuMap = new HashMap<>(this.functionCollection.size(), 1);
+    @Override
+    public Collection<ConfigAttribute> getAllConfigAttributes() {
+        return null;
+    }
 
-        for(FunctionInfo function : this.functionCollection) {
+    /**
+     * 根据当前请求获取相关的权限信息
+     * 如果返回null，则表示该URL没有需要验证的权限，是一个可以公开访问的资源
+     */
+    @Override
+    public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
+        Map<RequestMatcher, Collection<ConfigAttribute>> requestMap = getConfigAttributeCollection();
+        if(requestMap != null) {
+            final HttpServletRequest request = (HttpServletRequest) object;
+            for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap
+                    .entrySet()) {
+                if (entry.getKey().matches(request)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return  null;
+    }
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+        return true;
+    }
+
+    public Map<RequestMatcher, Collection<ConfigAttribute>> getConfigAttributeCollection() {
+        Collection<? extends FunctionInfo> functionCollection = functionManager.getEnabledMenus();
+        if(functionCollection == null || functionCollection.isEmpty()) {
+            return null;
+        } 
+        Map<String, Collection<ConfigAttribute>> menuMap = new HashMap<>(functionCollection.size(), 1);
+
+        for(FunctionInfo function : functionCollection) {
             String url = function.getResourceUrl();
             if(!StringUtils.isEmpty(url)) {
                 Collection<ConfigAttribute> attributes = menuMap.get(url);
@@ -65,39 +101,8 @@ public class WebSecurityMetadataSource implements SecurityMetadataSource {
 
         final Map<RequestMatcher, Collection<ConfigAttribute>> myRequestMap = MapUtils.createHashMap(menuMap.size());
         menuMap.forEach((key, value) -> myRequestMap.put(new MvcRequestMatcher(null, key), value));
-        this.requestMap = myRequestMap;
-    }
-
-    /**
-     * 获取该SecurityMetadataSource对象中保存的针对所有安全对象的权限信息的集合。
-     * 该方法的主要目的是被AbstractSecurityInterceptor用于启动时校验每个ConfigAttribute对象。
-     */
-    @Override
-    public Collection<ConfigAttribute> getAllConfigAttributes() {
-        return null;
-    }
-
-    /**
-     * 根据当前请求获取相关的权限信息
-     * 如果返回null，则表示该URL没有需要验证的权限，是一个可以公开访问的资源
-     */
-    @Override
-    public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {        
-        if(requestMap != null) {
-            final HttpServletRequest request = (HttpServletRequest) object;
-            for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap
-                    .entrySet()) {
-                if (entry.getKey().matches(request)) {
-                    return entry.getValue();
-                }
-            }
-        }
-        return  null;
-    }
-
-    @Override
-    public boolean supports(Class<?> clazz) {
-        return true;
+        
+        return myRequestMap;
     }
 
     

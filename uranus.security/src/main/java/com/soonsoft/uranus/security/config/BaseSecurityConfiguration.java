@@ -69,8 +69,7 @@ public abstract class BaseSecurityConfiguration {
 
         IFunctionManager functionManager = SecurityManager.current().getFunctionManager();
         final WebSecurityMetadataSource securityMetadataSource = new WebSecurityMetadataSource();
-        // TODO 当前，系统菜单和角色对应关系是在系统启动时就加载好了，变更需要重启系统。后续，更新角色和菜单绑定关系后，动态刷新菜单权限资源
-        securityMetadataSource.setConfigAttributeCollection(functionManager.getEnabledMenus());
+        securityMetadataSource.setFunctionManager(functionManager);
 
         WebAuthorizationManager authorizationManager = 
             new WebAuthorizationManager(request -> securityMetadataSource.getAttributes(request));
