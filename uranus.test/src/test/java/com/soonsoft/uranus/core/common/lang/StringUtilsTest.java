@@ -1,5 +1,8 @@
 package com.soonsoft.uranus.core.common.lang;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,6 +36,11 @@ public class StringUtilsTest {
         Assert.assertTrue("{0}".equals(StringUtils.format("{{{0}}}", "0")));
         Assert.assertTrue("StringUtils.format(\"abc{0}efg\", \"d\")".equals(StringUtils.format("StringUtils.format(\"abc{{0}}efg\", \"{0}\")", "d")));
         Assert.assertTrue("}{}aaa".equals(StringUtils.format("}}{{}}{0}", "aaa")));
+
+        Map<String, String> valueMap = new HashMap<>();
+        valueMap.put("name", "小米");
+        valueMap.put("state", "已完成");
+        Assert.assertTrue("今天小米的工作已完成".equals(StringUtils.format("今天{name}的工作{state}", valueMap)));
     }
 
     @Test
