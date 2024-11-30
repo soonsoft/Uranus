@@ -1,7 +1,9 @@
 package com.soonsoft.uranus.core.common.lang;
 
 import java.util.List;
+import java.util.Map;
 
+import com.soonsoft.uranus.core.error.argument.ArgumentNullException;
 import com.soonsoft.uranus.core.error.format.StringFormatException;
 import com.soonsoft.uranus.core.functional.func.Func1;
 
@@ -144,8 +146,36 @@ public abstract class StringUtils {
      * @return 格式化后的字符串
      */
     public static String format(final String input, String... parts) {
+        return format(input, key -> parts[Integer.parseInt(key)]);
+    }
+
+    /**
+     * 字符串格式化函数
+     * @param input 格式化模板
+     * @param valueMap 填充参数
+     * @return 格式化后的字符串
+     */
+    public static String format(String input, Map<String, String> valueMap) {
+        if(valueMap == null) {
+            throw new ArgumentNullException("valueMap");
+        }
+
+        return format(input, key -> valueMap.containsKey(key) ? valueMap.get(key) : Empty);
+    }
+
+    /**
+     * 字符串格式化函数
+     * @param input 格式化模版
+     * @param valueGetter 填充参数获取函数
+     * @return 格式化后的字符串
+     */
+    public static String format(String input, Func1<String, String> valueGetter) {
         if(isBlank(input)) {
             return input;
+        }
+
+        if(valueGetter == null) {
+            throw new ArgumentNullException("valueGetter");
         }
 
         StringBuilder builder = new StringBuilder();
@@ -182,11 +212,11 @@ public abstract class StringUtils {
             }
 
             if(closeIndex == -1) {
-                throw new StringFormatException("缺少闭合标记，正确的占位符例子：{0}、{1}……");
+                throw new StringFormatException("缺少闭合标记，请使用正确的占位符，如：{0}、{1}……");
             }
 
-            int fillIndex = Integer.parseInt(input.substring(index, closeIndex));
-            builder.append(parts[fillIndex]);
+            String key = input.substring(index, closeIndex);
+            builder.append(valueGetter.call(key));
             index = closeIndex + 1;
         }
 
