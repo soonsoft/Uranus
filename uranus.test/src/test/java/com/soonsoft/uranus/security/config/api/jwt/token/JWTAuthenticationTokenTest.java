@@ -6,6 +6,7 @@ import java.util.List;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.soonsoft.uranus.security.authentication.jwt.JWTAuthenticationToken;
 import com.soonsoft.uranus.security.entity.security.SecurityRole;
 import com.soonsoft.uranus.security.entity.security.SecurityUser;
 

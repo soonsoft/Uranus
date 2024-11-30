@@ -2,11 +2,15 @@ package com.soonsoft.uranus.security.config.constant;
 
 public interface SecurityConfigUrlConstant {
 
-    final static String SiteLoginUrl = "/login";
-    final static String SiteLogoutUrl = "/logout";
+    String SiteLoginUrl = "/login";
+    String SiteLogoutUrl = "/logout";
 
-    final static String WebApiLoginUrl = "/auth/login";
-    final static String WebApiRefreshUrl = "/auth/refresh";
-    final static String WebAplLogoutUrl = "/auth/logout";
-    
+    String WebApiLoginUrl = "/auth/login";
+    String WebApiRefreshUrl = "/auth/refresh";
+    String WebAplLogoutUrl = "/auth/logout";
+
+    String LoginPasswordUrl = "";
+    String LoginVerifyCodeUrl = "";
+    String LogoutUrl = "";
+    String LoginTokenRefreshUrl = "";
 }

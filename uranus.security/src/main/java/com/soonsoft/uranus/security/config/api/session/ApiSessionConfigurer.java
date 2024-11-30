@@ -1,9 +1,10 @@
 package com.soonsoft.uranus.security.config.api.session;
 
+import com.soonsoft.uranus.security.authentication.ITokenProvider;
+import com.soonsoft.uranus.security.authentication.session.ApiSessionTokenProvider;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
-import com.soonsoft.uranus.security.config.api.ITokenProvider;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter;
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter.WebApiHttpSessionSecurityContextRepository;

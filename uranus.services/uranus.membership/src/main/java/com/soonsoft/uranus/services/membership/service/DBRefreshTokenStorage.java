@@ -1,6 +1,6 @@
 package com.soonsoft.uranus.services.membership.service;
 
-import com.soonsoft.uranus.security.config.api.ITokenStorage;
+import com.soonsoft.uranus.security.authentication.ITokenStorage;
 
 // TODO 实现基于DB的RefreshToken的存储器
 public class DBRefreshTokenStorage implements ITokenStorage {

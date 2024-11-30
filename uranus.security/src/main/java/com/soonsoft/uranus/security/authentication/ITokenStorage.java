@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.config.api;
+package com.soonsoft.uranus.security.authentication;
 
 public interface ITokenStorage {
 

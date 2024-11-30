@@ -1,11 +1,11 @@
-package com.soonsoft.uranus.security.config.api;
+package com.soonsoft.uranus.security.authentication;
 
 import javax.servlet.http.HttpServletRequest;
 
 public interface ITokenProvider<T> {
 
-    public final static String SESSION_ID_TYPE = "SESSION_ID";
-    public final static String JWT_TYPE = "JWT";
+    String SESSION_ID_TYPE = "SESSION_ID";
+    String JWT_TYPE = "JWT";
 
     /**
      * 返回TokenType，用于区分是SessionIDToken 或是 JWTToken

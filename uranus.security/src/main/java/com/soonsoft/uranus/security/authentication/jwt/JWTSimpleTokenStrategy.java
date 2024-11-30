@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.config.api.jwt.token;
+package com.soonsoft.uranus.security.authentication.jwt;
 
 import java.util.Date;
 import java.util.List;
@@ -12,9 +12,9 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.SecurityManager;
+import com.soonsoft.uranus.security.authentication.ITokenStorage;
+import com.soonsoft.uranus.security.authentication.ITokenStrategy;
 import com.soonsoft.uranus.security.authentication.IUserManager;
-import com.soonsoft.uranus.security.config.api.ITokenStorage;
-import com.soonsoft.uranus.security.config.api.ITokenStrategy;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.entity.security.SecurityRole;
 import com.soonsoft.uranus.security.entity.security.SecurityUser;

@@ -4,8 +4,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
-import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.authentication.IRefreshTokenGetter;
+import com.soonsoft.uranus.security.authentication.ITokenProvider;
+import com.soonsoft.uranus.security.authentication.jwt.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.authentication.jwt.JWTTokenProvider;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,13 +22,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 // 如果想继承AbstractAuthenticationProcessingFilter则需要在Config中指定
 //      http.addFilterAt(new WebApiUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
-    public final static String SECURITY_FORM_USERNAME_NAME = "username";
-    public final static String SECURITY_FORM_PASSWORD_NAME = "password";
     public final static String SECURITY_FORM_REFRESH_TOKEN_NAME = "refreshToken";
-
     private final static String SECURITY_PROCESSING_TYPE = "X-URANUS-API-LOGIN-TYPE";
-    private final static String LOGIN_TYPE = "login";
+    private final static String LOGIN_PASSWORD_TYPE = "login-password";
     private final static String REFRESH_TYPE = "refresh";
 
     private ITokenProvider<?> tokenProvider;
@@ -97,8 +95,8 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
 
     @Override
     public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
-        // JWT不放Session里
         if(ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
+            // JWT不放Session里
             return;
         }
         super.setSessionAuthenticationStrategy(sessionStrategy);
@@ -114,7 +112,7 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		boolean result = super.requiresAuthentication(request, response);
         if(result) {
-            request.setAttribute(SECURITY_PROCESSING_TYPE, LOGIN_TYPE);
+            request.setAttribute(SECURITY_PROCESSING_TYPE, LOGIN_PASSWORD_TYPE);
         } else {
             if(refreshTokenRequestMatcher != null) {
                 result = refreshTokenRequestMatcher.matches(request);
@@ -144,8 +142,8 @@ public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePassword
         @Override
         public UsernamePassword get(HttpServletRequest request) {
             return new UsernamePassword(
-                request.getParameter(SECURITY_FORM_USERNAME_NAME), 
-                request.getParameter(SECURITY_FORM_PASSWORD_NAME));
+                request.getParameter("username"), 
+                request.getParameter("password"));
         }
         
     }
