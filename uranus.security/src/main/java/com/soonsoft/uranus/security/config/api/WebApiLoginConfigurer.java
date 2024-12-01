@@ -6,7 +6,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.authentication.IRefreshTokenGetter;
+import com.soonsoft.uranus.security.authentication.ITokenProvider;
+import com.soonsoft.uranus.security.authentication.ITokenStrategy;
+import com.soonsoft.uranus.security.authentication.jwt.JWTAuthenticationToken;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,9 +24,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class WebApiLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         AbstractAuthenticationFilterConfigurer<H, WebApiLoginConfigurer<H>, WebApiUsernamePasswordAuthenticationFilter> {
-
-    public static final String SECURITY_FORM_USERNAME_NAME = "username";
-    public static final String SECURITY_FORM_PASSWORD_NAME = "password";
 
     public WebApiLoginConfigurer(ITokenProvider<?> tokenProvider, String loginProcessUrl) {
         this(

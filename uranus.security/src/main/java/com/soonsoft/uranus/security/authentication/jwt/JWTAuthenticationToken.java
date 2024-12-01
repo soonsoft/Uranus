@@ -1,4 +1,4 @@
-package com.soonsoft.uranus.security.config.api.jwt.token;
+package com.soonsoft.uranus.security.authentication.jwt;
 
 import java.util.Collection;
 import java.util.Date;

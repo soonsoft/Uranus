@@ -9,11 +9,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.soonsoft.uranus.security.authentication.ITokenStorage;
+import com.soonsoft.uranus.security.authentication.jwt.JWTAuthenticationToken;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
 import com.soonsoft.uranus.security.config.api.jwt.JWTConfigurer;
-import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 import com.soonsoft.uranus.security.entity.security.SecurityUser;
 

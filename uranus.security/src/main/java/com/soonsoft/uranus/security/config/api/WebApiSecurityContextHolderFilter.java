@@ -17,9 +17,9 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
-
-import com.soonsoft.uranus.security.config.api.jwt.JWTTokenProvider;
-import com.soonsoft.uranus.security.config.api.jwt.token.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.authentication.ITokenProvider;
+import com.soonsoft.uranus.security.authentication.jwt.JWTAuthenticationToken;
+import com.soonsoft.uranus.security.authentication.jwt.JWTTokenProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

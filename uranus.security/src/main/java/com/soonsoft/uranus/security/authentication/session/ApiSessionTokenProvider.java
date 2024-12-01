@@ -1,13 +1,13 @@
-package com.soonsoft.uranus.security.config.api.session;
+package com.soonsoft.uranus.security.authentication.session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.authentication.ITokenProvider;
+import com.soonsoft.uranus.security.authentication.ITokenStrategy;
 import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.config.api.ISessionIdStrategy;
-import com.soonsoft.uranus.security.config.api.ITokenProvider;
-import com.soonsoft.uranus.security.config.api.ITokenStrategy;
 
 import org.springframework.security.core.Authentication;
 
