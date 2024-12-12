@@ -21,6 +21,7 @@ import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
 import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
 import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
 import com.soonsoft.uranus.site.interceptor.UserInfoInterceptor;
+import com.soonsoft.uranus.site.service.LoginService;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 
@@ -64,13 +65,15 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
+    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory(LoginService loginService) {
         WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(WebApplicationSecurityConfigType.SITE);
         factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
             initUserManager(userManager);
             initRoleManager(roleManager);
             initFunctionManager(functionManager);
         });
+        factory.setLoginPasswordFn((userName, password, userManager) -> loginService.loginByPassword(userName, password, userManager));
+
         return factory;
     }
 

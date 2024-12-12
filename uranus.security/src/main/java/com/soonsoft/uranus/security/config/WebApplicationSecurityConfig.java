@@ -3,6 +3,7 @@ package com.soonsoft.uranus.security.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.soonsoft.uranus.security.authentication.UserLoginFunction;
 import com.soonsoft.uranus.security.authorization.WebSecurityMetadataSource;
 import com.soonsoft.uranus.security.config.properties.SecurityProperties;
 
@@ -15,11 +16,9 @@ public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
     private WebSecurityMetadataSource webSecurityMetadataSource;
     private AuthorizationManager<RequestAuthorizationContext> webAuthorizationManager;
     private SecurityProperties securityProperties;
-    // private Func1
-
+    private UserLoginFunction userLoginFunction;
     private List<ICustomConfigurer> configurerList;
-
-
+ 
     //#region getter and setter
 
     public WebSecurityMetadataSource getWebSecurityMetadataSource() {
@@ -46,15 +45,20 @@ public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
         this.securityProperties = securityProperties;
     }
 
+    public UserLoginFunction getUserLoginFunction() {
+        return userLoginFunction;
+    }
+
+    public void setUserLoginFunction(UserLoginFunction userLoginFunction) {
+        this.userLoginFunction = userLoginFunction;
+    }
+
     //#endregion
 
     protected void setConfigurerList(ICustomConfigurer... configurers) {
         if(configurers != null && configurers.length > 0) {
             ArrayList<ICustomConfigurer> afterConfigurers = new ArrayList<>();
             for(ICustomConfigurer configurer : configurers) {
-                if(configurer instanceof IBeforeConfigurer) {
-                    continue;
-                }
                 afterConfigurers.add(configurer);
             }
             this.configurerList = afterConfigurers;
@@ -67,7 +71,7 @@ public abstract class WebApplicationSecurityConfig implements ISecurityConfig {
 
     protected void setConfig(HttpSecurity http) {
         if(configurerList != null) {
-            configurerList.forEach(c -> c.config(http));
+            configurerList.forEach(c -> c.config(http, this));
         }
     }
 

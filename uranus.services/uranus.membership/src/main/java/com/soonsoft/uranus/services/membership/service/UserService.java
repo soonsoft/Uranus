@@ -109,6 +109,15 @@ public class UserService implements IUserManager {
     }
 
     @Override
+    public UserInfo getUserByCellPhone(String areaCode, String cellPhone) {
+        AuthUser authUser = userDAO.getUserByCellPhone(cellPhone);
+        if(authUser != null) {
+            return getUser(authUser.getUserName());
+        }
+        return null;
+    }
+
+    @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createUser(UserInfo userInfo) {
         Guard.notNull(userInfo, "the parameter [userInfo] is required.");
@@ -128,16 +137,21 @@ public class UserService implements IUserManager {
     @Override
     public String encryptPassword(String password, String salt) {
         Guard.notEmpty(password, "the password is required.");
-        
-        if(salt == null) {
-            salt = "";
-        }
 
-        String encodePassword = salt + password + salt;
+        String encodePassword = encodePassword(password, salt);
         if(passwordEncoder != null) {
             encodePassword = passwordEncoder.encode(encodePassword);
         }
         return encodePassword;
+    }
+
+    @Override
+    public boolean checkPassword(String password, UserInfo userInfo) {
+        if(userInfo != null && userInfo.getPasswordInfo() != null && password != null) {
+            String passwordEncode = encodePassword(password, userInfo.getPasswordInfo().getPasswordSalt());
+            return getPasswordEncoder().matches(passwordEncode, userInfo.getPasswordInfo().getPassword());
+        }
+        return false;
     }
 
     @Override
@@ -347,6 +361,15 @@ public class UserService implements IUserManager {
 
     protected String createSalt() {
         return UUID.randomUUID().toString();
+    }
+
+    protected String encodePassword(String password, String salt) {
+        if(salt == null) {
+            salt = "";
+        }
+
+        String encodePassword = salt + password + salt;
+        return encodePassword;
     }
 
     

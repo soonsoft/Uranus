@@ -14,6 +14,10 @@ public interface IUserManager {
 
     UserInfo getUser(String username);
 
+    UserInfo getUserByCellPhone(String areaCode, String cellPhone);
+
+    boolean checkPassword(String password, UserInfo userInfo);
+
     boolean createUser(UserInfo userInfo);
 
     boolean updateUser(UserInfo userInfo);
