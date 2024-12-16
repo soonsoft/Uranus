@@ -4,16 +4,28 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface ILoginParameterGetter {
 
-    String getUserName(HttpServletRequest request);
+    default String getUserName(HttpServletRequest request) {
+        return null;
+    }
 
-    String getPassword(HttpServletRequest request);
+    default String getPassword(HttpServletRequest request) {
+        return null;
+    }
 
-    String getAreaCode(HttpServletRequest request);
+    default String getAreaCode(HttpServletRequest request) {
+        return null;
+    }
 
-    String getPhoneNumber(HttpServletRequest request);
+    default String getPhoneNumber(HttpServletRequest request) {
+        return null;
+    }
 
-    String getEmail(HttpServletRequest request);
+    default String getEmail(HttpServletRequest request) {
+        return null;
+    }
 
-    String getVerifyCode(HttpServletRequest request);
+    default String getVerifyCode(HttpServletRequest request) {
+        return null;
+    }
     
 }

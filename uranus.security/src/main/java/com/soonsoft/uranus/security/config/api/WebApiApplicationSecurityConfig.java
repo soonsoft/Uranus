@@ -58,7 +58,7 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
                         logout.addLogoutHandler(logoutHandler);
                     }
                     logout.logoutSuccessHandler(new WebApiLogoutSuccessHandler());
-                    logout.logoutUrl(SecurityConfigUrlConstant.WebAplLogoutUrl).permitAll();
+                    logout.logoutUrl(SecurityConfigUrlConstant.LogoutUrl).permitAll();
                 })
                 .exceptionHandling(
                     handling -> handling

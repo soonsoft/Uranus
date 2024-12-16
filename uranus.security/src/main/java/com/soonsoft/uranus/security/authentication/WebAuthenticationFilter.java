@@ -53,17 +53,17 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public void setLoginPasswordUrl(String loginPasswordUrl) {
         Guard.notEmpty(loginPasswordUrl, "the arguments[loginPasswordUrl] is required.");
-        loginPasswordMatcher = new AntPathRequestMatcher(loginPasswordUrl);
+        loginPasswordMatcher = new AntPathRequestMatcher(loginPasswordUrl, "POST");
     }
 
     public void setLoginVerifyCodeUrl(String loginVerifyCodeUrl) {
         Guard.notEmpty(loginVerifyCodeUrl, "the arguments[loginVerifyCodeUrl] is required.");
-        loginVerifyCodeCellPhoneMatcher = new AntPathRequestMatcher(loginVerifyCodeUrl);
+        loginVerifyCodeCellPhoneMatcher = new AntPathRequestMatcher(loginVerifyCodeUrl, "POST");
     }
 
     public void setLoginVerifyCodeEmailUrl(String url) {
         Guard.notEmpty(url, "the arguments[url] is required.");
-        loginVerifyCodeEmailMatcher = new AntPathRequestMatcher(url);
+        loginVerifyCodeEmailMatcher = new AntPathRequestMatcher(url, "POST");
     }
 
     public void setLoginTokenRefreshUrl(String loginTokenRefreshUrl) {
@@ -137,7 +137,7 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
         SecurityUser user = new SecurityUser(userInfo);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-        if(ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
+        if(tokenProvider != null && ITokenProvider.JWT_TYPE.equals(tokenProvider.getTokenType())) {
             JWTAuthenticationToken jwtAuthenticationToken = 
                 new JWTAuthenticationToken(authentication.getPrincipal(), authentication.getAuthorities());
             ((JWTTokenProvider) tokenProvider).getTokenStrategy().updateRefreshToken(jwtAuthenticationToken);

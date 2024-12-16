@@ -34,7 +34,7 @@ uranus:
     unfound-message: 抱歉，没有找到您请求的资源
     server-error-message: 抱歉，服务器发生意外的错误，请稍后重试
   security:
-    resource-path: /style/**,/content/**,/script/**,/favicon.ico,/error/**
+    resource-path: /style/**,/content/**,/script/**,/favicon.ico,/error/**,/auth/login/page
     membership:
       default-password: 1
       salt: 

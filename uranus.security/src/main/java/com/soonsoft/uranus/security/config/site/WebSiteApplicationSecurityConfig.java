@@ -1,11 +1,14 @@
 package com.soonsoft.uranus.security.config.site;
 
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.authentication.ILoginParameterGetter;
 import com.soonsoft.uranus.security.authentication.UserLoginFunction;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -30,31 +33,44 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
                     .anyRequest().access(getWebAuthorizationManager())
             )
             .csrf(csrf -> csrf.disable())
-            .formLogin(
-                login -> login
-                    .loginPage(SecurityConfigUrlConstant.SiteLoginUrl)
-                    .usernameParameter("username")
-                    .passwordParameter("password")
-                    .successHandler(null)
-                    .failureHandler(null)
-                    .defaultSuccessUrl("/").permitAll()
-                    .failureUrl(SecurityConfigUrlConstant.SiteLoginUrl + "?error").permitAll()
-            )
+            // .formLogin(
+            //     login -> login
+            //         .loginPage(SecurityConfigUrlConstant.LoginPasswordUrl)
+            //         .usernameParameter("username")
+            //         .passwordParameter("password")
+            //         .successHandler(null)
+            //         .failureHandler(null)
+            //         .defaultSuccessUrl("/").permitAll()
+            //         .failureUrl(SecurityConfigUrlConstant.LoginPasswordUrl + "?error").permitAll()
+            // )
             .logout(
                 logout -> logout
-                    .logoutUrl(SecurityConfigUrlConstant.SiteLogoutUrl)
+                    .logoutUrl(SecurityConfigUrlConstant.LogoutUrl)
                     .permitAll()
             );
 
             WebSiteLoginConfigurer loginConfigurer = 
-                new WebSiteLoginConfigurer(
-                    SecurityConfigUrlConstant.SiteLoginSuccessUrl, 
-                    StringUtils.format("{0}?error", SecurityConfigUrlConstant.LoginPasswordUrl));
+                http.apply(
+                    new WebSiteLoginConfigurer(
+                        SecurityConfigUrlConstant.SiteLoginSuccessUrl, 
+                        StringUtils.format("{0}?error", SecurityConfigUrlConstant.LoginPasswordUrl))
+                );
 
+            loginConfigurer.setLoginPage(SecurityConfigUrlConstant.SiteLoginPage);
             loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.LoginPasswordUrl);
             loginConfigurer.setLoginPasswordFn(getUserLoginFunction().getLoginPasswordFn());
 
-            http.apply(loginConfigurer);
+            loginConfigurer.setLoginParameterGetter(new ILoginParameterGetter() {
+                @Override
+                public String getUserName(HttpServletRequest request) {
+                    return request.getParameter("username");
+                }
+
+                @Override
+                public String getPassword(HttpServletRequest request) {
+                    return request.getParameter("password");
+                }
+            });
         } catch(Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
         }

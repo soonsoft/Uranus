@@ -24,7 +24,7 @@ import org.springframework.web.servlet.View;
 @Controller
 public class AccountController extends BaseController {
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/auth/login/page", method = RequestMethod.GET)
     public String login() {
         // 用户登录超时后自动调整
         HttpServletResponse response = HttpContext.current().getResponse();

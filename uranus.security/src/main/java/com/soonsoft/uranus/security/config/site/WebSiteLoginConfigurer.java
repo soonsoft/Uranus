@@ -21,6 +21,10 @@ public class WebSiteLoginConfigurer extends WebLoginConfigurer<HttpSecurity> {
         failureHandler(new WeSiteAuthenticationFailureHandler(loginFailureUrl, this));
     }
 
+    public void setLoginPage(String loginPage) {
+        loginPage(loginPage);
+    }
+
     private static class WebSiteAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
         private final WebSiteLoginConfigurer configurer;

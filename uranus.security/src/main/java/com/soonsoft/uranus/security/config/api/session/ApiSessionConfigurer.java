@@ -54,7 +54,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
         try {
             WebApiLoginConfigurer loginConfigurer = new WebApiLoginConfigurer(tokenProvider);
 
-            loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.WebApiLoginUrl);
+            loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.LogoutUrl);
             loginConfigurer.setLoginVerifyCodeByCellPhoneUrl(SecurityConfigUrlConstant.LoginVerifyCodeCellPhoneUrl);
             loginConfigurer.setLoginVerifyCodeByEmailUrl(SecurityConfigUrlConstant.LoginVerifyCodeEmailUrl);
 
