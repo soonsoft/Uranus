@@ -19,6 +19,7 @@ public abstract class TransactionHelper {
                     action.apply();
                 }
             });
+            return;
         }
 
         action.apply();
