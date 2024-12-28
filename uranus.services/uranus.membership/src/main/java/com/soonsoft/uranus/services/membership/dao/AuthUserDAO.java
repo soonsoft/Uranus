@@ -18,6 +18,10 @@ public class AuthUserDAO extends MybatisBaseDAO<AuthUser> implements IMapperID {
         return getDatabaseAccess().get(getStatement("getUserByUserName"), userName);
     }
 
+    public AuthUser getUserByCellPhone(String cellPhone) {
+        return getDatabaseAccess().get(getStatement("getUserByCellPhone"), cellPhone);
+    }
+
     public int deleteUser(String username) {
         return getDatabaseAccess().delete(getStatement("deleteUserByUserName"), username);
     }

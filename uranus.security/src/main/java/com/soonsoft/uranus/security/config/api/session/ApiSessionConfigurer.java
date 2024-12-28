@@ -4,6 +4,7 @@ import com.soonsoft.uranus.security.authentication.ITokenProvider;
 import com.soonsoft.uranus.security.authentication.session.ApiSessionTokenProvider;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
+import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
 import com.soonsoft.uranus.security.config.api.IRealHttpServletRequestHook;
 import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter;
@@ -22,7 +23,6 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
     private final static String DEFAULT_SESSION_ID_HEADER_NAME = "URANUS-AUTH_SID";
 
     private String sessionIdHeaderName;
-    private String loginUrl = SecurityConfigUrlConstant.WebApiLoginUrl;
     private IRealHttpServletRequestHook requestHook;
     private SecurityContextRepository securityContextRepository;
 
@@ -41,7 +41,7 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
     }
 
     @Override
-    public void config(HttpSecurity http) {
+    public void config(HttpSecurity http, WebApplicationSecurityConfig config) {
         ITokenProvider<?> tokenProvider = new ApiSessionTokenProvider(sessionIdHeaderName, requestHook);
         if(securityContextRepository == null) {
             securityContextRepository = new WebApiHttpSessionSecurityContextRepository(tokenProvider);
@@ -52,7 +52,17 @@ public class ApiSessionConfigurer implements ICustomConfigurer {
                 SecurityContextHolderFilter.class);
 
         try {
-            http.apply(new WebApiLoginConfigurer<>(tokenProvider, loginUrl));
+            WebApiLoginConfigurer loginConfigurer = new WebApiLoginConfigurer(tokenProvider);
+
+            loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.WebApiLoginUrl);
+            loginConfigurer.setLoginVerifyCodeByCellPhoneUrl(SecurityConfigUrlConstant.LoginVerifyCodeCellPhoneUrl);
+            loginConfigurer.setLoginVerifyCodeByEmailUrl(SecurityConfigUrlConstant.LoginVerifyCodeEmailUrl);
+
+            loginConfigurer.setLoginPasswordFn(config.getUserLoginFunction().getLoginPasswordFn());
+            loginConfigurer.setLoginCellPhoneVerifyCodeFn(config.getUserLoginFunction().getLoginCellPhoneVerifyCodeFn());
+            loginConfigurer.setLoginEmailVerifyCodeFn(config.getUserLoginFunction().getLoginEmailVerifyCodeFn());
+            
+            http.apply(loginConfigurer);
         } catch (Exception e) {
             throw new SecurityConfigException("apply WebApiLoginConfigurer error.", e);
         }

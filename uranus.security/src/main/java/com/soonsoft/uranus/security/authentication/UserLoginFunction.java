@@ -4,29 +4,41 @@ import org.springframework.security.authentication.BadCredentialsException;
 
 import com.soonsoft.uranus.core.functional.func.Func3;
 import com.soonsoft.uranus.core.functional.func.Func4;
-import com.soonsoft.uranus.security.entity.security.SecurityUser;
+import com.soonsoft.uranus.security.entity.UserInfo;
 
 public class UserLoginFunction {
 
-    private Func3<String, String, IUserManager, SecurityUser> loginPasswordFn;
+    private Func3<String, String, IUserManager, UserInfo> loginPasswordFn;
 
-    private Func3<String, String, IUserManager, SecurityUser> loginEmailVerifyCodeFn;
+    private Func3<String, String, IUserManager, UserInfo> loginEmailVerifyCodeFn;
 
-    private Func4<String, String, String, IUserManager, SecurityUser> loginCellPhoneVerifyCodeFn;
+    private Func4<String, String, String, IUserManager, UserInfo> loginCellPhoneVerifyCodeFn;
 
-    public void setLoginPasswordFn(Func3<String, String, IUserManager, SecurityUser> loginPasswordFn) {
+    public void setLoginPasswordFn(Func3<String, String, IUserManager, UserInfo> loginPasswordFn) {
         this.loginPasswordFn = loginPasswordFn;
     }
 
-    public void setLoginEmailVerifyCodeFn(Func3<String, String, IUserManager, SecurityUser> loginEmailVerifyCodeFn) {
+    public Func3<String, String, IUserManager, UserInfo> getLoginPasswordFn() {
+        return loginPasswordFn;
+    }
+
+    public void setLoginEmailVerifyCodeFn(Func3<String, String, IUserManager, UserInfo> loginEmailVerifyCodeFn) {
         this.loginEmailVerifyCodeFn = loginEmailVerifyCodeFn;
     }
 
-    public void setLoginCellPhoneVerifyCodeFn(Func4<String, String, String, IUserManager, SecurityUser> loginCellPhoneVerifyCodeFn) {
+    public Func3<String, String, IUserManager, UserInfo> getLoginEmailVerifyCodeFn() {
+        return loginEmailVerifyCodeFn;
+    }
+
+    public void setLoginCellPhoneVerifyCodeFn(Func4<String, String, String, IUserManager, UserInfo> loginCellPhoneVerifyCodeFn) {
         this.loginCellPhoneVerifyCodeFn = loginCellPhoneVerifyCodeFn;
     }
 
-    public SecurityUser loginPassword(String userName, String password, IUserManager userManager) {
+    public Func4<String, String, String, IUserManager, UserInfo> getLoginCellPhoneVerifyCodeFn() {
+        return loginCellPhoneVerifyCodeFn;
+    }
+
+    public UserInfo loginPassword(String userName, String password, IUserManager userManager) {
         if(loginPasswordFn == null) {
             throw new BadCredentialsException("not support login by password.");
         }
@@ -34,7 +46,7 @@ public class UserLoginFunction {
         return loginPasswordFn.call(userName, password, userManager);
     }
 
-    public SecurityUser loginVerifyCodeWithEmail(String email, String verifyCode, IUserManager userManager) {
+    public UserInfo loginVerifyCodeWithEmail(String email, String verifyCode, IUserManager userManager) {
         if(loginEmailVerifyCodeFn == null) {
             throw new BadCredentialsException("not support login by verify-code with email.");
         }
@@ -42,7 +54,7 @@ public class UserLoginFunction {
         return loginEmailVerifyCodeFn.call(email, verifyCode, userManager);
     }
 
-    public SecurityUser loginVerifyCodeWithCellPhone(String areaCode, String cellphone, String verifyCode, IUserManager userManager) {
+    public UserInfo loginVerifyCodeWithCellPhone(String areaCode, String cellphone, String verifyCode, IUserManager userManager) {
         if(loginCellPhoneVerifyCodeFn == null) {
             throw new BadCredentialsException("not support login by verify-code with cellphone.");
         }

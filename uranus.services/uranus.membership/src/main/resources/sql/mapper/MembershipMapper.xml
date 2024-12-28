@@ -52,6 +52,16 @@
     </select>
 
     <select 
+        id="getUserByCellPhone" 
+        parameterType="java.lang.String" 
+        resultMap="authUserMap">
+        SELECT 
+            user_id, user_name, nick_name, cell_phone, email, status, create_time 
+        FROM auth_user 
+        WHERE cell_phone = #{cellPhone, jdbcType=VARCHAR}
+    </select>
+
+    <select 
         id="selectUser" 
         parameterType="java.util.Map" 
         resultMap="authUserMap">

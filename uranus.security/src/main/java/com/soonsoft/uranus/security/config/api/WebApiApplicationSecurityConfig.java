@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.security.authentication.ITokenStorage;
+import com.soonsoft.uranus.security.authentication.UserLoginFunction;
 import com.soonsoft.uranus.security.authentication.jwt.JWTAuthenticationToken;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
@@ -31,7 +32,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 
 public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfig {
 
-    public WebApiApplicationSecurityConfig(ICustomConfigurer... configurers) {
+    public WebApiApplicationSecurityConfig(UserLoginFunction userLoginFunction, ICustomConfigurer... configurers) {
+        setUserLoginFunction(userLoginFunction);
         setConfigurerList(configurers);
     }
 
@@ -64,10 +66,10 @@ public class WebApiApplicationSecurityConfig extends WebApplicationSecurityConfi
                         .accessDeniedHandler(new WebApiAccessDeniedHandler())
                 );
 
-                List<ICustomConfigurer> afterConfigurers = getConfigurerList();
-                if(afterConfigurers == null || afterConfigurers.isEmpty()) {
-                    // TODO 需要提供默认的 login 配置
-                }
+            List<ICustomConfigurer> afterConfigurers = getConfigurerList();
+            if(afterConfigurers == null || afterConfigurers.isEmpty()) {
+                // TODO 需要提供默认的 login 配置
+            }
 
             setConfig(http);
         } catch (Exception e) {

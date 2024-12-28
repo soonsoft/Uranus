@@ -9,8 +9,10 @@ public interface SecurityConfigUrlConstant {
     String WebApiRefreshUrl = "/auth/refresh";
     String WebAplLogoutUrl = "/auth/logout";
 
-    String LoginPasswordUrl = "";
-    String LoginVerifyCodeUrl = "";
-    String LogoutUrl = "";
-    String LoginTokenRefreshUrl = "";
+    String SiteLoginSuccessUrl = "/";
+    String LoginPasswordUrl = "/auth/login/password";
+    String LoginVerifyCodeCellPhoneUrl = "/auth/login/verify-code/cellphone";
+    String LoginVerifyCodeEmailUrl = "/auth/login/verify-code/email";
+    String LogoutUrl = "/auth/logout";
+    String LoginTokenRefreshUrl = "/auth/token/refresh";
 }

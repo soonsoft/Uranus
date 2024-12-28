@@ -8,9 +8,7 @@ import com.soonsoft.uranus.security.entity.PasswordInfo;
 import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
-/**
- * WebUserDetailsService
- */
+@Deprecated
 public class WebUserDetailsService implements UserDetailsService {
 
     private IUserManager userManager;

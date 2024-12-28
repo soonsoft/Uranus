@@ -21,6 +21,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 // 使用AbstractAuthenticationFilterConfigurer，只能继承UsernamePasswordAuthenticationFilter
 // 如果想继承AbstractAuthenticationProcessingFilter则需要在Config中指定
 //      http.addFilterAt(new WebApiUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+@Deprecated
 public class WebApiUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     public final static String SECURITY_FORM_REFRESH_TOKEN_NAME = "refreshToken";
     private final static String SECURITY_PROCESSING_TYPE = "X-URANUS-API-LOGIN-TYPE";

@@ -131,6 +131,9 @@ public class WebConfiguration implements WebMvcConfigurer {
             initRoleManager(roleManager);
             initFunctionManager(functionManager);
         });
+        factory.setLoginPasswordFn(null);
+        factory.setLoginCellPhoneVerifyCodeFn(null);
+        factory.setLoginEmailVerifyCodeFn(null);
         return factory;
     }
 
@@ -144,6 +147,9 @@ public class WebConfiguration implements WebMvcConfigurer {
             initRoleManager(roleManager);
             initFunctionManager(functionManager);
         });
+        factory.setLoginPasswordFn(null);
+        factory.setLoginCellPhoneVerifyCodeFn(null);
+        factory.setLoginEmailVerifyCodeFn(null);
         return factory;
     }
 

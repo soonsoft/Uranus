@@ -13,6 +13,7 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.entity.StatusConst.RoleStatus;
 import com.soonsoft.uranus.security.entity.StatusConst.UserStatus;
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.common.lang.StringUtils;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -69,14 +70,27 @@ public class SimpleUserManager implements IUserManager {
     }
 
     @Override
+    public UserInfo getUserByCellPhone(String areaCode, String cellPhone) {
+        return userStore.values().stream()
+            .filter(u -> StringUtils.equals(areaCode, u.getCellPhoneAreaCode()) && StringUtils.equals(cellPhone, u.getCellPhone()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public boolean checkPassword(String password, UserInfo userInfo) {
+        if(userInfo != null && userInfo.getPasswordInfo() != null && password != null) {
+            String passwordEncode = encodePassword(password, userInfo.getPasswordInfo().getPasswordSalt());
+            return getPasswordEncoder().matches(passwordEncode, userInfo.getPasswordInfo().getPassword());
+        }
+        return false;
+    }
+
+    @Override
     public String encryptPassword(String password, String salt) {
         Guard.notEmpty(password, "the password is required.");
 
-        if (salt == null) {
-            salt = "";
-        }
-
-        String encodePassword = salt + password + salt;
+        String encodePassword = encodePassword(password, salt);
         if (passwordEncoder != null) {
             encodePassword = passwordEncoder.encode(encodePassword);
         }
@@ -167,5 +181,14 @@ public class SimpleUserManager implements IUserManager {
     }
 
     //#endregion
+
+    protected String encodePassword(String password, String salt) {
+        if(salt == null) {
+            salt = "";
+        }
+
+        String encodePassword = salt + password + salt;
+        return encodePassword;
+    }
     
 }

@@ -1,5 +1,7 @@
 package com.soonsoft.uranus.security.config.site;
 
+import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.security.authentication.UserLoginFunction;
 import com.soonsoft.uranus.security.config.ICustomConfigurer;
 import com.soonsoft.uranus.security.config.SecurityConfigException;
 import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
@@ -10,7 +12,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 
 public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConfig {
 
-    public WebSiteApplicationSecurityConfig(ICustomConfigurer... configurers) {
+    public WebSiteApplicationSecurityConfig(UserLoginFunction userLoginFunction, ICustomConfigurer... configurers) {
+        setUserLoginFunction(userLoginFunction);
         setConfigurerList(configurers);
     }
 
@@ -42,6 +45,16 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
                     .logoutUrl(SecurityConfigUrlConstant.SiteLogoutUrl)
                     .permitAll()
             );
+
+            WebSiteLoginConfigurer loginConfigurer = 
+                new WebSiteLoginConfigurer(
+                    SecurityConfigUrlConstant.SiteLoginSuccessUrl, 
+                    StringUtils.format("{0}?error", SecurityConfigUrlConstant.LoginPasswordUrl));
+
+            loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.LoginPasswordUrl);
+            loginConfigurer.setLoginPasswordFn(getUserLoginFunction().getLoginPasswordFn());
+
+            http.apply(loginConfigurer);
         } catch(Exception e) {
             throw new SecurityConfigException("WebApplicationConfig error.", e);
         }

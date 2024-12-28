@@ -76,6 +76,4 @@ public class ColumnInfo {
     public void setDefaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
     }
-    
-    
 }
