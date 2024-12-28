@@ -13,6 +13,7 @@ import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.event.IEventListener;
 import com.soonsoft.uranus.core.common.event.SimpleEventListener;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+import com.soonsoft.uranus.data.common.TransactionHelper;
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.collection.MapUtils;
 
@@ -322,7 +323,9 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
     }
 
     protected void onFunctionChanged(SysMenu menu) {
-        functionChangedDelegate.trigger(new FunctionChangedEvent<SysMenu>(menu));
+        TransactionHelper.executeAfterCommit(() -> {
+            functionChangedDelegate.trigger(new FunctionChangedEvent<SysMenu>(menu));
+        });
     }
 
     //#endregion

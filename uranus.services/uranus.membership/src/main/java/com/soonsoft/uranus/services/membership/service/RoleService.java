@@ -30,12 +30,13 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.model.data.IPagingList;
 import com.soonsoft.uranus.core.model.data.Page;
 import com.soonsoft.uranus.core.model.data.PagingList;
+import com.soonsoft.uranus.data.common.TransactionHelper;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-public class RoleService implements IRoleManager, IRoleChangedListener<String> {
+public class RoleService implements IRoleManager, IRoleChangedListener<AuthRole> {
 
     private AuthRoleDAO roleDAO;
 
@@ -44,7 +45,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     private AuthPermissionDAO permissionDAO;
 
     // 事件定义
-    private IEventListener<RoleChangedEvent<String>> roleChangedDelegate = new SimpleEventListener<>(); 
+    private IEventListener<RoleChangedEvent<AuthRole>> roleChangedDelegate = new SimpleEventListener<>(); 
 
     public RoleService(
             AuthRoleDAO roleDAO, 
@@ -193,7 +194,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         effectRows += roleDAO.insert(role);
         boolean result = effectRows > 0;
         if(result) {
-            onRoleChanged(role.getRoleId().toString());
+            onRoleChanged(role);
         }
         return result;
     }
@@ -218,7 +219,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         effectRows = roleDAO.update(role);
         boolean result = effectRows > 0;
         if(result) {
-            onRoleChanged(role.getRoleId().toString());
+            onRoleChanged(role);
         }
         return result;
     }
@@ -245,17 +246,19 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     //#region 事件
 
     @Override
-    public void addRoleChanged(Consumer<RoleChangedEvent<String>> eventHandler) {
+    public void addRoleChanged(Consumer<RoleChangedEvent<AuthRole>> eventHandler) {
         roleChangedDelegate.on(eventHandler);
     }
 
     @Override
-    public void removeRoleChanged(Consumer<RoleChangedEvent<String>> eventHandler) {
+    public void removeRoleChanged(Consumer<RoleChangedEvent<AuthRole>> eventHandler) {
         roleChangedDelegate.off(eventHandler);
     }
 
-    protected void onRoleChanged(String roleId) {
-        roleChangedDelegate.trigger(new RoleChangedEvent<String>(roleId, data -> data));
+    protected void onRoleChanged(AuthRole authRole) {
+        TransactionHelper.executeAfterCommit(() -> {
+            roleChangedDelegate.trigger(new RoleChangedEvent<AuthRole>(authRole, data -> data));
+        });
     }
 
     //#endregion
