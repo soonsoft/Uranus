@@ -260,12 +260,14 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
             permissionDAO.selectByFunctions(functionIdSet, FunctionStatusEnum.ENABLED.Value);
         
         synchronized (locker) {
+            // 完全遍历缓存的菜单权限数据
             sequence.forEach(functionId -> {
                 FunctionInfo functionInfo = functionStore.get(functionId);
                 if (functionInfo == null) {
                     return;
                 }
                 UUID functionGuid = UUID.fromString(functionId);
+                // 判断缓存的菜单项是否在新的菜单权限列表中，如果不在了就删除角色权限
                 if (!functionIdSet.contains(functionGuid)) {
                     // 移除取消的菜单权限
                     List<String> roles = functionInfo.getAllowRoles();
@@ -279,7 +281,7 @@ public class FunctionService implements IFunctionManager, IFunctionChangedListen
                         functionInfo.setAllowRoles(newRoles);
                     }
                 } else {
-                    // 更新菜单的可用角色列表
+                    // 如果在新的菜单权限列表中，则将角色添加到菜单的可用角色列表中
                     List<String> newRoles = new ArrayList<>();
                     Set<Object> roleSet = functionRoleMap.get(functionGuid);
                     if (roleSet != null) {

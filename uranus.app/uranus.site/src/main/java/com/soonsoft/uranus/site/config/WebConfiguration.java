@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.Filter;
+
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
 import com.soonsoft.uranus.security.authorization.IRoleManager;
@@ -20,6 +22,10 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
 import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
 import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
+import com.soonsoft.uranus.services.membership.po.AuthRole;
+import com.soonsoft.uranus.services.membership.po.SysMenu;
+import com.soonsoft.uranus.services.membership.service.FunctionService;
+import com.soonsoft.uranus.services.membership.service.RoleService;
 import com.soonsoft.uranus.site.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.site.service.LoginService;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
@@ -68,14 +74,43 @@ public class WebConfiguration implements WebMvcConfigurer {
     public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory(LoginService loginService) {
         WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(WebApplicationSecurityConfigType.SITE);
         factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
-            initUserManager(userManager);
-            initRoleManager(roleManager);
-            initFunctionManager(functionManager);
+            if(userManager instanceof SimpleUserManager) {
+                initUserManager(userManager);
+            }
+            
+            if(roleManager instanceof SimpleRoleManager) {
+                initRoleManager(roleManager);
+            } else if(roleManager instanceof RoleService) {
+                ((RoleService)roleManager).addRoleChanged(e -> {
+                    AuthRole changedRole = e.getData();
+                    List<Object> functions = changedRole.getMenus();
+                    List<String> functionIdList = null;
+                    if(!CollectionUtils.isEmpty(functions)) {
+                        functionIdList = new ArrayList<>(functions.size());
+                        for(Object item : functions) {
+                            if(item instanceof String) {
+                                functionIdList.add((String) item);
+                            } else if(item instanceof SysMenu) {
+                                functionIdList.add(((SysMenu) item).getFunctionId().toString());
+                            }
+                        }
+                    }
+                    ((FunctionService) functionManager).updateFunctionStore(changedRole.getRoleId().toString(), functionIdList);
+                });
+            }
+
+            if(functionManager instanceof SimpleFunctionManager) {
+                initFunctionManager(functionManager);
+            } else if(functionManager instanceof FunctionService) {
+                // ((FunctionService)functionManager).initFunctionManager(functionManager);
+            }
         });
         factory.setLoginPasswordFn((userName, password, userManager) -> loginService.loginByPassword(userName, password, userManager));
 
         return factory;
     }
+
+    //#region 测试数据
 
     private void initUserManager(IUserManager userManager) {
         Set<RoleInfo> roles = new HashSet<>();
@@ -165,4 +200,6 @@ public class WebConfiguration implements WebMvcConfigurer {
 
         ((SimpleFunctionManager)functionManager).setFunctions(menus);
     }
+
+    //#endregion
 }
