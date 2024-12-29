@@ -68,7 +68,7 @@ public class WebSecurityMetadataSource implements SecurityMetadataSource {
     }
 
     public Map<RequestMatcher, Collection<ConfigAttribute>> getConfigAttributeCollection() {
-        Collection<? extends FunctionInfo> functionCollection = functionManager.getEnabledMenus();
+        Collection<? extends FunctionInfo> functionCollection = functionManager.getEnabledFunctions();
         if(functionCollection == null || functionCollection.isEmpty()) {
             return null;
         } 
