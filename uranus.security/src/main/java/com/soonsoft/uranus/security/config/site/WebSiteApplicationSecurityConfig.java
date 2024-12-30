@@ -49,6 +49,7 @@ public class WebSiteApplicationSecurityConfig extends WebApplicationSecurityConf
                     .permitAll()
             );
 
+            // 这里必须先调用apply方法，否则会报错
             WebSiteLoginConfigurer loginConfigurer = 
                 http.apply(
                     new WebSiteLoginConfigurer(
