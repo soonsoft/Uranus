@@ -30,12 +30,17 @@ import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.core.model.data.IPagingList;
 import com.soonsoft.uranus.core.model.data.Page;
 import com.soonsoft.uranus.core.model.data.PagingList;
+import com.soonsoft.uranus.data.common.TransactionHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-public class RoleService implements IRoleManager, IRoleChangedListener<String> {
+public class RoleService implements IRoleManager, IRoleChangedListener<AuthRole> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleService.class);
 
     private AuthRoleDAO roleDAO;
 
@@ -44,7 +49,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     private AuthPermissionDAO permissionDAO;
 
     // 事件定义
-    private IEventListener<RoleChangedEvent<String>> roleChangedDelegate = new SimpleEventListener<>(); 
+    private IEventListener<RoleChangedEvent<AuthRole>> roleChangedDelegate = new SimpleEventListener<>(); 
 
     public RoleService(
             AuthRoleDAO roleDAO, 
@@ -98,8 +103,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     public boolean deleteRole(String roleId) {
         Guard.notEmpty(roleId, "the roleId is required.");
 
-        int effectRows = roleDAO.delete(UUID.fromString(roleId));
-        return effectRows > 0;
+        return deleteByRoleId(roleId);
     }
 
     @Override
@@ -193,7 +197,7 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         effectRows += roleDAO.insert(role);
         boolean result = effectRows > 0;
         if(result) {
-            onRoleChanged(role.getRoleId().toString());
+            onRoleChanged(role);
         }
         return result;
     }
@@ -218,9 +222,49 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
         effectRows = roleDAO.update(role);
         boolean result = effectRows > 0;
         if(result) {
-            onRoleChanged(role.getRoleId().toString());
+            onRoleChanged(role);
         }
         return result;
+    }
+
+    /**
+     * 根据角色ID删除角色
+     *
+     * @param roleId
+     */
+    @Transactional
+    public boolean deleteByRoleId(String roleId) {
+        if (StringUtils.isBlank(roleId)) {
+            return false;
+        }
+
+        AuthRole deleteRole = getRoleByRoleId(roleId);
+        if(deleteRole == null) {
+            LOGGER.error("delete role failed, role not found, roleId: {}", roleId);
+            return false;
+        }
+
+        UUID id = UUID.fromString(roleId);
+        // 删除角色功能关系
+        permissionDAO.deleteByRoleId(id);
+        // 删除角色
+        int effectRows = roleDAO.delete(id);
+        if (effectRows > 0) {
+            onRoleChanged(deleteRole);
+        }
+
+        return effectRows > 0;
+    }
+
+    /**
+     * 根据角色ID查询角色
+     *
+     * @param roleId
+     * @return
+     */
+    public AuthRole getRoleByRoleId(String roleId) {
+        Guard.notEmpty(roleId, "the roleId is required.");
+        return roleDAO.getByPrimary(roleId);
     }
 
     public List<String> getFunctionIdList(String roleId) {
@@ -245,17 +289,19 @@ public class RoleService implements IRoleManager, IRoleChangedListener<String> {
     //#region 事件
 
     @Override
-    public void addRoleChanged(Consumer<RoleChangedEvent<String>> eventHandler) {
+    public void addRoleChanged(Consumer<RoleChangedEvent<AuthRole>> eventHandler) {
         roleChangedDelegate.on(eventHandler);
     }
 
     @Override
-    public void removeRoleChanged(Consumer<RoleChangedEvent<String>> eventHandler) {
+    public void removeRoleChanged(Consumer<RoleChangedEvent<AuthRole>> eventHandler) {
         roleChangedDelegate.off(eventHandler);
     }
 
-    protected void onRoleChanged(String roleId) {
-        roleChangedDelegate.trigger(new RoleChangedEvent<String>(roleId, data -> data));
+    protected void onRoleChanged(AuthRole authRole) {
+        TransactionHelper.executeAfterCommit(() -> {
+            roleChangedDelegate.trigger(new RoleChangedEvent<AuthRole>(authRole, data -> data));
+        });
     }
 
     //#endregion
