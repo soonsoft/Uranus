@@ -59,3 +59,4 @@ uranus.app/uranus.api/bin
 *.log
 .DS_Store
 .factorypath
+*.code-workspace
