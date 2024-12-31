@@ -29,14 +29,13 @@ public class OraclePagingDailect implements IPagingDailect {
 
         int rownumBegin = offset + 1;
         int rownumEnd = offset + limit;
-        return """
-        SELECT * FROM 
-            (SELECT 
-                PAGING_TEMP_TABLE0.*, ROWNUM AS PAGING_ROW_NUMBER 
-                FROM (%s) PAGING_TEMP_TABLE0
-                WHERE ROWNUM <= %s) PAGING_TEMP_TABLE1
-            WHERE PAGING_ROW_NUMBER >= %s 
-        """.formatted(commandText, rownumEnd, rownumBegin);
+        
+        return String.format(
+            "SELECT * FROM PAGING_TEMP_TABLE0.*, ROWNUM AS PAGING_ROW_NUMBER FROM (%s) PAGING_TEMP_TABLE0 WHERE ROWNUM <= %s) PAGING_TEMP_TABLE1 WHERE PAGING_ROW_NUMBER >= %s", 
+            commandText, 
+            rownumEnd, 
+            rownumBegin
+        );
     }
 
     @Override
