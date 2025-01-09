@@ -102,6 +102,7 @@ public class WebConfiguration implements WebMvcConfigurer {
             if(functionManager instanceof SimpleFunctionManager) {
                 initFunctionManager(functionManager);
             } else if(functionManager instanceof FunctionService) {
+                // Membership 需要初始化功能管理器
                 // ((FunctionService)functionManager).initFunctionManager(functionManager);
             }
         });

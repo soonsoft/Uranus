@@ -1,5 +1,6 @@
 package com.soonsoft.uranus.security.config.api.jwt;
 
+import com.soonsoft.uranus.security.authentication.ILoginParameterGetter;
 import com.soonsoft.uranus.security.authentication.ITokenProvider;
 import com.soonsoft.uranus.security.authentication.ITokenStorage;
 import com.soonsoft.uranus.security.authentication.jwt.JWTSimpleTokenStrategy;
@@ -11,6 +12,8 @@ import com.soonsoft.uranus.security.config.api.WebApiLoginConfigurer;
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter;
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -59,7 +62,7 @@ public class JWTConfigurer implements ICustomConfigurer {
         try {
             WebApiLoginConfigurer loginConfigurer = new WebApiLoginConfigurer(tokenProvider);
 
-            loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.LogoutUrl);
+            loginConfigurer.setLoginPasswordUrl(SecurityConfigUrlConstant.LoginPasswordUrl);
             loginConfigurer.setLoginVerifyCodeByCellPhoneUrl(SecurityConfigUrlConstant.LoginVerifyCodeCellPhoneUrl);
             loginConfigurer.setLoginVerifyCodeByEmailUrl(SecurityConfigUrlConstant.LoginVerifyCodeEmailUrl);
             loginConfigurer.setLoginTokenRefreshUrl(SecurityConfigUrlConstant.LoginTokenRefreshUrl);
@@ -67,6 +70,38 @@ public class JWTConfigurer implements ICustomConfigurer {
             loginConfigurer.setLoginPasswordFn(config.getUserLoginFunction().getLoginPasswordFn());
             loginConfigurer.setLoginCellPhoneVerifyCodeFn(config.getUserLoginFunction().getLoginCellPhoneVerifyCodeFn());
             loginConfigurer.setLoginEmailVerifyCodeFn(config.getUserLoginFunction().getLoginEmailVerifyCodeFn());
+
+            loginConfigurer.setLoginParameterGetter(new ILoginParameterGetter() {
+                @Override
+                public String getUserName(HttpServletRequest request) {
+                    return request.getParameter("username");
+                }
+
+                @Override
+                public String getPassword(HttpServletRequest request) {
+                    return request.getParameter("password");
+                }
+
+                @Override
+                public String getAreaCode(HttpServletRequest request) {
+                    return request.getParameter("areaCode");
+                }
+
+                @Override
+                public String getPhoneNumber(HttpServletRequest request) {
+                    return request.getParameter("phoneNumber");
+                }
+
+                @Override
+                public String getEmail(HttpServletRequest request) {
+                    return request.getParameter("email");
+                }
+
+                @Override
+                public String getVerifyCode(HttpServletRequest request) {
+                    return request.getParameter("verifyCode");
+                }
+            });
             
             http.apply(loginConfigurer);
         } catch (Exception e) {

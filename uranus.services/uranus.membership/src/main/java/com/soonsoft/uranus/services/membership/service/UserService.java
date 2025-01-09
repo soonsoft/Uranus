@@ -117,6 +117,14 @@ public class UserService implements IUserManager {
         return null;
     }
 
+    public UserInfo getUserByEmail(String email) {
+        AuthUser authUser = userDAO.getUserByEmail(email);
+        if(authUser != null) {
+            return getUser(authUser.getUserName());
+        }
+        return null;
+    }
+
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Throwable.class)
     public boolean createUser(UserInfo userInfo) {

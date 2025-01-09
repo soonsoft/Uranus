@@ -16,6 +16,8 @@ public interface IUserManager {
 
     UserInfo getUserByCellPhone(String areaCode, String cellPhone);
 
+    UserInfo getUserByEmail(String email);
+
     boolean checkPassword(String password, UserInfo userInfo);
 
     boolean createUser(UserInfo userInfo);

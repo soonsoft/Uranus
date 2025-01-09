@@ -78,6 +78,14 @@ public class SimpleUserManager implements IUserManager {
     }
 
     @Override
+    public UserInfo getUserByEmail(String email) {
+        return userStore.values().stream()
+            .filter(u -> StringUtils.equals(email, u.getEmail()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
     public boolean checkPassword(String password, UserInfo userInfo) {
         if(userInfo != null && userInfo.getPasswordInfo() != null && password != null) {
             String passwordEncode = encodePassword(password, userInfo.getPasswordInfo().getPasswordSalt());

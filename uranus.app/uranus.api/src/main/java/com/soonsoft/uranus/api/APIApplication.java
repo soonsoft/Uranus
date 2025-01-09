@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = {
         "com.soonsoft.uranus.api.config",
         "com.soonsoft.uranus.api.controller",
+        "com.soonsoft.uranus.api.service",
         "com.soonsoft.uranus.services"
 })
 @EnableDatabaseAccess

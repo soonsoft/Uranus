@@ -15,6 +15,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.api.interceptor.UserInfoInterceptor;
+import com.soonsoft.uranus.api.service.LoginService;
+import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authorization.IFunctionManager;
@@ -33,6 +35,10 @@ import com.soonsoft.uranus.security.simple.service.MemoryRefreshTokenStorage;
 import com.soonsoft.uranus.security.simple.service.SimpleFunctionManager;
 import com.soonsoft.uranus.security.simple.service.SimpleRoleManager;
 import com.soonsoft.uranus.security.simple.service.SimpleUserManager;
+import com.soonsoft.uranus.services.membership.po.AuthRole;
+import com.soonsoft.uranus.services.membership.po.SysMenu;
+import com.soonsoft.uranus.services.membership.service.FunctionService;
+import com.soonsoft.uranus.services.membership.service.RoleService;
 import com.soonsoft.uranus.web.filter.HttpContextFilter;
 import com.soonsoft.uranus.web.spring.WebApplicationContext;
 
@@ -115,47 +121,82 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory() {
-        return createJWTFactory();
-        // return createSesstionIdFactory();
+    public WebApplicationSecurityConfigFactory webApplicationSecurityConfigFactory(LoginService loginService) {
+        // JWT身份验证
+        return createJWTFactory(loginService);
+        // Session身份验证
+        //return createSesstionIdFactory(loginService);
     }
 
-    protected WebApplicationSecurityConfigFactory createSesstionIdFactory() {
+    protected WebApplicationSecurityConfigFactory createSesstionIdFactory(LoginService loginService) { 
         IRealHttpServletRequestHook requestHook = new HeaderSessionIdHook();
         // Web-API应用程序（多页应用），身份验证配置
         String sessionIdHeader = securityProperties.getAccessTokenHeaderName();
         WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
             WebApplicationSecurityConfigType.API, new ApiSessionConfigurer(sessionIdHeader, requestHook));
-        factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
-            initUserManager(userManager);
-            initRoleManager(roleManager);
-            initFunctionManager(functionManager);
-        });
-        factory.setLoginPasswordFn(null);
-        factory.setLoginCellPhoneVerifyCodeFn(null);
-        factory.setLoginEmailVerifyCodeFn(null);
+        // SimpleSecurity 初始化
+        initSimpleManagers(factory);
+        // 设置登录验证方法
+        factory.setLoginPasswordFn((userName, password, userManager) -> loginService.loginByPassword(userName, password, userManager));
+        factory.setLoginCellPhoneVerifyCodeFn((areaCode, cellPhone, verifyCode, userManager) -> loginService.loginByVerifyCode(areaCode, cellPhone, verifyCode, userManager));
+        factory.setLoginEmailVerifyCodeFn((email, verifyCode, userManager) -> loginService.loginByVerifyCode(email, verifyCode, userManager));
         return factory;
     }
 
-    protected WebApplicationSecurityConfigFactory createJWTFactory() {
+    protected WebApplicationSecurityConfigFactory createJWTFactory(LoginService loginService) {
         // Web-API应用程序（单页应用），身份验证配置
         String accessTokenHeaderName = securityProperties.getAccessTokenHeaderName();
         WebApplicationSecurityConfigFactory factory = new WebApplicationSecurityConfigFactory(
             WebApplicationSecurityConfigType.API, new JWTConfigurer(accessTokenHeaderName, new MemoryRefreshTokenStorage(21600)));
+        // SimpleSecurity 初始化
+        initSimpleManagers(factory);
+        // 设置登录验证方法
+        factory.setLoginPasswordFn((userName, password, userManager) -> loginService.loginByPassword(userName, password, userManager));
+        factory.setLoginCellPhoneVerifyCodeFn((areaCode, cellPhone, verifyCode, userManager) -> loginService.loginByVerifyCode(areaCode, cellPhone, verifyCode, userManager));
+        factory.setLoginEmailVerifyCodeFn((email, verifyCode, userManager) -> loginService.loginByVerifyCode(email, verifyCode, userManager));
+        return factory;
+    }
+
+    private static void initMembershipManagers(WebApplicationSecurityConfigFactory factory) {
+        factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
+            // RoleService 注册角色变更事件
+            if(roleManager instanceof RoleService) {
+                ((RoleService)roleManager).addRoleChanged(e -> {
+                    AuthRole changedRole = e.getData();
+                    List<Object> functions = changedRole.getMenus();
+                    List<String> functionIdList = null;
+                    if(!CollectionUtils.isEmpty(functions)) {
+                        functionIdList = new ArrayList<>(functions.size());
+                        for(Object item : functions) {
+                            if(item instanceof String) {
+                                functionIdList.add((String) item);
+                            } else if(item instanceof SysMenu) {
+                                functionIdList.add(((SysMenu) item).getFunctionId().toString());
+                            }
+                        }
+                    }
+                    ((FunctionService) functionManager).updateFunctionStore(changedRole.getRoleId().toString(), functionIdList);
+                });
+            }
+
+            if(functionManager instanceof FunctionService) {
+                // Membership 需要初始化功能管理器
+                //((FunctionService)functionManager).initFunctionManager(functionManager);
+            }
+        });
+    }
+
+    //#region 测试数据
+
+    private static void initSimpleManagers(WebApplicationSecurityConfigFactory factory) {
         factory.setInitModuleAction((userManager, roleManager, functionManager, userProfile) -> {
             initUserManager(userManager);
             initRoleManager(roleManager);
             initFunctionManager(functionManager);
         });
-        factory.setLoginPasswordFn(null);
-        factory.setLoginCellPhoneVerifyCodeFn(null);
-        factory.setLoginEmailVerifyCodeFn(null);
-        return factory;
     }
 
-    //#region 测试数据
-
-    private void initUserManager(IUserManager userManager) {
+    private static void initUserManager(IUserManager userManager) {
         Set<RoleInfo> roles = new HashSet<>();
         roles.add(new RoleInfo("Admin", "管理员"));
         
@@ -169,20 +210,22 @@ public class WebConfiguration implements WebMvcConfigurer {
         user.setRoles(roles);
         user.setPassword(password, salt);
         user.setStatus(UserStatus.ENABLED);
+        user.setCellPhoneAreaCode("86");
         user.setCellPhone("139-0099-8877");
+        user.setEmail("zhsjiao@outlook.com");
         user.setCreateTime(new Date());
         users.add(user);
 
         ((SimpleUserManager) userManager).addAll(users);
     }
 
-    private void initRoleManager(IRoleManager roleManager) {
+    private static void initRoleManager(IRoleManager roleManager) {
         List<RoleInfo> roles = new ArrayList<>();
         roles.add(new RoleInfo("Admin", "管理员"));
         ((SimpleRoleManager) roleManager).setRoleInfos(roles);
     }
 
-    private void initFunctionManager(IFunctionManager functionManager) {
+    private static void initFunctionManager(IFunctionManager functionManager) {
         List<RoleInfo> allowRoles = new ArrayList<>();
         allowRoles.add(new RoleInfo("Admin", "管理员"));
 
