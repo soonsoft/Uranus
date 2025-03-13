@@ -15,7 +15,7 @@ public abstract class TransactionHelper {
             throw new IllegalArgumentException("the parameter action is required.");
         }
 
-        if(TransactionSynchronizationManager.isActualTransactionActive()) {
+        if(TransactionSynchronizationManager.isActualTransactionActive() && TransactionSynchronizationManager.isSynchronizationActive()) {
             if(isTransactionComitted()) {
                 TransactionCompletedActionContainer container = ensureCompletedActionContainer();
                 container.addCompletionAction(action);
@@ -28,11 +28,9 @@ public abstract class TransactionHelper {
     }
 
     private static boolean isTransactionComitted() {
-        if(TransactionSynchronizationManager.isSynchronizationActive()) {
-            for(TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
-                if(synchronization instanceof TransactionCommitedAction) {
-                    return ((TransactionCommitedAction)synchronization).isCommited();
-                }
+        for(TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
+            if(synchronization instanceof TransactionCommitedAction) {
+                return ((TransactionCommitedAction)synchronization).isCommited();
             }
         }
         return false;
