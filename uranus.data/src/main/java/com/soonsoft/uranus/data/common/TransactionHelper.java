@@ -10,6 +10,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 public abstract class TransactionHelper {
 
+    /**
+     * 注册事务提交后事件处理函数，如果当前没有事务，则直接执行。
+     * 注意：如果在处理函数中开启了另一个事务，则需要显示声明事务的传播方式为开启新事务，如果使用隐式传播方式，则会导致事务失效。
+     * 应当用 @Transactional(propagation = Propagation.REQUIRES_NEW) 注解来声明。
+     * @param action 事务提交后执行的处理函数
+     * @throws IllegalArgumentException 如果 action 参数为 null
+     */
     public static void executeAfterCommit(Action0 action) {
         if(action == null) {
             throw new IllegalArgumentException("the parameter action is required.");
