@@ -36,10 +36,10 @@ public class ObjectEach implements IForEach<ObjectEach.EachNode>, IDeepEach<Obje
 
         ForEachBehavior behavior = new ForEachBehavior();
         if(isSimpleType(target)) {
-            EachNode node = new EachNode(target);
-            action.apply(node, 0, behavior);
+            action.apply(new EachNode(target), 0, behavior);
         } else if(isEnumType(target)) {
-
+            Enum<?> enumValue = (Enum<?>) target;
+            action.apply(new EnumNode(target), 0, behavior);
         } else {
             // BeanInfo beanInfo = Introspector.getBeanInfo(target.getClass(), Object.class);
             // PropertyDescriptor[] properties = beanInfo.getPropertyDescriptors();
@@ -114,6 +114,38 @@ public class ObjectEach implements IForEach<ObjectEach.EachNode>, IDeepEach<Obje
 
         public Object getValue() {
             return target;
+        }
+    }
+
+    public static class EnumNode extends EachNode {
+        private final Enum<?> enumValue;
+
+        public EnumNode(Object target) {
+            this(null, null, (Enum<?>) target);
+        }
+
+        public EnumNode(EachNode parent, String name, Enum<?> enumValue) {
+            super(parent, name, enumValue);
+            this.enumValue = enumValue;
+        }
+
+        @Override
+        public Object getValue() {
+            return enumValue;
+        }
+
+        public String getEnumName() {
+            return enumValue.name();
+        }
+
+        public int getEnumOrdinal() {
+            return enumValue.ordinal();
+        }
+    }
+
+    public static class RootNode extends EachNode {
+        public RootNode(Object target) {
+            super(null, null, target);
         }
     }
 
