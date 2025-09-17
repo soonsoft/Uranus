@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -18,6 +16,8 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 
 import com.soonsoft.uranus.core.functional.func.Func1;
 import com.soonsoft.uranus.security.authorization.voter.IVoter;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public class WebAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 

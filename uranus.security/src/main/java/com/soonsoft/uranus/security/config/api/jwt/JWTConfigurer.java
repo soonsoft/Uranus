@@ -13,7 +13,7 @@ import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter
 import com.soonsoft.uranus.security.config.api.WebApiSecurityContextHolderFilter.WebApiHttpSessionSecurityContextRepository;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.context.SecurityContextHolderFilter;

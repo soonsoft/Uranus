@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import com.soonsoft.uranus.core.common.collection.CollectionUtils;
 import com.soonsoft.uranus.security.authentication.IUserManager;

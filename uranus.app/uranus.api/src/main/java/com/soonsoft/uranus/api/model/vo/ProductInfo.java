@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.api.model.vo;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import org.hibernate.validator.constraints.Length;
 

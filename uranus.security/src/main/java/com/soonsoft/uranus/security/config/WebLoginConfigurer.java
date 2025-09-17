@@ -3,9 +3,6 @@ package com.soonsoft.uranus.security.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -21,6 +18,9 @@ import com.soonsoft.uranus.security.authentication.ILoginParameterGetter;
 import com.soonsoft.uranus.security.authentication.IUserManager;
 import com.soonsoft.uranus.security.authentication.WebAuthenticationFilter;
 import com.soonsoft.uranus.security.entity.UserInfo;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public abstract class WebLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         AbstractAuthenticationFilterConfigurer<H, WebLoginConfigurer<H>, WebAuthenticationFilter> {

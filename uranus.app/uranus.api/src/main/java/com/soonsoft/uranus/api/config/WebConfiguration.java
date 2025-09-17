@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.Filter;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.api.interceptor.UserInfoInterceptor;
 import com.soonsoft.uranus.api.service.LoginService;
@@ -301,8 +302,8 @@ public class WebConfiguration implements WebMvcConfigurer {
                 return (HttpServletRequest) realRequest;
             }
 
-            if (realRequest instanceof javax.servlet.ServletRequestWrapper) {
-                realRequest = ((javax.servlet.ServletRequestWrapper) realRequest).getRequest();
+            if (realRequest instanceof ServletRequestWrapper) {
+                realRequest = ((ServletRequestWrapper) realRequest).getRequest();
                 return getRealHttpServletRequest(realRequest);
             }
 

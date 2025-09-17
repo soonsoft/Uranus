@@ -3,7 +3,7 @@ package com.soonsoft.uranus.api.controller.example;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import com.soonsoft.uranus.api.model.vo.ProductInfo;
 import com.soonsoft.uranus.api.model.vo.ProductVO;

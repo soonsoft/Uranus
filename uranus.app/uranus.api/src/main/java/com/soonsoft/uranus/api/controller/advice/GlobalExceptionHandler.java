@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpStatusCodeException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.api.config.properties.ErrorPageProperties;
 import com.soonsoft.uranus.web.error.WebErrorCommonHandler;
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         LOGGER.error("发生错误", exception);
 
         HttpStatus httpStatus = exception instanceof HttpStatusCodeException 
-            ? ((HttpStatusCodeException) exception).getStatusCode()
+            ? HttpStatus.valueOf(((HttpStatusCodeException) exception).getStatusCode().value())
             : WebErrorCommonHandler.findHttpStatus(request);
         response.setStatus(httpStatus.value());
         return WebErrorCommonHandler.buildWebErrorModel(httpStatus, exception, errorPageProperties);

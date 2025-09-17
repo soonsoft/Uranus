@@ -3,9 +3,9 @@ package com.soonsoft.uranus.web.mvc.controller;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.soonsoft.uranus.web.HttpContext;
 import com.soonsoft.uranus.web.mvc.view.ContentView;

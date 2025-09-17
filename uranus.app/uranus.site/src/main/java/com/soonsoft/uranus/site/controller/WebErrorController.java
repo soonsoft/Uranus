@@ -16,14 +16,14 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.soonsoft.uranus.site.config.WebErrorConfiguration;
 import com.soonsoft.uranus.site.config.properties.ErrorPageProperties;
 import com.soonsoft.uranus.web.error.WebErrorCommonHandler;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
 import com.soonsoft.uranus.web.mvc.model.JsonResult;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Iterator;
 import java.util.Map;

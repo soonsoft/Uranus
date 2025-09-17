@@ -1,6 +1,7 @@
 package com.soonsoft.uranus.core.common.lang;
 
 import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.util.Objects;
 
 import com.soonsoft.uranus.core.functional.action.Action3;
@@ -21,8 +22,51 @@ public abstract class ObjectUtils {
         return Objects.equals(a, b);
     }
 
+    public static boolean isSimpleType(Object obj) {
+        if(obj == null) {
+            return true;
+        }
+        Class<?> type = obj.getClass();
+        return type.isPrimitive() || type == String.class || type == Boolean.class
+                || Number.class.isAssignableFrom(type) || type == Character.class
+                || type == BigInteger.class || type == java.math.BigDecimal.class
+                || type == java.util.UUID.class
+                || type == java.util.Date.class
+                || type == java.time.LocalDate.class
+                || type == java.time.LocalDateTime.class || type == java.time.LocalTime.class;
+    }
+
+    public static boolean isEnumType(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        Class<?> type = obj.getClass();
+        return type.isEnum();
+    }
+
     public static boolean isArray(Object obj) {
         return obj != null && obj.getClass().isArray();
+    }
+
+    public static boolean isListType(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        return java.util.List.class.isAssignableFrom(obj.getClass());
+    }
+
+    public static boolean isMapType(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        return java.util.Map.class.isAssignableFrom(obj.getClass());
+    }
+
+    public static boolean isSetType(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        return java.util.Set.class.isAssignableFrom(obj.getClass());
     }
 
     public static ArrayInfo asArrayInfo(Object obj) {

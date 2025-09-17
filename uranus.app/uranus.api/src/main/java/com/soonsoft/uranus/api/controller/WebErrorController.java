@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.web.error.WebErrorCommonHandler;
 import com.soonsoft.uranus.web.error.vo.WebErrorModel;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import com.soonsoft.uranus.api.config.properties.ErrorPageProperties;
 import com.soonsoft.uranus.api.model.APIResult;
 

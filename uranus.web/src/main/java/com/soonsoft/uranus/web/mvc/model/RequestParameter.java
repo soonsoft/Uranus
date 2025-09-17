@@ -1,6 +1,6 @@
 package com.soonsoft.uranus.web.mvc.model;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.soonsoft.uranus.core.Guard;
 

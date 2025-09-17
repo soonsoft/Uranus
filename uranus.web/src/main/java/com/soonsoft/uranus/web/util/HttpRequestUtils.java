@@ -1,11 +1,11 @@
 package com.soonsoft.uranus.web.util;
 
-import javax.servlet.http.HttpServletRequest;
-
 import java.util.Enumeration;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 
 public abstract class HttpRequestUtils {

@@ -3,11 +3,7 @@ package com.soonsoft.uranus.security.config.api;
 import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.ServletException;
-
 import static org.springframework.security.config.Customizer.withDefaults;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.soonsoft.uranus.security.authentication.ITokenStorage;
 import com.soonsoft.uranus.security.authentication.UserLoginFunction;
@@ -18,6 +14,10 @@ import com.soonsoft.uranus.security.config.WebApplicationSecurityConfig;
 import com.soonsoft.uranus.security.config.api.jwt.JWTConfigurer;
 import com.soonsoft.uranus.security.config.constant.SecurityConfigUrlConstant;
 import com.soonsoft.uranus.security.entity.security.SecurityUser;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
