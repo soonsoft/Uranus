@@ -5,8 +5,6 @@ package com.soonsoft.uranus.util.identity;
  */
 public class IDGenerateException extends RuntimeException {
 
-    private static final long serialVersionUID = 123729160609499178L;
-
     public IDGenerateException(Exception e) {
         super(e);
     }

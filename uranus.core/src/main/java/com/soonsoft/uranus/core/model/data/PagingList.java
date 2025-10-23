@@ -25,6 +25,14 @@ public class PagingList<T> implements IPagingList<T> {
         this.pageTotal = pageTotal;
     }
 
+    public PagingList(List<T> list, Page page) {
+        this(list, page == null ? 0 : page.getTotal());
+        if (page != null) {
+            this.pageIndex = page.getPageIndex();
+            this.pageSize = page.getPageSize();
+        }
+    }
+
     //#region List methods
 
     @Override

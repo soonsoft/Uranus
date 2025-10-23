@@ -88,7 +88,7 @@ public class MybatisDatabaseAccessFactory extends BaseDatabaseAccessFactory {
 
     @Override
     public Class<?> getObjectType() {
-        return IDatabaseAccess.class;
+        return MybatisDatabaseAccess.class;
     }
 
     //#endregion
