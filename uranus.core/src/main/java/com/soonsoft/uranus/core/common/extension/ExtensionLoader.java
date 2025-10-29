@@ -14,8 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.soonsoft.uranus.core.common.lang.TypeUtils;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
-import com.soonsoft.uranus.core.common.utils.Holder;
-import com.soonsoft.uranus.core.common.utils.Lifecycle;
 
 /**
  * ExtensionLoader loader = ExtensionLoader.load(Interface.class);
@@ -76,20 +74,6 @@ public class ExtensionLoader<T> {
             manager = (ExtensionLoader<T>) EXTENSION_MANAGER_BAG.get(type);
         }
         return manager;
-    }
-
-    // TODO 释放资源
-    public static void destroyAll() {
-        EXTENSION_INSTANCES.forEach((_type, instance) -> {
-            if (instance instanceof Lifecycle) {
-                Lifecycle lifecycle = (Lifecycle) instance;
-                try {
-                    lifecycle.destroy();
-                } catch (Exception e) {
-                    //logger.error("Error destroying extension " + lifecycle, e);
-                }
-            }
-        });
     }
 
     public T getInstance() {
@@ -340,7 +324,7 @@ public class ExtensionLoader<T> {
         return new IllegalStateException();
     }
 
-    private void initExtension(T instance) {
+    protected void initExtension(T instance) {
         if (instance instanceof Lifecycle) {
             Lifecycle lifecycle = (Lifecycle) instance;
             lifecycle.initialize();

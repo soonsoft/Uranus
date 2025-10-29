@@ -3,6 +3,8 @@ package com.soonsoft.uranus.util.file;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.utils.file.FileTools;
+
 public class FileToolsTest {
 
     @Test

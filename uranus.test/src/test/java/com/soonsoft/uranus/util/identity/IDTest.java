@@ -2,6 +2,8 @@ package com.soonsoft.uranus.util.identity;
 
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.utils.identity.ID;
+
 /**
  * IDTest
  */

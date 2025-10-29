@@ -6,9 +6,9 @@ import java.util.List;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.soonsoft.uranus.core.functional.func.Func1;
-import com.soonsoft.uranus.util.conversion.formatting.FormatType;
-import com.soonsoft.uranus.util.conversion.formatting.Formatting;
-import com.soonsoft.uranus.util.conversion.masking.Masking;
+import com.soonsoft.uranus.core.utils.conversion.formatting.FormatType;
+import com.soonsoft.uranus.core.utils.conversion.formatting.Formatting;
+import com.soonsoft.uranus.core.utils.conversion.masking.Masking;
 import com.soonsoft.uranus.web.json.serializer.FormattingSerializer;
 import com.soonsoft.uranus.web.json.serializer.MaskingSerializer;
 

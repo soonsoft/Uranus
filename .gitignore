@@ -30,10 +30,6 @@ uranus.services/uranus.dictionary/.project
 uranus.services/uranus.dictionary/target
 uranus.services/uranus.dictionary/.classpath
 
-uranus.utils/.project
-uranus.utils/target
-uranus.utils/.classpath
-
 uranus.web/.project
 uranus.web/target
 uranus.web/.classpath

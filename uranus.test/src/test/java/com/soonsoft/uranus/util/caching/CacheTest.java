@@ -3,6 +3,8 @@ package com.soonsoft.uranus.util.caching;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.utils.caching.Cache;
+
 public class CacheTest {
 
     private Cache<String, String> cache = new Cache<>(128);

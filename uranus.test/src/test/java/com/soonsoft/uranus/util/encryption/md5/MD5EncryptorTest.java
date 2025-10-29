@@ -1,6 +1,9 @@
 package com.soonsoft.uranus.util.encryption.md5;
 
 import org.junit.Test;
+
+import com.soonsoft.uranus.core.utils.encryption.md5.MD5Encryptor;
+
 import org.junit.Assert;
 
 public class MD5EncryptorTest {

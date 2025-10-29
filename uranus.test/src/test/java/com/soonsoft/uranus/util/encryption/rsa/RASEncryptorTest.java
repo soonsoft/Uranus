@@ -4,6 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 import org.junit.Test;
+
+import com.soonsoft.uranus.core.utils.encryption.rsa.KeyStore;
+import com.soonsoft.uranus.core.utils.encryption.rsa.RSAEncryptor;
+
 import org.junit.Assert;
 
 public class RASEncryptorTest {

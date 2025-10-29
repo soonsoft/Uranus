@@ -3,6 +3,8 @@ package com.soonsoft.uranus.util.encryption.aes;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.soonsoft.uranus.core.utils.encryption.aes.AESEncryptor;
+
 public class AESEncryptorTest {
 
     @Test

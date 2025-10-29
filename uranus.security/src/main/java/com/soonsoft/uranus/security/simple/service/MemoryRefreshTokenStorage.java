@@ -1,7 +1,7 @@
 package com.soonsoft.uranus.security.simple.service;
 
+import com.soonsoft.uranus.core.utils.caching.Cache;
 import com.soonsoft.uranus.security.authentication.ITokenStorage;
-import com.soonsoft.uranus.util.caching.Cache;
 
 public class MemoryRefreshTokenStorage implements ITokenStorage {
 

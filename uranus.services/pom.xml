@@ -21,11 +21,6 @@
     <dependencies>
         <dependency>
             <groupId>com.soonsoft</groupId>
-            <artifactId>uranus.utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.soonsoft</groupId>
             <artifactId>uranus.data</artifactId>
             <version>${project.version}</version>
         </dependency>

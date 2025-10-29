@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.soonsoft.uranus.util.caching.ICache;
+import com.soonsoft.uranus.core.utils.caching.ICache;
 import com.soonsoft.uranus.web.HttpContext;
 
 
