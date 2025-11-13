@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="uranus.dictionary">
+
+    <!-- ===== dictionary_group ===== -->
+    <resultMap id="DictionaryGroupResult" type="com.soonsoft.uranus.services.dictionary.po.DictionaryGroupPO">
+        <id property="id" column="id" />
+        <result property="dictGroupCode" column="dict_group_code" />
+        <result property="dictGroupName" column="dict_group_name" />
+        <result property="dictGroupType" column="dict_group_type" />
+        <result property="remark" column="remark" />
+        <result property="dataStatus" column="data_status" />
+        <result property="createUser" column="create_user" />
+        <result property="createTime" column="create_time" />
+        <result property="updateUser" column="update_user" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <select id="getByCode" resultMap="DictionaryGroupResult" parameterType="string">
+        SELECT * FROM dictionary_group WHERE dict_group_code = #{p0}
+    </select>
+
+    <delete id="deleteGroupByCode" parameterType="string">
+        DELETE FROM dictionary_group WHERE dict_group_code = #{p0}
+    </delete>
+
+    <select id="selectAllGroups" resultMap="DictionaryGroupResult">
+        SELECT * FROM dictionary_group
+    </select>
+
+    <select id="selectByDataStatus" resultMap="DictionaryGroupResult" parameterType="map">
+        SELECT * FROM dictionary_group WHERE data_status = #{dataStatus}
+    </select>
+
+
+    <!-- group update is handled by DAO/base layer; specific selective SQL omitted because DAO uses generic mapping or overrides -->
+
+    <!-- ===== dictionary_item ===== -->
+    <resultMap id="DictionaryItemResult" type="com.soonsoft.uranus.services.dictionary.po.DictionaryItemPO">
+        <id property="id" column="id" />
+        <result property="dictGroupId" column="dict_group_id" />
+        <result property="dictGroupCode" column="dict_group_code" />
+        <result property="dictItemCode" column="dict_item_code" />
+        <result property="dictItemName" column="dict_item_name" />
+        <result property="dictItemValue" column="dict_item_value" />
+        <result property="parentItemId" column="parent_item_id" />
+        <result property="parentItemCode" column="parent_item_code" />
+        <result property="remark" column="remark" />
+        <result property="dataStatus" column="data_status" />
+        <result property="createUser" column="create_user" />
+        <result property="createTime" column="create_time" />
+        <result property="updateUser" column="update_user" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <delete id="deleteItemByCode" parameterType="map">
+        DELETE FROM dictionary_item WHERE dict_item_code = #{dictItemCode}
+    </delete>
+
+    <delete id="deleteItemByGroupId" parameterType="java.util.UUID">
+        DELETE FROM dictionary_item WHERE dict_group_id = #{p0}
+    </delete>
+
+    <select id="selectByGroupCode" resultMap="DictionaryItemResult" parameterType="map">
+        SELECT * FROM dictionary_item WHERE dict_group_code = #{dictGroupCode}
+    </select>
+
+
+    <!-- item selective update is handled by DAO/base layer; omitted here to avoid duplicate mappings -->
+
+    <update id="updateDictionaryItemsStatusByGroupId" parameterType="map">
+        UPDATE dictionary_item
+        SET data_status = #{dataStatus}, update_user = #{updateUser}, update_time = #{updateTime}
+        WHERE dict_group_id = #{groupId}
+    </update>
+
+</mapper>

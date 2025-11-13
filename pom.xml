@@ -12,7 +12,6 @@
 
     <modules>
         <module>uranus.core</module>
-        <module>uranus.configuration</module>
         <module>uranus.data</module>
         <module>uranus.web</module>
         <module>uranus.security</module>

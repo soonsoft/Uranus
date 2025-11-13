@@ -1,6 +1,8 @@
 package com.soonsoft.uranus.services.approval.exception;
 
-public class ApprovalException extends IllegalStateException {
+import com.soonsoft.uranus.core.error.ApplicationRuntimeException;
+
+public class ApprovalException extends ApplicationRuntimeException {
     
     public ApprovalException(String message) {
         super(message);

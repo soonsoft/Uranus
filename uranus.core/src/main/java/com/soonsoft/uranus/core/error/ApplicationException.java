@@ -4,7 +4,7 @@ package com.soonsoft.uranus.core.error;
  * 应用程序异常，继承自Exception
  * 用于描述应用程序错误，带有错误码
  */
-public class ApplicationException extends Exception {
+public class ApplicationException extends ApplicationRuntimeException {
 
     private String errorCode;
 
