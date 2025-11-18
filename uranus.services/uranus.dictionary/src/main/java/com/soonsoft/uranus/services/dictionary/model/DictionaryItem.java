@@ -1,6 +1,5 @@
 package com.soonsoft.uranus.services.dictionary.model;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class DictionaryItem {
@@ -15,10 +14,7 @@ public class DictionaryItem {
 	private String parentItemCode;
 	private String remark;
 	private short dataStatus = 1;
-	private String createUser;
-	private Date createTime;
-	private String updateUser;
-	private Date updateTime;
+	private OperateInfo operateInfo;
 
 	public UUID getId() {
 		return id;
@@ -99,38 +95,15 @@ public class DictionaryItem {
 	public void setDataStatus(short dataStatus) {
 		this.dataStatus = dataStatus;
 	}
-
-	public String getCreateUser() {
-		return createUser;
+	public OperateInfo getOperateInfo() {
+		return operateInfo;
 	}
 
-	public void setCreateUser(String createUser) {
-		this.createUser = createUser;
+	public void setOperateInfo(OperateInfo operateInfo) {
+		this.operateInfo = operateInfo;
 	}
 
-	public Date getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-
-	public String getUpdateUser() {
-		return updateUser;
-	}
-
-	public void setUpdateUser(String updateUser) {
-		this.updateUser = updateUser;
-	}
-
-	public Date getUpdateTime() {
-		return updateTime;
-	}
-
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
+	// no delegate accessors; use getOperateInfo()/setOperateInfo() explicitly
 
 }
 

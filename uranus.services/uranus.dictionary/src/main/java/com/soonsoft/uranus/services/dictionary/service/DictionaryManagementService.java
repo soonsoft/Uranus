@@ -14,6 +14,8 @@ import com.soonsoft.uranus.services.dictionary.dao.DictionaryGroupDAO;
 import com.soonsoft.uranus.services.dictionary.dao.DictionaryItemDAO;
 import com.soonsoft.uranus.services.dictionary.model.DictionaryGroup;
 import com.soonsoft.uranus.services.dictionary.model.DictionaryItem;
+import com.soonsoft.uranus.services.dictionary.model.DictionaryConverter;
+import com.soonsoft.uranus.services.dictionary.model.OperateInfo;
 import com.soonsoft.uranus.services.dictionary.po.DictionaryGroupPO;
 import com.soonsoft.uranus.services.dictionary.po.DictionaryItemPO;
 import com.soonsoft.uranus.services.dictionary.constant.DictionaryDataStatusEnum;
@@ -31,79 +33,7 @@ public class DictionaryManagementService {
         this.itemDAO = itemDAO;
     }
 
-    // === conversions between model and PO ===
-    private DictionaryGroupPO toPO(DictionaryGroup g) {
-        if (g == null) return null;
-        DictionaryGroupPO p = new DictionaryGroupPO();
-        p.setId(g.getId());
-        p.setDictGroupCode(g.getDictGroupCode());
-        p.setDictGroupName(g.getDictGroupName());
-        p.setDictGroupType(g.getDictGroupType());
-        p.setRemark(g.getRemark());
-        p.setDataStatus(g.getDataStatus());
-        p.setCreateUser(g.getCreateUser());
-        p.setCreateTime(g.getCreateTime());
-        p.setUpdateUser(g.getUpdateUser());
-        p.setUpdateTime(g.getUpdateTime());
-        return p;
-    }
-
-    private DictionaryGroup fromPO(DictionaryGroupPO p) {
-        if (p == null) return null;
-        DictionaryGroup g = new DictionaryGroup();
-        g.setId(p.getId());
-        g.setDictGroupCode(p.getDictGroupCode());
-        g.setDictGroupName(p.getDictGroupName());
-        g.setDictGroupType(p.getDictGroupType());
-        g.setRemark(p.getRemark());
-        g.setDataStatus(p.getDataStatus());
-        g.setCreateUser(p.getCreateUser());
-        g.setCreateTime(p.getCreateTime());
-        g.setUpdateUser(p.getUpdateUser());
-        g.setUpdateTime(p.getUpdateTime());
-        return g;
-    }
-
-    private DictionaryItemPO toPO(DictionaryItem g) {
-        if (g == null) return null;
-        DictionaryItemPO p = new DictionaryItemPO();
-        p.setId(g.getId());
-        p.setDictGroupId(g.getDictGroupId());
-        p.setDictGroupCode(g.getDictGroupCode());
-        p.setDictItemCode(g.getDictItemCode());
-        p.setDictItemName(g.getDictItemName());
-        p.setDictItemValue(g.getDictItemValue());
-        p.setParentItemId(g.getParentItemId());
-        p.setParentItemCode(g.getParentItemCode());
-        p.setRemark(g.getRemark());
-        p.setDataStatus(g.getDataStatus());
-        p.setCreateUser(g.getCreateUser());
-        p.setCreateTime(g.getCreateTime());
-        p.setUpdateUser(g.getUpdateUser());
-        p.setUpdateTime(g.getUpdateTime());
-        return p;
-    }
-
-    private DictionaryItem fromPO(DictionaryItemPO p) {
-        if (p == null) return null;
-        DictionaryItem g = new DictionaryItem();
-        g.setId(p.getId());
-        g.setDictGroupId(p.getDictGroupId());
-        g.setDictGroupCode(p.getDictGroupCode());
-        g.setDictItemCode(p.getDictItemCode());
-        g.setDictItemName(p.getDictItemName());
-        g.setDictItemValue(p.getDictItemValue());
-        g.setParentItemId(p.getParentItemId());
-        g.setParentItemCode(p.getParentItemCode());
-        g.setRemark(p.getRemark());
-        g.setDataStatus(p.getDataStatus());
-        g.setCreateUser(p.getCreateUser());
-        g.setCreateTime(p.getCreateTime());
-        g.setUpdateUser(p.getUpdateUser());
-        g.setUpdateTime(p.getUpdateTime());
-        return g;
-    }
-
+    // conversions delegated to DictionaryConverter
     // === group operations ===
 
     @Transactional
@@ -111,9 +41,10 @@ public class DictionaryManagementService {
         Guard.notNull(group, "the group is required.");
         if (group.getId() == null) group.setId(UUID.randomUUID());
         Date now = new Date();
-        if (group.getCreateTime() == null) group.setCreateTime(now);
-        group.setUpdateTime(now);
-        groupDAO.insert(toPO(group));
+        OperateInfo gOi = DictionaryConverter.ensureOperateInfo(group);
+        if (gOi.getCreateTime() == null) gOi.setCreateTime(now);
+        gOi.setUpdateTime(now);
+        groupDAO.insert(DictionaryConverter.toPO(group));
     }
 
     @Transactional
@@ -136,8 +67,8 @@ public class DictionaryManagementService {
     public void updateGroup(DictionaryGroup group) {
         Guard.notNull(group, "the group is required.");
         Guard.notNull(group.getId(), "the group.id is required.");
-        group.setUpdateTime(new Date());
-        groupDAO.updateSelective(toPO(group));
+        DictionaryConverter.ensureOperateInfo(group).setUpdateTime(new Date());
+        groupDAO.updateSelective(DictionaryConverter.toPO(group));
     }
 
     @Transactional
@@ -169,13 +100,13 @@ public class DictionaryManagementService {
     public List<DictionaryGroup> getAllGroups() {
         List<DictionaryGroupPO> list = groupDAO.selectAll();
         if (list == null) return new ArrayList<>();
-        return list.stream().map(this::fromPO).collect(Collectors.toList());
+        return list.stream().map(DictionaryConverter::fromPO).collect(Collectors.toList());
     }
 
     public List<DictionaryGroup> getEnabledGroups() {
         List<DictionaryGroupPO> list = groupDAO.selectByDataStatus((short)1);
         if (list == null) return new ArrayList<>();
-        return list.stream().map(this::fromPO).collect(Collectors.toList());
+        return list.stream().map(DictionaryConverter::fromPO).collect(Collectors.toList());
     }
 
     // === item operations ===
@@ -190,9 +121,10 @@ public class DictionaryManagementService {
         item.setDictItemCode(itemCode);
         item.setDictItemValue(itemValue);
         Date now = new Date();
-        item.setCreateTime(now);
-        item.setUpdateTime(now);
-        itemDAO.insert(toPO(item));
+        OperateInfo iOi = DictionaryConverter.ensureOperateInfo(item);
+        if (iOi.getCreateTime() == null) iOi.setCreateTime(now);
+        iOi.setUpdateTime(now);
+        itemDAO.insert(DictionaryConverter.toPO(item));
     }
 
     @Transactional
@@ -200,9 +132,10 @@ public class DictionaryManagementService {
         Guard.notNull(item, "the item is required.");
         if (item.getId() == null) item.setId(UUID.randomUUID());
         Date now = new Date();
-        if (item.getCreateTime() == null) item.setCreateTime(now);
-        item.setUpdateTime(now);
-        itemDAO.insert(toPO(item));
+        OperateInfo iOi2 = DictionaryConverter.ensureOperateInfo(item);
+        if (iOi2.getCreateTime() == null) iOi2.setCreateTime(now);
+        iOi2.setUpdateTime(now);
+        itemDAO.insert(DictionaryConverter.toPO(item));
     }
 
     @Transactional
@@ -221,8 +154,8 @@ public class DictionaryManagementService {
     public void updateItem(DictionaryItem item) {
         Guard.notNull(item, "the item is required.");
         Guard.notNull(item.getId(), "the item.id is required.");
-        item.setUpdateTime(new Date());
-        itemDAO.updateSelective(toPO(item));
+        DictionaryConverter.ensureOperateInfo(item).setUpdateTime(new Date());
+        itemDAO.updateSelective(DictionaryConverter.toPO(item));
     }
 
     @Transactional
@@ -251,7 +184,7 @@ public class DictionaryManagementService {
         Guard.notNull(groupCode, "the groupCode is required.");
         List<DictionaryItemPO> list = itemDAO.selectByGroupCode(groupCode);
         if (list == null) return new ArrayList<>();
-        return list.stream().map(this::fromPO).collect(Collectors.toList());
+        return list.stream().map(DictionaryConverter::fromPO).collect(Collectors.toList());
     }
 
 }
