@@ -8,7 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.AntPathMatcher;
 
 import com.soonsoft.uranus.core.Guard;
 import com.soonsoft.uranus.core.common.lang.StringUtils;
@@ -21,11 +22,11 @@ import com.soonsoft.uranus.security.entity.UserInfo;
 import com.soonsoft.uranus.security.entity.security.SecurityUser;
 
 public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
-    private AntPathRequestMatcher loginPasswordMatcher;
-    private AntPathRequestMatcher loginVerifyCodeCellPhoneMatcher;
-    private AntPathRequestMatcher loginVerifyCodeEmailMatcher;
-    private AntPathRequestMatcher loginTokenRefreshMatcher;
+    private RequestMatcher loginPasswordMatcher;
+    private RequestMatcher loginVerifyCodeCellPhoneMatcher;
+    private RequestMatcher loginVerifyCodeEmailMatcher;
+    private RequestMatcher loginTokenRefreshMatcher;
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final static String SECURITY_PROCESSING_TYPE = "X-URANUS-API-LOGIN-TYPE";
     private final static String LOGIN_PASSWORD_TYPE = "login-password";
@@ -53,22 +54,35 @@ public class WebAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public void setLoginPasswordUrl(String loginPasswordUrl) {
         Guard.notEmpty(loginPasswordUrl, "the arguments[loginPasswordUrl] is required.");
-        loginPasswordMatcher = new AntPathRequestMatcher(loginPasswordUrl, "POST");
+        loginPasswordMatcher = createMatcher(loginPasswordUrl, "POST");
     }
 
     public void setLoginVerifyCodeUrl(String loginVerifyCodeUrl) {
         Guard.notEmpty(loginVerifyCodeUrl, "the arguments[loginVerifyCodeUrl] is required.");
-        loginVerifyCodeCellPhoneMatcher = new AntPathRequestMatcher(loginVerifyCodeUrl, "POST");
+        loginVerifyCodeCellPhoneMatcher = createMatcher(loginVerifyCodeUrl, "POST");
     }
 
     public void setLoginVerifyCodeEmailUrl(String url) {
         Guard.notEmpty(url, "the arguments[url] is required.");
-        loginVerifyCodeEmailMatcher = new AntPathRequestMatcher(url, "POST");
+        loginVerifyCodeEmailMatcher = createMatcher(url, "POST");
     }
 
     public void setLoginTokenRefreshUrl(String loginTokenRefreshUrl) {
         Guard.notEmpty(loginTokenRefreshUrl, "the arguments[loginTokenRefreshUrl] is required.");
-        loginTokenRefreshMatcher = new AntPathRequestMatcher(loginTokenRefreshUrl);
+        loginTokenRefreshMatcher = createMatcher(loginTokenRefreshUrl, null);
+    }
+
+    private RequestMatcher createMatcher(String pattern, String httpMethod) {
+        return request -> {
+            String path = request.getRequestURI();
+            String context = request.getContextPath();
+            if (context != null && !context.isEmpty() && path.startsWith(context)) {
+                path = path.substring(context.length());
+            }
+            boolean methodOk = httpMethod == null || httpMethod.equalsIgnoreCase(request.getMethod());
+            boolean pathOk = antPathMatcher.match(pattern, path);
+            return methodOk && pathOk;
+        };
     }
 
     public void setLoginPasswordFn(Func3<String, String, IUserManager, UserInfo> fn) {

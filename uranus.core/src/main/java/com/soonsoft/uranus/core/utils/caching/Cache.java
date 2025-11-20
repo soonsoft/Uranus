@@ -11,6 +11,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.function.Consumer;
 
 import com.soonsoft.uranus.core.Guard;
+import com.soonsoft.uranus.core.functional.action.Action1;
+import com.soonsoft.uranus.core.functional.action.Action2;
 import com.soonsoft.uranus.core.utils.caching.DefaultCacheOperateListener.CacheEvent;
 
 public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
@@ -82,6 +84,24 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
     }
 
     /**
+     * 判断是否包含指定Key的缓存
+     * @param key 缓存Key
+     * @return
+     */
+    public boolean containsKey(TKey key) {
+        Guard.notNull(key, "the key is required.");
+
+        ReadLock readLock = locker.readLock();
+        readLock.lock();
+
+        try {
+            return cacheBag.containsKey(key);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
      * 设置缓存
      * @param key 缓存Key
      * @param value 缓存Value
@@ -132,6 +152,35 @@ public class Cache<TKey, TValue> extends BaseCache<TKey, TValue> {
                 CacheItem<TValue> item = createCacheItem(value);
                 cacheBag.put(key, item);
             }
+
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    /**
+     * 批量设置缓存
+     * @param action 批量设置缓存的Action
+     */
+    public void putAll(Action1<Action2<TKey, TValue>> action) {
+        Guard.notNull(action, "the action is required.");
+
+        WriteLock writeLock = locker.writeLock();
+        writeLock.lock();
+
+        try {
+            int size = cacheBag.size();
+            if(size == capacity) {
+                shrink();
+            }
+
+            action.apply((key, value) -> {
+                if(key == null) {
+                    return;
+                }
+                CacheItem<TValue> item = createCacheItem(value);
+                cacheBag.put(key, item);
+            });
 
         } finally {
             writeLock.unlock();

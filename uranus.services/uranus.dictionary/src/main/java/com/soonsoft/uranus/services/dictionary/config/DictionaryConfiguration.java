@@ -34,8 +34,9 @@ public class DictionaryConfiguration {
 	}
 
 	@Bean
-	public DictionaryManager dictionaryManager(DictionaryService dictionaryService) {
-		return new DictionaryManager(dictionaryService);
+	public DictionaryManager dictionaryManager(DictionaryService dictionaryService, 
+			DictionaryManagementService dictionaryManagementService) {
+		return new DictionaryManager(dictionaryService, dictionaryManagementService);
 	}
 
 }
