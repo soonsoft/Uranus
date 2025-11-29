@@ -13,30 +13,13 @@ import com.soonsoft.uranus.services.dictionary.service.DictionaryService;
 @Configuration
 public class DictionaryConfiguration {
 
-	@Bean
-	public DictionaryGroupDAO dictionaryGroupDAO(IDatabaseAccess<?> databaseAccess) {
-		return new DictionaryGroupDAO(databaseAccess);
-	}
-
-	@Bean
-	public DictionaryItemDAO dictionaryItemDAO(IDatabaseAccess<?> databaseAccess) {
-		return new DictionaryItemDAO(databaseAccess);
-	}
-
-	@Bean
-	public DictionaryManagementService dictionaryManagementService(DictionaryGroupDAO groupDAO, DictionaryItemDAO itemDAO) {
-		return new DictionaryManagementService(groupDAO, itemDAO);
-	}
-
-	@Bean
-	public DictionaryService dictionaryService(DictionaryGroupDAO groupDAO, DictionaryItemDAO itemDAO) {
-		return new DictionaryService(groupDAO, itemDAO);
-	}
-
-	@Bean
-	public DictionaryManager dictionaryManager(DictionaryService dictionaryService, 
-			DictionaryManagementService dictionaryManagementService) {
-		return new DictionaryManager(dictionaryService, dictionaryManagementService);
-	}
+    @Bean
+    public DictionaryManager dictionaryManager(IDatabaseAccess<?> databaseAccess) {
+        DictionaryGroupDAO groupDAO = new DictionaryGroupDAO(databaseAccess);
+        DictionaryItemDAO itemDAO = new DictionaryItemDAO(databaseAccess);
+        DictionaryService dictionaryService = new DictionaryService(groupDAO, itemDAO);
+        DictionaryManagementService dictionaryManagementService = new DictionaryManagementService(groupDAO, itemDAO);
+        return new DictionaryManager(dictionaryService, dictionaryManagementService);
+    }
 
 }
