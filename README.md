@@ -49,6 +49,7 @@ mvn clean package -Dmaven.test.skip=true
 @EnableDatabaseAccess // 启动 uranus.data 模块
 @EnableSimpleSecurity // 启动 uranus.security 模块
 @EnableMembership // 启动 uranus.membership 模块
+@EnableDictionaryManager // 启动 uranus.dictionary 模块
 public class SiteApplication {
 
     public static void main(String[] args) {
