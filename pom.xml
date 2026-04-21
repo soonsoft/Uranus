@@ -26,7 +26,7 @@
         <spring-boot.version>3.5.7</spring-boot.version>
         <spring.version>6.2.10</spring.version>
         <spring-security.version>6.5.9</spring-security.version>
-        <jackson.version>2.17.0</jackson.version>
+        <jackson.version>2.18.6</jackson.version>
     </properties>
     
 
