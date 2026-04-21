@@ -22,26 +22,31 @@ public class BeanAccessor<TObject> implements IForEach<BeanProperty<TObject, Obj
         if(instance == null) {
             throw new ArgumentNullException("instance");
         }
-        if(propertyName == null || propertyName.length() == 0) {
-            throw new ArgumentNullException("propertyName");
-        }
-        checkPropertyExists(propertyName);
-
-        BeanProperty<TObject, Object> property = propertyMap.get(propertyName);
+        BeanProperty<TObject, Object> property = getProperty(propertyName);
         return (T) property.get(instance);
+    }
+
+    public <T> T get(TObject instance, String propertyName, T defaultValue) {
+        T value = get(instance, propertyName);
+        return value == null ? defaultValue : value;
     }
 
     public void set(TObject instance, String propertyName, Object value) {
         if(instance == null) {
             throw new ArgumentNullException("instance");
         }
-        if(propertyName == null || propertyName.length() == 0) {
-            throw new ArgumentNullException("propertyName");
-        }
-        checkPropertyExists(propertyName);
-
-        BeanProperty<TObject, Object> property = propertyMap.get(propertyName);
+        BeanProperty<TObject, Object> property = getProperty(propertyName);
         property.set(instance, value);
+    }
+
+    public boolean canRead(String propertyName) {
+        BeanProperty<TObject, Object> property = getProperty(propertyName);
+        return property.canRead();
+    }
+
+    public boolean canWrite(String propertyName) {
+        BeanProperty<TObject, Object> property = getProperty(propertyName);
+        return property.canWrite();
     }
 
     @Override
@@ -69,6 +74,14 @@ public class BeanAccessor<TObject> implements IForEach<BeanProperty<TObject, Obj
             throw new ArgumentNullException("beanProperty");
         }
         propertyMap.put(beanProperty.getPropertyName(), beanProperty);
+    }
+
+    private BeanProperty<TObject, Object> getProperty(String propertyName) {
+        if(propertyName == null || propertyName.length() == 0) {
+            throw new ArgumentNullException("propertyName");
+        }
+        checkPropertyExists(propertyName);
+        return propertyMap.get(propertyName);
     }
 
     private void checkPropertyExists(String propertyName) {

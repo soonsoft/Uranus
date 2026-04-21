@@ -38,8 +38,31 @@ public class BeanProperty<TObject, TValue> {
         return (TValue) getter.call(instance);
     }
 
+    public TValue tryGet(TObject instance) {
+        if(getter == null) {
+            return null;
+        }
+        return get(instance);
+    }
+
     public void set(TObject instance, TValue value) {
         setter.apply(instance, value);
+    }
+
+    public boolean trySet(TObject instance, TValue value) {
+        if(setter == null) {
+            return false;
+        }
+        set(instance, value);
+        return true;
+    }
+
+    public boolean canRead() {
+        return getter != null;
+    }
+
+    public boolean canWrite() {
+        return setter != null;
     }
 
     public String getPropertyName() {
