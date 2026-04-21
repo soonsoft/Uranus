@@ -64,11 +64,22 @@ public class DictionaryManager {
         return groupCode + "::" + itemCode;
     }
 
+    /**
+     * Get dictionary item by group code and item code.
+     * @param groupCode
+     * @param itemCode
+     * @return DictionaryItem or null if not found.
+     */
     public DictionaryItem getDictionaryItem(String groupCode, String itemCode) {
         String key = generateCacheKey(groupCode, itemCode);
         return dictionaryCache.get(key);
     }
 
+    /**
+     * Get all dictionary items under a specific group.
+     * @param groupCode
+     * @return List of DictionaryItem, empty list if none found.
+     */
     public List<DictionaryItem> getDictionaryItemsByGroup(String groupCode) {
         DictionaryGroupIndex groupIndex = groupIndexCache.get(groupCode);
         if (groupIndex == null) {
@@ -86,6 +97,12 @@ public class DictionaryManager {
         return items;
     }
 
+    /**
+     * Check if a dictionary item exists by group code and item code.
+     * @param groupCode
+     * @param itemCode
+     * @throws DictionaryNotExistsException if the item does not exist.
+     */
     public void checkDictionaryItemExists(String groupCode, String itemCode) {
         String key = generateCacheKey(groupCode, itemCode);
         if (!dictionaryCache.containsKey(key)) {
@@ -93,6 +110,10 @@ public class DictionaryManager {
         }
     }
 
+    /**
+     * Add or update a dictionary item in the cache and persistent storage.
+     * @param item
+     */
     public void setDictionaryItem(DictionaryItem item) {
         if(item == null || item.getDictGroupCode() == null || item.getDictItemCode() == null) {
             throw new IllegalArgumentException("Dictionary item, group code, and item code must not be null.");
